@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import MenuButton from "./MenuButton";
 
 export default function Navbar() {
   const [visibility, setVisibility] = useState<boolean>(true);
@@ -25,18 +26,14 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky z-40 transition-all ease-in duration-200 bg-white h-24 ${
+      className={`flex flex-row items-center justify-between sticky z-40 transition-all ease-in duration-200 bg-white py-2 px-10 h-24 ${
         visibility ? "top-0" : "-top-32"
       }`}
     >
-      <h2 className="">Navbar</h2>
-      <button
-        onClick={() => {
-          setNumber(number + 1);
-        }}
-      >
-        click me {number}
-      </button>
+      <div className="flex flex-row space-x-5">
+        <MenuButton href="/">home</MenuButton>
+        <MenuButton href="/blog">blogs</MenuButton>
+      </div>
     </header>
   );
 }
