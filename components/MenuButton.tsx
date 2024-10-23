@@ -11,15 +11,15 @@ export default function MenuButton({ children, href, submenu }: Props) {
   const path = usePathname();
   return (
     <Link
-      className={`flex flex-row border-b text-lg ${
+      className={`flex flex-row border-b text-lg px-3 mx-2 ${
         (path.startsWith(href) && href !== "/") || path === href
           ? "border-yellow-800"
           : "border-yellow-500"
       }`}
       href={href}
     >
-      {submenu && <p className="text-gray-500 text-xs self-end mr-1">˅</p>}
       {children}
+      {submenu && <p className="text-gray-500 text-xs self-end mr-1">˅</p>}
     </Link>
   );
 }

@@ -9,8 +9,8 @@ export default function Navbar() {
 
   const menuItems = [
     { id: 1, href: "/", title: "خانه", subMenu: false },
-    { id: 2, href: "/skincare", title: "پوست", subMenu: true },
-    { id: 3, href: "/haircare", title: "مو", subMenu: false },
+    { id: 2, href: "/haircare", title: "مو", subMenu: true },
+    { id: 3, href: "/skincare", title: "پوست", subMenu: false },
   ];
   const controlNav = () => {
     if (scrollValue <= window.scrollY) {
@@ -35,14 +35,14 @@ export default function Navbar() {
         visibility ? "top-0" : "-top-32"
       }`}
     >
-      <SearchInput />
-      <div className="flex flex-row space-x-5">
+      <div className="flex flex-row">
         {menuItems.map((item) => (
           <MenuButton key={item.id} href={item.href} submenu={item.subMenu}>
             {item.title}
           </MenuButton>
         ))}
       </div>
+      <SearchInput />
     </header>
   );
 }
