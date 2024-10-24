@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function Footer() {
-  const [atBottom, setAtBottom] = useState(false);
+  const [reachedBottom, setReachedBottom] = useState(true);
 
   const socialmedia = [
     {
@@ -30,10 +30,17 @@ export default function Footer() {
   // Check if the user has scrolled to the bottom
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        setAtBottom(true);
+      console.log(
+        Math.round(window.innerHeight + window.scrollY) - 100,
+        document.body.offsetHeight
+      );
+      if (
+        Math.round(window.innerHeight + window.scrollY) + 5 >=
+        document.body.offsetHeight
+      ) {
+        setReachedBottom(false);
       } else {
-        setAtBottom(false);
+        setReachedBottom(true);
       }
     };
 
@@ -47,7 +54,7 @@ export default function Footer() {
   return (
     <footer
       className={`min-h-[20svh] bg-yellow-200 shadow-inner w-full sticky bottom-0 ${
-        atBottom ? "" : "-z-10"
+        reachedBottom ? "-z-10" : "z-10"
       }`}
     >
       <div className="grid grid-cols-1 px-10 md:grid-cols-2 md:px-20 gap-8">
