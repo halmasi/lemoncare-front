@@ -1,11 +1,7 @@
-"use client";
 import { FaInstagram, FaTelegram, FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
 export default function Footer() {
-  const [atBottom, setAtBottom] = useState(false);
-
   const socialmedia = [
     {
       id: 1,
@@ -27,29 +23,8 @@ export default function Footer() {
     },
   ];
 
-  // Check if the user has scrolled to the bottom
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        setAtBottom(true);
-      } else {
-        setAtBottom(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   return (
-    <footer
-      className={`min-h-[20svh] bg-yellow-200 shadow-inner w-full sticky bottom-0 ${
-        atBottom ? "" : "-z-10"
-      }`}
-    >
+    <footer className="min-h-[20svh] bg-yellow-200 shadow-inner w-full sticky bottom-0">
       <div className="grid grid-cols-1 px-10 md:grid-cols-2 md:px-20 gap-8">
         <h3>Footer Details</h3>
       </div>
