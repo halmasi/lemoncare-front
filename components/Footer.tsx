@@ -37,7 +37,7 @@ export default function Footer() {
           height={SvgLogo.height}
           width={SvgLogo.width}
           alt="logo"
-          className="absolute h-full object-cover -z-10 opacity-50"
+          className="absolute inset-0 h-full object-cover -z-10 opacity-50"
         />
         <div className="w-full h-fit">
           <h3>Footer Details</h3>
