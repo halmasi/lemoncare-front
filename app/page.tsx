@@ -1,8 +1,8 @@
 export default function Home() {
   return (
     <>
-      <div className="p-10 space-y-5">
-        <h1 className="text-3xl">Main Content</h1>
+      <div>
+        <h1>Main Content</h1>
         <p>
           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Numquam
           magnam unde est maiores voluptas doloribus voluptatum tempore expedita
@@ -47,5 +47,5 @@ export default function Home() {
         </p>
       </div>
     </>
-  );
+  )
 }
