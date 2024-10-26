@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <Navbar />
         <div className="flex bg-gray-50 relative z-10 justify-center">
-          <div className="min-h-svh container max-w-screen-xl p-10">
+          <div className="min-h-svh container max-w-screen-xl py-5 px-10">
             {children}
           </div>
         </div>
