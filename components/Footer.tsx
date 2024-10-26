@@ -40,27 +40,28 @@ export default function Footer() {
           className="absolute inset-0 h-full object-cover -z-10 opacity-50"
         />
         <div className="w-full h-fit">
-          <h3>Footer Details</h3>
-        </div>
-        <div className="w-full text-center justify-between">
-          <div className="flex justify-center items-center py-3">
-            {socialmedia.map(({ id, icon, link, title }) => (
-              <Link
-                key={id}
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mx-4 flex items-center justify-center"
-                aria-label={title}
-              >
-                {icon}
-              </Link>
-            ))}
-          </div>
+          <h3>Footer Details1</h3>
         </div>
         <div className="w-full">
-          <h3>Footer Details</h3>
+          <h3>Footer Details2</h3>
         </div>
+        <div className="w-full">
+          <h3>Footer Details3</h3>
+        </div>
+      </div>
+      <div className="flex justify-center items-center py-3">
+        {socialmedia.map(({ id, icon, link, title }) => (
+          <Link
+            key={id}
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-4 flex items-center justify-center"
+            aria-label={title}
+          >
+            {icon}
+          </Link>
+        ))}
       </div>
       <p className="text-center bg-gray-800/80 text-white">Copyright {year}</p>
     </footer>
