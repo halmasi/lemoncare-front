@@ -1,33 +1,33 @@
-import { FaInstagram, FaTelegram, FaWhatsapp } from "react-icons/fa";
-import Link from "next/link";
-import Image from "next/image";
+import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa'
+import Link from 'next/link'
+import Image from 'next/image'
 
-import SvgLogo from "@/public/logo.svg";
+import SvgLogo from '@/public/logo.svg'
 
 export default function Footer() {
   const socialmedia = [
     {
       id: 1,
       icon: <FaInstagram className="w-6 h-6" />,
-      link: "https://instagram.com",
-      title: "Instagram",
+      link: 'https://instagram.com',
+      title: 'Instagram',
     },
     {
       id: 2,
       icon: <FaTelegram className="w-6 h-6" />,
-      link: "https://telegram.org",
-      title: "Telegram",
+      link: 'https://telegram.org',
+      title: 'Telegram',
     },
     {
       id: 3,
       icon: <FaWhatsapp className="w-6 h-6" />,
-      link: "https://whatsapp.com",
-      title: "Whatsapp",
+      link: 'https://whatsapp.com',
+      title: 'Whatsapp',
     },
-  ];
+  ]
 
-  const date = new Date(Date.now());
-  const year = date.getFullYear();
+  const date = new Date(Date.now())
+  const year = date.getFullYear()
 
   return (
     <footer className="min-h-[20svh] bg-yellow-300 flex flex-col justify-between w-full sticky bottom-0">
@@ -64,5 +64,5 @@ export default function Footer() {
       </div>
       <p className="text-center bg-gray-800/80 text-white">Copyright {year}</p>
     </footer>
-  );
+  )
 }
