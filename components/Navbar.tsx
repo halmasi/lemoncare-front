@@ -21,6 +21,16 @@ export default function Navbar() {
   ]
 
   useEffect(() => {
+    const getMenuItems = async () => {
+      console.log(process.env.BACKEND_PATH)
+      const data = await fetch(process.env.BACKEND_PATH + '/categories')
+      return data.json()
+    }
+    const menuItems = getMenuItems()
+    console.log(menuItems)
+  })
+
+  useEffect(() => {
     const handleScroll = () => {
       setScrollData((prevState) => {
         return {
