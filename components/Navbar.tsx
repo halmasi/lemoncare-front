@@ -1,34 +1,16 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { IoCloseSharp, IoMenu } from 'react-icons/io5'
-import MenuButton from './MenuButton'
-import SearchInput from './SearchInput'
+import { ReactNode, useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { IoCloseSharp, IoMenu } from 'react-icons/io5';
+import SearchInput from './SearchInput';
+import Logo from '@/public/lemoncareLogoForHeader.png';
 
-import Logo from '@/public/lemoncareLogoForHeader.png'
-
-export default function Navbar() {
-  const [menuState, setMenustate] = useState<boolean>(false)
-  const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 })
-  const [visibility, setVisibility] = useState<boolean>(true)
-
-  const menuItems = [
-    { id: 0, href: '/', title: 'خانه', subMenu: false },
-    { id: 1, href: '/skincare', title: 'پوست', subMenu: false },
-    { id: 2, href: '/haircare', title: 'مو', subMenu: true },
-  ]
-
-  useEffect(() => {
-    const getMenuItems = async () => {
-      console.log(process.env.BACKEND_PATH)
-      const data = await fetch(process.env.BACKEND_PATH + '/categories')
-      return data.json()
-    }
-    const menuItems = getMenuItems()
-    console.log(menuItems)
-  })
+export default function Navbar({ menuItems }: { menuItems: ReactNode }) {
+  const [menuState, setMenustate] = useState<boolean>(false);
+  const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
+  const [visibility, setVisibility] = useState<boolean>(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,19 +18,19 @@ export default function Navbar() {
         return {
           y: window.scrollY,
           latestY: prevState.y,
-        }
-      })
-    }
-    window.addEventListener('scroll', handleScroll)
+        };
+      });
+    };
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
-    if (scrollData.latestY < scrollData.y) setVisibility(false)
-    else setVisibility(true)
-  }, [scrollData])
+    if (scrollData.latestY < scrollData.y) setVisibility(false);
+    else setVisibility(true);
+  }, [scrollData]);
 
   return (
     <header
@@ -85,11 +67,7 @@ export default function Navbar() {
         <div className={`w-full ${menuState ? 'flex flex-col' : 'hidden'}`}>
           <SearchInput />
           <div className="flex flex-col w-full h-[80svh] space-y-5 overflow-scroll">
-            {menuItems.map((item) => (
-              <MenuButton key={item.id} href={item.href} submenu={item.subMenu}>
-                {item.title}
-              </MenuButton>
-            ))}
+            {menuItems}
           </div>
         </div>
       </div>
@@ -104,14 +82,10 @@ export default function Navbar() {
               className="h-10 w-auto drop-shadow-lg"
             />
           </Link>
-          {menuItems.map((item) => (
-            <MenuButton key={item.id} href={item.href} submenu={item.subMenu}>
-              {item.title}
-            </MenuButton>
-          ))}
+          {menuItems}
         </div>
         <SearchInput />
       </div>
     </header>
-  )
+  );
 }
