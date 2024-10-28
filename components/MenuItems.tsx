@@ -1,31 +1,60 @@
 import MenuButton from './MenuButton';
 
-const menuItems: Props[] = [
-  { id: 0, href: '/', title: 'خانه', subMenu: false },
-  { id: 1, href: '/skincare', title: 'پوست', subMenu: false },
-  { id: 2, href: '/haircare', title: 'مو', subMenu: true },
-];
-
-interface Props {
+interface MenuBasicProps {
   id: number;
-  href: string;
+  documentId: number;
   title: string;
-  subMenu: boolean;
+  slug: string;
+  childCategories: [];
+}
+export interface MenuProps {
+  id: number;
+  documentId: number;
+  title: string;
+  slug: string;
+  childCategories: MenuBasicProps[];
+  parentCategories: object[] | [];
 }
 
-async function getMenuItems() {
-  // const menuItemsPath = process.env.BACKEND_PATH + '/categories';
-  // console.log(await fetch('https://google.com'));
-}
-
-export default function MenuItems() {
+export default async function MenuItems() {
+  const apiData = await fetch(
+    process.env.BACKEND_PATH + '/categories?populate=*'
+  );
+  const parsedData = await apiData.json();
+  const categoryItems: MenuProps[] = parsedData.data;
+  const menuItems = categoryItems.map((item) => {
+    if (item.parentCategories.length === 0) return item;
+  });
   return (
     <>
-      {menuItems.map((item) => (
-        <MenuButton key={item.id} href={item.href} submenu={item.subMenu}>
-          {item.title}
-        </MenuButton>
-      ))}
+      {menuItems.map((item) => {
+        if (item)
+          return (
+            <div className="flex flex-col group">
+              <MenuButton
+                key={item.id}
+                slug={item.slug}
+                submenu={item.childCategories}
+              >
+                {item.title}
+              </MenuButton>
+              <div className="hidden bg-white group-hover:block hover:block">
+                {item.childCategories.length > 0 && (
+                  <div className="absolute top-auto p-3">
+                    {item.childCategories.map((subItem) => (
+                      <MenuButton
+                        submenu={subItem.childCategories}
+                        slug={subItem.slug}
+                      >
+                        {subItem.title}
+                      </MenuButton>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+      })}
     </>
   );
 }
