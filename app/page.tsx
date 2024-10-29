@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className="container max-w-screen-xl">
+    <main className="container max-w-screen-xl py-5 px-10">
       <h1>متن هدر ۱</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
@@ -79,5 +79,5 @@ export default function Home() {
         officiis
       </p>
     </main>
-  )
+  );
 }
