@@ -1,27 +1,31 @@
-interface MenuBasicProps {
+interface SubMenuProps {
   id: number;
-  documentId: number;
   title: string;
-  slug: string;
-  childCategories: [];
+  url: string;
 }
+
+interface SubMenuProps {
+  id: number;
+  documentId: string;
+  name: string;
+  width: number;
+  height: number;
+  url: string;
+}
+
 export interface MenuProps {
   id: number;
-  documentId: number;
   title: string;
-  slug: string;
-  childCategories: MenuBasicProps[];
-  parentCategories: object[] | [];
+  url: string;
+  subMenu: SubMenuProps[] | [];
+  image: SubMenuProps | null;
 }
 
 export async function getMenuItems() {
   const apiData = await fetch(
-    process.env.BACKEND_PATH + '/categories?populate=*'
+    process.env.BACKEND_PATH + '/main-menu?populate[items][populate]=*'
   );
   const parsedData = await apiData.json();
-  const categoryItems: MenuProps[] = parsedData.data;
-  const menuItems = categoryItems.map((item) => {
-    if (item.parentCategories.length === 0) return item;
-  });
+  const menuItems: MenuProps[] = parsedData.data.items;
   return menuItems;
 }
