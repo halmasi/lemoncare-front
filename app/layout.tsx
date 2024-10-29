@@ -34,9 +34,7 @@ export default async function RootLayout({
       >
         <Navbar menuItems={menuItems} />
         <div className="flex bg-gray-50 relative z-10 justify-center">
-          <div className="flex min-h-svh w-full py-5 px-10 justify-center">
-            {children}
-          </div>
+          <div className="flex min-h-svh w-full justify-center">{children}</div>
         </div>
         <Footer />
       </body>
