@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { getMenuItems } from '@/utils/menu';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
