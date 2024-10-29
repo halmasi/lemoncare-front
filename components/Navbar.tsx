@@ -97,7 +97,7 @@ export default function Navbar({
                       className="flex flex-col group"
                     >
                       <MenuButton slug={item.url} submenu={item.subMenu}>
-                        {item.title}
+                        <h6 className="text-sm">{item.title}</h6>
                       </MenuButton>
                       {item.subMenu.length > 0 && (
                         <div
@@ -109,7 +109,7 @@ export default function Navbar({
                               submenu={[]}
                               slug={subItem.url}
                             >
-                              {subItem.title}
+                              <h6 className="text-sm">{subItem.title}</h6>
                             </MenuButton>
                           ))}
                         </div>
@@ -139,7 +139,7 @@ export default function Navbar({
                 return (
                   <div key={item.id} className="flex flex-col group">
                     <MenuButton slug={item.url} submenu={item.subMenu}>
-                      {item.title}
+                      <h6 className="text-sm">{item.title}</h6>
                     </MenuButton>
                     {item.subMenu.length > 0 && (
                       <div className="hidden group-hover:md:block w-full items-center justify-center">
@@ -153,7 +153,7 @@ export default function Navbar({
                                     submenu={[]}
                                     slug={subItem.url}
                                   >
-                                    {subItem.title}
+                                    <h6 className="text-sm">{subItem.title}</h6>
                                   </MenuButton>
                                 ))}
                               </div>
