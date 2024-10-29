@@ -85,6 +85,7 @@ export default function Navbar({
                 if (item)
                   return (
                     <div
+                      key={item.id}
                       onClick={() => {
                         setSubMenuHead((prev) => {
                           return {
@@ -95,21 +96,18 @@ export default function Navbar({
                       }}
                       className="flex flex-col group"
                     >
-                      <MenuButton
-                        key={item.id}
-                        slug={item.slug}
-                        submenu={item.childCategories}
-                      >
+                      <MenuButton slug={item.url} submenu={item.subMenu}>
                         {item.title}
                       </MenuButton>
-                      {item.childCategories.length > 0 && (
+                      {item.subMenu.length > 0 && (
                         <div
                           className={`bg-gray-200 rounded-lg pr-5 ${subMenuHead.title === item.title && subMenuHead.expand ? 'flex' : 'hidden'}`}
                         >
-                          {item.childCategories.map((subItem) => (
+                          {item.subMenu.map((subItem) => (
                             <MenuButton
-                              submenu={subItem.childCategories}
-                              slug={subItem.slug}
+                              key={subItem.id}
+                              submenu={[]}
+                              slug={subItem.url}
                             >
                               {subItem.title}
                             </MenuButton>
@@ -122,48 +120,63 @@ export default function Navbar({
           </div>
         </div>
       </div>
-      <div className="hidden items-end md:flex md:flex-row justify-between">
-        <div className="flex flex-row items-end w-full space-x-5">
-          <Link className="w-fit ml-5" href="/">
-            <Image
-              width={Logo.width}
-              height={Logo.height}
-              src={Logo.src}
-              alt="LemonCare Logo"
-              className="h-10 w-auto drop-shadow-lg"
-            />
-          </Link>
+      <div className="hidden items-end md:flex md:flex-row justify-between w-full">
+        <Link className="w-2/12 ml-5" href="/">
+          <Image
+            width={Logo.width}
+            height={Logo.height}
+            src={Logo.src}
+            alt="LemonCare Logo"
+            className="h-10 w-auto drop-shadow-lg"
+          />
+        </Link>
+        <div className="flex flex-row w-8/12 justify-center ">
           {menuItems &&
             menuItems.map((item) => {
               if (item)
                 return (
-                  <div className="flex flex-col group">
-                    <MenuButton
-                      key={item.id}
-                      slug={item.slug}
-                      submenu={item.childCategories}
-                    >
+                  <div key={item.id} className="flex flex-col group">
+                    <MenuButton slug={item.url} submenu={item.subMenu}>
                       {item.title}
                     </MenuButton>
-                    {item.childCategories.length > 0 && (
-                      <div className="hidden bg-white group-hover:md:block">
-                        <div className="absolute top-auto p-3">
-                          {item.childCategories.map((subItem) => (
-                            <MenuButton
-                              submenu={subItem.childCategories}
-                              slug={subItem.slug}
-                            >
-                              {subItem.title}
-                            </MenuButton>
-                          ))}
+                    {item.subMenu.length > 0 && (
+                      <div className="hidden group-hover:md:block w-full items-center justify-center">
+                        <div className="floating-menu absolute left-0 right-0 w-[80%] rounded-b-lg">
+                          <div className="flex flex-row justify-between shadow-xl bg-white rounded-b-lg p-3 mt-10">
+                            <div className="w-1/2">
+                              <div className="flex flex-col w-fit">
+                                {item.subMenu.map((subItem) => (
+                                  <MenuButton
+                                    key={subItem.id}
+                                    submenu={[]}
+                                    slug={subItem.url}
+                                  >
+                                    {subItem.title}
+                                  </MenuButton>
+                                ))}
+                              </div>
+                            </div>
+                            {item.image && (
+                              <Image
+                                src={item.image.url}
+                                priority
+                                alt={item.title + '-image'}
+                                width={item.image.width / 5}
+                                height={item.image.height / 5}
+                                className="object-contain w-1/2"
+                              />
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
                 );
-            })}{' '}
+            })}
         </div>
-        <SearchInput />
+        <div className="w-2/12">
+          <SearchInput />
+        </div>
       </div>
     </header>
   );

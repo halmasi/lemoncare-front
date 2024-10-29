@@ -21,7 +21,7 @@ export default function MenuButton({ children, slug, submenu }: Props) {
           : 'border-yellow-500 rounded-none'
       }`}
     >
-      <Link className="px-3" href={`/categories/${slug}`}>
+      <Link className="px-3" href={slug}>
         {children}
       </Link>
       {submenu && submenu.length > 0 && (

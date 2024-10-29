@@ -44,3 +44,7 @@ p {
   @apply text-base;
   line-height: 2rem;
 }
+
+.floating-menu {
+  margin-inline: auto;
+}
