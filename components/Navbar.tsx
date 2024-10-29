@@ -121,16 +121,18 @@ export default function Navbar({
         </div>
       </div>
       <div className="hidden items-end md:flex md:flex-row justify-between w-full">
-        <Link className="w-2/12 ml-5" href="/">
-          <Image
-            width={Logo.width}
-            height={Logo.height}
-            src={Logo.src}
-            alt="LemonCare Logo"
-            className="h-10 w-auto drop-shadow-lg"
-          />
-        </Link>
-        <div className="flex flex-row w-8/12 justify-center ">
+        <div className="w-2/12">
+          <Link className="w-fit inline-block" href="/">
+            <Image
+              width={Logo.width}
+              height={Logo.height}
+              src={Logo.src}
+              alt="LemonCare Logo"
+              className="h-10 w-auto drop-shadow-lg"
+            />
+          </Link>
+        </div>
+        <div className="flex flex-row w-8/12 justify-center">
           {menuItems &&
             menuItems.map((item) => {
               if (item)
