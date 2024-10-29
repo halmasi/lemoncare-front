@@ -24,7 +24,9 @@ export default async function RootLayout({
     <html lang="fa">
       <body className={`${iranFont.className} antialiased`}>
         <Navbar menuItems={menuItems} />
-        <div className="bg-zinc-200 min-h-svh z-10 relative">{children}</div>
+        <div className="flex bg-gray-50 relative z-10 justify-center">
+          <div className="flex min-h-svh w-full justify-center">{children}</div>
+        </div>
         <Footer />
       </body>
     </html>
