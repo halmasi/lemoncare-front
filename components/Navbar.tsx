@@ -97,7 +97,7 @@ export default function Navbar({
                       className="flex flex-col group"
                     >
                       <MenuButton slug={item.url} submenu={item.subMenu}>
-                        {item.title}
+                        <h6 className="text-sm">{item.title}</h6>
                       </MenuButton>
                       {item.subMenu.length > 0 && (
                         <div
@@ -109,7 +109,7 @@ export default function Navbar({
                               submenu={[]}
                               slug={subItem.url}
                             >
-                              {subItem.title}
+                              <h6 className="text-sm">{subItem.title}</h6>
                             </MenuButton>
                           ))}
                         </div>
@@ -121,23 +121,25 @@ export default function Navbar({
         </div>
       </div>
       <div className="hidden items-end md:flex md:flex-row justify-between w-full">
-        <Link className="w-2/12 ml-5" href="/">
-          <Image
-            width={Logo.width}
-            height={Logo.height}
-            src={Logo.src}
-            alt="LemonCare Logo"
-            className="h-10 w-auto drop-shadow-lg"
-          />
-        </Link>
-        <div className="flex flex-row w-8/12 justify-center ">
+        <div className="w-2/12">
+          <Link className="w-fit inline-block" href="/">
+            <Image
+              width={Logo.width}
+              height={Logo.height}
+              src={Logo.src}
+              alt="LemonCare Logo"
+              className="h-10 w-auto drop-shadow-lg"
+            />
+          </Link>
+        </div>
+        <div className="flex flex-row w-8/12 justify-center">
           {menuItems &&
             menuItems.map((item) => {
               if (item)
                 return (
                   <div key={item.id} className="flex flex-col group">
                     <MenuButton slug={item.url} submenu={item.subMenu}>
-                      {item.title}
+                      <h6 className="text-sm">{item.title}</h6>
                     </MenuButton>
                     {item.subMenu.length > 0 && (
                       <div className="hidden group-hover:md:block w-full items-center justify-center">
@@ -151,7 +153,7 @@ export default function Navbar({
                                     submenu={[]}
                                     slug={subItem.url}
                                   >
-                                    {subItem.title}
+                                    <h6 className="text-sm">{subItem.title}</h6>
                                   </MenuButton>
                                 ))}
                               </div>
