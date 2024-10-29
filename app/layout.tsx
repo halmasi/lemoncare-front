@@ -23,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang="fa">
       <body className={`${iranFont.className} antialiased`}>
-        <Navbar />
+        <Navbar menuItems={menuItems} />
         <div className="bg-zinc-200 min-h-svh z-10 relative">{children}</div>
         <Footer />
       </body>
