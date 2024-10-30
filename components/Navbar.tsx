@@ -8,6 +8,7 @@ import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
 import { MenuProps } from '@/utils/menu';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Navbar({
   menuItems,
@@ -67,7 +68,7 @@ export default function Navbar({
           ) : (
             <IoMenu onClick={() => setMenustate(true)} className="text-4xl" />
           )}
-          <Link href="/">
+          <Link onClick={() => setMenustate(false)} href="/">
             <Image
               width={Logo.width}
               height={Logo.height}
@@ -101,22 +102,48 @@ export default function Navbar({
                       }}
                       className="flex flex-col group"
                     >
-                      <MenuButton slug={item.url} submenu={item.subMenu}>
-                        <h6 className="text-sm">{item.title}</h6>
-                      </MenuButton>
-                      {item.subMenu.length > 0 && (
-                        <div
-                          className={`bg-gray-50 rounded-lg pr-5 ${subMenuHead.title === item.title && subMenuHead.expand ? 'flex' : 'hidden'}`}
+                      <div className="bg-white z-10">
+                        <MenuButton
+                          isClicked={
+                            subMenuHead.title === item.title &&
+                            subMenuHead.expand
+                          }
+                          func={() => setMenustate(false)}
+                          slug={item.url}
+                          submenu={item.subMenu}
                         >
-                          {item.subMenu.map((subItem) => (
-                            <MenuButton
-                              key={subItem.id}
-                              submenu={[]}
-                              slug={subItem.url}
-                            >
-                              <h6 className="text-sm">{subItem.title}</h6>
-                            </MenuButton>
-                          ))}
+                          <h6 className="text-sm">{item.title}</h6>
+                        </MenuButton>
+                      </div>
+                      {item.subMenu.length > 0 && (
+                        <div className="overflow-hidden">
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={
+                              subMenuHead.title === item.title &&
+                              subMenuHead.expand
+                                ? { opacity: 1, height: 'auto' }
+                                : { opacity: 0, height: 0 }
+                            }
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{
+                              duration: 0.3,
+                              ease: 'easeInOut',
+                            }}
+                          >
+                            <div className={`flex bg-gray-50 pr-5`}>
+                              {item.subMenu.map((subItem) => (
+                                <MenuButton
+                                  key={subItem.id}
+                                  func={() => setMenustate(false)}
+                                  submenu={[]}
+                                  slug={subItem.url}
+                                >
+                                  <h6 className="text-sm">{subItem.title}</h6>
+                                </MenuButton>
+                              ))}
+                            </div>
+                          </motion.div>
                         </div>
                       )}
                     </div>
@@ -142,40 +169,78 @@ export default function Navbar({
             menuItems.map((item) => {
               if (item)
                 return (
-                  <div key={item.id} className="flex flex-col group">
+                  <div
+                    onMouseOver={() => {
+                      setSubMenuHead(() => {
+                        return {
+                          title: item.title,
+                          expand: true,
+                        };
+                      });
+                    }}
+                    onMouseOut={() => {
+                      setSubMenuHead(() => {
+                        return {
+                          title: '',
+                          expand: false,
+                        };
+                      });
+                    }}
+                    key={item.id}
+                    className="flex flex-col"
+                  >
                     <MenuButton slug={item.url} submenu={item.subMenu}>
                       <h6 className="text-sm">{item.title}</h6>
                     </MenuButton>
                     {item.subMenu.length > 0 && (
-                      <div className="hidden group-hover:md:block w-full items-center justify-center">
-                        <div className="floating-menu absolute left-0 right-0 w-[80%] rounded-b-lg">
-                          <div className="flex flex-row justify-between shadow-xl bg-white rounded-b-lg p-3 mt-10">
-                            <div className="w-1/2">
-                              <div className="flex flex-col w-fit">
-                                {item.subMenu.map((subItem) => (
-                                  <MenuButton
-                                    key={subItem.id}
-                                    submenu={[]}
-                                    slug={subItem.url}
-                                  >
-                                    <h6 className="text-sm">{subItem.title}</h6>
-                                  </MenuButton>
-                                ))}
-                              </div>
-                            </div>
-                            {item.image && (
-                              <Image
-                                src={item.image.url}
-                                priority
-                                alt={item.title + '-image'}
-                                width={item.image.width / 5}
-                                height={item.image.height / 5}
-                                className="object-contain w-1/2"
-                              />
-                            )}
-                          </div>
+                      <AnimatePresence>
+                        <div className="w-full overflow-hidden">
+                          <AnimatePresence>
+                            {subMenuHead.title === item.title &&
+                              subMenuHead.expand && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 15 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 15 }}
+                                  style={{}}
+                                  transition={{
+                                    duration: 0.3,
+                                    ease: 'easeOut',
+                                  }}
+                                  className="absolute floating-menu left-0 right-0 top-24 w-[80%] bg-white rounded-b-lg"
+                                >
+                                  <div className="flex flex-row justify-between p-3 mt-14 rounded-b-lg shadow-xl">
+                                    <div className="w-1/2">
+                                      <div className="flex flex-col w-fit">
+                                        {item.subMenu.map((subItem) => (
+                                          <MenuButton
+                                            key={subItem.id}
+                                            submenu={[]}
+                                            slug={subItem.url}
+                                          >
+                                            <h6 className="text-sm">
+                                              {subItem.title}
+                                            </h6>
+                                          </MenuButton>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    {item.image && (
+                                      <Image
+                                        src={item.image.url}
+                                        priority
+                                        alt={item.title + '-image'}
+                                        width={item.image.width / 5}
+                                        height={item.image.height / 5}
+                                        className="object-contain w-1/2"
+                                      />
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                          </AnimatePresence>
                         </div>
-                      </div>
+                      </AnimatePresence>
                     )}
                   </div>
                 );
