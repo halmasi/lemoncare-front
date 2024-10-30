@@ -15,13 +15,13 @@ export default function MenuButton({ children, slug, submenu }: Props) {
 
   return (
     <div
-      className={`flex flex-row border-b items-center text-sm pb-2 mx-2 md:cursor-pointer ${
+      className={`flex w-full flex-row border-b items-center text-sm p-2 md:cursor-pointer transition-colors duration-150 md:mx-3 ${
         (path.startsWith(slug) && slug !== '/') || path === slug
-          ? 'bg-green-700 rounded-lg text-white md:border-yellow-800 md:text-black md:bg-transparent md:rounded-none'
-          : 'border-yellow-500 rounded-none'
+          ? 'bg-green-700 rounded-lg text-white md:border-green-700 md:text-black md:bg-transparent md:rounded-none'
+          : 'border-yellow-500 rounded-none hover:border-yellow-800'
       }`}
     >
-      <Link className="px-3" href={slug}>
+      <Link className="" href={slug}>
         {children}
       </Link>
       {submenu && submenu.length > 0 && (

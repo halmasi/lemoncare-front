@@ -88,9 +88,14 @@ export default function Navbar({
                       key={item.id}
                       onClick={() => {
                         setSubMenuHead((prev) => {
+                          let expand = true;
+                          if (prev.expand && prev.title === item.title)
+                            expand = false;
+                          else if (prev.expand && prev.title !== item.title)
+                            expand = true;
                           return {
                             title: item.title,
-                            expand: !prev.expand,
+                            expand,
                           };
                         });
                       }}
@@ -101,7 +106,7 @@ export default function Navbar({
                       </MenuButton>
                       {item.subMenu.length > 0 && (
                         <div
-                          className={`bg-gray-200 rounded-lg pr-5 ${subMenuHead.title === item.title && subMenuHead.expand ? 'flex' : 'hidden'}`}
+                          className={`bg-gray-50 rounded-lg pr-5 ${subMenuHead.title === item.title && subMenuHead.expand ? 'flex' : 'hidden'}`}
                         >
                           {item.subMenu.map((subItem) => (
                             <MenuButton
