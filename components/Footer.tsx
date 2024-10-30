@@ -30,16 +30,15 @@ export default async function Footer() {
           alt="logo"
           className="absolute inset-0 h-full object-cover -z-10 opacity-50"
         />
-        <div className="w-full h-fit px-2">
-          {FooterMenu.map((item) => (
-            <ul key={item.id}>
-              <li>
-                <Link href={item.url} className="text-blue-700">
-                  {item.title}
-                </Link>
+        <div className="w-full h-fit px-10">
+          لینک ها
+          <ul className="marker:text-black list-disc list-inside">
+            {FooterMenu.map((item) => (
+              <li className="hover:underline" key={item.id}>
+                <Link href={item.url}>{item.title}</Link>
               </li>
-            </ul>
-          ))}
+            ))}
+          </ul>
         </div>
         <div className="w-full">
           <h3>Footer Details2</h3>
