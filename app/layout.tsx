@@ -5,15 +5,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getMenuItems } from '@/utils/menu';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-});
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+const iranFont = localFont({
+  src: './fonts/IRAN.woff',
 });
 
 export const metadata: Metadata = {
@@ -28,15 +21,11 @@ export default async function RootLayout({
 }>) {
   const menuItems = await getMenuItems();
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="fa">
+      <body className={`${iranFont.className} antialiased`}>
         <Navbar menuItems={menuItems} />
         <div className="flex bg-gray-50 relative z-10 justify-center">
-          <div className="min-h-svh container max-w-screen-xl p-10">
-            {children}
-          </div>
+          <div className="flex min-h-svh w-full justify-center">{children}</div>
         </div>
         <Footer />
       </body>
