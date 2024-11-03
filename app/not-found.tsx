@@ -1,5 +1,5 @@
-import BacktoHomeButton from '@/components/BacktoHomeButton'
-import Link from 'next/link'
+import ColoredButton from '@/components/ColoredButton';
+import Link from 'next/link';
 
 export default function NotFound() {
   return (
@@ -10,7 +10,7 @@ export default function NotFound() {
       <p className="mb-4 text-lg max-w-md mx-auto drop-shadow-lg">
         متاسفانه صفحه‌ای که دنبال آن هستید وجود ندارد.
       </p>
-      <BacktoHomeButton href="/">بازگشت به صفحه اصلی</BacktoHomeButton>
+      <ColoredButton href="/">بازگشت به صفحه اصلی</ColoredButton>
     </div>
-  )
+  );
 }

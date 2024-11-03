@@ -9,6 +9,7 @@ import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
 import { MenuProps } from '@/utils/menu';
 import { AnimatePresence, motion } from 'framer-motion';
+import { HamburgerMenuButton } from './HamburgerMenuBotton';
 
 export default function Navbar({
   menuItems,
@@ -54,20 +55,26 @@ export default function Navbar({
         visibility || menuState ? 'top-0' : '-top-52'
       }`}
     >
-      <div
+      <motion.div
         className={`bg-white ${
-          menuState ? 'h-svh overflow-scroll' : 'h-fit'
+          menuState ? 'h-svh' : 'h-fit'
         } w-screen flex flex-col md:hidden items-center relative space-y-5 px-5`}
+        initial={{ opacity: 1, height: 'auto' }}
+        animate={menuState ? { height: 'full' } : { height: 'auto' }}
+        exit={{ height: 'auto' }}
+        transition={{
+          duration: 0.3,
+          ease: 'easeInOut',
+        }}
       >
         <div className="flex flex-row w-full items-center justify-between">
-          {menuState ? (
-            <IoCloseSharp
-              onClick={() => setMenustate(false)}
-              className="text-4xl"
-            />
-          ) : (
-            <IoMenu onClick={() => setMenustate(true)} className="text-4xl" />
-          )}
+          <HamburgerMenuButton
+            isOpen={menuState}
+            color="rgb(21 128 61)"
+            strokeWidth={4}
+            height={15}
+            onClick={() => setMenustate(!menuState)}
+          />
           <Link onClick={() => setMenustate(false)} href="/">
             <Image
               width={Logo.width}
@@ -78,7 +85,20 @@ export default function Navbar({
             />
           </Link>
         </div>
-        <div className={`w-full ${menuState ? 'flex flex-col' : 'hidden'}`}>
+        <motion.div
+          className={`w-full flex flex-col`}
+          initial={{ opacity: 0, x: 500, height: 0 }}
+          animate={
+            menuState
+              ? { opacity: 1, x: 0, height: 'auto' }
+              : { opacity: 0, x: 500, height: 0 }
+          }
+          exit={{ opacity: 0, x: 500, height: 0 }}
+          transition={{
+            duration: 0.3,
+            ease: 'easeInOut',
+          }}
+        >
           <SearchInput />
           <div className="flex flex-col w-full h-[80svh] space-y-5 overflow-scroll">
             {menuItems &&
@@ -150,8 +170,8 @@ export default function Navbar({
                   );
               })}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       <div className="hidden items-end md:flex md:flex-row justify-between w-full">
         <div className="w-2/12">
           <Link className="w-fit inline-block" href="/">
