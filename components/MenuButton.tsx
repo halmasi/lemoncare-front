@@ -47,7 +47,7 @@ export default function MenuButton({
             ease: 'easeInOut',
           }}
         >
-          <FaChevronDown className=" p-1 self-end" />
+          <FaChevronDown className=" p-1 self-end text-lg" />
         </motion.div>
       )}
     </div>
