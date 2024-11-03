@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoCloseSharp, IoMenu } from 'react-icons/io5';
 import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
@@ -55,9 +54,9 @@ export default function Navbar({
         animate={
           visibility || menuState
             ? { opacity: 1, y: 0 }
-            : { opacity: 1, y: -150 }
+            : { opacity: 1, y: '-100%' }
         }
-        exit={{ opacity: 1, y: -150 }}
+        exit={{ opacity: 1, y: '-100%' }}
         transition={{
           duration: 0.2,
           ease: 'easeIn',
@@ -66,7 +65,7 @@ export default function Navbar({
         <motion.div
           className="flex flex-col md:hidden bg-white w-full relative space-y-5 px-5"
           initial={{ opacity: 1, height: 'auto' }}
-          animate={menuState ? { height: 'full' } : { height: 'auto' }}
+          animate={menuState ? { height: '100%' } : { height: 'auto' }}
           exit={{ height: 'auto' }}
           transition={{
             duration: 0.3,
@@ -103,7 +102,7 @@ export default function Navbar({
             }
             exit={{ opacity: 0, x: 500, height: 0 }}
             transition={{
-              duration: 0.3,
+              duration: 0.2,
               ease: 'easeInOut',
             }}
           >
