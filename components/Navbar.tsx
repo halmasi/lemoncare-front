@@ -15,7 +15,7 @@ export default function Navbar({
 }: {
   menuItems?: (MenuProps | undefined)[] | undefined;
 }) {
-  const [menuState, setMenuState] = useState<boolean>(false);
+  const [menuState, setMenustate] = useState<boolean>(false);
   const [subMenuHead, setSubMenuHead] = useState<{
     title: string;
     expand: boolean;
@@ -42,21 +42,22 @@ export default function Navbar({
   }, []);
 
   useEffect(() => {
-    if (scrollData.latestY < scrollData.y) setVisibility(false);
+    if (scrollData.latestY < scrollData.y && window.scrollY > 100)
+      setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
 
   return (
-    <header className={`w-full top-0 z-20 sticky`}>
+    <header className={`sticky top-0 z-20 ${menuState ? 'fixed' : 'sticky'}`}>
       <motion.div
         className={`w-full border-t-4 border-yellow-500 justify-between shadow-lg bg-white md:px-10 py-10`}
         initial={{ opacity: 1, y: 0 }}
         animate={
           visibility || menuState
             ? { opacity: 1, y: 0 }
-            : { opacity: 1, y: '-100%' }
+            : { opacity: 1, y: -150 }
         }
-        exit={{ opacity: 1, y: '-100%' }}
+        exit={{ opacity: 0, y: -150 }}
         transition={{
           duration: 0.2,
           ease: 'easeIn',
@@ -65,7 +66,7 @@ export default function Navbar({
         <motion.div
           className="flex flex-col md:hidden bg-white w-full relative space-y-5 px-5"
           initial={{ opacity: 1, height: 'auto' }}
-          animate={menuState ? { height: '100%' } : { height: 'auto' }}
+          animate={menuState ? { height: 'full' } : { height: 'auto' }}
           exit={{ height: 'auto' }}
           transition={{
             duration: 0.3,
@@ -80,9 +81,9 @@ export default function Navbar({
               lineProps={{ strokeLinecap: 'round' }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
               height={15}
-              onClick={() => setMenuState(!menuState)}
+              onClick={() => setMenustate(!menuState)}
             />
-            <Link onClick={() => setMenuState(false)} href="/">
+            <Link onClick={() => setMenustate(false)} href="/">
               <Image
                 width={Logo.width}
                 height={Logo.height}
@@ -102,7 +103,7 @@ export default function Navbar({
             }
             exit={{ opacity: 0, x: 500, height: 0 }}
             transition={{
-              duration: 0.2,
+              duration: 0.3,
               ease: 'easeInOut',
             }}
           >
@@ -135,7 +136,7 @@ export default function Navbar({
                               subMenuHead.title === item.title &&
                               subMenuHead.expand
                             }
-                            func={() => setMenuState(false)}
+                            func={() => setMenustate(false)}
                             slug={item.url}
                             submenu={item.subMenu}
                           >
@@ -162,7 +163,7 @@ export default function Navbar({
                                 {item.subMenu.map((subItem) => (
                                   <MenuButton
                                     key={subItem.id}
-                                    func={() => setMenuState(false)}
+                                    func={() => setMenustate(false)}
                                     submenu={[]}
                                     slug={subItem.url}
                                   >
@@ -198,7 +199,6 @@ export default function Navbar({
                   return (
                     <div
                       onMouseOver={() => {
-                        setMenuState(true);
                         setSubMenuHead(() => {
                           return {
                             title: item.title,
@@ -207,7 +207,6 @@ export default function Navbar({
                         });
                       }}
                       onMouseOut={() => {
-                        setMenuState(false);
                         setSubMenuHead(() => {
                           return {
                             title: '',
