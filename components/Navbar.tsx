@@ -15,7 +15,7 @@ export default function Navbar({
 }: {
   menuItems?: (MenuProps | undefined)[] | undefined;
 }) {
-  const [menuState, setMenustate] = useState<boolean>(false);
+  const [menuState, setMenuState] = useState<boolean>(false);
   const [subMenuHead, setSubMenuHead] = useState<{
     title: string;
     expand: boolean;
@@ -42,7 +42,7 @@ export default function Navbar({
   }, []);
 
   useEffect(() => {
-    if (scrollData.latestY < scrollData.y && window.scrollY > 100)
+    if (scrollData.latestY < scrollData.y && window.scrollY > 140)
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
@@ -81,9 +81,9 @@ export default function Navbar({
               lineProps={{ strokeLinecap: 'round' }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
               height={15}
-              onClick={() => setMenustate(!menuState)}
+              onClick={() => setMenuState(!menuState)}
             />
-            <Link onClick={() => setMenustate(false)} href="/">
+            <Link onClick={() => setMenuState(false)} href="/">
               <Image
                 width={Logo.width}
                 height={Logo.height}
@@ -136,7 +136,7 @@ export default function Navbar({
                               subMenuHead.title === item.title &&
                               subMenuHead.expand
                             }
-                            func={() => setMenustate(false)}
+                            func={() => setMenuState(false)}
                             slug={item.url}
                             submenu={item.subMenu}
                           >
@@ -163,7 +163,7 @@ export default function Navbar({
                                 {item.subMenu.map((subItem) => (
                                   <MenuButton
                                     key={subItem.id}
-                                    func={() => setMenustate(false)}
+                                    func={() => setMenuState(false)}
                                     submenu={[]}
                                     slug={subItem.url}
                                   >
@@ -199,6 +199,7 @@ export default function Navbar({
                   return (
                     <div
                       onMouseOver={() => {
+                        setMenuState(true);
                         setSubMenuHead(() => {
                           return {
                             title: item.title,
@@ -207,6 +208,7 @@ export default function Navbar({
                         });
                       }}
                       onMouseOut={() => {
+                        setMenuState(false);
                         setSubMenuHead(() => {
                           return {
                             title: '',
