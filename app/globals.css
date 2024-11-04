@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'iran';
+  src: url('./fonts/IRAN.woff');
+}
+@font-face {
+  font-family: 'iranGerd';
+  src: url('./fonts/IRAN-Rounded.woff');
+}
 * {
   padding: 0;
   margin: 0;
@@ -15,34 +23,43 @@ body {
 h1 {
   font-size: 2.5rem;
   line-height: 6rem;
+  font-family: 'iranGerd';
 }
 h2 {
   font-size: 2.25rem;
   line-height: 4.5rem;
+  font-family: 'iranGerd';
 }
 h3 {
   font-size: 2rem;
   line-height: 4rem;
+  font-family: 'iranGerd';
 }
 h4 {
   font-size: 1.75rem;
   line-height: 3.5rem;
+  font-family: 'iranGerd';
 }
 h5 {
   font-size: 1.5rem;
   line-height: 3rem;
+  font-family: 'iranGerd';
 }
 h6 {
   font-size: 1.25rem;
   line-height: 2.5rem;
+  font-family: 'iranGerd';
 }
 strong {
   @apply text-lg;
   line-height: 2rem;
+  font-family: 'iran';
+  font-weight: 600;
 }
 p {
   @apply text-base;
   line-height: 2rem;
+  font-family: 'iran';
 }
 
 .floating-menu {
