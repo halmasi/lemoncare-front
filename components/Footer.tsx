@@ -54,14 +54,16 @@ export default async function Footer() {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-4 flex items-center justify-center"
+            className="mx-2 text-sm flex items-center justify-center"
             aria-label={title}
           >
             {icons[title]}
           </a>
         ))}
       </div>
-      <p className="text-center bg-gray-800/80 text-white">Copyright {year}</p>
+      <p className="text-sm gerdFont py-2 text-center bg-gray-800/80 text-white">
+        © کپی رایت {year}، تمامی حقوق متعلق به مجله لمن کر می باشد.
+      </p>
     </footer>
   );
 }
