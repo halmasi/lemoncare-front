@@ -1,6 +1,11 @@
-export default function Home() {
+import { getPosts, PostsProps } from '@/utils/getPosts';
+
+export default async function Home() {
+  const data: PostsProps[] = await getPosts();
+  // console.log(data[0].content);
   return (
     <main className="container max-w-screen-xl py-5 px-10">
+      <p>asd</p>
       <h1>متن هدر ۱</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
