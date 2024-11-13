@@ -28,8 +28,21 @@ export interface CategoriesProps {
   publishedAt: string;
   posts: PostsProps[];
 }
+
 export async function getPosts() {
-  const rawData = await fetch(`${process.env.BACKEND_PATH}/posts?populate=*`);
+  const rawData = await fetch(
+    `${process.env.BACKEND_PATH}/posts?populate[basicInfo][populate]=*&populate[seo][populate]=*`
+  );
+  const data = await rawData.json();
+  // consoltitlee.log(data.data.basicInfo);
+  const result: PostsProps[] = data.data;
+  return result;
+}
+
+export async function getPost(documentId: string) {
+  const rawData = await fetch(
+    `${process.env.BACKEND_PATH}/posts/${documentId}?populate=*`
+  );
   const data = await rawData.json();
   const result: PostsProps[] = data.data;
   return result;
