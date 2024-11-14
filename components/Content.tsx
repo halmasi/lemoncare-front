@@ -30,7 +30,11 @@ function ParagraphBuilder({
   );
 }
 
-export default function Content({ props }: { props: ContentProps }) {
+export default function Content({
+  props,
+}: {
+  props: ContentProps;
+}): JSX.Element {
   const { type, children, format, level, image } = props;
   if (type == ContentTypes.paragraph) {
     return (
@@ -61,7 +65,6 @@ export default function Content({ props }: { props: ContentProps }) {
       case 2:
         return (
           <h2>
-            {' '}
             {children.map((item, index) => (
               <ParagraphBuilder key={index} item={item} />
             ))}
@@ -70,7 +73,6 @@ export default function Content({ props }: { props: ContentProps }) {
       case 3:
         return (
           <h3>
-            {' '}
             {children.map((item, index) => (
               <ParagraphBuilder key={index} item={item} />
             ))}
@@ -79,7 +81,6 @@ export default function Content({ props }: { props: ContentProps }) {
       case 4:
         return (
           <h4>
-            {' '}
             {children.map((item, index) => (
               <ParagraphBuilder key={index} item={item} />
             ))}
@@ -88,23 +89,19 @@ export default function Content({ props }: { props: ContentProps }) {
       case 5:
         return (
           <h5>
-            {' '}
             {children.map((item, index) => (
               <ParagraphBuilder key={index} item={item} />
             ))}
           </h5>
         );
-      case 6:
+      default:
         return (
           <h6>
-            {' '}
             {children.map((item, index) => (
               <ParagraphBuilder key={index} item={item} />
             ))}
           </h6>
         );
-      default:
-        break;
     }
   else if (type == ContentTypes.image && image) {
     return (
@@ -151,13 +148,15 @@ export default function Content({ props }: { props: ContentProps }) {
       );
   else if (type == ContentTypes.quote) {
     return (
-      <p className="flex w-fit items-center">
+      <div className="flex w-fit items-center">
         <FaQuoteRight />
-        {children.map((item, index) => (
-          <ParagraphBuilder key={index} item={item} />
-        ))}
+        <p className="bg-gray-200 border-r-8 border-gray-500">
+          {children.map((item, index) => (
+            <ParagraphBuilder key={index} item={item} />
+          ))}
+        </p>
         <FaQuoteLeft />
-      </p>
+      </div>
     );
-  }
+  } else return <div></div>;
 }

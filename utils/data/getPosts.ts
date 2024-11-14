@@ -19,10 +19,10 @@ export interface PostsProps {
     contentCode: number;
   };
   view: number | null;
-  source: string[];
   gravatar?: GravatarProps;
   categoryUrl?: string;
   author: AuthorProps;
+  sources?: { id: number; sourceUrl: string; websiteName: string }[];
 }
 export interface GravatarProps {
   hash: string;
@@ -186,6 +186,7 @@ export async function getPost(slug: string) {
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      sources: { populate: '*' },
     },
   });
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
