@@ -1,3 +1,5 @@
+import { dataFetch } from './dataFetch';
+
 export interface FooteritemsProps {
   id: number;
   title: string;
@@ -11,18 +13,12 @@ export interface SocialLinksProps {
 }
 
 export async function getFooterItems() {
-  const apiData = await fetch(
-    process.env.BACKEND_PATH + '/footer-menu?populate=*'
-  );
-  const parsedData = await apiData.json();
-  const footerItems: FooteritemsProps[] = parsedData.data.item;
+  const parsedData = await dataFetch('/footer-menu?populate=*');
+  const footerItems: FooteritemsProps[] = parsedData.item;
   return footerItems;
 }
 export async function getSocialLinksItems() {
-  const apiData = await fetch(
-    process.env.BACKEND_PATH + '/social-link-menu?populate=*'
-  );
-  const parsedData = await apiData.json();
-  const socialLinksItems: SocialLinksProps[] = parsedData.data.item;
+  const parsedData = await dataFetch('/social-link-menu?populate=*');
+  const socialLinksItems: SocialLinksProps[] = parsedData.item;
   return socialLinksItems;
 }
