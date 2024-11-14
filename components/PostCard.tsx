@@ -1,4 +1,8 @@
-import { CategoriesProps, ImageProps } from '@/utils/data/getPosts';
+import {
+  CategoriesProps,
+  GravatarProps,
+  ImageProps,
+} from '@/utils/data/getPosts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -16,7 +20,7 @@ export default function PostCard({
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
   seo: { seoDescription: string };
-  gravatar: { avatar_url: string };
+  gravatar: GravatarProps;
   categoryUrl: string;
   authorName: string;
   authorSlug: string;
