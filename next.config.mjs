@@ -7,6 +7,11 @@ const nextConfig = {
         hostname: 'lemoncare.storage.c2.liara.space',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: '0.gravatar.com',
+        port: '',
+      },
     ],
   },
 };
