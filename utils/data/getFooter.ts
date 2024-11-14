@@ -1,3 +1,4 @@
+import { promises } from 'dns';
 import { dataFetch } from './dataFetch';
 
 export interface FooteritemsProps {
@@ -12,12 +13,12 @@ export interface SocialLinksProps {
   url: string;
 }
 
-export async function getFooterItems() {
+export async function getFooterItems(): Promise<FooteritemsProps[]> {
   const parsedData = await dataFetch('/footer-menu?populate=*');
   const footerItems: FooteritemsProps[] = parsedData.item;
   return footerItems;
 }
-export async function getSocialLinksItems() {
+export async function getSocialLinksItems(): Promise<SocialLinksProps[]> {
   const parsedData = await dataFetch('/social-link-menu?populate=*');
   const socialLinksItems: SocialLinksProps[] = parsedData.item;
   return socialLinksItems;

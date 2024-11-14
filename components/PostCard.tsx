@@ -1,4 +1,4 @@
-import { CategoriesProps, ImageProps } from '@/utils/getPosts';
+import { CategoriesProps, ImageProps } from '@/utils/data/getPosts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -10,12 +10,16 @@ export default function PostCard({
   basicInfo,
   seo,
   gravatar,
+  authorName,
+  authorSlug,
 }: {
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
   seo: { seoDescription: string };
   gravatar: { avatar_url: string };
   categoryUrl: string;
+  authorName: string;
+  authorSlug: string;
 }) {
   return (
     <div>
@@ -52,15 +56,27 @@ export default function PostCard({
         </div>
         <div className="p-2">
           <p>{seo.seoDescription}</p>
-          <div className="flex items-center">
+
+          <Link
+            className="flex items-center text-gray-600"
+            href={`author/${authorSlug}`}
+          >
             <Image
               src={gravatar.avatar_url}
               alt=""
               width={100}
               height={100}
-              className="w-10 aspect-square rounded-full"
+              className="w-10 aspect-square rounded-full ml-3"
             />
-          </div>
+            <p>{authorName}</p>
+          </Link>
+          <Link
+            className="flex justify-center items-center mt-3 px-3 rounded-lg transition-all text-gray-700 hover:text-green-700  bg-yellow-400 w-fit" //hover:shadow-[rgba(200,0,100,0.9)_0px_0px_5px_1px]
+            href={'/posts/' + basicInfo.contentCode}
+          >
+            <p>ادامه مطلب ...</p>
+            <IoMdArrowDropleft />
+          </Link>
         </div>
       </div>
     </div>

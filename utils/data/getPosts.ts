@@ -21,6 +21,7 @@ export interface PostsProps {
   source: string[];
   gravatar?: GravatarProps;
   categoryUrl?: string;
+  author: AuthorProps;
 }
 export interface GravatarProps {
   hash: string;
@@ -98,6 +99,19 @@ export interface ImageProps {
   url: string;
 }
 
+export interface AuthorProps {
+  id: number;
+  documentId: string;
+  name: string;
+  username: string;
+  description: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  posts: PostsProps[];
+}
+
 export async function getCategoriesUrl(
   category: CategoriesProps
 ): Promise<string> {
@@ -113,7 +127,7 @@ export async function getCategoriesUrl(
 
 export async function getPosts(count?: number) {
   let link =
-    '/posts?populate[basicInfo][populate]=*&populate[seo][populate]=*&populate[category][populate]=*';
+    '/posts?populate[basicInfo][populate]=*&populate[seo][populate]=*&populate[category][populate]=*&populate[author][populate]=1';
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }

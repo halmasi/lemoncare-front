@@ -3,7 +3,7 @@ import {
   getGravatar,
   getPosts,
   PostsProps,
-} from '@/utils/getPosts';
+} from '@/utils/data/getPosts';
 const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
 const PostCard = dynamic(() => import('@/components/PostCard'), {
   ssr: false,
@@ -20,7 +20,7 @@ export default async function Home() {
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
         {data.map(async (post: PostsProps) => {
           post.categoryUrl = await getCategoriesUrl(post.category);
-          post.gravatar = await getGravatar('h.almasi2012@gmail.com');
+          post.gravatar = await getGravatar(post.author.email);
           return (
             <PostCard
               key={post.documentId}
@@ -29,6 +29,8 @@ export default async function Home() {
               seo={post.seo}
               categoryUrl={post.categoryUrl}
               gravatar={post.gravatar}
+              authorName={post.author.name}
+              authorSlug={post.author.username}
             />
           );
         })}
