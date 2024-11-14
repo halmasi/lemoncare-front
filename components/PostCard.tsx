@@ -1,38 +1,24 @@
-import {
-  CategoriesProps,
-  getCategoriesUrl,
-  ImageProps,
-  PostsProps,
-} from '@/utils/getPosts';
+import { CategoriesProps, ImageProps } from '@/utils/getPosts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
-import { createHash } from 'crypto';
 
-export default async function PostCard({
+export default function PostCard({
   category,
+  categoryUrl,
   basicInfo,
   seo,
+  gravatar,
 }: {
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
   seo: { seoDescription: string };
+  gravatar: { avatar_url: string };
+  categoryUrl: string;
 }) {
-  const categoryUrl = await getCategoriesUrl(category);
-
-  const fetchGravatar = await fetch(
-    process.env.GRAVATAR_URI +
-      createHash('sha256').update('h.almasi2012@gmail.com').digest('hex'),
-    {
-      headers: {
-        Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-      },
-    }
-  );
-  const gravatar = await fetchGravatar.json();
   return (
-    <>
+    <div>
       <div className="flex items-center text-gray-600 text-sm">
         <p>دسته بندی</p> <IoMdArrowDropleft />
         <Link href={'/categories/' + categoryUrl}>{category.title}</Link>
@@ -77,6 +63,6 @@ export default async function PostCard({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
