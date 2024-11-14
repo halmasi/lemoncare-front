@@ -124,15 +124,28 @@ export enum ContentTypes {
 
 export interface ContentProps {
   type: ContentTypes;
-  children: {
-    text?: string;
-    type: 'text' | 'list-item';
-    children?: { text: string }[];
-  }[];
+  children: ContentChildrenProps[];
   format?: 'unordered' | 'ordered';
   level?: number;
   image?: ImageProps;
   language?: string;
+}
+export interface ContentChildrenProps {
+  text?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  url?: string;
+  type: 'text' | 'list-item' | 'link';
+  children?: {
+    text: string;
+    type: string;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strikethrough?: boolean;
+  }[];
 }
 
 export async function getCategoriesUrl(
