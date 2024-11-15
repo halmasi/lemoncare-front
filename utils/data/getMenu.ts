@@ -1,3 +1,5 @@
+import { dataFetch } from './dataFetch';
+
 interface SubMenuProps {
   id: number;
   title: string;
@@ -22,10 +24,7 @@ export interface MenuProps {
 }
 
 export async function getMenuItems() {
-  const apiData = await fetch(
-    process.env.BACKEND_PATH + '/main-menu?populate[items][populate]=*'
-  );
-  const parsedData = await apiData.json();
-  const menuItems: MenuProps[] = parsedData.data.items;
+  const parsedData = await dataFetch('/main-menu?populate[items][populate]=*');
+  const menuItems: MenuProps[] = parsedData.items;
   return menuItems;
 }
