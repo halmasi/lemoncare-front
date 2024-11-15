@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
+import qs from 'qs';
 
 export interface PostsProps {
   id: number;
@@ -7,7 +8,7 @@ export interface PostsProps {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
-  content: object[];
+  content: ContentProps[];
   category: CategoriesProps;
   tags: object[];
   seo: { id: number; seoTitle: string; seoDescription: string };
@@ -18,10 +19,10 @@ export interface PostsProps {
     contentCode: number;
   };
   view: number | null;
-  source: string[];
   gravatar?: GravatarProps;
   categoryUrl?: string;
   author: AuthorProps;
+  sources?: { id: number; sourceUrl: string; websiteName: string }[];
 }
 export interface GravatarProps {
   hash: string;
@@ -112,6 +113,41 @@ export interface AuthorProps {
   posts: PostsProps[];
 }
 
+export enum ContentTypes {
+  heading = 'heading',
+  paragraph = 'paragraph',
+  image = 'image',
+  list = 'list',
+  quote = 'quote',
+  code = 'code',
+}
+
+export interface ContentProps {
+  type: ContentTypes;
+  children: ContentChildrenProps[];
+  format?: 'unordered' | 'ordered';
+  level?: number;
+  image?: ImageProps;
+  language?: string;
+}
+export interface ContentChildrenProps {
+  text?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  url?: string;
+  type: 'text' | 'list-item' | 'link';
+  children?: {
+    text: string;
+    type: string;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strikethrough?: boolean;
+  }[];
+}
+
 export async function getCategoriesUrl(
   category: CategoriesProps
 ): Promise<string> {
@@ -126,8 +162,15 @@ export async function getCategoriesUrl(
 }
 
 export async function getPosts(count?: number) {
-  let link =
-    '/posts?populate[basicInfo][populate]=*&populate[seo][populate]=*&populate[category][populate]=*&populate[author][populate]=1';
+  const query = qs.stringify({
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  let link = '/posts?' + query;
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
@@ -135,10 +178,18 @@ export async function getPosts(count?: number) {
   return result;
 }
 
-export async function getPost(documentId: string) {
-  const result: PostsProps[] = await dataFetch(
-    `${process.env.BACKEND_PATH}/posts/${documentId}?populate=*`
-  );
+export async function getPost(slug: string) {
+  const query = qs.stringify({
+    filters: { basicInfo: { contentCode: { $eq: slug } } },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+      sources: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
 }
 

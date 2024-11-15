@@ -1,3 +1,4 @@
+import MainSection from '@/components/MainSection';
 import {
   getCategoriesUrl,
   getGravatar,
@@ -16,7 +17,7 @@ export default async function Home() {
   const data = await getPosts(3);
 
   return (
-    <main className="container max-w-screen-xl py-5 px-10">
+    <MainSection>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
         {data.map(async (post: PostsProps) => {
           post.categoryUrl = await getCategoriesUrl(post.category);
@@ -35,6 +36,6 @@ export default async function Home() {
           );
         })}
       </div>
-    </main>
+    </MainSection>
   );
 }
