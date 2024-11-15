@@ -26,7 +26,7 @@ export default function PostCard({
   authorSlug: string;
 }) {
   return (
-    <div>
+    <article>
       <div className="flex items-center text-gray-600 text-sm">
         <p>دسته بندی</p> <IoMdArrowDropleft />
         <Link href={'/categories/' + categoryUrl}>{category.title}</Link>
@@ -83,6 +83,6 @@ export default function PostCard({
           </Link>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
