@@ -74,13 +74,3 @@ export function getCategory(slug: string): Promise<CategoriesProps[]> {
     return e;
   });
 }
-
-export async function getCategories(categories: string[]) {
-  return categories.map(async (item) => {
-    const category = await getCategory(item);
-    const url = await getCategoriesUrlBySlug(item);
-    return {
-      url,
-    };
-  });
-}
