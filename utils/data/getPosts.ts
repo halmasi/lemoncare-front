@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
+import { CategoriesProps } from './getCategories';
 
 export interface PostsProps {
   id: number;
@@ -29,33 +30,6 @@ export interface GravatarProps {
   display_name: string;
   profile_url: string;
   avatar_url: string;
-}
-export interface SubCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: CategoriesProps[];
-  parentCategories: CategoriesProps[];
-}
-
-export interface CategoriesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: SubCategoryProps[];
-  parentCategories: SubCategoryProps[];
 }
 
 export interface ImageProps {
@@ -146,19 +120,6 @@ export interface ContentChildrenProps {
     underline?: boolean;
     strikethrough?: boolean;
   }[];
-}
-
-export async function getCategoriesUrl(
-  category: CategoriesProps
-): Promise<string> {
-  const result: CategoriesProps = await dataFetch(
-    `/categories/${category.documentId}?populate[parentCategories][populate]=*`
-  );
-  if (result.parentCategories.length > 0)
-    return (
-      (await getCategoriesUrl(result.parentCategories[0])) + '/' + result.slug
-    );
-  return result.slug;
 }
 
 export async function getPosts(count?: number) {
