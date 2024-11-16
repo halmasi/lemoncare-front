@@ -61,3 +61,16 @@ export async function getCategoriesUrlBySlug(slug: string): Promise<string> {
     return (await getCategoriesUrl(result.parentCategories[0])) + '/' + res;
   return res;
 }
+
+export async function getCategory(slug: string): Promise<CategoriesProps[]> {
+  const query = qs.stringify({
+    filters: { slug: { $eq: slug } },
+    populate: {
+      parentCategories: { populate: '*' },
+    },
+  });
+
+  return await dataFetch(`/categories?${query}`).then((e) => {
+    return e;
+  });
+}
