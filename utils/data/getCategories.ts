@@ -67,10 +67,9 @@ export async function getCategory(slug: string): Promise<CategoriesProps[]> {
     filters: { slug: { $eq: slug } },
     populate: {
       parentCategories: { populate: '*' },
+      childCategories: { populate: '*' },
     },
   });
 
-  return await dataFetch(`/categories?${query}`).then((e) => {
-    return e;
-  });
+  return await dataFetch(`/categories?${query}`);
 }
