@@ -1,10 +1,5 @@
-import MainSection from '@/components/MainSection';
-import {
-  getCategoriesUrl,
-  getGravatar,
-  getPosts,
-  PostsProps,
-} from '@/utils/data/getPosts';
+import { getCategoriesUrl } from '@/utils/data/getCategories';
+import { getGravatar, getPosts, PostsProps } from '@/utils/data/getPosts';
 const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
 const PostCard = dynamic(() => import('@/components/PostCard'), {
   ssr: false,

@@ -1,15 +1,30 @@
 import Content from '@/components/Content';
 import MainSection from '@/components/MainSection';
 import { ContentProps, getPost } from '@/utils/data/getPosts';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import Image from 'next/image';
-
+import { LuCalendarClock } from 'react-icons/lu';
 export default async function page({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const data = await getPost(slug);
   const post = data[0];
   const contents: ContentProps[] = post.content;
+  const publishDate = new Date(post.createdAt);
   return (
     <MainSection>
+      <div className="flex flex-col md:flex-row w-full justify-center md:justify-between">
+        <Breadcrumbs post={post} />
+        <hr className="md:hidden w-full" />
+        <p className="flex flex-row items-center">
+          تاریخ انتشار
+          <LuCalendarClock className="ml-3" />
+          {publishDate.toLocaleString('fa-IR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </p>
+      </div>
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
       <Image
         className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"

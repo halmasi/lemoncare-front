@@ -1,8 +1,5 @@
-import {
-  CategoriesProps,
-  GravatarProps,
-  ImageProps,
-} from '@/utils/data/getPosts';
+import { CategoriesProps } from '@/utils/data/getCategories';
+import { GravatarProps, ImageProps } from '@/utils/data/getPosts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
