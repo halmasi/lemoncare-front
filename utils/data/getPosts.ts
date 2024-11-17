@@ -167,6 +167,30 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
   return gravatar;
 };
 
+export async function getPostsByCategory(category: CategoriesProps) {
+  const subCategories =
+    category.childCategories.length > 0 ? category.childCategories : [];
+  const slugs = [{ slug: { $eq: category.slug } }];
+  subCategories.map((item) => slugs.push({ slug: { $eq: item.slug } }));
+  const query = qs.stringify({
+    filters: {
+      category: {
+        $or: slugs,
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`
+  );
+  return result;
+}
+
 // export async function getPostsByCategory(category: string) {
 //   const rawData = await fetch(
 //     `${process.env.BACKEND_PATH}/categories/${category}?populate[posts][populate]=*`,
