@@ -1,83 +1,36 @@
-export default function Home() {
+import { getCategoriesUrl } from '@/utils/data/getCategories';
+import { getGravatar, getPosts, PostsProps } from '@/utils/data/getPosts';
+const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
+const PostCard = dynamic(() => import('@/components/PostCard'), {
+  ssr: false,
+  loading: () => <PostsSkeleton />,
+});
+
+import dynamic from 'next/dynamic';
+
+export default async function Home() {
+  const data = await getPosts(3);
+
   return (
-    <main className="container max-w-screen-xl py-5 px-10">
-      <h1>متن هدر ۱</h1>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-        facilis ipsum iusto iste pariatur, quos obcaecati consectetur assumenda
-        eum quia necessitatibus omnis commodi soluta, recusandae, voluptates a
-        modi magni! Id.
-      </p>
-      <h2>متن هدر ۲</h2>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-        facilis ipsum iusto iste pariatur, quos obcaecati consectetur assumenda
-        eum quia necessitatibus omnis commodi soluta, recusandae, voluptates a
-        modi magni! Id.
-      </p>
-      <h3>متن هدر ۳</h3>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-        facilis ipsum iusto iste pariatur, quos obcaecati consectetur assumenda
-        eum quia necessitatibus omnis commodi soluta, recusandae, voluptates a
-        modi magni! Id.
-      </p>
-      <h4>متن هدر ۴</h4>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-        facilis ipsum iusto iste pariatur, quos obcaecati consectetur assumenda
-        eum quia necessitatibus omnis commodi soluta, recusandae, voluptates a
-        modi magni! Id.
-      </p>
-      <h5>متن هدر ۵</h5>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-        facilis ipsum iusto iste pariatur, quos obcaecati consectetur assumenda
-        eum quia necessitatibus omnis commodi soluta, recusandae, voluptates a
-        modi magni! Id.
-      </p>
-      <h6>متن هدر ۶</h6>
-      <p>
-        <strong>Lorem ipsum dolor sit,</strong> amet consectetur adipisicing
-        elit. Numquam magnam unde est maiores voluptas doloribus voluptatum
-        tempore expedita optio a cumque provident officia odit ea recusandae eum
-        quibusdam, maxime cupiditate. Numquam eveniet voluptatum voluptas
-        facilis consectetur, illo nulla cupiditate beatae perferendis, officiis
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Numquam magnam
-        unde est maiores voluptas doloribus voluptatum tempore expedita optio a
-        cumque provident officia odit ea recusandae eum quibusdam, maxime
-        cupiditate. Numquam eveniet voluptatum voluptas facilis consectetur,
-        illo nulla cupiditate beatae perferendis, officiis Lorem ipsum dolor
-        sit, amet consectetur adipisicing elit. Numquam magnam unde est maiores
-        voluptas doloribus voluptatum tempore expedita optio a cumque provident
-        officia odit ea recusandae eum quibusdam, maxime cupiditate. Numquam
-        eveniet voluptatum voluptas facilis consectetur, illo nulla cupiditate
-        beatae perferendis, officiis Lorem ipsum dolor sit, amet consectetur
-        adipisicing elit. Numquam magnam unde est maiores voluptas doloribus
-        voluptatum tempore expedita optio a cumque provident officia odit ea
-        recusandae eum quibusdam, maxime cupiditate. Numquam eveniet voluptatum
-        voluptas facilis consectetur, illo nulla cupiditate beatae perferendis,
-        officiis Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-        Numquam magnam unde est maiores voluptas doloribus voluptatum tempore
-        expedita optio a cumque provident officia odit ea recusandae eum
-        quibusdam, maxime cupiditate. Numquam eveniet voluptatum voluptas
-        facilis consectetur, illo nulla cupiditate beatae perferendis, officiis
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Numquam magnam
-        unde est maiores voluptas doloribus voluptatum tempore expedita optio a
-        cumque provident officia odit ea recusandae eum quibusdam, maxime
-        cupiditate. Numquam eveniet voluptatum voluptas facilis consectetur,
-        illo nulla cupiditate beatae perferendis, officiis Lorem ipsum dolor
-        sit, amet consectetur adipisicing elit. Numquam magnam unde est maiores
-        voluptas doloribus voluptatum tempore expedita optio a cumque provident
-        officia odit ea recusandae eum quibusdam, maxime cupiditate. Numquam
-        eveniet voluptatum voluptas facilis consectetur, illo nulla cupiditate
-        beatae perferendis, officiis Lorem ipsum dolor sit, amet consectetur
-        adipisicing elit. Numquam magnam unde est maiores voluptas doloribus
-        voluptatum tempore expedita optio a cumque provident officia odit ea
-        recusandae eum quibusdam, maxime cupiditate. Numquam eveniet voluptatum
-        voluptas facilis consectetur, illo nulla cupiditate beatae perferendis,
-        officiis
-      </p>
+    <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
+        {data.map(async (post: PostsProps) => {
+          post.categoryUrl = await getCategoriesUrl(post.category);
+          post.gravatar = await getGravatar(post.author.email);
+          return (
+            <PostCard
+              key={post.documentId}
+              basicInfo={post.basicInfo}
+              category={post.category}
+              seo={post.seo}
+              categoryUrl={post.categoryUrl}
+              gravatar={post.gravatar}
+              authorName={post.author.name}
+              authorSlug={post.author.username}
+            />
+          );
+        })}
+      </div>
     </main>
   );
 }
