@@ -1,4 +1,3 @@
-import { promises } from 'dns';
 import { dataFetch } from './dataFetch';
 
 export interface FooteritemsProps {

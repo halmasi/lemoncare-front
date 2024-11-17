@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
+import qs from 'qs';
+import { CategoriesProps } from './getCategories';
 
 export interface PostsProps {
   id: number;
@@ -7,7 +9,7 @@ export interface PostsProps {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
-  content: object[];
+  content: ContentProps[];
   category: CategoriesProps;
   tags: object[];
   seo: { id: number; seoTitle: string; seoDescription: string };
@@ -18,43 +20,16 @@ export interface PostsProps {
     contentCode: number;
   };
   view: number | null;
-  source: string[];
   gravatar?: GravatarProps;
   categoryUrl?: string;
   author: AuthorProps;
+  sources?: { id: number; sourceUrl: string; websiteName: string }[];
 }
 export interface GravatarProps {
   hash: string;
   display_name: string;
   profile_url: string;
   avatar_url: string;
-}
-export interface SubCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: CategoriesProps[];
-  parentCategories: CategoriesProps[];
-}
-
-export interface CategoriesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: SubCategoryProps[];
-  parentCategories: SubCategoryProps[];
 }
 
 export interface ImageProps {
@@ -112,22 +87,51 @@ export interface AuthorProps {
   posts: PostsProps[];
 }
 
-export async function getCategoriesUrl(
-  category: CategoriesProps
-): Promise<string> {
-  const result: CategoriesProps = await dataFetch(
-    `/categories/${category.documentId}?populate[parentCategories][populate]=*`
-  );
-  if (result.parentCategories.length > 0)
-    return (
-      (await getCategoriesUrl(result.parentCategories[0])) + '/' + result.slug
-    );
-  return result.slug;
+export enum ContentTypes {
+  heading = 'heading',
+  paragraph = 'paragraph',
+  image = 'image',
+  list = 'list',
+  quote = 'quote',
+  code = 'code',
+}
+
+export interface ContentProps {
+  type: ContentTypes;
+  children: ContentChildrenProps[];
+  format?: 'unordered' | 'ordered';
+  level?: number;
+  image?: ImageProps;
+  language?: string;
+}
+export interface ContentChildrenProps {
+  text?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  url?: string;
+  type: 'text' | 'list-item' | 'link';
+  children?: {
+    text: string;
+    type: string;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strikethrough?: boolean;
+  }[];
 }
 
 export async function getPosts(count?: number) {
-  let link =
-    '/posts?populate[basicInfo][populate]=*&populate[seo][populate]=*&populate[category][populate]=*&populate[author][populate]=1';
+  const query = qs.stringify({
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  let link = '/posts?' + query;
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
@@ -135,10 +139,18 @@ export async function getPosts(count?: number) {
   return result;
 }
 
-export async function getPost(documentId: string) {
-  const result: PostsProps[] = await dataFetch(
-    `${process.env.BACKEND_PATH}/posts/${documentId}?populate=*`
-  );
+export async function getPost(slug: string) {
+  const query = qs.stringify({
+    filters: { basicInfo: { contentCode: { $eq: slug } } },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+      sources: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
 }
 
@@ -154,6 +166,30 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
   const gravatar: GravatarProps = await data.json();
   return gravatar;
 };
+
+export async function getPostsByCategory(category: CategoriesProps) {
+  const subCategories =
+    category.childCategories.length > 0 ? category.childCategories : [];
+  const slugs = [{ slug: { $eq: category.slug } }];
+  subCategories.map((item) => slugs.push({ slug: { $eq: item.slug } }));
+  const query = qs.stringify({
+    filters: {
+      category: {
+        $or: slugs,
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`
+  );
+  return result;
+}
 
 // export async function getPostsByCategory(category: string) {
 //   const rawData = await fetch(

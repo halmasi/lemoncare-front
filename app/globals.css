@@ -72,3 +72,7 @@ p {
 .iranFont {
   font-family: 'iran';
 }
+
+.codeSection {
+  direction: ltr;
+}

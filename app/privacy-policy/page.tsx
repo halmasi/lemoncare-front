@@ -1,3 +1,4 @@
+import MainSection from '@/components/MainSection';
 import React from 'react';
 
 export default async function privacypolicy() {
@@ -7,7 +8,7 @@ export default async function privacypolicy() {
   const parsedData = await apiData.json();
   const privacyItems = parsedData.data[0].content;
   return (
-    <main className="container max-w-screen-xl py-5 px-10">
+    <MainSection>
       {privacyItems.map((e: any) => {
         if (e.type == 'heading' && e.children[0].bold)
           return <h1 key={e.indexOf}>{e.children[0].text}</h1>;
@@ -15,6 +16,6 @@ export default async function privacypolicy() {
           return <h5 key={e.indexOf}>{e.children[0].text}</h5>;
         return <p key={e.indexOf}>{e.children[0].text}</p>;
       })}
-    </main>
+    </MainSection>
   );
 }
