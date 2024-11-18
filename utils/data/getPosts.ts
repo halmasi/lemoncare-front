@@ -175,6 +175,7 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
 async function getChildrenCategory(
   category: SubCategoryProps[]
 ): Promise<CategoriesProps[]> {
+  let temp: CategoriesProps | CategoriesProps[];
   const result = Promise.all(
     category.map(async (item) => {
       const res = await getCategory(item.slug);
@@ -183,11 +184,10 @@ async function getChildrenCategory(
       res.forEach(async (e) => {
         if (e.childCategories.length) {
           (await getChildrenCategory(e.childCategories)).map((i) => {
-            Object.assign({ final, i });
+            // result.push(i);
           });
         }
       });
-
       return final;
     })
   );
@@ -200,7 +200,6 @@ export async function getPostsByCategory(category: CategoriesProps) {
       ? await getChildrenCategory(category.childCategories)
       : [];
   const slugs = [{ slug: { $eq: category.slug } }];
-  // console.log(category.slug);
   subCategories.forEach((e) => {
     console.log(e.slug);
     slugs.push({ slug: { $eq: e.slug } });
