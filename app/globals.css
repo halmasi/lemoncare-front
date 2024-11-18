@@ -65,3 +65,14 @@ p {
 .floating-menu {
   margin-inline: auto;
 }
+
+.gerdFont {
+  font-family: 'iranGerd';
+}
+.iranFont {
+  font-family: 'iran';
+}
+
+.codeSection {
+  direction: ltr;
+}

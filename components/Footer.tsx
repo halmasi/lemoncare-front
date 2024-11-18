@@ -2,14 +2,15 @@ import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import SvgLogo from '@/public/logo.svg';
-import {
-  FooteritemsProps,
-  getFooterItems,
-  getSocialLinksItems,
-  SocialLinksProps,
-} from '@/utils/footer';
+import { FooteritemsProps, SocialLinksProps } from '@/utils/data/getFooter';
 
-export default async function Footer() {
+export default function Footer({
+  FooterMenu,
+  SocialLinks,
+}: {
+  FooterMenu: FooteritemsProps[];
+  SocialLinks: SocialLinksProps[];
+}) {
   const icons = {
     Instagram: <FaInstagram className="w-6 h-6" />,
     Telegram: <FaTelegram className="w-6 h-6" />,
@@ -17,8 +18,6 @@ export default async function Footer() {
   };
   const date = new Date(Date.now());
   const year = date.getFullYear();
-  const FooterMenu: FooteritemsProps[] = await getFooterItems();
-  const SocialLinks: SocialLinksProps[] = await getSocialLinksItems();
 
   return (
     <footer className="min-h-[20svh] bg-yellow-300 flex flex-col justify-between w-full sticky bottom-0">
@@ -54,14 +53,16 @@ export default async function Footer() {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-4 flex items-center justify-center"
+            className="mx-2 text-sm flex items-center justify-center"
             aria-label={title}
           >
             {icons[title]}
           </a>
         ))}
       </div>
-      <p className="text-center bg-gray-800/80 text-white">Copyright {year}</p>
+      <p className="text-sm gerdFont py-2 text-center bg-gray-800/80 text-white">
+        © کپی رایت {year}، تمامی حقوق متعلق به مجله لمن کر می باشد.
+      </p>
     </footer>
   );
 }
