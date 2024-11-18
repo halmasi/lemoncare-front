@@ -48,21 +48,10 @@ export default function Navbar({
   }, [scrollData]);
 
   return (
-    <header className={`sticky top-0 z-20 ${menuState ? 'fixed' : 'sticky'}`}>
-      <motion.div
-        className={`w-full border-t-4 border-yellow-500 justify-between shadow-lg bg-white md:px-10 py-10`}
-        initial={{ opacity: 1, y: 0 }}
-        animate={
-          visibility || menuState
-            ? { opacity: 1, y: 0 }
-            : { opacity: 1, y: -150 }
-        }
-        exit={{ opacity: 0, y: -150 }}
-        transition={{
-          duration: 0.2,
-          ease: 'easeIn',
-        }}
-      >
+    <header
+      className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility ? 'top-0' : '-top-44'}`}
+    >
+      <div className="w-full border-t-4 border-yellow-500 justify-between shadow-lg bg-white md:px-10 py-10">
         <motion.div
           className="flex flex-col md:hidden bg-white w-full relative space-y-5 px-5"
           initial={{ opacity: 1, height: 'auto' }}
@@ -280,7 +269,7 @@ export default function Navbar({
             <SearchInput />
           </div>
         </div>
-      </motion.div>
+      </div>
     </header>
   );
 }
