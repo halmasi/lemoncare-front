@@ -175,14 +175,16 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
 async function getChildrenCategory(
   category: SubCategoryProps[]
 ): Promise<CategoriesProps[]> {
-  const res = category.map(async (item) => {
-    const res = await getCategory(item.slug);
-    res.map(async (e) => {
-      if (e.childCategories.length)
-        await getChildrenCategory(e.childCategories);
-    });
-    return res[0];
-  });
+  const res = Promise.all(
+    category.map(async (item) => {
+      const res = await getCategory(item.slug);
+      res.map(async (e) => {
+        if (e.childCategories.length)
+          await getChildrenCategory(e.childCategories);
+      });
+      return res[0];
+    })
+  );
   return res;
 }
 
