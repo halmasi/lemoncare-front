@@ -1,7 +1,12 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
-import { CategoriesProps } from './getCategories';
+import {
+  CategoriesProps,
+  getCategory,
+  SubCategoryProps,
+} from './getCategories';
+import { constants } from 'node:perf_hooks';
 
 export interface PostsProps {
   id: number;
@@ -167,11 +172,29 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
   return gravatar;
 };
 
+async function getChildrenCategory(
+  category: SubCategoryProps[]
+): Promise<CategoriesProps[]> {
+  const res = category.map(async (item) => {
+    const res = await getCategory(item.slug);
+    res.map(async (e) => {
+      if (e.childCategories.length)
+        await getChildrenCategory(e.childCategories);
+    });
+    return res[0];
+  });
+  return res;
+}
+
 export async function getPostsByCategory(category: CategoriesProps) {
-  const subCategories =
-    category.childCategories.length > 0 ? category.childCategories : [];
+  const subCategories: SubCategoryProps[] | [] =
+    category.childCategories.length > 0
+      ? await getChildrenCategory(category.childCategories)
+      : [];
   const slugs = [{ slug: { $eq: category.slug } }];
-  subCategories.map((item) => slugs.push({ slug: { $eq: item.slug } }));
+  subCategories.forEach((e) => {
+    slugs.push({ slug: { $eq: e.slug } });
+  });
   const query = qs.stringify({
     filters: {
       category: {
