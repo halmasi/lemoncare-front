@@ -30,6 +30,10 @@ export default async function RootLayout({
   const SocialLinks: SocialLinksProps[] = await getSocialLinksItems();
   return (
     <html lang="fa">
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1"
+      />
       <body className={`${iranFont.className} antialiased`}>
         <Navbar menuItems={menuItems} />
         <div className="flex bg-gray-50 relative z-10 justify-center">
