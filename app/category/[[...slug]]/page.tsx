@@ -28,7 +28,7 @@ export default async function Category({
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
         {posts.map(async (post: PostsProps) => {
-          post.categoryUrl = await getCategoriesUrl(category[0]);
+          post.categoryUrl = await getCategoriesUrl(post.category);
           post.gravatar = await getGravatar(post.author.email);
           return (
             <PostCard
