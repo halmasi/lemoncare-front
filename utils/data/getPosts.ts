@@ -6,6 +6,7 @@ import {
   getCategory,
   SubCategoryProps,
 } from './getCategories';
+import { constants } from 'node:perf_hooks';
 
 export interface PostsProps {
   id: number;
@@ -170,9 +171,9 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
   const gravatar: GravatarProps = await data.json();
   return gravatar;
 };
-
-async function getChildrenCategory(
-  category: SubCategoryProps[]
+async function getCategoryHierarchy(
+  category: SubCategoryProps[],
+  direction: 'childCategories' | 'parentCategories'
 ): Promise<CategoriesProps[]> {
   const allCategories: CategoriesProps[] = [];
 
@@ -185,9 +186,12 @@ async function getChildrenCategory(
 
   for (const e of result) {
     allCategories.push(e);
-    if (e.childCategories && e.childCategories.length > 0) {
-      const childCategories = await getChildrenCategory(e.childCategories);
-      allCategories.push(...childCategories);
+    if (e[direction] && e[direction].length > 0) {
+      const fetchedCategories = await getCategoryHierarchy(
+        e[direction],
+        direction
+      );
+      allCategories.push(...fetchedCategories);
     }
   }
 
@@ -197,7 +201,7 @@ async function getChildrenCategory(
 export async function getPostsByCategory(category: CategoriesProps) {
   const subCategories: SubCategoryProps[] | [] =
     category.childCategories.length > 0
-      ? await getChildrenCategory(category.childCategories)
+      ? await getCategoryHierarchy(category.childCategories, 'childCategories')
       : [];
   const slugs = [{ slug: { $eq: category.slug } }];
   subCategories.forEach((e) => {
@@ -221,3 +225,16 @@ export async function getPostsByCategory(category: CategoriesProps) {
   );
   return result;
 }
+
+// export async function getPostsByCategory(category: string) {
+//   const rawData = await fetch(
+//     `${process.env.BACKEND_PATH}/categories/${category}?populate[posts][populate]=*`,
+//     {}
+//   );
+//   const data = await rawData.json();
+//   const result: PostsProps[] = data.data.map((item: CategoriesProps) => {
+//     if (item.posts !== undefined && item.posts.length >= 1) return item.posts;
+//   });
+
+//   return result;
+// }
