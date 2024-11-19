@@ -6,7 +6,6 @@ import {
   getCategory,
   SubCategoryProps,
 } from './getCategories';
-import { constants } from 'node:perf_hooks';
 
 export interface PostsProps {
   id: number;
@@ -186,7 +185,6 @@ async function getChildrenCategory(
 
   for (const e of result) {
     allCategories.push(e);
-
     if (e.childCategories && e.childCategories.length > 0) {
       const childCategories = await getChildrenCategory(e.childCategories);
       allCategories.push(...childCategories);
@@ -223,16 +221,3 @@ export async function getPostsByCategory(category: CategoriesProps) {
   );
   return result;
 }
-
-// export async function getPostsByCategory(category: string) {
-//   const rawData = await fetch(
-//     `${process.env.BACKEND_PATH}/categories/${category}?populate[posts][populate]=*`,
-//     {}
-//   );
-//   const data = await rawData.json();
-//   const result: PostsProps[] = data.data.map((item: CategoriesProps) => {
-//     if (item.posts !== undefined && item.posts.length >= 1) return item.posts;
-//   });
-
-//   return result;
-// }
