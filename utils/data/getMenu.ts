@@ -24,7 +24,9 @@ export interface MenuProps {
 }
 
 export async function getMenuItems() {
-  const parsedData = await dataFetch('/main-menu?populate[items][populate]=*');
+  const parsedData = await dataFetch('/main-menu?populate[items][populate]=*', [
+    'main-menu',
+  ]);
   const menuItems: MenuProps[] = parsedData.items;
   return menuItems;
 }

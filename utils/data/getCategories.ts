@@ -31,7 +31,8 @@ export interface CategoriesProps {
 }
 
 export async function getCategoriesUrl(
-  category: CategoriesProps
+  category: CategoriesProps,
+  tag?: string[]
 ): Promise<string> {
   const query = qs.stringify({
     filters: { slug: { $eq: category.slug } },
@@ -39,30 +40,40 @@ export async function getCategoriesUrl(
       parentCategories: { populate: '*' },
     },
   });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`);
+  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
   const result = data[0];
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
-    return (await getCategoriesUrl(result.parentCategories[0])) + '/' + res;
+    return (
+      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+    );
   return res;
 }
 
-export async function getCategoriesUrlBySlug(slug: string): Promise<string> {
+export async function getCategoriesUrlBySlug(
+  slug: string,
+  tag?: string[]
+): Promise<string> {
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
       parentCategories: { populate: '*' },
     },
   });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`);
+  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
   const result = data[0];
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
-    return (await getCategoriesUrl(result.parentCategories[0])) + '/' + res;
+    return (
+      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+    );
   return res;
 }
 
-export async function getCategory(slug: string): Promise<CategoriesProps[]> {
+export async function getCategory(
+  slug: string,
+  tag?: string[]
+): Promise<CategoriesProps[]> {
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
@@ -71,5 +82,5 @@ export async function getCategory(slug: string): Promise<CategoriesProps[]> {
     },
   });
 
-  return await dataFetch(`/categories?${query}`);
+  return await dataFetch(`/categories?${query}`, tag);
 }

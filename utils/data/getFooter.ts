@@ -13,12 +13,16 @@ export interface SocialLinksProps {
 }
 
 export async function getFooterItems(): Promise<FooteritemsProps[]> {
-  const parsedData = await dataFetch('/footer-menu?populate=*');
+  const parsedData = await dataFetch('/footer-menu?populate=*', [
+    'footer-menu',
+  ]);
   const footerItems: FooteritemsProps[] = parsedData.item;
   return footerItems;
 }
 export async function getSocialLinksItems(): Promise<SocialLinksProps[]> {
-  const parsedData = await dataFetch('/social-link-menu?populate=*');
+  const parsedData = await dataFetch('/social-link-menu?populate=*', [
+    'social-links',
+  ]);
   const socialLinksItems: SocialLinksProps[] = parsedData.item;
   return socialLinksItems;
 }
