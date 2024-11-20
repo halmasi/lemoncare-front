@@ -1,16 +1,19 @@
-import BacktoHomeButton from '@/components/BacktoHomeButton'
-import Link from 'next/link'
-
+import ColoredButton from '@/components/ColoredButton';
+import NotFoundImage from '/public/notfound.svg';
+import Image from 'next/image';
 export default function NotFound() {
   return (
-    <div className="flex flex-col pt-20 w-full h-screen items-center bg-gradient-to-br from-yellow-500 via-gray-400 to-pink-400 text-center text-white">
-      <h1 className="text-4xl font-bold  mb-6 drop-shadow-lg">
-        صفحه‌ای یافت نشد!
-      </h1>
-      <p className="mb-4 text-lg max-w-md mx-auto drop-shadow-lg">
-        متاسفانه صفحه‌ای که دنبال آن هستید وجود ندارد.
-      </p>
-      <BacktoHomeButton href="/">بازگشت به صفحه اصلی</BacktoHomeButton>
+    <div className="flex flex-col pt-20 w-full min-h-screen items-center bg-gradient-to-br from-yellow-500 via-gray-400 to-pink-400 text-center text-white py-10">
+      <Image
+        className="w-56"
+        src={NotFoundImage.src}
+        width={NotFoundImage.width}
+        height={NotFoundImage.height}
+        alt="Not Found"
+      />
+      <h1>صفحه‌ای یافت نشد!</h1>
+      <p>متاسفانه صفحه‌ای که دنبال آن هستید وجود ندارد.</p>
+      <ColoredButton href="/">بازگشت به صفحه اصلی</ColoredButton>
     </div>
-  )
+  );
 }

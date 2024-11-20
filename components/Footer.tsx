@@ -1,33 +1,23 @@
-import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa'
-import Link from 'next/link'
-import Image from 'next/image'
+import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa';
+import Link from 'next/link';
+import Image from 'next/image';
+import SvgLogo from '@/public/logo.svg';
+import { FooteritemsProps, SocialLinksProps } from '@/utils/data/getFooter';
 
-import SvgLogo from '@/public/logo.svg'
-
-export default function Footer() {
-  const socialmedia = [
-    {
-      id: 1,
-      icon: <FaInstagram className="w-6 h-6" />,
-      link: 'https://instagram.com',
-      title: 'Instagram',
-    },
-    {
-      id: 2,
-      icon: <FaTelegram className="w-6 h-6" />,
-      link: 'https://telegram.org',
-      title: 'Telegram',
-    },
-    {
-      id: 3,
-      icon: <FaWhatsapp className="w-6 h-6" />,
-      link: 'https://whatsapp.com',
-      title: 'Whatsapp',
-    },
-  ]
-
-  const date = new Date(Date.now())
-  const year = date.getFullYear()
+export default function Footer({
+  FooterMenu,
+  SocialLinks,
+}: {
+  FooterMenu: FooteritemsProps[];
+  SocialLinks: SocialLinksProps[];
+}) {
+  const icons = {
+    Instagram: <FaInstagram className="w-6 h-6" />,
+    Telegram: <FaTelegram className="w-6 h-6" />,
+    Whatsapp: <FaWhatsapp className="w-6 h-6" />,
+  };
+  const date = new Date(Date.now());
+  const year = date.getFullYear();
 
   return (
     <footer className="min-h-[20svh] bg-yellow-300 flex flex-col justify-between w-full sticky bottom-0">
@@ -39,8 +29,15 @@ export default function Footer() {
           alt="logo"
           className="absolute inset-0 h-full object-cover -z-10 opacity-50"
         />
-        <div className="w-full h-fit">
-          <h3>Footer Details1</h3>
+        <div className="w-full h-fit px-10">
+          لینک ها
+          <ul className="marker:text-black list-disc list-inside">
+            {FooterMenu.map((item) => (
+              <li className="hover:underline" key={item.id}>
+                <Link href={item.url}>{item.title}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="w-full">
           <h3>Footer Details2</h3>
@@ -50,20 +47,22 @@ export default function Footer() {
         </div>
       </div>
       <div className="flex justify-center items-center py-3">
-        {socialmedia.map(({ id, icon, link, title }) => (
-          <Link
+        {SocialLinks.map(({ id, title, url }) => (
+          <a
             key={id}
-            href={link}
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-4 flex items-center justify-center"
+            className="mx-2 text-sm flex items-center justify-center"
             aria-label={title}
           >
-            {icon}
-          </Link>
+            {icons[title]}
+          </a>
         ))}
       </div>
-      <p className="text-center bg-gray-800/80 text-white">Copyright {year}</p>
+      <p className="text-sm gerdFont py-2 text-center bg-gray-800/80 text-white">
+        © کپی رایت {year}، تمامی حقوق متعلق به مجله لمن کر می باشد.
+      </p>
     </footer>
-  )
+  );
 }

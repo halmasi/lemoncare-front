@@ -1,5 +1,10 @@
-import { getCategoriesUrl } from '@/utils/data/getCategories';
-import { getGravatar, getPosts, PostsProps } from '@/utils/data/getPosts';
+import NotFound from '@/app/not-found';
+import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import {
+  getGravatar,
+  getPostsByCategory,
+  PostsProps,
+} from '@/utils/data/getPosts';
 const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
 const PostCard = dynamic(() => import('@/components/PostCard'), {
   ssr: false,
@@ -8,13 +13,21 @@ const PostCard = dynamic(() => import('@/components/PostCard'), {
 
 import dynamic from 'next/dynamic';
 
-export default async function Home() {
-  const data = await getPosts(['post'], 3);
+export default async function Category({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const slug = (await params).slug;
+  const category = await getCategory(slug[slug.length - 1], ['category']);
+  const posts = await getPostsByCategory(category[0], ['category']);
+
+  if (category.length < 1 || posts.length < 1) return NotFound();
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-        {data.map(async (post: PostsProps) => {
+        {posts.map(async (post: PostsProps) => {
           post.categoryUrl = await getCategoriesUrl(post.category, [
             'category',
           ]);
