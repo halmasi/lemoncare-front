@@ -8,13 +8,18 @@ import {
 } from '@/utils/data/getPosts';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
+import { createHash } from 'node:crypto';
 
 export async function POST(request: NextRequest) {
-  //validate token
-  console.log(request.headers.get('token'));
+  const token = request.headers.get('token');
+  if (!token) return new Response('invalid request', { status: 400 });
+
+  if (
+    process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
+  )
+    return new Response('invalid request', { status: 400 });
 
   const body = await request.json();
-  let config = {};
 
   switch (body.model) {
     case 'post':
@@ -34,6 +39,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/author/${body.entry.author.username}`, 'layout');
       revalidateTag('post');
       break;
+
     case 'author':
       revalidatePath(`/author/${body.entry.author.username}`, 'layout');
       revalidateTag('author');
@@ -69,9 +75,8 @@ export async function POST(request: NextRequest) {
       break;
 
     case 'tag':
-      config = {
-        tag: body.entry.slug,
-      };
+      revalidatePath(`/tag/${body.entry.slug}`);
+      revalidateTag('tag');
       break;
 
     case 'footer-menu':
@@ -91,6 +96,5 @@ export async function POST(request: NextRequest) {
       break;
   }
 
-  console.log(config);
   return new Response(body);
 }
