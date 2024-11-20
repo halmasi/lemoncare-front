@@ -4,9 +4,11 @@ import { ContentProps, getPost } from '@/utils/data/getPosts';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Image from 'next/image';
 import { LuCalendarClock } from 'react-icons/lu';
+import { notFound } from 'next/navigation';
 export default async function page({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const data = await getPost(slug);
+  if (!data.length) return notFound();
   const post = data[0];
   const contents: ContentProps[] = post.content;
   const publishDate = new Date(post.createdAt);
