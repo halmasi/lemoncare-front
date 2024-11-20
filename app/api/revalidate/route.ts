@@ -2,16 +2,13 @@ import {
   getCategoriesUrlBySlug,
   getCategory,
 } from '@/utils/data/getCategories';
-import { getCategoryHierarchy } from '@/utils/data/getPosts';
-import { revalidatePath } from 'next/cache';
+import {
+  getCategoryHierarchy,
+  getPostsByCategory,
+} from '@/utils/data/getPosts';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  // console.log(request.headers);
-  //   const res = request.cookies.get("token")?.value;
-  //   console.log(res);
-  return new Response(request.body);
-}
 export async function POST(request: NextRequest) {
   //validate token
   console.log(request.headers.get('token'));
@@ -25,19 +22,21 @@ export async function POST(request: NextRequest) {
       const getMainCategory = await getCategory(body.entry.category.slug);
       const mainCategory = getMainCategory[0];
       const categoryArray = [getMainCategory[0].slug];
-      const getCategories = await getCategoryHierarchy(
+      const getCategoryParent = await getCategoryHierarchy(
         mainCategory.parentCategories,
         'parentCategories'
       );
-      getCategories.forEach((e) => categoryArray.push(e.slug));
+      getCategoryParent.forEach((e) => categoryArray.push(e.slug));
       categoryArray.map(async (e) => {
         const url = await getCategoriesUrlBySlug(e);
-        revalidatePath(url, 'layout');
+        revalidatePath(`/category/${url}`, 'layout');
       });
-      revalidatePath(`/author/${body.entry.author.username}`);
+      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidateTag('post');
       break;
     case 'author':
-      revalidatePath(`/author/${body.entry.author.username}`);
+      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidateTag('author');
       break;
 
     case 'category':
@@ -56,9 +55,13 @@ export async function POST(request: NextRequest) {
       getCategoriesChildren.forEach((e) => categoryArray.push(e.slug));
       categoriesSlugs.map(async (e) => {
         const url = await getCategoriesUrlBySlug(e);
-        revalidatePath(url, 'layout');
+        const postsCategory = await getCategory(e);
+        const posts = await getPostsByCategory(postsCategory[0]);
+        revalidatePath(`/category/${url}`, 'layout');
+        posts.map((post) => {
+          revalidatePath(`/posts/${post.basicInfo.contentCode}`, 'layout');
+        });
       });
-      revalidatePath('/posts', 'layout');
       break;
 
     case 'single-page':
@@ -74,21 +77,15 @@ export async function POST(request: NextRequest) {
       break;
 
     case 'footer-menu':
-      config = {
-        footerMenu: body.entry,
-      };
+      revalidateTag('footer-menu');
       break;
 
     case 'main-menu':
-      config = {
-        mainMenu: body.entry,
-      };
+      revalidateTag('main-menu');
       break;
 
     case 'social-link-menu':
-      config = {
-        socialLinkMenu: body.entry,
-      };
+      revalidateTag('social-links');
       break;
 
     default:
