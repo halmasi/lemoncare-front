@@ -65,9 +65,7 @@ export async function POST(request: NextRequest) {
       break;
 
     case 'single-page':
-      config = {
-        singlePost: body.entry.slug,
-      };
+      revalidatePath(`/pages/${body.entry.slug}`);
       break;
 
     case 'tag':
