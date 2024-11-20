@@ -45,7 +45,7 @@ export async function getCategoriesUrl(
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
     return (
-      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
     );
   return res;
 }
