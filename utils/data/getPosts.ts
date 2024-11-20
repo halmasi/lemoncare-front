@@ -173,7 +173,7 @@ export const getGravatar = async (email: string): Promise<GravatarProps> => {
   const gravatar: GravatarProps = await data.json();
   return gravatar;
 };
-async function getCategoryHierarchy(
+export async function getCategoryHierarchy(
   category: SubCategoryProps[],
   direction: 'childCategories' | 'parentCategories',
   tag?: string[]
