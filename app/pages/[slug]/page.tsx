@@ -2,6 +2,7 @@ import Content from '@/components/Content';
 import MainSection from '@/components/MainSection';
 import { dataFetch } from '@/utils/data/dataFetch';
 import { ContentProps } from '@/utils/data/getPosts';
+import { notFound } from 'next/navigation';
 import qs from 'qs';
 import React from 'react';
 
@@ -28,6 +29,7 @@ export default async function privacypolicy({
   }
 
   const apiData: SinglePageProps[] = await dataFetch(`/single-pages?${query}`);
+  if (!apiData.length) return notFound();
   const content = apiData[0];
   return (
     <MainSection>

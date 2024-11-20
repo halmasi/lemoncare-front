@@ -1,4 +1,3 @@
-import NotFound from '@/app/not-found';
 import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
 import {
   getGravatar,
@@ -12,6 +11,7 @@ const PostCard = dynamic(() => import('@/components/PostCard'), {
 });
 
 import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
 
 export default async function Category({
   params,
@@ -22,7 +22,7 @@ export default async function Category({
   const category = await getCategory(slug[slug.length - 1], ['category']);
   const posts = await getPostsByCategory(category[0], ['category']);
 
-  if (category.length < 1 || posts.length < 1) return NotFound();
+  if (category.length < 1 || posts.length < 1) return notFound();
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
