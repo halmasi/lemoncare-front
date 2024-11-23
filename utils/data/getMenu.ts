@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { dataFetch } from './dataFetch';
 
 interface SubMenuProps {
@@ -23,10 +24,10 @@ export interface MenuProps {
   image: SubMenuProps | null;
 }
 
-export async function getMenuItems() {
+export const getMenuItems = cache(async function () {
   const parsedData = await dataFetch('/main-menu?populate[items][populate]=*', [
     'main-menu',
   ]);
   const menuItems: MenuProps[] = parsedData.items;
   return menuItems;
-}
+});
