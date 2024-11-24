@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { dataFetch } from './dataFetch';
 import { PostsProps } from './getPosts';
+import { cache } from 'react';
 
 export interface SubCategoryProps {
   id: number;
@@ -30,7 +31,7 @@ export interface CategoriesProps {
   parentCategories: SubCategoryProps[];
 }
 
-export async function getCategoriesUrl(
+export const getCategoriesUrl = cache(async function (
   category: CategoriesProps,
   tag?: string[]
 ): Promise<string> {
@@ -45,12 +46,12 @@ export async function getCategoriesUrl(
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
     return (
-      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
     );
   return res;
-}
+});
 
-export async function getCategoriesUrlBySlug(
+export const getCategoriesUrlBySlug = cache(async function (
   slug: string,
   tag?: string[]
 ): Promise<string> {
@@ -68,9 +69,9 @@ export async function getCategoriesUrlBySlug(
       (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
     );
   return res;
-}
+});
 
-export async function getCategory(
+export const getCategory = cache(async function (
   slug: string,
   tag?: string[]
 ): Promise<CategoriesProps[]> {
@@ -83,4 +84,4 @@ export async function getCategory(
   });
 
   return await dataFetch(`/categories?${query}`, tag);
-}
+});

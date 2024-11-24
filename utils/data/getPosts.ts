@@ -6,7 +6,7 @@ import {
   getCategory,
   SubCategoryProps,
 } from './getCategories';
-import { constants } from 'node:perf_hooks';
+import { cache } from 'react';
 
 export interface PostsProps {
   id: number;
@@ -127,7 +127,7 @@ export interface ContentChildrenProps {
   }[];
 }
 
-export async function getPosts(tag?: string[], count?: number) {
+export const getPosts = cache(async function (tag?: string[], count?: number) {
   const query = qs.stringify({
     populate: {
       seo: { populate: '*' },
@@ -143,9 +143,9 @@ export async function getPosts(tag?: string[], count?: number) {
   const result: PostsProps[] = await dataFetch(link, tag);
 
   return result;
-}
+});
 
-export async function getPost(slug: string) {
+export const getPost = cache(async function (slug: string) {
   const query = qs.stringify({
     filters: { basicInfo: { contentCode: { $eq: slug } } },
     populate: {
@@ -158,22 +158,26 @@ export async function getPost(slug: string) {
   });
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
-}
+});
 
-export const getGravatar = async (email: string): Promise<GravatarProps> => {
-  const data = await fetch(
-    process.env.GRAVATAR_URI + createHash('sha256').update(email).digest('hex'),
-    {
-      headers: {
-        Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-      },
-      next: { tags: ['author'] },
-    }
-  );
-  const gravatar: GravatarProps = await data.json();
-  return gravatar;
-};
-export async function getCategoryHierarchy(
+export const getGravatar = cache(
+  async (email: string): Promise<GravatarProps> => {
+    const data = await fetch(
+      process.env.GRAVATAR_URI +
+        createHash('sha256').update(email).digest('hex'),
+      {
+        headers: {
+          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
+        },
+        next: { tags: ['author'] },
+      }
+    );
+    const gravatar: GravatarProps = await data.json();
+    return gravatar;
+  }
+);
+
+export const getCategoryHierarchy = cache(async function (
   category: SubCategoryProps[],
   direction: 'childCategories' | 'parentCategories',
   tag?: string[]
@@ -200,9 +204,9 @@ export async function getCategoryHierarchy(
   }
 
   return allCategories;
-}
+});
 
-export async function getPostsByCategory(
+export const getPostsByCategory = cache(async function (
   category: CategoriesProps,
   tag?: string[]
 ) {
@@ -236,4 +240,4 @@ export async function getPostsByCategory(
     tag
   );
   return result;
-}
+});
