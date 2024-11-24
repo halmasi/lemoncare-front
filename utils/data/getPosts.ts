@@ -16,7 +16,7 @@ export interface PostsProps {
   publishedAt: string;
   content: ContentProps[];
   category: CategoriesProps;
-  tags: object[];
+  tags: TagsProps[];
   seo: { id: number; seoTitle: string; seoDescription: string };
   basicInfo: {
     id: number;
@@ -35,6 +35,13 @@ export interface GravatarProps {
   display_name: string;
   profile_url: string;
   avatar_url: string;
+}
+
+export interface TagsProps {
+  id: number;
+  title: string;
+  slug: string;
+  posts: PostsProps[];
 }
 
 export interface ImageProps {
@@ -153,6 +160,7 @@ export const getPost = cache(async function (slug: string) {
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      tags: { populate: '*' },
       sources: { populate: '*' },
     },
   });

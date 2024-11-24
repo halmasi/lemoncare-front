@@ -150,7 +150,7 @@ export default function Content({
     return (
       <div className="flex w-fit items-center">
         <FaQuoteRight />
-        <p className="bg-gray-200 border-r-8 border-gray-500">
+        <p className="bg-gray-200 border-r-8 border-gray-500 px-1">
           {children.map((item, index) => (
             <ParagraphBuilder key={index} item={item} />
           ))}
@@ -158,5 +158,5 @@ export default function Content({
         <FaQuoteLeft />
       </div>
     );
-  } else return <div></div>;
+  } else return <></>;
 }
