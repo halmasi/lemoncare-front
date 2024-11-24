@@ -14,16 +14,14 @@ const PostCard = dynamic(() => import('@/components/PostCard'), {
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 
-export async function generateMetadata(
-  {
-    params,
-  }: {
-    params: Promise<{ slug: string[] }>;
-  },
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
   const slug = (await params).slug;
   const fetchCategory = await getCategory(slug[slug.length - 1], ['category']);
+  if (fetchCategory.length < 1) return notFound();
   const category = fetchCategory[0];
 
   return {

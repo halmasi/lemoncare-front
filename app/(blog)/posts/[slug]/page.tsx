@@ -13,6 +13,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = params;
   const data = await getPost(slug);
+  if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
 
