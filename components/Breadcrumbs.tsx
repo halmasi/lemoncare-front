@@ -12,7 +12,7 @@ export default async function Breadcrumbs({ post }: { post: PostsProps }) {
   const url = await getCategoriesUrl(post.category, ['category']);
   const categories = url.split('/');
   return (
-    <div aria-label="breadcrumb" className="flex flex-row items-center">
+    <div aria-label="breadcrumb" className="flex flex-wrap items-center">
       <p>دسته بندی</p> <IoIosArrowDropleft className="ml-3" />
       {categories.map(async (e, i) => {
         const getSingleCategory = await getCategory(e, ['category']);
