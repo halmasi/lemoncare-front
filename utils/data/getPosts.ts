@@ -16,7 +16,7 @@ export interface PostsProps {
   publishedAt: string;
   content: ContentProps[];
   category: CategoriesProps;
-  tags: object[];
+  tags: TagsProps[];
   seo: { id: number; seoTitle: string; seoDescription: string };
   basicInfo: {
     id: number;
@@ -35,6 +35,13 @@ export interface GravatarProps {
   display_name: string;
   profile_url: string;
   avatar_url: string;
+}
+
+export interface TagsProps {
+  id: number;
+  title: string;
+  slug: string;
+  posts: PostsProps[];
 }
 
 export interface ImageProps {
@@ -153,6 +160,7 @@ export const getPost = cache(async function (slug: string) {
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      tags: { populate: '*' },
       sources: { populate: '*' },
     },
   });
@@ -226,6 +234,30 @@ export const getPostsByCategory = cache(async function (
     filters: {
       category: {
         $or: slugs,
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
+  );
+  return result;
+});
+
+export const getPostsByTag = cache(async function (
+  slug: string,
+  tag?: string[]
+) {
+  const query = qs.stringify({
+    filters: {
+      tags: {
+        slug: { $eq: slug },
       },
     },
     populate: {
