@@ -26,7 +26,7 @@ export default function PostCard({
     <article>
       <div className="flex items-center text-gray-600 text-sm">
         <p>دسته بندی</p> <IoMdArrowDropleft />
-        <Link href={'/categories/' + categoryUrl}>{category.title}</Link>
+        <Link href={'/category/' + categoryUrl}>{category.title}</Link>
       </div>
       <div className="flex flex-col bg-white shadow-lg rounded-lg">
         <div className="w-full overflow-hidden rounded-t-lg">

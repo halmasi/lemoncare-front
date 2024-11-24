@@ -1,7 +1,12 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
-import { CategoriesProps } from './getCategories';
+import {
+  CategoriesProps,
+  getCategory,
+  SubCategoryProps,
+} from './getCategories';
+import { cache } from 'react';
 
 export interface PostsProps {
   id: number;
@@ -122,7 +127,7 @@ export interface ContentChildrenProps {
   }[];
 }
 
-export async function getPosts(count?: number) {
+export const getPosts = cache(async function (tag?: string[], count?: number) {
   const query = qs.stringify({
     populate: {
       seo: { populate: '*' },
@@ -135,11 +140,12 @@ export async function getPosts(count?: number) {
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: PostsProps[] = await dataFetch(link);
-  return result;
-}
+  const result: PostsProps[] = await dataFetch(link, tag);
 
-export async function getPost(slug: string) {
+  return result;
+});
+
+export const getPost = cache(async function (slug: string) {
   const query = qs.stringify({
     filters: { basicInfo: { contentCode: { $eq: slug } } },
     populate: {
@@ -152,30 +158,86 @@ export async function getPost(slug: string) {
   });
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
-}
+});
 
-export const getGravatar = async (email: string): Promise<GravatarProps> => {
-  const data = await fetch(
-    process.env.GRAVATAR_URI + createHash('sha256').update(email).digest('hex'),
-    {
-      headers: {
-        Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-      },
-    }
+export const getGravatar = cache(
+  async (email: string): Promise<GravatarProps> => {
+    const data = await fetch(
+      process.env.GRAVATAR_URI +
+        createHash('sha256').update(email).digest('hex'),
+      {
+        headers: {
+          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
+        },
+        next: { tags: ['author'] },
+      }
+    );
+    const gravatar: GravatarProps = await data.json();
+    return gravatar;
+  }
+);
+
+export const getCategoryHierarchy = cache(async function (
+  category: SubCategoryProps[],
+  direction: 'childCategories' | 'parentCategories',
+  tag?: string[]
+): Promise<CategoriesProps[]> {
+  const allCategories: CategoriesProps[] = [];
+
+  const result = await Promise.all(
+    category.map(async (item) => {
+      const res = await getCategory(item.slug, tag);
+      return res[0];
+    })
   );
-  const gravatar: GravatarProps = await data.json();
-  return gravatar;
-};
 
-// export async function getPostsByCategory(category: string) {
-//   const rawData = await fetch(
-//     `${process.env.BACKEND_PATH}/categories/${category}?populate[posts][populate]=*`,
-//     {}
-//   );
-//   const data = await rawData.json();
-//   const result: PostsProps[] = data.data.map((item: CategoriesProps) => {
-//     if (item.posts !== undefined && item.posts.length >= 1) return item.posts;
-//   });
+  for (const e of result) {
+    allCategories.push(e);
+    if (e[direction] && e[direction].length > 0) {
+      const fetchedCategories = await getCategoryHierarchy(
+        e[direction],
+        direction,
+        tag
+      );
+      allCategories.push(...fetchedCategories);
+    }
+  }
 
-//   return result;
-// }
+  return allCategories;
+});
+
+export const getPostsByCategory = cache(async function (
+  category: CategoriesProps,
+  tag?: string[]
+) {
+  const subCategories: SubCategoryProps[] | [] =
+    category.childCategories.length > 0
+      ? await getCategoryHierarchy(
+          category.childCategories,
+          'childCategories',
+          tag
+        )
+      : [];
+  const slugs = [{ slug: { $eq: category.slug } }];
+  subCategories.forEach((e) => {
+    slugs.push({ slug: { $eq: e.slug } });
+  });
+  const query = qs.stringify({
+    filters: {
+      category: {
+        $or: slugs,
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
+  );
+  return result;
+});
