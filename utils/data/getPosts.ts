@@ -249,3 +249,27 @@ export const getPostsByCategory = cache(async function (
   );
   return result;
 });
+
+export const getPostsByTag = cache(async function (
+  slug: string,
+  tag?: string[]
+) {
+  const query = qs.stringify({
+    filters: {
+      tags: {
+        slug: { $eq: slug },
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
+  );
+  return result;
+});
