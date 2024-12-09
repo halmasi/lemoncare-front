@@ -27,7 +27,7 @@ export async function generateMetadata(
   const category = fetchCategory[0];
 
   return {
-    title: category.title + ' / Lemoncare - لمن کر',
+    title: category.title + ' | Lemoncare - لمن کر',
     description: category.description,
     authors: [
       {
@@ -36,9 +36,9 @@ export async function generateMetadata(
       },
     ],
     applicationName: 'lemoncare - لمن کر',
-    category: category.title + ' / Lemoncare - لمن کر',
+    category: category.title + ' | Lemoncare - لمن کر',
     openGraph: {
-      title: category.title + ' / Lemoncare - لمن کر',
+      title: category.title + ' | Lemoncare - لمن کر',
       description: category.description,
       siteName: 'لمن کر - lemoncare',
     },
