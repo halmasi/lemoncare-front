@@ -43,7 +43,7 @@ export async function generateMetadata(
     .slice(0, 150);
 
   return {
-    title: post.title + ' / Lemoncare - لمن کر',
+    title: post.title + ' | Lemoncare - لمن کر',
     description,
     authors: [
       {
@@ -53,7 +53,7 @@ export async function generateMetadata(
     ],
     applicationName: 'Lemoncare - لمن کر',
     openGraph: {
-      title: post.title + ' / Lemoncare - لمن کر',
+      title: post.title + ' | Lemoncare - لمن کر',
       description,
       siteName: 'لمن کر - Lemoncare',
     },
