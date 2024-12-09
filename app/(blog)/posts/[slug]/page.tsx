@@ -17,7 +17,7 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: post.seo.seoTitle + ' / Lemoncare - لمن کر',
+    title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
     description: post.seo.seoDescription,
     authors: [
       {
@@ -26,9 +26,9 @@ export async function generateMetadata(
       },
     ],
     applicationName: 'lemoncare - لمن کر',
-    category: post.category.title + ' / Lemoncare - لمن کر',
+    category: post.category.title + ' | Lemoncare - لمن کر',
     openGraph: {
-      title: post.seo.seoTitle + ' / Lemoncare - لمن کر',
+      title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
       description: post.seo.seoDescription,
       siteName: 'لمن کر - lemoncare',
       images: [post.basicInfo.mainImage.formats.medium.url, ...previousImages],
