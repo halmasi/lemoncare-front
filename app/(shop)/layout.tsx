@@ -1,10 +1,5 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import '../globals.css';
-
-const iranFont = localFont({
-  src: '../fonts/IRAN.woff',
-});
 
 export const metadata: Metadata = {
   title: 'LemonCare shop - قروشگاه لمن کر',

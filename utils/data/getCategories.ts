@@ -23,6 +23,7 @@ export interface CategoriesProps {
   title: string;
   description: string;
   slug: string;
+  url?: string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -83,5 +84,18 @@ export const getCategory = cache(async function (
     },
   });
 
+  return await dataFetch(`/categories?${query}`, tag);
+});
+
+export const getCategories = cache(async function (
+  tag?: string[]
+): Promise<CategoriesProps[]> {
+  const query = qs.stringify({
+    populate: {
+      parentCategories: { populate: '*' },
+      childCategories: { populate: '*' },
+      posts: { populate: '*' },
+    },
+  });
   return await dataFetch(`/categories?${query}`, tag);
 });
