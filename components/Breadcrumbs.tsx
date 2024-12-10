@@ -18,7 +18,7 @@ export default async function Breadcrumbs({ post }: { post: PostsProps }) {
           <div key={i} className="flex flex-row items-center">
             {i > 0 && <CgFormatSlash />}
             <Link
-              href={`/category/${singleCategoryUrl}`}
+              href={`/blog/category/${singleCategoryUrl}`}
               className="transition-colors hover:text-yellow-800"
             >
               <p>{singleCategory.title}</p>

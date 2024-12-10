@@ -96,7 +96,7 @@ export default async function page({ params }: { params: { slug: string } }) {
             <Link
               className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
               key={tag.id}
-              href={`/tags/${tag.slug}`}
+              href={`/blog/tags/${tag.slug}`}
             >
               {tag.title}
             </Link>

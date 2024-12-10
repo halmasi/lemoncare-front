@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
   switch (body.model) {
     case 'post':
-      revalidatePath(`/posts/${body.entry.basicInfo.contentCode}`);
+      revalidatePath(`/blog/posts/${body.entry.basicInfo.contentCode}`);
       const getMainCategory = await getCategory(body.entry.category.slug);
       const mainCategory = getMainCategory[0];
       const categoryArray = [getMainCategory[0].slug];
@@ -31,14 +31,14 @@ export async function POST(request: NextRequest) {
       getCategoryParent.forEach((e) => categoryArray.push(e.slug));
       categoryArray.map(async (e) => {
         const url = await getCategoriesUrl(e);
-        revalidatePath(`/category/${url}`, 'layout');
+        revalidatePath(`/blog/category/${url}`, 'layout');
       });
-      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('post');
       break;
 
     case 'author':
-      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('author');
       break;
 
@@ -60,19 +60,19 @@ export async function POST(request: NextRequest) {
         const url = await getCategoriesUrl(e);
         const postsCategory = await getCategory(e);
         const posts = await getPostsByCategory(postsCategory[0]);
-        revalidatePath(`/category/${url}`, 'layout');
+        revalidatePath(`/blog/category/${url}`, 'layout');
         posts.map((post) => {
-          revalidatePath(`/posts/${post.basicInfo.contentCode}`, 'layout');
+          revalidatePath(`/blog/posts/${post.basicInfo.contentCode}`, 'layout');
         });
       });
       break;
 
     case 'single-page':
-      revalidatePath(`/pages/${body.entry.slug}`);
+      revalidatePath(`/blog/pages/${body.entry.slug}`);
       break;
 
     case 'tag':
-      revalidatePath(`/tag/${body.entry.slug}`);
+      revalidatePath(`/blog/tag/${body.entry.slug}`);
       revalidateTag('tag');
       break;
 
