@@ -2,11 +2,7 @@ import Link from 'next/link';
 import { IoIosArrowDropleft } from 'react-icons/io';
 import { CgFormatSlash } from 'react-icons/cg';
 import { PostsProps } from '@/utils/data/getPosts';
-import {
-  getCategoriesUrl,
-  getCategoriesUrlBySlug,
-  getCategory,
-} from '@/utils/data/getCategories';
+import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
 
 export default async function Breadcrumbs({ post }: { post: PostsProps }) {
   const url = await getCategoriesUrl(post.category, ['category']);
@@ -17,7 +13,7 @@ export default async function Breadcrumbs({ post }: { post: PostsProps }) {
       {categories.map(async (e, i) => {
         const getSingleCategory = await getCategory(e, ['category']);
         const singleCategory = getSingleCategory[0];
-        const singleCategoryUrl = await getCategoriesUrlBySlug(e, ['category']);
+        const singleCategoryUrl = await getCategoriesUrl(singleCategory);
         return (
           <div key={i} className="flex flex-row items-center">
             {i > 0 && <CgFormatSlash />}

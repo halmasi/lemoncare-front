@@ -2,7 +2,7 @@ import Content from '@/components/Content';
 import MainSection from '@/components/MainSection';
 import { dataFetch } from '@/utils/data/dataFetch';
 import { ContentProps } from '@/utils/data/getPosts';
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import qs from 'qs';
 import React, { cache } from 'react';
@@ -26,10 +26,11 @@ const getPage = cache(async function (slug: string) {
   return apiData[0];
 });
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } },
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const { slug } = params;
 
   const post = await getPage(slug);
@@ -45,7 +46,7 @@ export async function generateMetadata(
     .slice(0, 150);
 
   return {
-    title: post.title + ' / Lemoncare - لمن کر',
+    title: post.title + ' | Lemoncare - لمن کر',
     description,
     authors: [
       {
@@ -55,7 +56,7 @@ export async function generateMetadata(
     ],
     applicationName: 'Lemoncare - لمن کر',
     openGraph: {
-      title: post.title + ' / Lemoncare - لمن کر',
+      title: post.title + ' | Lemoncare - لمن کر',
       description,
       siteName: 'لمن کر - Lemoncare',
     },

@@ -1,7 +1,4 @@
-import {
-  getCategoriesUrlBySlug,
-  getCategory,
-} from '@/utils/data/getCategories';
+import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
 import {
   getCategoryHierarchy,
   getPostsByCategory,
@@ -33,7 +30,7 @@ export async function POST(request: NextRequest) {
       );
       getCategoryParent.forEach((e) => categoryArray.push(e.slug));
       categoryArray.map(async (e) => {
-        const url = await getCategoriesUrlBySlug(e);
+        const url = await getCategoriesUrl(e);
         revalidatePath(`/category/${url}`, 'layout');
       });
       revalidatePath(`/author/${body.entry.author.username}`, 'layout');
@@ -60,7 +57,7 @@ export async function POST(request: NextRequest) {
       getCategoriesParent.forEach((e) => categoryArray.push(e.slug));
       getCategoriesChildren.forEach((e) => categoryArray.push(e.slug));
       categoriesSlugs.map(async (e) => {
-        const url = await getCategoriesUrlBySlug(e);
+        const url = await getCategoriesUrl(e);
         const postsCategory = await getCategory(e);
         const posts = await getPostsByCategory(postsCategory[0]);
         revalidatePath(`/category/${url}`, 'layout');

@@ -4,7 +4,7 @@ import {
   getPostsByCategory,
   PostsProps,
 } from '@/utils/data/getPosts';
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
 const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
 const PostCard = dynamic(() => import('@/components/PostCard'), {
   ssr: false,
@@ -25,7 +25,7 @@ export async function generateMetadata({
   const category = fetchCategory[0];
 
   return {
-    title: category.title + ' / Lemoncare - لمن کر',
+    title: category.title + ' | Lemoncare - لمن کر',
     description: category.description,
     authors: [
       {
@@ -34,9 +34,9 @@ export async function generateMetadata({
       },
     ],
     applicationName: 'lemoncare - لمن کر',
-    category: category.title + ' / Lemoncare - لمن کر',
+    category: category.title + ' | Lemoncare - لمن کر',
     openGraph: {
-      title: category.title + ' / Lemoncare - لمن کر',
+      title: category.title + ' | Lemoncare - لمن کر',
       description: category.description,
       siteName: 'لمن کر - lemoncare',
     },

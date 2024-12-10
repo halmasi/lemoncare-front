@@ -23,6 +23,7 @@ export interface CategoriesProps {
   title: string;
   description: string;
   slug: string;
+  url?: string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -32,29 +33,13 @@ export interface CategoriesProps {
 }
 
 export const getCategoriesUrl = cache(async function (
-  category: CategoriesProps,
+  category: CategoriesProps | string,
   tag?: string[]
 ): Promise<string> {
-  const query = qs.stringify({
-    filters: { slug: { $eq: category.slug } },
-    populate: {
-      parentCategories: { populate: '*' },
-    },
-  });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
-  const result = data[0];
-  const res: string = result.slug;
-  if (result.parentCategories && result.parentCategories.length > 0)
-    return (
-      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
-    );
-  return res;
-});
-
-export const getCategoriesUrlBySlug = cache(async function (
-  slug: string,
-  tag?: string[]
-): Promise<string> {
+  let slug = category;
+  if (typeof category != 'string') {
+    slug = category.slug;
+  }
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
@@ -66,7 +51,7 @@ export const getCategoriesUrlBySlug = cache(async function (
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
     return (
-      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
     );
   return res;
 });
@@ -83,5 +68,18 @@ export const getCategory = cache(async function (
     },
   });
 
+  return await dataFetch(`/categories?${query}`, tag);
+});
+
+export const getCategories = cache(async function (
+  tag?: string[]
+): Promise<CategoriesProps[]> {
+  const query = qs.stringify({
+    populate: {
+      parentCategories: { populate: '*' },
+      childCategories: { populate: '*' },
+      posts: { populate: '*' },
+    },
+  });
   return await dataFetch(`/categories?${query}`, tag);
 });

@@ -18,9 +18,8 @@ export async function generateMetadata(
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
   let tags = post.tags.map((item) => item.title).join('، ');
-  console.log(tags);
   return {
-    title: post.seo.seoTitle + ' / Lemoncare - لمن کر',
+    title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
@@ -29,9 +28,9 @@ export async function generateMetadata(
       },
     ],
     applicationName: 'lemoncare - لمن کر',
-    category: post.category.title + ' / Lemoncare - لمن کر',
+    category: post.category.title + ' | Lemoncare - لمن کر',
     openGraph: {
-      title: post.seo.seoTitle + ' / Lemoncare - لمن کر',
+      title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
       description: post.seo.seoDescription,
       siteName: 'لمن کر - lemoncare',
       images: [post.basicInfo.mainImage.formats.medium.url, ...previousImages],
