@@ -1,20 +1,21 @@
-import { getPosts } from '@/utils/data/getPosts';
+import { CategoriesProps, getCategories } from '@/utils/data/getCategories';
 
 export default async function sitemap() {
-  const posts = await getPosts();
-  const postsMap = posts.map((post) => {
-    return {
-      url: `https://lemoncare.ir/blog/${post.basicInfo.contentCode}`,
-      lastModified: post.createdAt,
-      priority: 0.8,
-    };
-  });
-  return [
+  const dateNow = new Date(Date.now());
+  const categories = await getCategories();
+  const result = [
     {
-      url: 'https://lemoncare.ir',
-      lastModified: Date.now(),
-      priority: 1,
+      url: `${process.env.SITE_URL}`,
+      lastModified: dateNow.toLocaleString('en-US'),
     },
-    ...postsMap,
+    {
+      url: `${process.env.SITE_URL}/blog/sitemap.xml`,
+      lastModified: dateNow.toLocaleString('en-US'),
+    },
+    {
+      url: `${process.env.SITE_URL}/shop/sitemap.xml`,
+      lastModified: dateNow.toLocaleString('en-US'),
+    },
   ];
+  return result;
 }

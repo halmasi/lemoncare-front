@@ -23,7 +23,7 @@ export default async function sitemap({ id }: { id: string }) {
   const category = await getCategory(urlItems[urlItems.length - 1]);
   const posts = await getPostsByCategory(category[0]);
   return posts.map((post) => ({
-    url: `/blog/posts/${post.basicInfo.contentCode}`,
+    url: `${process.env.SITE_URL}/blog/posts/${post.basicInfo.contentCode}`,
     lastModified: post.updatedAt,
   }));
 }
