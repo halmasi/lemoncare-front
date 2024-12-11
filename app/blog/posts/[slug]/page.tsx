@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { LuCalendarClock } from 'react-icons/lu';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
@@ -13,12 +14,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = params;
   const data = await getPost(slug);
+  if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
-
+  let tags = post.tags.map((item) => item.title).join('، ');
   return {
     title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
-    description: post.seo.seoDescription,
+    description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
         name: post.author.name,
@@ -84,6 +86,20 @@ export default async function page({ params }: { params: { slug: string } }) {
             >
               {source.websiteName}
             </a>
+          ))}
+        </div>
+      )}
+      {post.tags && (
+        <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
+          <p>برچسب ها</p>
+          {post.tags.map((tag) => (
+            <Link
+              className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
+              key={tag.id}
+              href={`/blog/tags/${tag.slug}`}
+            >
+              {tag.title}
+            </Link>
           ))}
         </div>
       )}

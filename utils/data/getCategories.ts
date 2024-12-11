@@ -33,29 +33,13 @@ export interface CategoriesProps {
 }
 
 export const getCategoriesUrl = cache(async function (
-  category: CategoriesProps,
+  category: CategoriesProps | string,
   tag?: string[]
 ): Promise<string> {
-  const query = qs.stringify({
-    filters: { slug: { $eq: category.slug } },
-    populate: {
-      parentCategories: { populate: '*' },
-    },
-  });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
-  const result = data[0];
-  const res: string = result.slug;
-  if (result.parentCategories && result.parentCategories.length > 0)
-    return (
-      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
-    );
-  return res;
-});
-
-export const getCategoriesUrlBySlug = cache(async function (
-  slug: string,
-  tag?: string[]
-): Promise<string> {
+  let slug = category;
+  if (typeof category != 'string') {
+    slug = category.slug;
+  }
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
@@ -67,7 +51,7 @@ export const getCategoriesUrlBySlug = cache(async function (
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
     return (
-      (await getCategoriesUrl(result.parentCategories[0]), tag) + '/' + res
+      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
     );
   return res;
 });

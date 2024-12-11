@@ -26,13 +26,13 @@ export default function PostCard({
     <article>
       <div className="flex items-center text-gray-600 text-sm">
         <p>دسته بندی</p> <IoMdArrowDropleft />
-        <Link href={'/category/' + categoryUrl}>{category.title}</Link>
+        <Link href={'/blog/category/' + categoryUrl}>{category.title}</Link>
       </div>
       <div className="flex flex-col bg-white shadow-lg rounded-lg">
         <div className="w-full overflow-hidden rounded-t-lg">
           <Link
             className="flex flex-col justify-end"
-            href={'/posts/' + basicInfo.contentCode}
+            href={'/blog/posts/' + basicInfo.contentCode}
           >
             <Suspense
               fallback={
@@ -60,7 +60,7 @@ export default function PostCard({
 
           <Link
             className="flex items-center text-gray-600"
-            href={`author/${authorSlug}`}
+            href={`/blog/author/${authorSlug}`}
           >
             <Image
               src={gravatar.avatar_url}
@@ -73,7 +73,7 @@ export default function PostCard({
           </Link>
           <Link
             className="flex justify-center items-center mt-3 px-3 rounded-lg transition-all text-gray-700 hover:text-green-700  bg-yellow-400 w-fit" //hover:shadow-[rgba(200,0,100,0.9)_0px_0px_5px_1px]
-            href={'/posts/' + basicInfo.contentCode}
+            href={'/blog/posts/' + basicInfo.contentCode}
           >
             <p>ادامه مطلب ...</p>
             <IoMdArrowDropleft />

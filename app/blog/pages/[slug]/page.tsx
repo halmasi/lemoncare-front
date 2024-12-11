@@ -32,7 +32,9 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const { slug } = params;
+
   const post = await getPage(slug);
+  if (!post) return notFound();
   const description = post.content
     .filter((item) => item.type === 'paragraph')
     .map((item) =>
