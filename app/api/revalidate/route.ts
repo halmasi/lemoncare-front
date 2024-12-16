@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
         const url = await getCategoriesUrl(e);
         const postsCategory = await getCategory(e);
         const posts = await getPostsByCategory(postsCategory[0]);
+
         revalidatePath(`/blog/category/${url}`, 'layout');
+        if (!posts) return;
         posts.map((post) => {
           revalidatePath(`/blog/posts/${post.basicInfo.contentCode}`, 'layout');
         });

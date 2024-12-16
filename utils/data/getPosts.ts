@@ -218,6 +218,7 @@ export const getPostsByCategory = cache(async function (
   category: CategoriesProps,
   tag?: string[]
 ) {
+  if (!category) return;
   const subCategories: SubCategoryProps[] | [] =
     category.childCategories.length > 0
       ? await getCategoryHierarchy(

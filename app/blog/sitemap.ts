@@ -1,7 +1,6 @@
 import { CategoriesProps, getCategories } from '@/utils/data/getCategories';
 
-export default async function generateSitemaps() {
-  const dateNow = new Date(Date.now());
+export default async function generateSitemap() {
   const categories = await getCategories();
 
   return Promise.all(
