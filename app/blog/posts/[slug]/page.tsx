@@ -17,7 +17,7 @@ export async function generateMetadata(
   if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
-  let tags = post.tags.map((item) => item.title).join('، ');
+  const tags = post.tags.map((item) => item.title).join('، ');
   return {
     title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,

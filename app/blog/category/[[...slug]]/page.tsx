@@ -21,7 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const slug = (await params).slug;
   const fetchCategory = await getCategory(slug[slug.length - 1], ['category']);
-  if (fetchCategory.length < 1) return notFound();
+  if (fetchCategory && fetchCategory.length < 1) return notFound();
   const category = fetchCategory[0];
 
   return {
@@ -52,7 +52,7 @@ export default async function Category({
   const category = await getCategory(slug[slug.length - 1], ['category']);
   const posts = await getPostsByCategory(category[0], ['category']);
 
-  if (category.length < 1 || posts.length < 1) return notFound();
+  if (!posts || category.length < 1 || posts.length < 1) return notFound();
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
