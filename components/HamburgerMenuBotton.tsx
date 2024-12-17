@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, Transition, SVGMotionProps, spring } from 'framer-motion';
 
-interface Props extends SVGMotionProps<any> {
+interface Props extends SVGMotionProps<SVGSVGElement> {
   isOpen?: boolean;
   color?: string;
   strokeWidth?: string | number;
   transition?: Transition;
-  lineProps?: any;
+  lineProps?: object | null;
 }
 
 export const HamburgerMenuButton = ({

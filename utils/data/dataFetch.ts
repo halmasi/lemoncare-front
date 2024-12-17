@@ -1,9 +1,16 @@
-export async function dataFetch(qs: string) {
-  const apiData = await fetch(process.env.BACKEND_PATH + qs, {
+export async function dataFetch(qs: string, tag?: string[]) {
+  const options = {
     headers: {
       Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
     },
-  });
-  const data = await apiData.json();
-  return data.data;
+  };
+  tag && Object.assign(options, { next: { tags: tag } });
+
+  try {
+    const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
+    const data = await apiData.json();
+    return data.data;
+  } catch (error) {
+    throw new Error('حطای ارتباط با سرور');
+  }
 }
