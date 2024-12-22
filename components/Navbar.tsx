@@ -132,7 +132,7 @@ export default function Navbar({
                             <h6 className="text-sm">{item.title}</h6>
                           </MenuButton>
                         </div>
-                        {item.subMenu.length > 0 && (
+                        {item.subMenu && item.subMenu.length > 0 && (
                           <div className="overflow-hidden">
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
@@ -211,7 +211,7 @@ export default function Navbar({
                       <MenuButton slug={item.url} submenu={item.subMenu}>
                         <h6 className="text-sm">{item.title}</h6>
                       </MenuButton>
-                      {item.subMenu.length > 0 && (
+                      {item.subMenu && item.subMenu.length > 0 && (
                         <AnimatePresence>
                           <div className="w-full overflow-hidden">
                             <AnimatePresence>

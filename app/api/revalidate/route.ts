@@ -90,6 +90,10 @@ export async function POST(request: NextRequest) {
       revalidateTag('social-links');
       break;
 
+    case 'shop-menu':
+      revalidateTag('shop-menu');
+      break;
+
     default:
       console.log(body);
       break;
