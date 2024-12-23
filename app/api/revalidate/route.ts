@@ -1,24 +1,26 @@
-import {
-  getCategoriesUrlBySlug,
-  getCategory,
-} from '@/utils/data/getCategories';
+import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
 import {
   getCategoryHierarchy,
   getPostsByCategory,
 } from '@/utils/data/getPosts';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
+import { createHash } from 'node:crypto';
 
 export async function POST(request: NextRequest) {
-  //validate token
-  console.log(request.headers.get('token'));
+  const token = request.headers.get('token');
+  if (!token) return new Response('invalid request', { status: 400 });
+
+  if (
+    process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
+  )
+    return new Response('invalid request', { status: 400 });
 
   const body = await request.json();
-  let config = {};
 
   switch (body.model) {
     case 'post':
-      revalidatePath(`/posts/${body.entry.basicInfo.contentCode}`);
+      revalidatePath(`/blog/posts/${body.entry.basicInfo.contentCode}`);
       const getMainCategory = await getCategory(body.entry.category.slug);
       const mainCategory = getMainCategory[0];
       const categoryArray = [getMainCategory[0].slug];
@@ -28,14 +30,15 @@ export async function POST(request: NextRequest) {
       );
       getCategoryParent.forEach((e) => categoryArray.push(e.slug));
       categoryArray.map(async (e) => {
-        const url = await getCategoriesUrlBySlug(e);
-        revalidatePath(`/category/${url}`, 'layout');
+        const url = await getCategoriesUrl(e);
+        revalidatePath(`/blog/category/${url}`, 'layout');
       });
-      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('post');
       break;
+
     case 'author':
-      revalidatePath(`/author/${body.entry.author.username}`, 'layout');
+      revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('author');
       break;
 
@@ -54,24 +57,25 @@ export async function POST(request: NextRequest) {
       getCategoriesParent.forEach((e) => categoryArray.push(e.slug));
       getCategoriesChildren.forEach((e) => categoryArray.push(e.slug));
       categoriesSlugs.map(async (e) => {
-        const url = await getCategoriesUrlBySlug(e);
+        const url = await getCategoriesUrl(e);
         const postsCategory = await getCategory(e);
         const posts = await getPostsByCategory(postsCategory[0]);
-        revalidatePath(`/category/${url}`, 'layout');
+
+        revalidatePath(`/blog/category/${url}`, 'layout');
+        if (!posts) return;
         posts.map((post) => {
-          revalidatePath(`/posts/${post.basicInfo.contentCode}`, 'layout');
+          revalidatePath(`/blog/posts/${post.basicInfo.contentCode}`, 'layout');
         });
       });
       break;
 
     case 'single-page':
-      revalidatePath(`/pages/${body.entry.slug}`);
+      revalidatePath(`/blog/pages/${body.entry.slug}`);
       break;
 
     case 'tag':
-      config = {
-        tag: body.entry.slug,
-      };
+      revalidatePath(`/blog/tag/${body.entry.slug}`);
+      revalidateTag('tag');
       break;
 
     case 'footer-menu':
@@ -86,11 +90,14 @@ export async function POST(request: NextRequest) {
       revalidateTag('social-links');
       break;
 
+    case 'shop-menu':
+      revalidateTag('shop-menu');
+      break;
+
     default:
       console.log(body);
       break;
   }
 
-  console.log(config);
   return new Response(body);
 }

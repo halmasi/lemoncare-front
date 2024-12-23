@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { dataFetch } from './dataFetch';
 import { PostsProps } from './getPosts';
+import { cache } from 'react';
 
 export interface SubCategoryProps {
   id: number;
@@ -22,6 +23,7 @@ export interface CategoriesProps {
   title: string;
   description: string;
   slug: string;
+  url?: string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -30,39 +32,34 @@ export interface CategoriesProps {
   parentCategories: SubCategoryProps[];
 }
 
-export async function getCategoriesUrl(
-  category: CategoriesProps
+export const getCategoriesUrl = cache(async function (
+  category: CategoriesProps | string,
+  tag?: string[]
 ): Promise<string> {
-  const query = qs.stringify({
-    filters: { slug: { $eq: category.slug } },
-    populate: {
-      parentCategories: { populate: '*' },
-    },
-  });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`);
-  const result = data[0];
-  const res: string = result.slug;
-  if (result.parentCategories && result.parentCategories.length > 0)
-    return (await getCategoriesUrl(result.parentCategories[0])) + '/' + res;
-  return res;
-}
-
-export async function getCategoriesUrlBySlug(slug: string): Promise<string> {
+  let slug = category;
+  if (typeof category != 'string') {
+    slug = category.slug;
+  }
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
       parentCategories: { populate: '*' },
     },
   });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`);
+  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
   const result = data[0];
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
-    return (await getCategoriesUrl(result.parentCategories[0])) + '/' + res;
+    return (
+      (await getCategoriesUrl(result.parentCategories[0], tag)) + '/' + res
+    );
   return res;
-}
+});
 
-export async function getCategory(slug: string): Promise<CategoriesProps[]> {
+export const getCategory = cache(async function (
+  slug: string,
+  tag?: string[]
+): Promise<CategoriesProps[]> {
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
     populate: {
@@ -71,5 +68,18 @@ export async function getCategory(slug: string): Promise<CategoriesProps[]> {
     },
   });
 
-  return await dataFetch(`/categories?${query}`);
-}
+  return await dataFetch(`/categories?${query}`, tag);
+});
+
+export const getCategories = cache(async function (
+  tag?: string[]
+): Promise<CategoriesProps[]> {
+  const query = qs.stringify({
+    populate: {
+      parentCategories: { populate: '*' },
+      childCategories: { populate: '*' },
+      posts: { populate: '*' },
+    },
+  });
+  return await dataFetch(`/categories?${query}`, tag);
+});

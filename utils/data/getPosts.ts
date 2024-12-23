@@ -6,7 +6,7 @@ import {
   getCategory,
   SubCategoryProps,
 } from './getCategories';
-import { constants } from 'node:perf_hooks';
+import { cache } from 'react';
 
 export interface PostsProps {
   id: number;
@@ -16,7 +16,7 @@ export interface PostsProps {
   publishedAt: string;
   content: ContentProps[];
   category: CategoriesProps;
-  tags: object[];
+  tags: TagsProps[];
   seo: { id: number; seoTitle: string; seoDescription: string };
   basicInfo: {
     id: number;
@@ -35,6 +35,13 @@ export interface GravatarProps {
   display_name: string;
   profile_url: string;
   avatar_url: string;
+}
+
+export interface TagsProps {
+  id: number;
+  title: string;
+  slug: string;
+  posts: PostsProps[];
 }
 
 export interface ImageProps {
@@ -127,7 +134,7 @@ export interface ContentChildrenProps {
   }[];
 }
 
-export async function getPosts(count?: number) {
+export const getPosts = cache(async function (tag?: string[], count?: number) {
   const query = qs.stringify({
     populate: {
       seo: { populate: '*' },
@@ -140,11 +147,12 @@ export async function getPosts(count?: number) {
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: PostsProps[] = await dataFetch(link);
-  return result;
-}
+  const result: PostsProps[] = await dataFetch(link, tag);
 
-export async function getPost(slug: string) {
+  return result;
+});
+
+export const getPost = cache(async function (slug: string) {
   const query = qs.stringify({
     filters: { basicInfo: { contentCode: { $eq: slug } } },
     populate: {
@@ -152,34 +160,41 @@ export async function getPost(slug: string) {
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      tags: { populate: '*' },
       sources: { populate: '*' },
     },
   });
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
-}
+});
 
-export const getGravatar = async (email: string): Promise<GravatarProps> => {
-  const data = await fetch(
-    process.env.GRAVATAR_URI + createHash('sha256').update(email).digest('hex'),
-    {
-      headers: {
-        Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-      },
-    }
-  );
-  const gravatar: GravatarProps = await data.json();
-  return gravatar;
-};
-export async function getCategoryHierarchy(
+export const getGravatar = cache(
+  async (email: string): Promise<GravatarProps> => {
+    const data = await fetch(
+      process.env.GRAVATAR_URI +
+        createHash('sha256').update(email).digest('hex'),
+      {
+        headers: {
+          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
+        },
+        next: { tags: ['author'] },
+      }
+    );
+    const gravatar: GravatarProps = await data.json();
+    return gravatar;
+  }
+);
+
+export const getCategoryHierarchy = cache(async function (
   category: SubCategoryProps[],
-  direction: 'childCategories' | 'parentCategories'
+  direction: 'childCategories' | 'parentCategories',
+  tag?: string[]
 ): Promise<CategoriesProps[]> {
   const allCategories: CategoriesProps[] = [];
 
   const result = await Promise.all(
     category.map(async (item) => {
-      const res = await getCategory(item.slug);
+      const res = await getCategory(item.slug, tag);
       return res[0];
     })
   );
@@ -189,19 +204,28 @@ export async function getCategoryHierarchy(
     if (e[direction] && e[direction].length > 0) {
       const fetchedCategories = await getCategoryHierarchy(
         e[direction],
-        direction
+        direction,
+        tag
       );
       allCategories.push(...fetchedCategories);
     }
   }
 
   return allCategories;
-}
+});
 
-export async function getPostsByCategory(category: CategoriesProps) {
+export const getPostsByCategory = cache(async function (
+  category: CategoriesProps,
+  tag?: string[]
+) {
+  if (!category) return;
   const subCategories: SubCategoryProps[] | [] =
     category.childCategories.length > 0
-      ? await getCategoryHierarchy(category.childCategories, 'childCategories')
+      ? await getCategoryHierarchy(
+          category.childCategories,
+          'childCategories',
+          tag
+        )
       : [];
   const slugs = [{ slug: { $eq: category.slug } }];
   subCategories.forEach((e) => {
@@ -221,20 +245,32 @@ export async function getPostsByCategory(category: CategoriesProps) {
     },
   });
   const result: PostsProps[] = await dataFetch(
-    `/posts?${query}&sort[0]=createdAt:desc`
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
   );
   return result;
-}
+});
 
-// export async function getPostsByCategory(category: string) {
-//   const rawData = await fetch(
-//     `${process.env.BACKEND_PATH}/categories/${category}?populate[posts][populate]=*`,
-//     {}
-//   );
-//   const data = await rawData.json();
-//   const result: PostsProps[] = data.data.map((item: CategoriesProps) => {
-//     if (item.posts !== undefined && item.posts.length >= 1) return item.posts;
-//   });
-
-//   return result;
-// }
+export const getPostsByTag = cache(async function (
+  slug: string,
+  tag?: string[]
+) {
+  const query = qs.stringify({
+    filters: {
+      tags: {
+        slug: { $eq: slug },
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
+  );
+  return result;
+});
