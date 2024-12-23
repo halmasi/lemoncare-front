@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
 
   switch (body.model) {
     case 'post':
-      revalidatePath(`/blog/posts/${body.entry.basicInfo.contentCode}`);
+      revalidatePath(
+        `/blog/posts/${body.entry.basicInfo.contentCode}`,
+        'layout'
+      );
       const getMainCategory = await getCategory(body.entry.category.slug);
       const mainCategory = getMainCategory[0];
       const categoryArray = [getMainCategory[0].slug];
@@ -43,7 +46,14 @@ export async function POST(request: NextRequest) {
       break;
 
     case 'product':
-      revalidatePath(`/shop/products/${body.entry.basicInfo.contentCode}`);
+      revalidatePath(
+        `/shop/products/${body.entry.basicInfo.contentCode}`,
+        'layout'
+      );
+      break;
+
+    case 'shop-category':
+      revalidatePath(`/shop/category/${body.entry.slug}`, 'layout');
       break;
 
     case 'category':
@@ -80,6 +90,11 @@ export async function POST(request: NextRequest) {
     case 'tag':
       revalidatePath(`/blog/tag/${body.entry.slug}`);
       revalidateTag('tag');
+      break;
+
+    case 'shop-tag':
+      revalidatePath(`/shop/tag/${body.entry.slug}`);
+      revalidateTag('shop-tag');
       break;
 
     case 'footer-menu':
