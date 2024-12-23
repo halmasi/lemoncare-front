@@ -6,7 +6,7 @@ interface InputProps {
 export default function InputBox({ format, placeholder }: InputProps) {
   return (
     <input
-      className="p-2 border-2 border-gray-400 rounded-xl shadow-md focus:shadow-[rgb(255,26,198,0.8)_0px_0px_7px_0.3px] focus:outline-none transition-all"
+      className="p-2 border-2 border-gray-400 rounded-sm shadow-lg focus:shadow-accent-pink/30 focus:outline-none transition-all"
       type={format || 'text'}
       placeholder={placeholder}
     />
