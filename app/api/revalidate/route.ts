@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
 
   if (
     process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
-  )
+  ) {
     return new Response('invalid request', { status: 400 });
-
+  }
   const body = await request.json();
 
   switch (body.model) {
@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
     case 'author':
       revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('author');
+      break;
+
+    case 'product':
+      revalidatePath(`/shop/products/${body.entry.basicInfo.contentCode}`);
       break;
 
     case 'category':
