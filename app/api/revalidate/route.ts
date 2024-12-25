@@ -13,14 +13,17 @@ export async function POST(request: NextRequest) {
 
   if (
     process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
-  )
+  ) {
     return new Response('invalid request', { status: 400 });
-
+  }
   const body = await request.json();
 
   switch (body.model) {
     case 'post':
-      revalidatePath(`/blog/posts/${body.entry.basicInfo.contentCode}`);
+      revalidatePath(
+        `/blog/posts/${body.entry.basicInfo.contentCode}`,
+        'layout'
+      );
       const getMainCategory = await getCategory(body.entry.category.slug);
       const mainCategory = getMainCategory[0];
       const categoryArray = [getMainCategory[0].slug];
@@ -40,6 +43,17 @@ export async function POST(request: NextRequest) {
     case 'author':
       revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
       revalidateTag('author');
+      break;
+
+    case 'product':
+      revalidatePath(
+        `/shop/products/${body.entry.basicInfo.contentCode}`,
+        'layout'
+      );
+      break;
+
+    case 'shop-category':
+      revalidatePath(`/shop/category/${body.entry.slug}`, 'layout');
       break;
 
     case 'category':
@@ -76,6 +90,11 @@ export async function POST(request: NextRequest) {
     case 'tag':
       revalidatePath(`/blog/tag/${body.entry.slug}`);
       revalidateTag('tag');
+      break;
+
+    case 'shop-tag':
+      revalidatePath(`/shop/tag/${body.entry.slug}`);
+      revalidateTag('shop-tag');
       break;
 
     case 'footer-menu':
