@@ -30,14 +30,14 @@ export default async function product({
             />
           </div>
           <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
-            <button className="flex w-full md:w-fit items-center gap-2 bg-green-600 px-4 py-2 rounded-lg text-white bottom-0">
+            <button className="flex w-full md:w-fit items-center gap-2 bg-accent-green px-4 py-2 rounded-lg text-white bottom-0">
               <p>افزودن به سبد خرید</p>
               <BiShoppingBag />
             </button>
           </div>
         </div>
         <div className="mt-5 md:mx-10 bg-slate-50 px-2 border rounded-lg">
-          <h3>توضیحات محصول:</h3>
+          <h3 className="text-accent-pink">توضیحات محصول:</h3>
           <div className=" border md:hidden" />
           {product.detailes.map((item, i) => (
             <Content key={i} props={item} />
