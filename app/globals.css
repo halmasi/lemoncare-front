@@ -16,8 +16,8 @@
   direction: rtl;
 }
 body {
-  color: theme('colors.gray.800');
-  background-color: theme('colors.gray.100');
+  color: theme('colors.foreground');
+  background-color: theme('colors.background');
 }
 
 h1 {
