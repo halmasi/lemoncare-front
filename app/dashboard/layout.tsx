@@ -1,5 +1,5 @@
-import Navbar from '@/components/Navbar';
-import { MenuProps } from '@/utils/data/getMenu';
+import Navbar from '@/app/components/Navbar';
+import { MenuProps } from '@/app/utils/data/getMenu';
 import React from 'react';
 
 export default async function dashboardLayout({

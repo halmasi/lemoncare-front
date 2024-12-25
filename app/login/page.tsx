@@ -1,8 +1,8 @@
 'use client';
 
-import InputBox from '@/components/formElements/InputBox';
-import SubmitButton from '@/components/formElements/SubmitButton';
-import { signinAction } from '@/utils/actions/actionMethods';
+import InputBox from '@/app/components/formElements/InputBox';
+import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { signinAction } from '@/app/utils/actions/actionMethods';
 import { useFormState } from 'react-dom';
 
 export default function Page() {

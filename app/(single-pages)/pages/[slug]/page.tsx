@@ -1,7 +1,7 @@
-import Content from '@/components/Content';
-import MainSection from '@/components/MainSection';
-import { dataFetch } from '@/utils/data/dataFetch';
-import { ContentProps } from '@/utils/data/getPosts';
+import Content from '@/app/components/Content';
+import MainSection from '@/app/components/MainSection';
+import { dataFetch } from '@/app/utils/data/dataFetch';
+import { ContentProps } from '@/app/utils/data/getPosts';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import qs from 'qs';

@@ -3,7 +3,7 @@ import {
   ContentChildrenProps,
   ContentProps,
   ContentTypes,
-} from '../utils/data/getPosts';
+} from '@/app/utils/data/getPosts';
 import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
 import Link from 'next/link';
 

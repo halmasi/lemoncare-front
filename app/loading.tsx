@@ -1,4 +1,4 @@
-import LoadingAnimation from '@/components/LoadingAnimation';
+import LoadingAnimation from '@/app/components/LoadingAnimation';
 
 export default function loading() {
   return (
