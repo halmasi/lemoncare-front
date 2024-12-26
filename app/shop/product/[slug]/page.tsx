@@ -1,9 +1,10 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
+import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import React from 'react';
-import { BiShoppingBag } from 'react-icons/bi';
 
 export default async function product({
   params,
@@ -12,6 +13,7 @@ export default async function product({
 }) {
   const { slug } = params;
   const productArray: ProductProps[] = await getProduct(slug);
+  if (!productArray.length) return notFound();
   const product = productArray[0];
   return (
     <MainSection>
@@ -30,10 +32,16 @@ export default async function product({
             />
           </div>
           <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
-            <button className="flex w-full md:w-fit items-center gap-2 bg-accent-green px-4 py-2 rounded-lg text-white bottom-0">
-              <p>افزودن به سبد خرید</p>
-              <BiShoppingBag />
-            </button>
+            <div>
+              <p
+                className={
+                  product.available ? 'text-accent-green' : 'text-red-700'
+                }
+              >
+                {product.available ? 'موجود' : 'ناموجود'}
+              </p>
+              <VarietySelector product={product} />
+            </div>
           </div>
         </div>
         <div className="mt-5 md:mx-10 bg-slate-50 px-2 border rounded-lg">

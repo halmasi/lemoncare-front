@@ -10,7 +10,24 @@ export interface ProductProps {
   detailes: ContentProps[];
   available: boolean;
   off: 'none' | 'offer' | 'special offer';
-  variety: JSON;
+  variety: {
+    id: number;
+    specification: string;
+    priceBefforDiscount: number;
+    mainPrice: number;
+    endOfDiscount: string;
+    color: string;
+    subVariety:
+      | {
+          id: number;
+          specification: string;
+          priceBefforDiscount: number;
+          mainPrice: number;
+          endOfDiscount: string;
+          color: string;
+        }[]
+      | [];
+  }[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -35,6 +52,7 @@ export const getProduct = cache(async function (slug: string, tag?: string[]) {
       category: { populate: '*' },
       tag: { populate: '*' },
       media: { populate: '*' },
+      variety: { populate: '*' },
     },
   });
   const result = await dataFetch(`/products?${query}`, tag);
