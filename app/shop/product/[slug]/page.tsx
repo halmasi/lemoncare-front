@@ -1,6 +1,6 @@
-import Content from '@/components/Content';
-import MainSection from '@/components/MainSection';
-import { getProduct, ProductProps } from '@/utils/data/getProducts';
+import Content from '@/app/components/Content';
+import MainSection from '@/app/components/MainSection';
+import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
 import Image from 'next/image';
 import React from 'react';
 import { BiShoppingBag } from 'react-icons/bi';

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { IoIosArrowDropleft } from 'react-icons/io';
 import { CgFormatSlash } from 'react-icons/cg';
-import { PostsProps } from '@/utils/data/getPosts';
-import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import { PostsProps } from '@/app/utils/data/getPosts';
+import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 
 export default async function Breadcrumbs({ post }: { post: PostsProps }) {
   const url = await getCategoriesUrl(post.category, ['category']);

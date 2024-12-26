@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import '../globals.css';
-import { getShopMenuItems } from '@/utils/data/getMenu';
-import Navbar from '@/components/Navbar';
+import { getShopMenuItems } from '@/app/utils/data/getMenu';
+import Navbar from '@/app/components/Navbar';
 
 export const metadata: Metadata = {
   title: 'LemonCare shop - قروشگاه لمن کر',

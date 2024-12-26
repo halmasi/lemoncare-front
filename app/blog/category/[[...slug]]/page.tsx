@@ -1,12 +1,12 @@
-import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 import {
   getGravatar,
   getPostsByCategory,
   PostsProps,
-} from '@/utils/data/getPosts';
+} from '@/app/utils/data/getPosts';
 import { Metadata } from 'next';
-const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
-const PostCard = dynamic(() => import('@/components/PostCard'), {
+const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
+const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
   loading: () => <PostsSkeleton />,
 });
