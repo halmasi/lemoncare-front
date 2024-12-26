@@ -1,5 +1,5 @@
 'use server';
-import { loginSchema } from '@/utils/schema/formValidation';
+import { loginSchema } from '@/app/utils/schema/formValidation';
 export async function signinAction(prevState: any, formData: FormData) {
   const result = loginSchema.safeParse({
     email: formData.get('email'),
