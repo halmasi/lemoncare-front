@@ -58,3 +58,23 @@ export const getProduct = cache(async function (slug: string, tag?: string[]) {
   const result = await dataFetch(`/products?${query}`, tag);
   return result;
 });
+
+export const getProducts = cache(async function (
+  count: number,
+  tag?: string[]
+) {
+  const query = qs.stringify({
+    populate: {
+      seo: { populate: '*' },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+      variety: { populate: '*' },
+    },
+  });
+  let link = '/products?' + query;
+  if (count) {
+    link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
+  }
+  const result: ProductProps[] = await dataFetch(link, tag);
+  return result;
+});
