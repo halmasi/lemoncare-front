@@ -13,7 +13,7 @@ export interface ProductProps {
   variety: {
     id: number;
     specification: string;
-    priceBefforDiscount: number;
+    priceBeforeDiscount: number;
     mainPrice: number;
     endOfDiscount: string;
     color: string;

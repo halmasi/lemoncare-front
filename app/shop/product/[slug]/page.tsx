@@ -32,16 +32,7 @@ export default async function product({
             />
           </div>
           <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
-            <div>
-              <p
-                className={
-                  product.available ? 'text-accent-green' : 'text-red-700'
-                }
-              >
-                {product.available ? 'موجود' : 'ناموجود'}
-              </p>
-              <VarietySelector product={product} />
-            </div>
+            <VarietySelector product={product} />
           </div>
         </div>
         <div className="mt-5 md:mx-10 bg-slate-50 px-2 border rounded-lg">

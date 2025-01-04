@@ -33,9 +33,14 @@ export default function RadioButton({
         onChange={() => handler(value)}
       />
       <label
-        className={`flex cursor-pointer border bg-gray-50 p-2 rounded-lg ${isChecked && 'border-red-900 bg-white'}`}
+        className={`flex cursor-pointer border bg-gray-50 p-2 rounded-lg items-center justify-center gap-1 ${isChecked && 'border-accent-pink bg-white'}`}
         htmlFor={`radio${value.sub ? `sub${value.sub}` : `parent${value.id}`}`}
       >
+        <div className="flex items-center justify-center h-5 w-5 rounded-full bg-foreground">
+          <div
+            className={`w-[80%] h-[80%] ${isChecked ? 'bg-foreground' : 'bg-background'} border-2 border-background rounded-full`}
+          ></div>
+        </div>
         {children}
         {color != '#000000' && (
           <FaLemon className="text-2xl" style={{ color }} />
