@@ -1,104 +1,13 @@
-// 'use server';
-// import { loginSchema } from '@/app/utils/schema/formValidation';
-// import { cookies } from 'next/headers';
-// import { redirect } from 'next/navigation';
-// export async function signinAction(prevState: any, formData: FormData) {
-//   const result = loginSchema.safeParse({
-//     email: formData.get('email'),
-//     pass: formData.get('pass'),
-//   });
-//   const data = result.success
-//     ? { success: true, data: result.data }
-//     : { success: false, data: result.error.flatten() };
-//   const response = await fetch(`${process.env.BACKEND_PATH}/auth/local`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({
-//       identifier: result.data.email,
-//       password: result.data.pass,
-//     }),
-//   });
-//   const { jwt, user } = await response.json();
-
-//   // Store JWT in localStorage or a secure cookie (example here uses localStorage)
-//   if (typeof window !== 'undefined') {
-//     localStorage.setItem('jwt', jwt);
-//   }
-
-//   console.log({
-//     ...prevState,
-//     data: { success: true, user },
-//   });
-//   return {
-//     ...prevState,
-//     data,
-//   };
-// }
-// export async function signinAction(prevState: any, formData: FormData) {
-//   console.log('formData:', Array.from(formData.entries())); // Debug the input
-
-//   const result = loginSchema.safeParse({
-//     email: formData.get('email'),
-//     pass: formData.get('pass'),
-//   });
-
-//   if (!result.success) {
-//     console.error('Validation errors:', result.error.flatten());
-//     return {
-//       ...prevState,
-//       data: { success: false, data: result.error.flatten() },
-//     };
-//   }
-
-//   try {
-//     const response = await fetch(`${process.env.BACKEND_PATH}/auth/local`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({
-//         identifier: result.data.email,
-//         password: result.data.pass,
-//       }),
-//     });
-//     console.log(
-//       'this is response #######################################3\n',
-//       response
-//     );
-//     if (!response.ok) {
-//       const errorData = await response.json();
-//       throw new Error(errorData.message || 'Authentication failed');
-//     }
-
-//     const { jwt, user } = await response.json();
-
-//     if (typeof window !== 'undefined') {
-//       localStorage.setItem('jwt', jwt);
-//     }
-//     console.log({
-//       ...prevState,
-//       data: { success: true, user },
-//     });
-//     return {
-//       ...prevState,
-//       data: { success: true, user },
-//     };
-//   } catch (error: any) {
-//     console.error('Login error:', error.message);
-//     return {
-//       ...prevState,
-//       data: { success: false, data: { general: error.message } },
-//     };
-//   }
-// }
 'use server';
 
 import { loginSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export const signinAction = async (_prevState: any, formData: FormData) => {
   const email = formData.get('identifier')?.toString() || null;
   const password = formData.get('password')?.toString() || null;
 
-  // Check for missing fields
   if (!email || !password) {
     return {
       success: false,
@@ -109,7 +18,6 @@ export const signinAction = async (_prevState: any, formData: FormData) => {
     };
   }
 
-  // Validate with Zod schema
   const result = loginSchema.safeParse({
     email,
     pass: password,
@@ -131,25 +39,11 @@ export const signinAction = async (_prevState: any, formData: FormData) => {
         password: result.data.pass,
       }),
     });
-
-    // if (!res.ok) {
-    //   const errorData = await res.json();
-    //   return {
-    //     success: false,
-    //     fieldErrors: {
-    //       server: [errorData.message || 'ورود ناموفق بود'],
-    //     },
-    //   };
-    // }
-
     const reqResualt = await res.json();
+    // console.log(reqResualt);
     const { jwt, user } = reqResualt;
 
-    return {
-      success: true,
-      userdata: user,
-      token: jwt,
-    };
+    return { jwt, user };
   } catch (error) {
     console.error('Login error:', error);
     return {
@@ -161,18 +55,32 @@ export const signinAction = async (_prevState: any, formData: FormData) => {
   }
 };
 
+export const loginCheck = async (token: string) => {
+  const authentication = await fetch(process.env.BACKEND_PATH + '/users/me', {
+    credentials: 'include',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `${token}`,
+    },
+  });
+  const result = await authentication.json();
+  return { status: authentication.status, body: result };
+};
+
 export const setCookie = async (name: string, cookie: string) => {
+  const config = {
+    path: 'login/',
+    httpOnly: true,
+    // secure: process.env.NODE_ENV === 'production',
+  };
+
   const cookieStore = cookies();
-  cookieStore.set(name, cookie);
+  cookieStore.set(name, cookie, config);
+  console.log(cookieStore);
 };
 
 export const logoutAction = async () => {
-  // Remove token from cookies
-  // const cookieStore = cookies();
-  //cookieStore.delete('token', { path: '/' });
-
-  // Redirect to login page after logout
-  if (typeof window !== 'undefined') {
-    window.location.href = '/login';
-  }
+  await setCookie('jwt', 'null');
+  redirect('/login');
 };

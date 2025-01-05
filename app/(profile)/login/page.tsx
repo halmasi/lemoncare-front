@@ -2,39 +2,32 @@
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import {
-  logoutAction,
-  setCookie,
-  signinAction,
-} from '@/app/utils/actions/actionMethods';
+import { setCookie, signinAction } from '@/app/utils/actions/actionMethods';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
 
 export default function Page() {
   const [formState, formAction] = useFormState(signinAction, {
-    success: false,
-    userdata: undefined,
-    token: undefined,
+    user: undefined,
+    jwt: undefined,
   });
 
   const router = useRouter();
 
-  // Extract errors if present
   const errors =
-    formState.userdata?.success === false && formState.userdata?.fieldErrors
-      ? formState.userdata.fieldErrors
+    formState.user?.success === false && formState.user?.fieldErrors
+      ? formState.user.fieldErrors
       : {};
 
-  // Redirect on successful login
+  useEffect(() => {}, []);
   useEffect(() => {
-    // console.log(formState);
-    if (formState.userdata?.user && formState.userdata.success) {
-      setCookie('token', formState.userdata.token);
-      // router.push('/dashboard');
-      console.log('##########');
+    if (formState.jwt && formState.user) {
+      setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
+        router.push('/dashboard');
+      });
     }
-  }, [formState.userdata, router]);
+  }, [formState.user, router]);
 
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
@@ -57,16 +50,6 @@ export default function Page() {
         )}
 
         <SubmitButton>ورود</SubmitButton>
-      </form>
-
-      {/* Logout form */}
-      <form onSubmit={logoutAction}>
-        <button
-          type="submit"
-          className="bg-red-500 text-white px-4 py-2 rounded-md"
-        >
-          خروج
-        </button>
       </form>
     </div>
   );
