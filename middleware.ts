@@ -1,12 +1,27 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { loginCheck } from './app/utils/actions/actionMethods';
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req });
-  const isDashboardRoute = req.nextUrl.pathname.startsWith('/dashboard');
-  console.log('Token received:', token);
-  if (isDashboardRoute && !token) {
-    const loginUrl = new URL('/login', req.url);
+  const loginUrl = new URL('/login', req.url);
+  const dashboardUrl = new URL('/dashboard', req.url);
+  const cookieToken = req.cookies.get('jwt');
+
+  if (req.nextUrl.pathname === '/login') {
+    if (
+      cookieToken &&
+      cookieToken.value &&
+      (await loginCheck(cookieToken.value)).status === 200
+    ) {
+      return NextResponse.redirect(dashboardUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (
+    !cookieToken ||
+    !cookieToken.value ||
+    (await loginCheck(cookieToken.value)).status !== 200
+  ) {
     return NextResponse.redirect(loginUrl);
   }
 
@@ -14,5 +29,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/login'],
 };
