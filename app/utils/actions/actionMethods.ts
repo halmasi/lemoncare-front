@@ -1,8 +1,55 @@
 'use server';
 
-import { loginSchema } from '@/app/utils/schema/formValidation';
+import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+export const registerAction = async (_prevState: any, formData: FormData) => {
+  const username = formData.get('username')?.toString();
+  const email = formData.get('email')?.toString();
+  const phoneNumber = formData.get('phoneNumber');
+  const password = formData.get('password')?.toString();
+  // const test = parseInt(phoneNumber);
+  const result = registerSchema.safeParse({
+    username,
+    email,
+    phoneNumber,
+    password,
+  });
+
+  if (!result.success) {
+    console.error('Validation failed:', result.error);
+    return { success: false, fieldErrors: result.error.flatten().fieldErrors };
+  }
+
+  try {
+    const res = await fetch(`${process.env.BACKEND_PATH}/auth/local/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: result.data.username,
+        password: result.data.password,
+        email: result.data.email,
+        phone: result.data.phoneNumber,
+      }),
+    });
+
+    const reqResult = await res.json();
+
+    //if (reqResult.error) {
+    //  return { success: false, fieldErrors: reqResult.error.details };
+    //}
+
+    const { jwt, user } = reqResult;
+    console.log('Here is the result1 : \n', result);
+    console.log('Here is the result2 : \n', res);
+    console.log('Here is the result3 : \n', reqResult);
+    console.log('LOG : \n', typeof phoneNumber);
+    return { jwt, user };
+  } catch (error) {
+    console.error('API error:', error);
+    return { success: false, fieldErrors: { server: ['خطای سرور رخ داد'] } };
+  }
+};
 
 export const signinAction = async (_prevState: any, formData: FormData) => {
   const email = formData.get('identifier')?.toString() || null;
@@ -40,7 +87,6 @@ export const signinAction = async (_prevState: any, formData: FormData) => {
       }),
     });
     const reqResualt = await res.json();
-    // console.log(reqResualt);
     const { jwt, user } = reqResualt;
 
     return { jwt, user };
@@ -77,7 +123,6 @@ export const setCookie = async (name: string, cookie: string) => {
 
   const cookieStore = cookies();
   cookieStore.set(name, cookie, config);
-  console.log(cookieStore);
 };
 
 export const logoutAction = async () => {

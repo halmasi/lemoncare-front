@@ -20,7 +20,6 @@ export default function Page() {
       ? formState.user.fieldErrors
       : {};
 
-  useEffect(() => {}, []);
   useEffect(() => {
     if (formState.jwt && formState.user) {
       setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
