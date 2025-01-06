@@ -106,6 +106,7 @@ export default function VarietySelector({
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 p-5 border bg-gray-100 rounded-xl justify-center items-center">
         {price.price && (
           <>
+            <h5>{product.off}</h5>
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
               {price.before && (

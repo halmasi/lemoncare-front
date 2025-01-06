@@ -1,8 +1,8 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
+import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import React from 'react';
 
@@ -15,13 +15,18 @@ export default async function product({
   const productArray: ProductProps[] = await getProduct(slug);
   if (!productArray.length) return notFound();
   const product = productArray[0];
+
   return (
     <MainSection>
       <div className="w-full flex flex-col">
         <div className="h-fit flex flex-col md:flex-row px-2">
           <div className="w-full md:w-1/2 text-center">
             <h2>{product.basicInfo.title}</h2>
-            <Image
+            <div className="flex overflow-hidden">
+              <MediaGallery media={product.media} />
+            </div>
+
+            {/* <Image
               src={product.basicInfo.mainImage.url}
               width={product.basicInfo.mainImage.width}
               height={product.basicInfo.mainImage.height}
@@ -29,7 +34,7 @@ export default async function product({
                 product.basicInfo.mainImage.alternativeText ||
                 product.basicInfo.title
               }
-            />
+            /> */}
           </div>
           <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
             <VarietySelector product={product} />

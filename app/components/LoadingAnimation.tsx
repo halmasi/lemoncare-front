@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import React from 'react';
 
-import Logo from '/public/loading.svg';
+import Logo from '@/public/loading.svg';
 
 export default function ThreeDotsWave() {
   return (
