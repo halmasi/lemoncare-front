@@ -1,4 +1,4 @@
-import { CategoriesProps, getCategories } from '@/utils/data/getCategories';
+import { CategoriesProps, getCategories } from '@/app/utils/data/getCategories';
 
 export default async function generateSitemap() {
   const categories = await getCategories();

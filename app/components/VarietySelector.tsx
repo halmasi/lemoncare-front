@@ -43,7 +43,7 @@ export default function VarietySelector({
     )?.mainPrice;
     const subIdPrice = product.variety
       .find((e) => e.id == selected.id)
-      ?.subVariety.find((s) => s.id == selected.sub)?.mainPrice;
+      ?.subVariety.find((s: ProductProps) => s.id == selected.sub)?.mainPrice;
     if (mainIdPrice && selected.sub == null) {
       const endDate =
         new Date(
@@ -70,7 +70,9 @@ export default function VarietySelector({
         new Date(
           product.variety
             .find((e) => e.id == selected.id)
-            ?.subVariety.find((s) => s.id == selected.sub)?.endOfDiscount!
+            .subVariety.find(
+              (s: ProductProps) => s.id == selected.sub
+            ).endOfDiscount!
         ) || null;
       setPrice({
         id: selected.id,
@@ -78,7 +80,7 @@ export default function VarietySelector({
         before:
           product.variety
             .find((e) => e.id == selected.id)
-            ?.subVariety.find((s) => s.id == selected.sub)
+            ?.subVariety.find((s: ProductProps) => s.id == selected.sub)
             ?.priceBefforDiscount || null,
         end:
           endDate.toLocaleString('fa-IR', {

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
-import { MenuProps } from '@/utils/data/getMenu';
+import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 

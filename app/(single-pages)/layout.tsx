@@ -1,5 +1,5 @@
 import Navbar from '@/app/components/Navbar';
-import { getMenuItems, MenuProps } from '@/app/utils/data/getMenu';
+import { MenuProps } from '@/app/utils/data/getMenu';
 
 export default async function SinglePagesLayout({
   children,
