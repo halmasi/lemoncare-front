@@ -6,13 +6,16 @@ import { useEffect, useState } from 'react';
 
 export default function VarietySelector({
   product,
+  list,
 }: {
   product: ProductProps;
+  list?: boolean;
 }) {
   const [selected, setSelected] = useState<{ id: number; sub: number | null }>({
     id: 0,
     sub: null,
   });
+  const [available, setAvailable] = useState<boolean>(true);
   const [price, setPrice] = useState<{
     id: number;
     sub: number | null;
@@ -29,12 +32,36 @@ export default function VarietySelector({
   };
 
   useEffect(() => {
-    if (product.variety[0].subVariety.length)
+    const lessPrice: {
+      id: number | null;
+      sub: number | null;
+      price: number;
+    } = { id: null, sub: null, price: 0 };
+    product.variety.map((item) => {
+      if (item.subVariety.length) {
+        item.subVariety.map((sub) => {
+          if (sub.mainPrice < lessPrice.price || !lessPrice.price) {
+            lessPrice.id = item.id;
+            lessPrice.sub = sub.id;
+            lessPrice.price = sub.mainPrice;
+          }
+        });
+        if (
+          (item.mainPrice && item.mainPrice < lessPrice.price) ||
+          !lessPrice.price
+        ) {
+          lessPrice.id = item.id;
+          lessPrice.sub = null;
+          lessPrice.price = item.mainPrice;
+        }
+      }
+    });
+    if (lessPrice.price && lessPrice.id) {
       setSelected({
-        id: product.variety[0].id,
-        sub: product.variety[0].subVariety[0].id,
+        id: lessPrice.id,
+        sub: lessPrice.sub,
       });
-    else setSelected({ id: product.variety[0].id, sub: null });
+    } else setAvailable(true);
   }, []);
 
   useEffect(() => {
@@ -43,11 +70,11 @@ export default function VarietySelector({
     )?.mainPrice;
     const subIdPrice = product.variety
       .find((e) => e.id == selected.id)
-      ?.subVariety.find((s: ProductProps) => s.id == selected.sub)?.mainPrice;
+      ?.subVariety.find((s) => s.id == selected.sub)?.mainPrice;
     if (mainIdPrice && selected.sub == null) {
       const endDate =
         new Date(
-          product.variety.find((e) => e.id == selected.id)?.endOfDiscount!
+          product.variety.find((e) => e.id == selected.id)!.endOfDiscount!
         ) || null;
       setPrice({
         id: selected.id,
@@ -69,10 +96,8 @@ export default function VarietySelector({
       const endDate =
         new Date(
           product.variety
-            .find((e) => e.id == selected.id)
-            .subVariety.find(
-              (s: ProductProps) => s.id == selected.sub
-            ).endOfDiscount!
+            .find((e) => e.id == selected.id)!
+            .subVariety.find((s) => s.id == selected.sub)!.endOfDiscount!
         ) || null;
       setPrice({
         id: selected.id,
@@ -80,7 +105,7 @@ export default function VarietySelector({
         before:
           product.variety
             .find((e) => e.id == selected.id)
-            ?.subVariety.find((s: ProductProps) => s.id == selected.sub)
+            ?.subVariety.find((s) => s.id == selected.sub)
             ?.priceBefforDiscount || null,
         end:
           endDate.toLocaleString('fa-IR', {
@@ -103,10 +128,50 @@ export default function VarietySelector({
     }
   }, [selected]);
 
-  return (
+  return list ? (
+    <>
+      {price.price ? (
+        <>
+          <div className="flex gap-3 pb-2">
+            <h6 className="text-accent-green">
+              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
+            </h6>
+            {price.before && (
+              <p className="flex gap-2 items-center">
+                <span className="text-sm  text-gray-500 line-through">
+                  {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
+                </span>
+                <strong className="p-1 bg-accent-pink rounded-xl text-background">
+                  تخفیف{' '}
+                  {((1 - price.price / price.before) * 100).toLocaleString(
+                    'fa-IR',
+                    { style: 'decimal', maximumFractionDigits: 0 }
+                  )}{' '}
+                  %
+                </strong>
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              console.log(price);
+            }}
+            className={`flex w-full md:w-fit items-center gap-2 ${!price.price ? 'bg-gray-300' : 'bg-accent-green'} px-4 py-2 rounded-lg text-white bottom-0`}
+            disabled={!price.price}
+          >
+            <p>افزودن به سبد خرید</p>
+            <BiShoppingBag />
+          </button>
+          {price.end && <p className="text-sm pt-2">اتمام تخفیف {price.end}</p>}
+        </>
+      ) : (
+        <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
+      )}
+    </>
+  ) : (
     <>
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        {price.price && (
+        {price.price ? (
           <>
             <h5>{product.off}</h5>
             <strong>قیمت</strong>
@@ -132,8 +197,21 @@ export default function VarietySelector({
             <h6 className="text-accent-green">
               {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
             </h6>
-            {price.end && <p>اتمام تخفیف {price.end}</p>}
+            {price.end && (
+              <p className="text-sm pt-2">اتمام تخفیف {price.end}</p>
+            )}
           </>
+        ) : (
+          <div>
+            {available ? (
+              <>
+                <p>محصول انتخاب شده ناموجود است،</p>
+                <p>گزینه های موجود را انتخاب کنید.</p>
+              </>
+            ) : (
+              <h5 className="text-red-500">ناموجود</h5>
+            )}
+          </div>
         )}
       </div>
       <div>

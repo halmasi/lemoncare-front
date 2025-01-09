@@ -47,10 +47,7 @@ export default async function shopPage() {
 
                 <h6>{item.basicInfo.title}</h6>
               </Link>
-              <VarietySelector product={item} />
-              {item.variety.length > 0 && (
-                <strong>{item.variety[0].subVariety[0].mainPrice}</strong>
-              )}
+              <VarietySelector list product={item} />
             </div>
           );
         })}
