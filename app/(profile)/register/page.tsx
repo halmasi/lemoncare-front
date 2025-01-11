@@ -10,7 +10,7 @@ import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 
 export default function register() {
   const [formState, formAction] = useFormState(registerAction, {
-    user: null,
+    user: undefined,
     jwt: undefined,
   });
   const errors =
