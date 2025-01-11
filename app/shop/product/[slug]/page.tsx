@@ -4,6 +4,7 @@ import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
 
@@ -14,7 +15,7 @@ export default async function product({
 }) {
   const { slug } = params;
   const productArray: ProductProps[] = await getProduct(slug);
-  if (!productArray.length) return notFound();
+  if (!productArray || !productArray.length) return notFound();
   const product = productArray[0];
   return (
     <MainSection>
@@ -30,6 +31,29 @@ export default async function product({
           <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
             <VarietySelector product={product} />
           </div>
+        </div>
+        <div className="flex flex-wrap gap-2 m-2">
+          <p>
+            برچسب ها
+            <strong className="px-2 bg-accent-pink/50 text-foreground rounded-lg">
+              #
+            </strong>
+            :
+          </p>
+          {product.tags.map((tag, index) => (
+            <>
+              <Link
+                key={tag.id}
+                className="px-2 bg-accent-pink/50 hover:bg-accent-pink/70 transition-colors text-background rounded-lg"
+                href={'/shop/tags/' + tag.slug}
+              >
+                <p className="drop-shadow-lg">{tag.title}</p>
+              </Link>
+              {product.tags.length > 1 && index + 1 < product.tags.length && (
+                <p>،</p>
+              )}
+            </>
+          ))}
         </div>
         <div className="mt-5 md:mx-10 bg-slate-50 px-2 border rounded-lg">
           <h3 className="text-accent-pink">توضیحات محصول:</h3>
