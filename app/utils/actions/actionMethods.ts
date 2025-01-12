@@ -7,7 +7,7 @@ export const registerAction = async (
   _prevState: object,
   formData: FormData
 ) => {
-  const username = formData.get('username')?.toString();
+  let username = formData.get('username')?.toString();
   const email = formData.get('email')?.toString();
   let phoneNumber = formData.get('phoneNumber')?.toString();
   const password = formData.get('password')?.toString();
@@ -16,6 +16,9 @@ export const registerAction = async (
     ? phoneNumber.slice(phoneNumber.indexOf('9'))
     : phoneNumber;
 
+  username = username?.includes('9')
+    ? username.slice(username.indexOf('9'))
+    : username;
   const result = registerSchema.safeParse({
     username,
     email,
@@ -36,10 +39,11 @@ export const registerAction = async (
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        username: result.data.username,
+        username: '98' + result.data.username,
         password: result.data.password,
         email: result.data.email,
         phone: result.data.phoneNumber,
+        // confirm: 'false',
       }),
     });
     const reqResult = await res.json();
@@ -49,7 +53,7 @@ export const registerAction = async (
     console.log('Here is the result2 : \n', res);
     console.log('Here is the result3 : \n', reqResult);
 
-    console.log('Phone output : ', phoneNumber);
+    console.log('Phone output : ', username);
 
     return { jwt, user };
   } catch (error) {

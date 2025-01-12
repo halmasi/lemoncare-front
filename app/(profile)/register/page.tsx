@@ -21,7 +21,7 @@ export default function register() {
   useEffect(() => {
     if (formState.jwt && formState.user) {
       setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
-        //router.push('/');
+        router.push('/dashboard');
       });
     }
   }, [formState.user, router]);

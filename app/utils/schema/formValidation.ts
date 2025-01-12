@@ -16,7 +16,11 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  username: z.string().nonempty('نام کاربری الزامی است'),
+  username: z
+    .string()
+    .nonempty('نام کاربری الزامی است')
+    .regex(/^9\d{9}$/, '123 شماره تلفن وارد شده معتبر نیست'),
+
   email: z
     .string()
     .email('آدرس ایمیل را دوباره بررسی کنید')
