@@ -1,10 +1,12 @@
-import Image from 'next/image';
-import { getProducts } from '../utils/data/getProducts';
-import VarietySelector from '../components/VarietySelector';
+import { getProductsByTag } from '@/app/utils/data/getProducts';
 import Link from 'next/link';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import VarietySelector from '@/app/components/VarietySelector';
 
-export default async function shopPage() {
-  const products = await getProducts(3);
+export default async function tags({ params }: { params: { slug: string } }) {
+  const products = await getProductsByTag(params.slug);
+  if (!products.length) return notFound();
   return (
     <div className="flex flex-col container py-5 px-10">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">

@@ -16,10 +16,8 @@ export default async function RootLayout({
   const menuItems = await getShopMenuItems();
   return (
     <>
-      <header>
-        <Navbar menuItems={menuItems} />
-      </header>
-      <div className="flex bg-gray-50 relative z-10 justify-center pt-3">
+      <Navbar menuItems={menuItems} />
+      <div className="flex bg-gray-50 relative z-10 justify-center">
         <div className="flex min-h-svh w-full justify-center">{children}</div>
       </div>
     </>

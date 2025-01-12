@@ -134,7 +134,7 @@ export interface ContentChildrenProps {
   }[];
 }
 
-export const getPosts = cache(async function (tag?: string[], count?: number) {
+export const getPosts = cache(async function (count?: number, tag?: string[]) {
   const query = qs.stringify({
     populate: {
       seo: { populate: '*' },
