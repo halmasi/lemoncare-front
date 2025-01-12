@@ -41,9 +41,8 @@ export default async function product({
             :
           </p>
           {product.tags.map((tag, index) => (
-            <>
+            <div className="flex" key={index}>
               <Link
-                key={tag.id}
                 className="px-2 bg-accent-pink/50 hover:bg-accent-pink/70 transition-colors text-background rounded-lg"
                 href={'/shop/tags/' + tag.slug}
               >
@@ -52,10 +51,10 @@ export default async function product({
               {product.tags.length > 1 && index + 1 < product.tags.length && (
                 <p>،</p>
               )}
-            </>
+            </div>
           ))}
         </div>
-        <div className="mt-5 md:mx-10 bg-slate-50 px-2 border rounded-lg">
+        <div className="mt-5 p-2 md:mx-10 bg-slate-50 border rounded-lg">
           <h3 className="text-accent-pink">توضیحات محصول:</h3>
           <div className=" border md:hidden" />
           {product.detailes.map((item, i) => (

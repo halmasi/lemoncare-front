@@ -3,6 +3,7 @@ import { BiShoppingBag } from 'react-icons/bi';
 import { ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
+import DiscountTimer from './DiscountTimer';
 
 export default function VarietySelector({
   product,
@@ -20,7 +21,7 @@ export default function VarietySelector({
     id: number;
     sub: number | null;
     before?: number | null;
-    end?: string | null;
+    end?: number | null;
     price: number | null;
   }>({
     id: selected.id,
@@ -75,21 +76,15 @@ export default function VarietySelector({
       const endDate =
         new Date(
           product.variety.find((e) => e.id == selected.id)!.endOfDiscount!
-        ) || null;
+        ).getTime() || null;
+
       setPrice({
         id: selected.id,
         sub: selected.sub,
         before:
           product.variety.find((e) => e.id == selected.id)
             ?.priceBeforeDiscount || null,
-        end:
-          endDate.toLocaleString('fa-IR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }) || null,
+        end: endDate || null,
         price: mainIdPrice,
       });
     } else if (selected.sub != null && subIdPrice) {
@@ -98,7 +93,7 @@ export default function VarietySelector({
           product.variety
             .find((e) => e.id == selected.id)!
             .subVariety.find((s) => s.id == selected.sub)!.endOfDiscount!
-        ) || null;
+        ).getTime() || null;
       setPrice({
         id: selected.id,
         sub: selected.sub,
@@ -107,14 +102,7 @@ export default function VarietySelector({
             .find((e) => e.id == selected.id)
             ?.subVariety.find((s) => s.id == selected.sub)
             ?.priceBefforDiscount || null,
-        end:
-          endDate.toLocaleString('fa-IR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }) || null,
+        end: endDate || null,
         price: subIdPrice,
       });
     } else {
@@ -162,7 +150,7 @@ export default function VarietySelector({
             <p>افزودن به سبد خرید</p>
             <BiShoppingBag />
           </button>
-          {price.end && <p className="text-sm pt-2">اتمام تخفیف {price.end}</p>}
+          {price.end && <DiscountTimer end={price.end} />}
         </>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
@@ -197,9 +185,7 @@ export default function VarietySelector({
             <h6 className="text-accent-green">
               {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
             </h6>
-            {price.end && (
-              <p className="text-sm pt-2">اتمام تخفیف {price.end}</p>
-            )}
+            {price.end && <DiscountTimer end={price.end} />}
           </>
         ) : (
           <div>
@@ -220,7 +206,7 @@ export default function VarietySelector({
             return (
               <RadioButton
                 value={{ id: item.id, sub: null }}
-                key={index}
+                key={index + item.id}
                 group="colors"
                 color={item.color}
                 handler={itemSelectFunc}
@@ -236,16 +222,16 @@ export default function VarietySelector({
             return (
               <div className="flex gap-2 p-2" key={index}>
                 {item.subVariety.length > 0 &&
-                  item.subVariety.map((i) => (
+                  item.subVariety.map((subItem) => (
                     <RadioButton
-                      key={i.id}
+                      key={subItem.id}
                       handler={itemSelectFunc}
                       selectedOptions={selected}
-                      value={{ id: item.id, sub: i.id }}
-                      color={i.color}
+                      value={{ id: item.id, sub: subItem.id }}
+                      color={subItem.color}
                       group="subItems"
                     >
-                      {i.specification}
+                      {subItem.specification}
                     </RadioButton>
                   ))}
               </div>
