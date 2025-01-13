@@ -26,17 +26,16 @@ export default function register() {
     }
   }, [formState.user, router]);
 
-  console.log('here is the formstate : \n', formState);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
         className="w-full md:w-7/12 container flex flex-col gap-2"
         action={formAction}
       >
-        <InputBox name="username" placeholder="نام کاربری">
-          نام کاربری
-        </InputBox>
-        {errors?.password && (
+        <PhoneInputBox name="username" required placeholder="شماره تلفن">
+          شماره موبایل
+        </PhoneInputBox>
+        {errors?.username && (
           <p className="text-red-500 text-sm">{errors.username[0]}</p>
         )}
         <InputBox name="email" required placeholder="ایمیل">
@@ -44,12 +43,6 @@ export default function register() {
         </InputBox>
         {errors?.email && (
           <p className="text-red-500 text-sm">{errors.email[0]}</p>
-        )}
-        <PhoneInputBox name="phoneNumber" placeholder="شماره تلفن">
-          شماره موبایل
-        </PhoneInputBox>
-        {errors?.password && (
-          <p className="text-red-500 text-sm">{errors.phoneNumber[0]}</p>
         )}
         <InputBox name="password" format="password" placeholder="رمزعبور">
           رمز عبور
