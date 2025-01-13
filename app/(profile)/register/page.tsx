@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useFormState } from 'react-dom';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 
-export default function register() {
+export default function Register() {
   const [formState, formAction] = useFormState(registerAction, {
     user: undefined,
     jwt: undefined,

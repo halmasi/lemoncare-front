@@ -1,7 +1,6 @@
 import Navbar from '@/app/components/Navbar';
 import { MenuProps } from '@/app/utils/data/getMenu';
 import React from 'react';
-import FooterNavbar from '../components/FooterNavbar';
 
 export default async function dashboardLayout({
   children,

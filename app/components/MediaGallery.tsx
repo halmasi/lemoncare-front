@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, CSSProperties } from 'react';
+import { useRef, useState, CSSProperties } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperType } from 'swiper';
@@ -101,7 +101,7 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
             modules={[FreeMode, Navigation, Thumbs]}
             className="thumbs w-full"
           >
-            {media.map((image, index) => (
+            {media.map((image) => (
               <SwiperSlide
                 key={image.id}
                 className="flex justify-center items-center"
