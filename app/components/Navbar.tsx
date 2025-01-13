@@ -6,9 +6,10 @@ import Link from 'next/link';
 import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
-import { MenuProps } from '@/utils/menu';
+import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar({
   menuItems,
@@ -46,22 +47,14 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
+  const path = usePathname();
 
   return (
-    <header className={`sticky top-0 z-20 ${menuState ? 'fixed' : 'sticky'}`}>
-      <motion.div
-        className={`w-full border-t-4 border-yellow-500 justify-between shadow-lg bg-white md:px-10 py-10`}
-        initial={{ opacity: 1, y: 0 }}
-        animate={
-          visibility || menuState
-            ? { opacity: 1, y: 0 }
-            : { opacity: 1, y: -150 }
-        }
-        exit={{ opacity: 0, y: -150 }}
-        transition={{
-          duration: 0.2,
-          ease: 'easeIn',
-        }}
+    <header
+      className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility ? 'top-0' : '-top-44'}`}
+    >
+      <div
+        className={`w-full border-t-4 ${path.startsWith('/shop') ? 'border-accent-pink' : 'border-accent-yellow'} justify-between shadow-lg bg-white md:px-10 py-10`}
       >
         <motion.div
           className="flex flex-col md:hidden bg-white w-full relative space-y-5 px-5"
@@ -143,7 +136,7 @@ export default function Navbar({
                             <h6 className="text-sm">{item.title}</h6>
                           </MenuButton>
                         </div>
-                        {item.subMenu.length > 0 && (
+                        {item.subMenu && item.subMenu.length > 0 && (
                           <div className="overflow-hidden">
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
@@ -222,7 +215,7 @@ export default function Navbar({
                       <MenuButton slug={item.url} submenu={item.subMenu}>
                         <h6 className="text-sm">{item.title}</h6>
                       </MenuButton>
-                      {item.subMenu.length > 0 && (
+                      {item.subMenu && item.subMenu.length > 0 && (
                         <AnimatePresence>
                           <div className="w-full overflow-hidden">
                             <AnimatePresence>
@@ -280,7 +273,7 @@ export default function Navbar({
             <SearchInput />
           </div>
         </div>
-      </motion.div>
+      </div>
     </header>
   );
 }
