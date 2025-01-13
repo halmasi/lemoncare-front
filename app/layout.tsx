@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import FooterNavbar from './components/FooterNavbar';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
@@ -22,7 +23,9 @@ export default async function RootLayout({
         name="viewport"
         content="width=device-width, initial-scale=1, minimum-scale=1"
       />
-      <body className={`${iranFont.className} antialiased`}>{children}</body>
+      <body className={`${iranFont.className} antialiased`}>
+        {children} <FooterNavbar />
+      </body>
     </html>
   );
 }

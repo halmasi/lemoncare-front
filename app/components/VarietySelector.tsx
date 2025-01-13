@@ -119,7 +119,7 @@ export default function VarietySelector({
   return list ? (
     <>
       {price.price ? (
-        <>
+        <div>
           <div className="flex gap-3 pb-2">
             <h6 className="text-accent-green">
               {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
@@ -151,14 +151,14 @@ export default function VarietySelector({
             <BiShoppingBag />
           </button>
           {price.end && <DiscountTimer end={price.end} />}
-        </>
+        </div>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
       )}
     </>
   ) : (
     <>
-      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 p-5 border bg-gray-100 rounded-xl justify-center items-center">
+      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
         {price.price ? (
           <>
             <h5>{product.off}</h5>
@@ -206,7 +206,7 @@ export default function VarietySelector({
             return (
               <RadioButton
                 value={{ id: item.id, sub: null }}
-                key={index + item.id}
+                key={index + 'id:' + item.id}
                 group="colors"
                 color={item.color}
                 handler={itemSelectFunc}
