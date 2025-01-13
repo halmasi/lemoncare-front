@@ -8,7 +8,7 @@ export default async function tags({ params }: { params: { slug: string } }) {
   const products = await getProductsByTag(params.slug);
   if (!products.length) return notFound();
   return (
-    <div className="flex flex-col container py-5 px-10">
+    <div className="flex flex-col container py-5 px-2 md:px-10">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
         {products.map((item) => {
           return (
