@@ -1,10 +1,28 @@
-import Image from 'next/image';
-import { getProducts } from '../utils/data/getProducts';
-import VarietySelector from '../components/VarietySelector';
+import { getShopCategory } from '@/app/utils/data/getProductCategories';
+import { getProductsByCategory } from '@/app/utils/data/getProducts';
 import Link from 'next/link';
+import Image from 'next/image';
+import VarietySelector from '@/app/components/VarietySelector';
+import { notFound } from 'next/navigation';
 
-export default async function shopPage() {
-  const products = await getProducts(3);
+export default async function shopCategory({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const slug = (await params).slug;
+  if (!slug || !slug.length)
+    return (
+      <div>
+        <h1 className="text-accent-pink">Recomended categories</h1>
+      </div>
+    );
+  const category = await getShopCategory(slug[slug.length - 1], [
+    'shop-category',
+  ]);
+  if (!category.length) return notFound();
+  const products = await getProductsByCategory(category[0]);
+  if (!products.length) return notFound();
   return (
     <div className="flex flex-col container py-5 px-2 md:px-10">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">

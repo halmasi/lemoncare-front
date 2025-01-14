@@ -8,7 +8,7 @@ export default function SearchInput() {
           type="search"
           name="q"
           id="searchbox"
-          placeholder="جستجو ..."
+          placeholder="جستجو مقاله یا محصول ..."
         />
         <button
           className="pl-3 h-10 flex items-center justify-center rounded-l-full border border-r-0 transition-all duration-100 bg-gray-100 text-gray-500 hover:text-gray-700 hover:text-lg focus:text-gray-950"

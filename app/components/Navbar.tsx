@@ -287,7 +287,7 @@ export default function Navbar({
                 <p className="text-sm">ورود / ثبت نام</p>
               </Link>
               <p>|</p>
-              <Link href={'/dashboard/cart'}>
+              <Link href={'/cart'}>
                 <RiShoppingBagFill className="text-2xl" />
               </Link>
             </div>

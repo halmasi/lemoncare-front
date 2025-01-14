@@ -46,8 +46,8 @@ export default function FooterNavbar() {
           {path.startsWith('/blog') ? <RiArticleFill /> : <RiArticleLine />}
         </Button>
 
-        <Button href="/dashboard/cart" label="سبد خرید">
-          {path == '/dashboard/cart' ? (
+        <Button href="/cart" label="سبد خرید">
+          {path.startsWith('/cart') ? (
             <RiShoppingBagFill />
           ) : (
             <RiShoppingBagLine />
@@ -55,7 +55,7 @@ export default function FooterNavbar() {
         </Button>
 
         <Button href="/dashboard" label="حساب من">
-          {path != '/dashboard/cart' && path.startsWith('/dashboard') ? (
+          {path.startsWith('/dashboard') ? (
             <RiAccountPinCircleFill />
           ) : (
             <RiAccountPinCircleLine />
