@@ -2,8 +2,8 @@ import {
   CategoriesProps,
   getCategories,
   getCategory,
-} from '@/utils/data/getCategories';
-import { getPostsByCategory } from '@/utils/data/getPosts';
+} from '@/app/utils/data/getCategories';
+import { getPostsByCategory } from '@/app/utils/data/getPosts';
 
 export async function generateSitemaps() {
   const categories = await getCategories();

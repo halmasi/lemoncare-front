@@ -37,7 +37,6 @@ export const getShopCategory = cache(async function (
 ): Promise<ShopCategoryProps[]> {
   const query = qs.stringify({
     filters: { slug: { $eq: slug } },
-    // populate: '*',
     populate: {
       shopParentCategory: { populate: '*' },
       shopSubCategories: { populate: '*' },
@@ -45,4 +44,31 @@ export const getShopCategory = cache(async function (
   });
   const result = await dataFetch(`/shop-categories?${query}`, tag);
   return result;
+});
+
+export const getShopCategoriesUrl = cache(async function (
+  category: ShopCategoryProps | string,
+  tag?: string[]
+): Promise<string> {
+  let slug = category;
+  if (typeof category != 'string') {
+    slug = category.slug;
+  }
+  const query = qs.stringify({
+    filters: { slug: { $eq: slug } },
+    populate: {
+      shopParentCategory: { populate: '*' },
+    },
+  });
+  const data: ShopCategoryProps[] = await dataFetch(
+    `/shop-categories?${query}`,
+    tag
+  );
+  const result = data[0];
+  const res: string = result.slug;
+  if (result.shopParentCategory)
+    return (
+      (await getShopCategoriesUrl(result.shopParentCategory, tag)) + '/' + res
+    );
+  return res;
 });

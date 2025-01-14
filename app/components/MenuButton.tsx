@@ -26,8 +26,10 @@ export default function MenuButton({
     <div
       className={`flex w-full md:w-fit flex-row border-b items-center text-sm p-2 md:cursor-pointer transition-colors duration-150 md:mx-3 ${
         (path.startsWith(slug) && slug !== '/') || path === slug
-          ? 'bg-green-700 rounded-lg text-white md:border-green-700 md:text-black md:bg-transparent md:rounded-none'
-          : 'border-yellow-500 rounded-none hover:border-yellow-800'
+          ? 'bg-accent-green rounded-lg text-white md:border-accent-green md:text-black md:bg-transparent md:rounded-none'
+          : path.startsWith('/blog')
+            ? 'border-accent-yellow rounded-none hover:border-yellow-800'
+            : 'border-accent-pink rounded-none hover:border-pink-800'
       }`}
     >
       <Link

@@ -9,7 +9,7 @@ const PostCard = dynamic(() => import('@/app/components/PostCard'), {
 import dynamic from 'next/dynamic';
 
 export default async function Home() {
-  const data = await getPosts(['post'], 3);
+  const data = await getPosts(3, ['post']);
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">

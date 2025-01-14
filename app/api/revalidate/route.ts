@@ -113,6 +113,9 @@ export async function POST(request: NextRequest) {
       revalidateTag('shop-menu');
       break;
 
+    case 'user':
+      break;
+
     default:
       console.log(body);
       break;

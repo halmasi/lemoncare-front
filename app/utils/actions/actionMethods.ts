@@ -3,7 +3,8 @@
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { requestData } from '../data/dataFetch';
+
+import { requestData } from '@/app/utils/data/dataFetch';
 export const registerAction = async (
   _prevState: object,
   formData: FormData

@@ -14,7 +14,7 @@ export const HamburgerMenuButton = ({
   width = 24,
   height = 24,
   strokeWidth = 1,
-  color = '#000',
+  color = '#404040',
   lineProps = null,
   transition = { spring },
   ...props
