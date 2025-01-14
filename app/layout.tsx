@@ -23,8 +23,10 @@ export default async function RootLayout({
         name="viewport"
         content="width=device-width, initial-scale=1, minimum-scale=1"
       />
+
       <body className={`${iranFont.className} antialiased`}>
-        {children} <FooterNavbar />
+        {children}
+        <FooterNavbar />
       </body>
     </html>
   );
