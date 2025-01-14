@@ -2,7 +2,6 @@ import qs from 'qs';
 import { dataFetch } from './dataFetch';
 import { PostsProps } from './getPosts';
 import { cache } from 'react';
-import { ShopCategoryProps } from './getProductCategories';
 
 export interface SubCategoryProps {
   id: number;

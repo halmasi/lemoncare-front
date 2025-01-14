@@ -20,15 +20,17 @@ export default async function product({
   return (
     <MainSection>
       <div className="w-full flex flex-col">
+        <div>
+          <Breadcrumbs product={product} />
+          <h2>{product.basicInfo.title}</h2>
+        </div>
         <div className="h-fit flex flex-col md:flex-row px-2">
           <div className="w-full md:w-1/2 text-center">
             <div className="flex flex-col overflow-hidden">
-              <Breadcrumbs product={product} />
-              <h2>{product.basicInfo.title}</h2>
               <MediaGallery media={product.media} />
             </div>
           </div>
-          <div className="flex flex-col w-full md:w-1/2 items-center justify-end">
+          <div className="flex flex-col w-full md:w-1/2 items-center ">
             <VarietySelector product={product} />
           </div>
         </div>
