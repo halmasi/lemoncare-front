@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import '../globals.css';
+import { getShopMenuItems } from '@/app/utils/data/getMenu';
+import Navbar from '@/app/components/Navbar';
 
 export const metadata: Metadata = {
   title: 'LemonCare shop - قروشگاه لمن کر',
@@ -11,9 +13,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const menuItems = await getShopMenuItems();
   return (
-    <div className="flex bg-gray-50 relative z-10 justify-center">
-      <div className="flex min-h-svh w-full justify-center">{children}</div>
-    </div>
+    <>
+      <Navbar menuItems={menuItems} />
+      <div className="flex bg-gray-50 relative z-10 justify-center">
+        <div className="flex min-h-svh w-full justify-center">{children}</div>
+      </div>
+    </>
   );
 }

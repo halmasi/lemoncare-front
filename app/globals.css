@@ -16,8 +16,8 @@
   direction: rtl;
 }
 body {
-  color: theme('colors.gray.800');
-  background-color: theme('colors.gray.100');
+  color: theme('colors.foreground');
+  background-color: theme('colors.background');
 }
 
 h1 {
@@ -75,4 +75,12 @@ p {
 
 .codeSection {
   direction: ltr;
+}
+
+.thumbs .swiper-slide {
+  opacity: 0.25;
+}
+
+.thumbs .swiper-slide-thumb-active {
+  opacity: 1;
 }

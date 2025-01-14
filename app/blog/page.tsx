@@ -1,7 +1,7 @@
-import { getCategoriesUrl } from '@/utils/data/getCategories';
-import { getGravatar, getPosts, PostsProps } from '@/utils/data/getPosts';
-const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
-const PostCard = dynamic(() => import('@/components/PostCard'), {
+import { getCategoriesUrl } from '@/app/utils/data/getCategories';
+import { getGravatar, getPosts, PostsProps } from '@/app/utils/data/getPosts';
+const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
+const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
   loading: () => <PostsSkeleton />,
 });
@@ -9,7 +9,7 @@ const PostCard = dynamic(() => import('@/components/PostCard'), {
 import dynamic from 'next/dynamic';
 
 export default async function Home() {
-  const data = await getPosts(['post'], 3);
+  const data = await getPosts(3, ['post']);
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
