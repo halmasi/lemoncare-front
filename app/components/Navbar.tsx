@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
+import { useDataStore } from '../UseUserdata';
 
 export default function Navbar({
   menuItems,
@@ -49,6 +50,9 @@ export default function Navbar({
     else setVisibility(true);
   }, [scrollData]);
   const path = usePathname();
+
+  const updateDataStore = useDataStore().user;
+  console.log('this data from userdata : ', updateDataStore);
 
   return (
     <>
@@ -284,7 +288,11 @@ export default function Navbar({
                 className="flex items-center gap-1 p-2 border rounded-xl"
               >
                 <RiAccountPinCircleFill className="text-2xl" />
-                <p className="text-sm">ورود / ثبت نام</p>
+                {updateDataStore ? (
+                  <p className="text-sm">{updateDataStore.email}</p>
+                ) : (
+                  <p className="text-sm">ورود / ثبت نام</p>
+                )}
               </Link>
               <p>|</p>
               <Link href={'/cart'}>

@@ -6,6 +6,7 @@ import { setCookie, signinAction } from '@/app/utils/actions/actionMethods';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
+import { useDataStore } from '@/app/UseUserdata';
 
 export default function Page() {
   const [formState, formAction] = useFormState(signinAction, {
@@ -20,14 +21,17 @@ export default function Page() {
       ? formState.user.fieldErrors
       : {};
 
+  const { setJwt, setUser } = useDataStore();
   useEffect(() => {
+    console.log('Data updated in the store');
     if (formState.jwt && formState.user) {
       setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
+        setJwt(formState.jwt);
+        setUser(formState.user);
         router.push('/dashboard');
       });
     }
-  }, [formState.user, router]);
-
+  }, [formState.jwt, formState.user, router, setJwt, setUser]);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form

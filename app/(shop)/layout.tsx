@@ -14,6 +14,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const menuItems = await getShopMenuItems();
+
   return (
     <>
       <Navbar menuItems={menuItems} />
