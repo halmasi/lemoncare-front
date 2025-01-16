@@ -72,3 +72,49 @@ export const getShopCategoriesUrl = cache(async function (
     );
   return res;
 });
+
+export const getCategorySubHierarchy = cache(async function (
+  category: ShopSubCategoiesProps[],
+  tag?: string[]
+): Promise<ShopCategoryProps[]> {
+  const allCategories: ShopCategoryProps[] = [];
+  const result = await Promise.all(
+    category.map(async (item) => {
+      const res = await getShopCategory(item.slug, tag);
+      return res[0];
+    })
+  );
+
+  for (const e of result) {
+    allCategories.push(e);
+    if (e.shopSubCategories && e.shopSubCategories.length > 0) {
+      const fetchedCategories = await getCategorySubHierarchy(
+        e.shopSubCategories,
+        tag
+      );
+      allCategories.push(...fetchedCategories);
+    }
+  }
+
+  return allCategories;
+});
+
+export const getCategoryparentHierarchy = cache(async function (
+  category: ShopSubCategoiesProps,
+  tag?: string[]
+): Promise<ShopCategoryProps[]> {
+  const allCategories: ShopCategoryProps[] = [];
+  const res = await getShopCategory(category.slug, tag);
+  const result = res[0];
+  allCategories.push(result);
+
+  if (result.shopParentCategory) {
+    getCategoryparentHierarchy(result.shopParentCategory, tag).then(
+      (fetchedCategories) => {
+        allCategories.push(...fetchedCategories);
+      }
+    );
+  }
+
+  return allCategories;
+});
