@@ -1,18 +1,18 @@
-import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+
+import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 import {
   getGravatar,
   getPostsByCategory,
   PostsProps,
-} from '@/utils/data/getPosts';
-import { Metadata } from 'next';
-const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
-const PostCard = dynamic(() => import('@/components/PostCard'), {
+} from '@/app/utils/data/getPosts';
+const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
+const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
   loading: () => <PostsSkeleton />,
 });
-
-import dynamic from 'next/dynamic';
-import { notFound } from 'next/navigation';
 
 export async function generateMetadata({
   params,

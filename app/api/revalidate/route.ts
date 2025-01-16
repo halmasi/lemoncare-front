@@ -1,8 +1,8 @@
-import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 import {
   getCategoryHierarchy,
   getPostsByCategory,
-} from '@/utils/data/getPosts';
+} from '@/app/utils/data/getPosts';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { createHash } from 'node:crypto';
@@ -111,6 +111,9 @@ export async function POST(request: NextRequest) {
 
     case 'shop-menu':
       revalidateTag('shop-menu');
+      break;
+
+    case 'user':
       break;
 
     default:

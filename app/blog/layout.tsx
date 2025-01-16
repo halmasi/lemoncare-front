@@ -1,13 +1,13 @@
 import '../globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/BlogFooter';
-import { getMenuItems } from '@/utils/data/getMenu';
+import Navbar from '@/app/components/Navbar';
+import Footer from '@/app/components/BlogFooter';
+import { getMenuItems } from '@/app/utils/data/getMenu';
 import {
   FooteritemsProps,
   SocialLinksProps,
   getFooterItems,
   getSocialLinksItems,
-} from '@/utils/data/getMenu';
+} from '@/app/utils/data/getMenu';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
