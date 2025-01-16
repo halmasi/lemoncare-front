@@ -198,8 +198,28 @@ export async function POST(request: NextRequest) {
       })();
       break;
 
+    //----------suggested blog article
+    case 'suggested-article':
+      (async function () {
+        console.log(body);
+        revalidateTag('suggested-article-' + body.entry.slug);
+      })();
+      break;
+
+    //----------suggested product
+    case 'suggestion-list':
+      (async function () {
+        revalidateTag('suggestion-list-' + body.entry.slug);
+      })();
+      break;
+
     //----------user
     case 'user':
+      (async function () {})();
+      break;
+
+    //----------Coupon
+    case 'coupon':
       (async function () {})();
       break;
 
