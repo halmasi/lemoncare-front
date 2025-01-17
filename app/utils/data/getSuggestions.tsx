@@ -23,7 +23,16 @@ export const getArticleSuggestions = async (
     filter: {
       slug,
     },
-    populate: { posts: { populate: '*' } },
+    populate: {
+      posts: {
+        seo: { populate: '*' },
+        author: { populate: 1 },
+        basicInfo: { populate: '*' },
+        category: { populate: '*' },
+        tags: { populate: '*' },
+        sources: { populate: '*' },
+      },
+    },
   });
   const data = await dataFetch(`/suggested-articles?${query}`, [
     `suggested-article-${slug}`,

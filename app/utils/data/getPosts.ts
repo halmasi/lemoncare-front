@@ -152,9 +152,13 @@ export const getPosts = cache(async function (count?: number, tag?: string[]) {
   return result;
 });
 
-export const getPost = cache(async function (slug: string) {
+export const getPost = cache(async function (slug: string | number) {
+  const filter =
+    slug.toString().length > 6
+      ? { documentId: { $eq: slug } }
+      : { basicInfo: { contentCode: { $eq: slug } } };
   const query = qs.stringify({
-    filters: { basicInfo: { contentCode: { $eq: slug } } },
+    filters: filter,
     populate: {
       seo: { populate: '*' },
       author: { populate: 1 },

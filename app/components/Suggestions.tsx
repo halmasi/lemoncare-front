@@ -8,15 +8,23 @@ import { Navigation, Scrollbar, A11y, FreeMode } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { CSSProperties } from 'react';
+import Image from 'next/image';
+import PostCard from './PostCard';
+import { GrArticle } from 'react-icons/gr';
 
 interface Props {
   posts?: PostsProps[];
   products?: ProductProps[];
+  title: string;
 }
 
-export default function Suggestions({ posts, products }: Props) {
-  if (posts)
-    return (
+export default function Suggestions({ posts, products, title }: Props) {
+  return (
+    <div>
+      <div className="flex gap-2 items-center">
+        <GrArticle />
+        <h5>{title}</h5>
+      </div>
       <Swiper
         style={
           {
@@ -32,19 +40,45 @@ export default function Suggestions({ posts, products }: Props) {
         className="mySwiper"
       >
         <div>
-          {posts.map((item) => {
-            return (
-              <SwiperSlide
-                className="flex justify-center items-center"
-                key={item.documentId}
-              >
-                {item.basicInfo.title}
-              </SwiperSlide>
-            );
-          })}
+          {posts &&
+            posts.map((item) => {
+              return (
+                <SwiperSlide
+                  className="flex justify-center items-center"
+                  key={item.documentId}
+                >
+                  <PostCard
+                    basicInfo={item.basicInfo}
+                    category={item.category}
+                    seo={item.seo}
+                  />
+                </SwiperSlide>
+              );
+            })}
+          {products &&
+            products.map((item) => {
+              return (
+                <SwiperSlide
+                  className="flex justify-center items-center"
+                  key={item.documentId}
+                >
+                  <Image
+                    src={item.basicInfo.mainImage.url}
+                    alt={
+                      item.basicInfo.mainImage.alternativeText ||
+                      item.basicInfo.mainImage.name
+                    }
+                    width={item.basicInfo.mainImage.width}
+                    height={item.basicInfo.mainImage.height}
+                  />
+                  {item.basicInfo.title}
+                </SwiperSlide>
+              );
+            })}
         </div>
       </Swiper>
-    );
-  if (products) return <></>;
-  return <></>;
+    </div>
+  );
+  // if (products) return <></>;
+  // return <></>;
 }
