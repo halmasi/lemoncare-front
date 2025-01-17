@@ -32,10 +32,32 @@ export default function Suggestions({ posts, products, title }: Props) {
             '--swiper-navigation-color': '#fff',
           } as CSSProperties
         }
-        slidesPerView={4}
+        slidesPerView={1}
+        breakpoints={{
+          // when window width is >= 320px
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 20,
+          },
+          // when window width is >= 480px
+          480: {
+            slidesPerView: 2,
+            spaceBetween: 30,
+          },
+          // when window width is >= 640px
+          768: {
+            slidesPerView: 3,
+            spaceBetween: 40,
+          },
+          1024: {
+            slidesPerView: 4,
+            spaceBetween: 40,
+          },
+        }}
         spaceBetween={10}
         pagination={{ clickable: true, type: 'bullets' }}
         navigation={true}
+        // navigation={{ nextEl: '.arrow-left', prevEl: '.arrow-right' }}
         modules={[Navigation, Scrollbar, A11y, FreeMode]}
         className="mySwiper"
       >
@@ -76,6 +98,8 @@ export default function Suggestions({ posts, products, title }: Props) {
               );
             })}
         </div>
+        {/* <button className="arrow-left arrow">Prev</button>
+        <button className="arrow-right arrow">next</button> */}
       </Swiper>
     </div>
   );
