@@ -1,6 +1,7 @@
 import Suggestions from '@/app/components/Suggestions';
-import { getPost, PostsProps } from '@/app/utils/data/getPosts';
+import { getPost } from '@/app/utils/data/getPosts';
 import { getArticleSuggestions } from '@/app/utils/data/getSuggestions';
+import { GrArticle } from 'react-icons/gr';
 
 export default async function page() {
   const suggestedArticles = await getArticleSuggestions('homepage-slide');
@@ -13,7 +14,9 @@ export default async function page() {
   return (
     <div className="flex flex-col container max-w-screen-xl py-5 px-2 md:px-10">
       <div className="w-full ovrflow-hidden">
-        <Suggestions posts={await posts} title={suggestedArticles.title} />
+        <Suggestions posts={await posts} title={suggestedArticles.title}>
+          <GrArticle />
+        </Suggestions>
       </div>
     </div>
   );
