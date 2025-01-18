@@ -3,7 +3,7 @@
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-
+import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 export const registerAction = async (
   _prevState: object,
@@ -23,7 +23,6 @@ export const registerAction = async (
   });
 
   if (!result.success) {
-    console.log('Validation failed:', result.error);
     return { success: false, fieldErrors: result.error.flatten().fieldErrors };
   }
 
@@ -73,6 +72,19 @@ export const signinAction = async (_prevState: object, formData: FormData) => {
 export const loginCheck = async (token: string) => {
   const res = await requestData('/users/me', 'GET', {}, token);
   return { status: res.result.status, body: res };
+};
+
+export const GetfulluserData = async (token: string) => {
+  const query = qs.stringify({
+    populate: '*',
+  });
+  const res = await requestData(
+    `/users/me?${query}`,
+    'GET',
+    {},
+    `Bearer ${token}`
+  );
+  return { status: res.result.status, body: res.data };
 };
 
 export const setCookie = async (name: string, cookie: string) => {

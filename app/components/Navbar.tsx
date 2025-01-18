@@ -51,8 +51,7 @@ export default function Navbar({
   }, [scrollData]);
   const path = usePathname();
 
-  const updateDataStore = useDataStore().user;
-  console.log('this data from userdata : ', updateDataStore);
+  const updateDataStore = useDataStore();
 
   return (
     <>
@@ -289,7 +288,7 @@ export default function Navbar({
               >
                 <RiAccountPinCircleFill className="text-2xl" />
                 {updateDataStore ? (
-                  <p className="text-sm">{updateDataStore.email}</p>
+                  <p className="text-sm">{updateDataStore.user?.email}</p>
                 ) : (
                   <p className="text-sm">ورود / ثبت نام</p>
                 )}

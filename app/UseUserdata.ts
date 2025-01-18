@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 type User = {
-  id: string;
-  email: string;
-  username: string;
+  id?: string;
+  email?: string;
+  username?: string;
+  data?: object | string | object[] | string[];
 } | null;
 
 type DataStoreState = {

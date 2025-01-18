@@ -2,7 +2,11 @@
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { setCookie, signinAction } from '@/app/utils/actions/actionMethods';
+import {
+  GetfulluserData,
+  setCookie,
+  signinAction,
+} from '@/app/utils/actions/actionMethods';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
@@ -23,11 +27,10 @@ export default function Page() {
 
   const { setJwt, setUser } = useDataStore();
   useEffect(() => {
-    console.log('Data updated in the store');
     if (formState.jwt && formState.user) {
-      setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
+      setCookie('jwt', `Bearer ${formState.jwt}`).then(async () => {
         setJwt(formState.jwt);
-        setUser(formState.user);
+        setUser((await GetfulluserData(formState.jwt)).body);
         router.push('/dashboard');
       });
     }
