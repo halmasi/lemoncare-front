@@ -1,11 +1,23 @@
-export default function page() {
+import Suggestions from '@/app/components/Suggestions';
+import { getPost } from '@/app/utils/data/getPosts';
+import { getArticleSuggestions } from '@/app/utils/data/getSuggestions';
+import { GrArticle } from 'react-icons/gr';
+
+export default async function page() {
+  const suggestedArticles = await getArticleSuggestions('homepage-slide');
+  const posts = Promise.all(
+    suggestedArticles.posts.map(async (post) => {
+      const singlePost = await getPost(post.documentId);
+      return singlePost[0];
+    })
+  );
   return (
-    <div className="flex flex-row flex-wrap pt-5 justify-center w-fit gap-2">
-      <div className="bg-gray-500 w-60 h-60 rounded-full" />
-      <div className="bg-gray-500 w-60 h-60 rounded-full" />
-      <div className="bg-gray-500 w-60 h-60 rounded-full" />
-      <div className="bg-gray-500 w-60 h-60 rounded-full" />
-      <div className="bg-gray-500 w-60 h-60 rounded-full" />
+    <div className="flex flex-col container max-w-screen-xl py-5 px-2 md:px-10">
+      <div className="w-full ovrflow-hidden">
+        <Suggestions posts={await posts} title={suggestedArticles.title}>
+          <GrArticle />
+        </Suggestions>
+      </div>
     </div>
   );
 }
