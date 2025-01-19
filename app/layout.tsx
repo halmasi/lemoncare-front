@@ -24,7 +24,7 @@ export default async function RootLayout({
         content="width=device-width, initial-scale=1, minimum-scale=1"
       />
 
-      <body className={`${iranFont.className} antialiased`}>
+      <body className={`${iranFont.className} antialiased min-h-svh`}>
         {children}
         <FooterNavbar />
       </body>

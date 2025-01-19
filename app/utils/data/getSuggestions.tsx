@@ -39,3 +39,23 @@ export const getArticleSuggestions = async (
   ]);
   return data[0];
 };
+
+export const getProductSuggestions = async (
+  slug: string
+): Promise<ProductSuggestionProps> => {
+  const query = qs.stringify({
+    filter: {
+      slug,
+    },
+    populate: {
+      products: {
+        seo: { populate: '*' },
+        basicInfo: { populate: '*' },
+      },
+    },
+  });
+  const data = await dataFetch(`/suggestion-lists?${query}`, [
+    `suggestion-list-${slug}`,
+  ]);
+  return data[0];
+};
