@@ -125,7 +125,7 @@ export default function VarietySelector({
               {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
             </h6>
             {price.before && (
-              <p className="flex gap-2 items-center">
+              <p className="gap-2 items-center">
                 <span className="text-sm  text-gray-500 line-through">
                   {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
                 </span>

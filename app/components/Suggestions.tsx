@@ -11,6 +11,8 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import PostCard from './PostCard';
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
+import VarietySelector from './VarietySelector';
+import Link from 'next/link';
 
 interface Props {
   posts?: PostsProps[];
@@ -124,16 +126,46 @@ export default function Suggestions({
                     className="flex justify-center items-center"
                     key={item.documentId}
                   >
-                    <Image
-                      src={item.basicInfo.mainImage.url}
-                      alt={
-                        item.basicInfo.mainImage.alternativeText ||
-                        item.basicInfo.mainImage.name
-                      }
-                      width={item.basicInfo.mainImage.width}
-                      height={item.basicInfo.mainImage.height}
-                    />
-                    {item.basicInfo.title}
+                    <div className="p-2 border rounded-xl transition-shadow hover:shadow-lg">
+                      <Link
+                        className="space-y-2"
+                        href={'/shop/product/' + item.basicInfo.contentCode}
+                      >
+                        <div className="flex flex-row justify-end items-end contain-content">
+                          <Image
+                            src={item.basicInfo.mainImage.formats.medium.url}
+                            alt={
+                              item.basicInfo.mainImage.alternativeText ||
+                              item.basicInfo.mainImage.formats.medium.name
+                            }
+                            width={
+                              item.basicInfo.mainImage.formats.medium.width
+                            }
+                            height={
+                              item.basicInfo.mainImage.formats.medium.height
+                            }
+                            className="rounded-lg"
+                          />
+                          {item.variety.length > 0 && (
+                            <div className="absolute flex gap-1 px-3 py-1">
+                              {item.variety.map(
+                                (variety) =>
+                                  variety.color && (
+                                    <div
+                                      key={variety.id}
+                                      style={{ background: variety.color }}
+                                      className="h-3 w-3 rounded-full border-white border-2"
+                                    />
+                                  )
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <h6>{item.basicInfo.title}</h6>
+                      </Link>
+                      <VarietySelector list product={item} />
+                    </div>
                   </SwiperSlide>
                 );
               })}

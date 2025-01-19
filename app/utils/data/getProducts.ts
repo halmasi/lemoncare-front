@@ -119,8 +119,12 @@ export interface ProductProps {
 }
 
 export const getProduct = cache(async function (slug: string, tag?: string[]) {
+  const filter =
+    slug.length > 6
+      ? { documentId: { $eq: slug } }
+      : { basicInfo: { contentCode: { $eq: slug } } };
   const query = qs.stringify({
-    filters: { basicInfo: { contentCode: { $eq: slug } } },
+    filters: filter,
     populate: {
       seo: { populate: '*' },
       basicInfo: { populate: '*' },
