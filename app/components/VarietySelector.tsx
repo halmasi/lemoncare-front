@@ -120,15 +120,20 @@ export default function VarietySelector({
     <>
       {price.price ? (
         <div>
-          <div className="flex gap-3 pb-2">
-            <h6 className="text-accent-green">
-              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
-            </h6>
-            {price.before && (
-              <p className="gap-2 items-center">
-                <span className="text-sm  text-gray-500 line-through">
-                  {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
-                </span>
+          {price.before && (
+            <div className="flex flex-col gap-3 pb-2">
+              <div className="flex gap-3">
+                <p className="flex gap-2 items-center">
+                  <span className="text-sm  text-gray-500 line-through">
+                    {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
+                  </span>
+                </p>
+                <h6 className="text-accent-green">
+                  {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                  تومان
+                </h6>
+              </div>
+              <p>
                 <strong className="p-1 bg-accent-pink rounded-xl text-background">
                   تخفیف{' '}
                   {((1 - price.price / price.before) * 100).toLocaleString(
@@ -138,8 +143,8 @@ export default function VarietySelector({
                   %
                 </strong>
               </p>
-            )}
-          </div>
+            </div>
+          )}
           <button
             onClick={() => {
               console.log(price);

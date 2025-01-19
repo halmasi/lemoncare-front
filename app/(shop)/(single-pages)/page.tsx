@@ -10,6 +10,7 @@ import { GrArticle } from 'react-icons/gr';
 export default async function page() {
   const suggestedArticles = await getArticleSuggestions('homepage-slide');
   const suggestedProducts = await getProductSuggestions('homepage-slide');
+
   const posts = Promise.all(
     suggestedArticles.posts.map(async (post) => {
       const singlePost = await getPost(post.documentId);
@@ -26,11 +27,15 @@ export default async function page() {
 
   return (
     <div className="flex flex-col container max-w-screen-xl py-5 px-2 md:px-10">
-      <div className="w-full ovrflow-hidden">
-        <Suggestions posts={await posts} title={suggestedArticles.title}>
+      <div className="flex flex-col w-full ovrflow-hidden gap-10 justify-center">
+        <Suggestions posts={await posts} title={suggestedArticles.title} id={0}>
           <GrArticle />
         </Suggestions>
-        <Suggestions products={await products} title={suggestedProducts.title}>
+        <Suggestions
+          products={await products}
+          title={suggestedProducts.title}
+          id={1}
+        >
           <GrArticle />
         </Suggestions>
       </div>
