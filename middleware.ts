@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { loginCheck } from './app/utils/actions/actionMethods';
-import { useDataStore } from './app/UseUserdata';
 
 export async function middleware(req: NextRequest) {
   const loginUrl = new URL(`/login`, req.url);
