@@ -9,12 +9,10 @@ const PostCard = dynamic(() => import('@/app/components/PostCard'), {
 import dynamic from 'next/dynamic';
 import { getSlides } from '../utils/data/getSuggestions';
 import Slide from '../components/Slide';
-import MediaGallery from '../components/MediaGallery';
-import MainSection from '../components/MainSection';
 
 export default async function Home() {
-  const slide = await getSlides('blog-homepage');
-  const media = slide.media.map((item) => {
+  const slide = await getSlides('blog');
+  const media = slide.medias.map((item) => {
     return item.media;
   });
   const data = await getPosts(3, ['post']);
@@ -22,7 +20,7 @@ export default async function Home() {
   return (
     <article className="w-full flex flex-col items-center">
       <div className="py-5 px-2">
-        <Slide media={slide.media} />
+        <Slide media={slide.medias} />
       </div>
 
       <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">

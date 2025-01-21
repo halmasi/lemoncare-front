@@ -15,13 +15,13 @@ import {
   Pagination,
   Keyboard,
   Scrollbar,
-  A11y,
-  FreeMode,
+  Autoplay,
 } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
 
 export default function Slide({
   media,
@@ -53,14 +53,11 @@ export default function Slide({
   };
 
   return (
-    <div className="flex items-center justify-center container w-full p-2">
+    <div className="flex items-center justify-center container w-full p-2 gap-2">
       <div
-        className={`hidden md:flex transition-opacity text-sm rounded-full ${buttonStatus.prev ? 'opacity-80' : 'opacity-20'}`}
+        className={`hidden md:flex transition-opacity text-sm rounded-full bg-background ${buttonStatus.prev ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'}  transition-colors`}
       >
-        <button
-          ref={prevBtnRef}
-          className={`flex bg-background slide-prev p-2 rounded-full`}
-        >
+        <button ref={prevBtnRef} className={`flex slide-prev p-2 rounded-full`}>
           <BiRightArrow />
         </button>
       </div>
@@ -72,6 +69,7 @@ export default function Slide({
         }
         slidesPerView={1}
         spaceBetween={10}
+        centeredSlides={true}
         keyboard={{ enabled: true }}
         pagination={{ clickable: true, type: 'bullets' }}
         navigation={{
@@ -79,9 +77,15 @@ export default function Slide({
           nextEl: '.slide-next',
           prevEl: '.slide-prev',
         }}
+        autoplay={{
+          pauseOnMouseEnter: true,
+          delay: 5000,
+        }}
+        scrollbar={{ draggable: true }}
+        loop
         onSlideChange={() => changeSlide()}
-        modules={[Keyboard, Pagination, Navigation, Scrollbar, A11y, FreeMode]}
-        className="w-[90vw] self-center flex items-center justify-center"
+        modules={[Autoplay, Keyboard, Pagination, Navigation, Scrollbar]}
+        className="w-[90vw] self-center flex items-center justify-center rounded-xl overflow-hidden"
       >
         <div className="flex justify-center">
           {media.map((item) => (
@@ -93,6 +97,7 @@ export default function Slide({
                     alt=""
                     height={item.media.height}
                     width={item.media.width}
+                    priority
                     className="w-full md:max-h-[50svh] aspect-video object-cover rounded-xl"
                   />
                 )}
@@ -102,12 +107,9 @@ export default function Slide({
         </div>
       </Swiper>
       <div
-        className={`hidden md:flex text-sm rounded-full ml-5 ${buttonStatus.next ? 'opacity-80' : 'opacity-20'}`}
+        className={`hidden md:flex text-sm rounded-full ml-5 bg-background ${buttonStatus.next ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'} transition-colors`}
       >
-        <button
-          ref={nextBtnRef}
-          className="flex bg-background slide-next p-2 rounded-full"
-        >
+        <button ref={nextBtnRef} className="flex slide-next p-2 rounded-full">
           <BiLeftArrow />
         </button>
       </div>

@@ -20,7 +20,7 @@ interface ProductSuggestionProps {
 interface SlideProps {
   slug: string;
   location: 'homepage' | 'shop' | 'blog' | 'category' | 'brand';
-  media: {
+  medias: {
     link: string;
     media: MediaProps;
   }[];
@@ -71,22 +71,20 @@ export const getProductSuggestions = cache(
 );
 
 export const getSlides = cache(async function (
-  slug: string
+  location: string
 ): Promise<SlideProps> {
   const query = qs.stringify({
     filter: {
-      slug,
+      location: { $eq: location },
     },
     populate: {
-      media: {
+      medias: {
         populate: '*',
       },
     },
   });
-
-  const data: SlideProps[] = await dataFetch(`/slides?${query}`, [
-    `slide-${slug}`,
+  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, [
+    `slide-${location}`,
   ]);
-
   return data[0];
 });
