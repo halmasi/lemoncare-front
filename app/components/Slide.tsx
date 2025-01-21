@@ -53,25 +53,43 @@ export default function Slide({
   };
 
   return (
-    <div className="flex items-center justify-center container w-full p-2 gap-2">
-      <div
-        className={`hidden md:flex transition-opacity text-sm rounded-full bg-background ${buttonStatus.prev ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'}  transition-colors`}
-      >
-        <button ref={prevBtnRef} className={`flex slide-prev p-2 rounded-full`}>
-          <BiRightArrow />
-        </button>
+    <div className="flex h-fit container w-full p-2 gap-2">
+      <div className="flex items-end">
+        <div className="flex absolute m-5 z-20 gap-2">
+          <div
+            className={`text-sm rounded-full bg-background ${buttonStatus.prev ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'}  transition-all`}
+          >
+            <button
+              ref={prevBtnRef}
+              className={`flex slide-prev p-2 rounded-full`}
+            >
+              <BiRightArrow />
+            </button>
+          </div>
+          <div
+            className={`text-sm rounded-full  bg-background ${buttonStatus.next ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'} transition-all`}
+          >
+            <button
+              ref={nextBtnRef}
+              className="flex slide-next p-2 rounded-full"
+            >
+              <BiLeftArrow />
+            </button>
+          </div>
+        </div>
       </div>
       <Swiper
         style={
           {
             '--swiper-pagination-color': '#fff',
+            '-webkit-backface-visibility': 'hidden',
           } as CSSProperties
         }
         slidesPerView={1}
         spaceBetween={10}
         centeredSlides={true}
         keyboard={{ enabled: true }}
-        pagination={{ clickable: true, type: 'bullets' }}
+        pagination={{ type: 'bullets' }}
         navigation={{
           enabled: true,
           nextEl: '.slide-next',
@@ -106,13 +124,6 @@ export default function Slide({
           ))}
         </div>
       </Swiper>
-      <div
-        className={`hidden md:flex text-sm rounded-full ml-5 bg-background ${buttonStatus.next ? 'opacity-80 hover:bg-gray-200' : 'opacity-20'} transition-colors`}
-      >
-        <button ref={nextBtnRef} className="flex slide-next p-2 rounded-full">
-          <BiLeftArrow />
-        </button>
-      </div>
     </div>
   );
 }
