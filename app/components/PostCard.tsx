@@ -13,6 +13,7 @@ export default function PostCard({
   gravatar,
   authorName,
   authorSlug,
+  isSlide,
 }: {
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
@@ -21,6 +22,7 @@ export default function PostCard({
   categoryUrl?: string;
   authorName?: string;
   authorSlug?: string;
+  isSlide?: boolean;
 }) {
   return (
     <article>
@@ -31,14 +33,18 @@ export default function PostCard({
         </div>
       )}
       <div className="flex flex-col bg-white shadow-lg rounded-lg">
-        <div className="w-full overflow-hidden rounded-t-lg">
+        <div
+          className={`w-full overflow-hidden ${isSlide ? 'rounded-lg' : 'rounded-t-lg'}`}
+        >
           <Link
             className="flex flex-col justify-end"
             href={'/blog/posts/' + basicInfo.contentCode}
           >
             <Suspense
               fallback={
-                <div className="object-cover rounded-t-lg w-full min-h-[15rem] bg-gray-600" />
+                <div
+                  className={`object-cover ${isSlide ? 'rounded-lg' : 'rounded-t-lg'} w-full min-h-[15rem] bg-gray-600`}
+                />
               }
             >
               <Image
@@ -49,7 +55,7 @@ export default function PostCard({
                 }
                 height={basicInfo.mainImage.formats.small.height}
                 width={basicInfo.mainImage.formats.small.width}
-                className="object-cover rounded-t-lg w-full min-h-[15rem] hover:scale-105 transition-transform duration-200"
+                className={`object-cover ${isSlide ? 'rounded-lg' : 'rounded-t-lg'} w-full min-h-[15rem] hover:scale-105 transition-transform duration-200`}
               />
             </Suspense>
             <h6 className="absolute text-white bg-black/30 rounded-xl w-fit px-3">
@@ -57,32 +63,34 @@ export default function PostCard({
             </h6>
           </Link>
         </div>
-        <div className="p-2">
-          <p>{seo.seoDescription}</p>
+        {!isSlide && (
+          <div className="p-2">
+            <p>{seo.seoDescription}</p>
+            {gravatar && authorName && authorSlug && (
+              <Link
+                className="flex items-center text-gray-600"
+                href={`/blog/author/${authorSlug}`}
+              >
+                <Image
+                  src={gravatar.avatar_url}
+                  alt=""
+                  width={100}
+                  height={100}
+                  className="w-10 aspect-square rounded-full ml-3"
+                />
+                <p>{authorName}</p>
+              </Link>
+            )}
 
-          {gravatar && authorName && authorSlug && (
             <Link
-              className="flex items-center text-gray-600"
-              href={`/blog/author/${authorSlug}`}
+              className="flex justify-center items-center mt-3 px-3 rounded-lg transition-all text-gray-700 hover:text-green-700  bg-yellow-400 w-fit" //hover:shadow-[rgba(200,0,100,0.9)_0px_0px_5px_1px]
+              href={'/blog/posts/' + basicInfo.contentCode}
             >
-              <Image
-                src={gravatar.avatar_url}
-                alt=""
-                width={100}
-                height={100}
-                className="w-10 aspect-square rounded-full ml-3"
-              />
-              <p>{authorName}</p>
+              <p>ادامه مطلب ...</p>
+              <IoMdArrowDropleft />
             </Link>
-          )}
-          <Link
-            className="flex justify-center items-center mt-3 px-3 rounded-lg transition-all text-gray-700 hover:text-green-700  bg-yellow-400 w-fit" //hover:shadow-[rgba(200,0,100,0.9)_0px_0px_5px_1px]
-            href={'/blog/posts/' + basicInfo.contentCode}
-          >
-            <p>ادامه مطلب ...</p>
-            <IoMdArrowDropleft />
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
     </article>
   );

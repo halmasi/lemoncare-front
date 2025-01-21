@@ -62,7 +62,7 @@ export default function Suggestions({
         >
           <button
             ref={prevBtnRef}
-            className={`flex ${posts && posts.length ? 'bg-accent-yellow' : 'bg-accent-pink'} text-white ${'slide-prev' + id} p-2 rounded-r-full`}
+            className={`flex transition-colors ${posts && posts.length ? 'bg-accent-yellow hover:bg-accent-yellow/80' : 'bg-accent-pink hover:bg-accent-pink/80'} text-white ${'slide-prev' + id} p-2 rounded-r-full`}
           >
             <BiRightArrow />
           </button>
@@ -72,7 +72,6 @@ export default function Suggestions({
           style={
             {
               '--swiper-pagination-color': '#fff',
-              '--swiper-navigation-color': '#fff',
             } as CSSProperties
           }
           slidesPerView={1}
@@ -105,13 +104,14 @@ export default function Suggestions({
           modules={[Navigation, Scrollbar, A11y, FreeMode]}
           className="mySwiper drop-shadow-xl"
         >
-          <div className="overflow-visible">
+          <div>
             {posts &&
               posts.map((item) => {
                 return (
                   <div key={item.documentId}>
                     <SwiperSlide className="flex justify-center items-center">
                       <PostCard
+                        isSlide
                         basicInfo={item.basicInfo}
                         category={item.category}
                         seo={item.seo}
@@ -176,7 +176,7 @@ export default function Suggestions({
         >
           <button
             ref={nextBtnRef}
-            className={`flex ${posts && posts.length ? 'bg-accent-yellow' : 'bg-accent-pink'} text-white ${'slide-next' + id} p-2 rounded-l-full`}
+            className={`flex transition-colors ${posts && posts.length ? 'bg-accent-yellow hover:bg-accent-yellow/80' : 'bg-accent-pink hover:bg-accent-pink/80'} text-white ${'slide-next' + id} p-2 rounded-l-full`}
           >
             <BiLeftArrow />
           </button>

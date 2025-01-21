@@ -118,7 +118,10 @@ export interface ProductProps {
   tags: TagsProps[];
 }
 
-export const getProduct = cache(async function (slug: string, tag?: string[]) {
+export const getProduct = cache(async function (
+  slug: string,
+  tag?: string[]
+): Promise<ProductProps[]> {
   const filter =
     slug.length > 6
       ? { documentId: { $eq: slug } }
@@ -130,7 +133,7 @@ export const getProduct = cache(async function (slug: string, tag?: string[]) {
       basicInfo: { populate: '*' },
       category: { populate: '*' },
       tags: { populate: '*' },
-      media: { populate: '*' },
+      media: { populate: 1 },
       variety: { populate: '*' },
     },
   });

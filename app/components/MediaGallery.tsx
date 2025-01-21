@@ -55,7 +55,6 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
             style={
               {
                 '--swiper-pagination-color': '#fff',
-                '--swiper-navigation-color': '#fff',
               } as CSSProperties
             }
             slidesPerView={1}
@@ -82,21 +81,21 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
           >
             <div className="flex z-20 w-full absolute -mt-[30%] mr-3 justify-between">
               <div
-                className={`transition-opacity text-sm rounded-full ${buttonStatus.prev ? 'opacity-80' : 'opacity-20'}`}
+                className={`transition-opacity text-sm rounded-full bg-background  ${buttonStatus.prev ? 'opacity-70 hover:opacity-80' : 'opacity-20'}`}
               >
                 <button
                   ref={prevBtnRef}
-                  className={`flex bg-background slide-prev p-2 rounded-full`}
+                  className={`flex slide-prev p-2 rounded-full`}
                 >
                   <BiRightArrow />
                 </button>
               </div>
               <div
-                className={`text-sm rounded-full ml-5 ${buttonStatus.next ? 'opacity-80' : 'opacity-20'}`}
+                className={`text-sm rounded-full ml-5 bg-background transition-opacity ${buttonStatus.next ? 'opacity-70 hover:opacity-80' : 'opacity-20'}`}
               >
                 <button
                   ref={nextBtnRef}
-                  className="flex bg-background slide-next p-2 rounded-full"
+                  className="flex slide-next p-2 rounded-full"
                 >
                   <BiLeftArrow />
                 </button>
