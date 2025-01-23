@@ -1,3 +1,5 @@
+'use client';
+
 import { logoutAction } from '@/app/utils/actions/actionMethods';
 export default function dashboard() {
   return (

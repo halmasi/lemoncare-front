@@ -102,3 +102,17 @@ export const logoutAction = async () => {
   await setCookie('jwt', 'null');
   redirect('/login');
 };
+
+export const RunTest = async (token: string) => {
+  const num = 29;
+
+  const req = await requestData(
+    `/users/${num}`,
+    'PUT',
+    {
+      username: '09187112855',
+    },
+    `Bearer ${token}`
+  );
+  return { status: req.result.status, body: req.data };
+};

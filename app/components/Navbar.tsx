@@ -288,7 +288,7 @@ export default function Navbar({
               >
                 <RiAccountPinCircleFill className="text-2xl" />
                 {updateDataStore ? (
-                  <p className="text-sm">{updateDataStore.user?.email}</p>
+                  <p className="text-sm">{updateDataStore.user?.fullName}</p>
                 ) : (
                   <p className="text-sm">ورود / ثبت نام</p>
                 )}
