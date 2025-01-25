@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
-import { useDataStore } from '../UseUserdata';
+import { DataStoreState, useDataStore } from '../UseUserdata';
 
 export default function Navbar({
   menuItems,
@@ -28,6 +28,7 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
+  const [usersName, setUsersName] = useState('ورود / ثبت نام');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,9 +51,17 @@ export default function Navbar({
     else setVisibility(true);
   }, [scrollData]);
   const path = usePathname();
-
-  const updateDataStore = useDataStore();
-
+  const setName = () => {
+    if (useDataStore().user && useDataStore().user?.fullName) {
+      setUsersName(useDataStore().user?.fullName!);
+    } else {
+      setUsersName('ورود / ثبت نام');
+      localStorage.removeItem('user-store');
+    }
+  };
+  useEffect(() => {
+    setName();
+  }, [useDataStore().user]);
   return (
     <>
       <header
@@ -287,11 +296,8 @@ export default function Navbar({
                 className="flex items-center gap-1 p-2 border rounded-xl"
               >
                 <RiAccountPinCircleFill className="text-2xl" />
-                {updateDataStore ? (
-                  <p className="text-sm">{updateDataStore.user?.fullName}</p>
-                ) : (
-                  <p className="text-sm">ورود / ثبت نام</p>
-                )}
+
+                <p className="text-sm">{usersName}</p>
               </Link>
               <p>|</p>
               <Link href={'/cart'}>

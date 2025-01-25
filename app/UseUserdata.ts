@@ -1,20 +1,21 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type User = {
+export interface UserProps {
   id?: string;
+  fullName?: string;
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
-} | null;
+}
 
-type DataStoreState = {
+export interface DataStoreState {
   jwt: string | null;
-  user: User;
-  setJwt: (jwt: string | null) => void;
-  setUser: (user: User) => void;
+  user: UserProps | null;
+  setJwt: (jwt: string) => void;
+  setUser: (user: UserProps) => void;
   resetUser: () => void;
-};
+}
 
 export const useDataStore = create(
   persist<DataStoreState>(
@@ -23,7 +24,10 @@ export const useDataStore = create(
       user: null,
       setJwt: (jwt) => set(() => ({ jwt })),
       setUser: (user) => set(() => ({ user })),
-      resetUser: () => set(() => ({ jwt: null, user: null })),
+      resetUser: () => {
+        set(() => ({ jwt: null, user: null }));
+        localStorage.removeItem('user-store');
+      },
     }),
     {
       name: 'user-store',

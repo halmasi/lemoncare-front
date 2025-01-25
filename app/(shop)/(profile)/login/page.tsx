@@ -30,7 +30,13 @@ export default function Page() {
     if (formState.jwt && formState.user) {
       setCookie('jwt', `Bearer ${formState.jwt}`).then(async () => {
         setJwt(formState.jwt);
-        setUser((await GetfulluserData(formState.jwt)).body);
+        setUser(
+          (
+            await GetfulluserData(formState.jwt, [
+              { postalInformation: { populate: '*' } },
+            ])
+          ).body
+        );
         router.push('/dashboard');
       });
     }

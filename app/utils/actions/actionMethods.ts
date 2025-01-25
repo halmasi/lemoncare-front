@@ -74,9 +74,15 @@ export const loginCheck = async (token: string) => {
   return { status: res.result.status, body: res };
 };
 
-export const GetfulluserData = async (token: string) => {
+export const GetfulluserData = async (
+  token: string,
+  populateOptions?: object[]
+) => {
   const query = qs.stringify({
-    populate: '*',
+    populate: {
+      cart: { product: { populate: '*' } },
+      orderHistory: { populate: '*' },
+    },
   });
   const res = await requestData(
     `/users/me?${query}`,
@@ -103,16 +109,16 @@ export const logoutAction = async () => {
   redirect('/login');
 };
 
-export const RunTest = async (token: string) => {
-  const num = 29;
-
-  const req = await requestData(
-    `/users/${num}`,
-    'PUT',
-    {
-      username: '09187112855',
-    },
-    `Bearer ${token}`
-  );
-  return { status: req.result.status, body: req.data };
-};
+// export const RunTest = async (token: string) => {
+// const num = 29;
+//
+// const req = await requestData(
+// `/users/${num}`,
+// 'PUT',
+// {
+// username: '09187112855',
+// },
+// `Bearer ${token}`
+// );
+// return { status: req.result.status, body: req.data };
+// };
