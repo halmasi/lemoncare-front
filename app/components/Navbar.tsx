@@ -51,17 +51,15 @@ export default function Navbar({
     else setVisibility(true);
   }, [scrollData]);
   const path = usePathname();
-  const setName = () => {
-    if (useDataStore().user && useDataStore().user?.fullName) {
-      setUsersName(useDataStore().user?.fullName!);
+  const { user, resetUser } = useDataStore();
+  useEffect(() => {
+    if (user && user.fullName) {
+      setUsersName(user.fullName);
     } else {
       setUsersName('ورود / ثبت نام');
-      localStorage.removeItem('user-store');
+      resetUser();
     }
-  };
-  useEffect(() => {
-    setName();
-  }, [useDataStore().user]);
+  }, [user, resetUser]);
   return (
     <>
       <header

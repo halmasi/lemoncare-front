@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
+import { get } from 'http';
 export const registerAction = async (
   _prevState: object,
   formData: FormData
@@ -104,7 +105,6 @@ export const setCookie = async (name: string, cookie: string) => {
 };
 
 export const logoutAction = async () => {
-  cookies().set('jwt', 'null');
   await setCookie('jwt', 'null');
   redirect('/login');
 };
