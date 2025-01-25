@@ -2,10 +2,15 @@
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { setCookie, signinAction } from '@/app/utils/actions/actionMethods';
+import {
+  GetfulluserData,
+  setCookie,
+  signinAction,
+} from '@/app/utils/actions/actionMethods';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
+import { useDataStore } from '@/app/UseUserdata';
 
 export default function Page() {
   const [formState, formAction] = useFormState(signinAction, {
@@ -20,14 +25,16 @@ export default function Page() {
       ? formState.user.fieldErrors
       : {};
 
+  const { setJwt, setUser } = useDataStore();
   useEffect(() => {
     if (formState.jwt && formState.user) {
-      setCookie('jwt', `Bearer ${formState.jwt}`).then(() => {
+      setCookie('jwt', `Bearer ${formState.jwt}`).then(async () => {
+        setJwt(formState.jwt);
+        setUser((await GetfulluserData(formState.jwt)).body);
         router.push('/dashboard');
       });
     }
-  }, [formState.user, router]);
-
+  }, [formState.jwt, formState.user, router, setJwt, setUser]);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form

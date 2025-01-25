@@ -5,7 +5,6 @@ export async function middleware(req: NextRequest) {
   const loginUrl = new URL(`/login`, req.url);
   const dashboardUrl = new URL('/dashboard', req.url);
   const cookieToken = req.cookies.get('jwt');
-
   if (req.nextUrl.pathname === '/login') {
     if (
       cookieToken &&

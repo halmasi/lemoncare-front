@@ -3,6 +3,7 @@
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 export const registerAction = async (
   _prevState: object,
@@ -22,7 +23,6 @@ export const registerAction = async (
   });
 
   if (!result.success) {
-    console.log('Validation failed:', result.error);
     return { success: false, fieldErrors: result.error.flatten().fieldErrors };
   }
 
@@ -74,6 +74,19 @@ export const loginCheck = async (token: string) => {
   return { status: res.result.status, body: res };
 };
 
+export const GetfulluserData = async (token: string) => {
+  const query = qs.stringify({
+    populate: '*',
+  });
+  const res = await requestData(
+    `/users/me?${query}`,
+    'GET',
+    {},
+    `Bearer ${token}`
+  );
+  return { status: res.result.status, body: res.data };
+};
+
 export const setCookie = async (name: string, cookie: string) => {
   const config = {
     path: 'login/',
@@ -88,4 +101,18 @@ export const logoutAction = async () => {
   cookies().set('jwt', 'null');
   await setCookie('jwt', 'null');
   redirect('/login');
+};
+
+export const RunTest = async (token: string) => {
+  const num = 29;
+
+  const req = await requestData(
+    `/users/${num}`,
+    'PUT',
+    {
+      username: '09187112855',
+    },
+    `Bearer ${token}`
+  );
+  return { status: req.result.status, body: req.data };
 };
