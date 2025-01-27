@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
-import { DataStoreState, useDataStore } from '../UseUserdata';
+import { useDataStore } from '../utils/states/useUserdata';
 
 export default function Navbar({
   menuItems,
@@ -29,6 +29,9 @@ export default function Navbar({
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
   const [usersName, setUsersName] = useState('ورود / ثبت نام');
+
+  const path = usePathname();
+  const { user } = useDataStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,16 +53,21 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
-  const path = usePathname();
-  const { user, resetUser } = useDataStore();
+
   useEffect(() => {
     if (user && user.fullName) {
       setUsersName(user.fullName);
     } else {
-      setUsersName('ورود / ثبت نام');
-      resetUser();
+      const storedUser = localStorage.getItem('user-store');
+      const parsedUser = storedUser && JSON.parse(storedUser).state;
+      setUsersName(() => {
+        if (parsedUser && parsedUser.user && parsedUser.jwt)
+          return parsedUser.user.fullName;
+        return 'ورود / ثبت نام';
+      });
     }
-  }, [user, resetUser]);
+  }, [user]);
+
   return (
     <>
       <header

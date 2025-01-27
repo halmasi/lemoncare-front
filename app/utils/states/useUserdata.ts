@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { setCookie } from './utils/actions/actionMethods';
+import { setCookie } from '../actions/actionMethods';
 
 export interface UserProps {
   id?: string;
@@ -26,7 +26,6 @@ export const useDataStore = create(
       setJwt: (jwt) => set(() => ({ jwt })),
       setUser: (user) => set(() => ({ user })),
       resetUser: () => {
-        console.log('Resetting user...');
         set(() => ({ jwt: null, user: null }));
         setCookie('jwt', 'null');
         localStorage.removeItem('user-store');

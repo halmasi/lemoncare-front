@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { get } from 'http';
+
 export const registerAction = async (
   _prevState: object,
   formData: FormData
@@ -62,11 +62,19 @@ export const signinAction = async (_prevState: object, formData: FormData) => {
       fieldErrors: result.error.flatten().fieldErrors,
     };
   }
+
   const res = await requestData('/auth/local', 'POST', {
     identifier: result.data.email,
     password: result.data.pass,
   });
+  if (res.data.error) {
+    return {
+      success: false,
+      fieldErrors: { server: [res.data.error.message || 'خطای سرور'] },
+    };
+  }
   const { jwt, user } = res.data;
+
   return { jwt, user };
 };
 
@@ -75,7 +83,7 @@ export const loginCheck = async (token: string) => {
   return { status: res.result.status, body: res };
 };
 
-export const GetfulluserData = async (
+export const getFullUserData = async (
   token: string,
   populateOptions?: object[]
 ) => {

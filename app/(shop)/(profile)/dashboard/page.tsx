@@ -1,6 +1,6 @@
 'use client';
 
-import { useDataStore } from '@/app/UseUserdata';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import { logoutAction } from '@/app/utils/actions/actionMethods';
 export default function dashboard() {
   const { resetUser } = useDataStore();
