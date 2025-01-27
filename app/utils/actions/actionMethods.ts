@@ -87,12 +87,16 @@ export const getFullUserData = async (
   token: string,
   populateOptions?: object[]
 ) => {
+  const populate = { cart: { populate: '*' } };
+
+  populateOptions &&
+    populateOptions.forEach((item) => {
+      Object.keys(item).map(() => Object.assign(populate, item));
+    });
   const query = qs.stringify({
-    populate: {
-      cart: { product: { populate: '*' } },
-      orderHistory: { populate: '*' },
-    },
+    populate,
   });
+  console.log(query);
   const res = await requestData(
     `/users/me?${query}`,
     'GET',
