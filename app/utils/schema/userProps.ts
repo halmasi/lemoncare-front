@@ -33,9 +33,9 @@ export interface SignInState {
   success: boolean;
   fieldErrors?: {
     email?: string[];
-    pass?: string[];
+    password?: string[];
     server?: string[];
   };
   jwt?: string;
-  user?: object;
+  user?: string;
 }

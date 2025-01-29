@@ -14,13 +14,19 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function Page() {
   const [formState, formAction] = useFormState(signinAction, {
+    success: false,
     user: '',
     jwt: '',
+    fieldErrors: {},
   });
 
   const router = useRouter();
 
-  const errors = formState?.user?.fieldErrors || {};
+  const errors = formState?.fieldErrors as {
+    email?: string[];
+    password?: string[];
+    server?: string[];
+  };
 
   const { setJwt, setUser } = useDataStore();
   useEffect(() => {
@@ -38,7 +44,6 @@ export default function Page() {
       });
     }
   }, [formState.jwt, formState.user, router, setJwt, setUser]);
-
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form

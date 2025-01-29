@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
-import { useDataStore } from '../utils/states/useUserdata';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function Navbar({
   menuItems,
