@@ -5,6 +5,8 @@ export async function middleware(req: NextRequest) {
   const loginUrl = new URL(`/login`, req.url);
   const dashboardUrl = new URL('/dashboard', req.url);
   const cookieToken = req.cookies.get('jwt');
+  const storedUser = req.headers.get('x-localstorage-user');
+
   if (req.nextUrl.pathname === '/login') {
     if (
       cookieToken &&
@@ -19,11 +21,11 @@ export async function middleware(req: NextRequest) {
   if (
     !cookieToken ||
     !cookieToken.value ||
-    (await loginCheck(cookieToken.value)).status !== 200
+    (await loginCheck(cookieToken.value)).status !== 200 ||
+    !storedUser
   ) {
     return NextResponse.redirect(loginUrl);
   }
-
   return NextResponse.next();
 }
 

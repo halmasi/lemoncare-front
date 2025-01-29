@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
-import { useDataStore } from '../UseUserdata';
+import { useDataStore } from '../utils/states/useUserdata';
 
 export default function Navbar({
   menuItems,
@@ -28,6 +28,10 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
+  const [usersName, setUsersName] = useState('ورود / ثبت نام');
+
+  const path = usePathname();
+  const { user } = useDataStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,9 +53,20 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
-  const path = usePathname();
 
-  const updateDataStore = useDataStore();
+  useEffect(() => {
+    if (user && user.fullName) {
+      setUsersName(user.fullName);
+    } else {
+      const storedUser = localStorage.getItem('user-store');
+      const parsedUser = storedUser && JSON.parse(storedUser).state;
+      setUsersName(() => {
+        if (parsedUser && parsedUser.user && parsedUser.jwt)
+          return parsedUser.user.fullName;
+        return 'ورود / ثبت نام';
+      });
+    }
+  }, [user]);
 
   return (
     <>
@@ -287,11 +302,8 @@ export default function Navbar({
                 className="flex items-center gap-1 p-2 border rounded-xl"
               >
                 <RiAccountPinCircleFill className="text-2xl" />
-                {updateDataStore ? (
-                  <p className="text-sm">{updateDataStore.user?.fullName}</p>
-                ) : (
-                  <p className="text-sm">ورود / ثبت نام</p>
-                )}
+
+                <p className="text-sm">{usersName}</p>
               </Link>
               <p>|</p>
               <Link href={'/cart'}>
