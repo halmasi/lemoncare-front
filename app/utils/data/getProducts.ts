@@ -4,7 +4,6 @@ import { dataFetch } from './dataFetch';
 import { ContentProps, ImageProps, TagsProps } from './getPosts';
 import {
   getCategorySubHierarchy,
-  getShopCategory,
   ShopCategoryProps,
   ShopSubCategoiesProps,
 } from './getProductCategories';

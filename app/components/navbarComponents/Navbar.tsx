@@ -10,8 +10,9 @@ import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
-import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
-import { useDataStore } from '../utils/states/useUserdata';
+import { RiAccountPinCircleFill } from 'react-icons/ri';
+import { useDataStore } from '../../utils/states/useUserdata';
+import Cart from './Cart';
 
 export default function Navbar({
   menuItems,
@@ -299,16 +300,14 @@ export default function Navbar({
             <div className="flex w-2/12 items-center gap-3">
               <Link
                 href={'/login'}
-                className="flex items-center gap-1 p-2 border rounded-xl"
+                className="flex flex-wrap items-center gap-1 p-2 border rounded-xl"
               >
                 <RiAccountPinCircleFill className="text-2xl" />
 
                 <p className="text-sm">{usersName}</p>
               </Link>
               <p>|</p>
-              <Link href={'/cart'}>
-                <RiShoppingBagFill className="text-2xl" />
-              </Link>
+              <Cart />
             </div>
           </div>
         </div>

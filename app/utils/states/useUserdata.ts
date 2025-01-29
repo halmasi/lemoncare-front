@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { setCookie } from '../actions/actionMethods';
+import { ProductProps } from '../data/getProducts';
 
 export interface UserProps {
   id?: string;
@@ -8,6 +9,7 @@ export interface UserProps {
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
+  cart?: { id: number; count: number; product: ProductProps }[];
 }
 
 export interface DataStoreState {

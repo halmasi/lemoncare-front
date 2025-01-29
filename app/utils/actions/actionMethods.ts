@@ -89,20 +89,14 @@ export const getFullUserData = async (
 ) => {
   const populate = { cart: { populate: '*' } };
 
-  populateOptions &&
+  if (populateOptions)
     populateOptions.forEach((item) => {
       Object.keys(item).map(() => Object.assign(populate, item));
     });
   const query = qs.stringify({
     populate,
   });
-  console.log(query);
-  const res = await requestData(
-    `/users/me?${query}`,
-    'GET',
-    {},
-    `Bearer ${token}`
-  );
+  const res = await requestData(`/users/me?${query}`, 'GET', {}, `${token}`);
   return { status: res.result.status, body: res.data };
 };
 
@@ -114,6 +108,10 @@ export const setCookie = async (name: string, cookie: string) => {
   };
 
   cookies().set(name, cookie, config);
+};
+
+export const getCookie = async (key: string) => {
+  return cookies().get(key)?.value;
 };
 
 export const logoutAction = async () => {

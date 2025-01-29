@@ -21,8 +21,7 @@ export async function middleware(req: NextRequest) {
   if (
     !cookieToken ||
     !cookieToken.value ||
-    (await loginCheck(cookieToken.value)).status !== 200 ||
-    !storedUser
+    (await loginCheck(cookieToken.value)).status !== 200
   ) {
     return NextResponse.redirect(loginUrl);
   }

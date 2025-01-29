@@ -8,7 +8,7 @@ import {
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 
@@ -29,7 +29,7 @@ export default function Page() {
         setJwt(formState.jwt);
         setUser(
           (
-            await getFullUserData(formState.jwt, [
+            await getFullUserData('Bearer ' + formState.jwt, [
               { postalInformation: { populate: '*' } },
             ])
           ).body

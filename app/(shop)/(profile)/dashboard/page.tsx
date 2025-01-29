@@ -1,9 +1,29 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { logoutAction } from '@/app/utils/actions/actionMethods';
-export default function dashboard() {
-  const { resetUser } = useDataStore();
+import {
+  getCookie,
+  getFullUserData,
+  logoutAction,
+} from '@/app/utils/actions/actionMethods';
+import { useEffect } from 'react';
+export default function Dashboard() {
+  const { resetUser, setUser, setJwt, user, jwt } = useDataStore();
+
+  useEffect(() => {
+    if (!user || !jwt) {
+      const func = async () => {
+        const token = await getCookie('jwt');
+        if (token) {
+          const res = await getFullUserData(token);
+          setJwt(token);
+          setUser(res.body);
+        }
+      };
+      func();
+    }
+  }, [user, jwt]);
+
   return (
     <div>
       <form
