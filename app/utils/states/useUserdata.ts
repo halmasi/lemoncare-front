@@ -9,7 +9,12 @@ export interface UserProps {
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
-  cart?: { id: number; count: number; product: ProductProps }[];
+  cart?: {
+    id: number;
+    count: number;
+    product: ProductProps;
+    variety: { id: number; sub: number | null };
+  }[];
 }
 
 export interface DataStoreState {

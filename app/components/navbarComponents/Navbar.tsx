@@ -72,7 +72,7 @@ export default function Navbar({
   return (
     <>
       <header
-        className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility || menuState ? 'top-0 sticky' : '-top-44'}`}
+        className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility || menuState ? 'top-0 sticky' : '-top-52'}`}
       >
         <div
           className={`flex flex-col items-center w-full border-t-4 ${path.startsWith('/blog') ? 'border-accent-yellow' : 'border-accent-pink'} justify-between shadow-lg bg-white md:px-10 pb-5 pt-10 gap-2`}
@@ -297,14 +297,14 @@ export default function Navbar({
             <div className="w-9/12 px-10">
               <SearchInput />
             </div>
-            <div className="flex w-2/12 items-center gap-3">
+            <div className="flex w-3/12 items-center gap-3">
               <Link
                 href={'/login'}
-                className="flex flex-wrap items-center gap-1 p-2 border rounded-xl"
+                className="flex w-fit flex-wrap items-center gap-1 p-2 border rounded-xl"
               >
                 <RiAccountPinCircleFill className="text-2xl" />
 
-                <p className="text-sm">{usersName}</p>
+                <p className="max-[1024px]:hidden text-sm">{usersName}</p>
               </Link>
               <p>|</p>
               <Cart />
