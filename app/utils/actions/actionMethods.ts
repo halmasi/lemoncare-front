@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
+import { populateObjectMaker } from '@/app/utils/tools';
 
 export const registerAction = async (
   _prevState: object,
@@ -12,7 +13,7 @@ export const registerAction = async (
 ) => {
   let username = formData.get('username')?.toString();
   const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
+  const password = formData.get('passwordS')?.toString();
 
   username = username?.includes('9')
     ? username.slice(username.indexOf('9'))
@@ -87,12 +88,10 @@ export const getFullUserData = async (
   token: string,
   populateOptions?: object[]
 ) => {
-  const populate = { cart: { populate: '*' } };
+  const populate = populateOptions
+    ? populateObjectMaker(populateOptions, { cart: { populate: '*' } })
+    : { cart: { populate: '*' } };
 
-  if (populateOptions)
-    populateOptions.forEach((item) => {
-      Object.keys(item).map(() => Object.assign(populate, item));
-    });
   const query = qs.stringify({
     populate,
   });

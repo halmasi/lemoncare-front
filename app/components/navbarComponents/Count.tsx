@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 
 export default function Count({
-  product,
+  // product,
   count,
 }: {
   product: ProductProps;
   count: number;
 }) {
-  const [number, setNumber] = useState(count);
+  const [number] = useState(count);
   return (
     <div className="flex gap-1 items-center px-5">
       <button className="p-1 border rounded-full">

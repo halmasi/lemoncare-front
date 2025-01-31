@@ -12,7 +12,7 @@ import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import { RiAccountPinCircleFill } from 'react-icons/ri';
 import { useDataStore } from '../../utils/states/useUserdata';
-import Cart from './Cart';
+import Cart from './CartButton';
 
 export default function Navbar({
   menuItems,
