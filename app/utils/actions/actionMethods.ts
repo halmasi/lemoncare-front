@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { SignInState } from '../schema/userProps';
+import { SignInState } from '@/app/utils/schema/userProps';
 
 export const registerAction = async (
   _prevState: object,
@@ -15,35 +15,53 @@ export const registerAction = async (
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
 
+  if (!username || !email || !password) {
+    return {
+      success: false,
+      fieldErrors: { server: ['تمامی فیلد ها اجباری میباشد'] },
+    };
+  }
   username = username?.includes('9')
     ? username.slice(username.indexOf('9'))
     : username;
-  const result = registerSchema.safeParse({
+  const validationResult = registerSchema.safeParse({
     username,
     email,
     password,
   });
 
-  if (!result.success) {
-    return { success: false, fieldErrors: result.error.flatten().fieldErrors };
+  if (!validationResult.success) {
+    return {
+      success: false,
+      fieldErrors: validationResult.error.flatten().fieldErrors,
+    };
   }
 
-  const res = await requestData('/auth/local/register', 'POST', {
-    username: '98' + result.data.username,
-    password: result.data.password,
-    email: result.data.email,
+  const response = await requestData('/auth/local/register', 'POST', {
+    username: '98' + validationResult.data.username,
+    email: validationResult.data.email,
+    password: validationResult.data.password,
   });
-
-  const { jwt, user } = res.data;
-  return { jwt, user };
+  if (response.data.error) {
+    return {
+      success: false,
+      fieldErrors: { server: [response.data.error.message || 'خطای سرور'] },
+    };
+  }
+  return {
+    success: true,
+    jwt: response.data.jwt,
+    user: response.data.user,
+    fieldErrors: {},
+  };
 };
 
 export const signinAction = async (
   _prevState: SignInState,
   formData: FormData
 ) => {
-  const email = formData.get('identifier')?.toString() || null;
-  const password = formData.get('password')?.toString() || null;
+  const email = formData.get('identifier')?.toString();
+  const password = formData.get('password')?.toString();
 
   if (!email || !password) {
     return {
@@ -55,63 +73,57 @@ export const signinAction = async (
     };
   }
 
-  const result = loginSchema.safeParse({
+  const validationResult = loginSchema.safeParse({
     email,
     pass: password,
   });
 
-  if (!result.success) {
-    console.log('Data from server result 1:', result.error?.flatten());
+  if (!validationResult.success) {
     return {
       success: false,
-      fieldErrors: result.error.flatten().fieldErrors,
+      fieldErrors: validationResult.error.flatten().fieldErrors,
     };
   }
-  const res = await requestData('/auth/local', 'POST', {
-    identifier: result.data.email,
-    password: result.data.pass,
+  const response = await requestData('/auth/local', 'POST', {
+    identifier: validationResult.data.email,
+    password: validationResult.data.pass,
   });
 
-  if (res.data.error) {
+  if (response.data.error) {
     return {
       success: false,
-      fieldErrors: { server: [res.data.error.message || 'خطای سرور'] },
+      fieldErrors: { server: [response.data.error.message || 'خطای سرور'] },
     };
   }
 
   return {
     success: true,
-    jwt: res.data.jwt,
-    user: res.data.user,
+    jwt: response.data.jwt,
+    user: response.data.user,
     fieldErrors: {},
   };
 };
 
 export const loginCheck = async (token: string) => {
-  const res = await requestData('/users/me', 'GET', {}, token);
-  return { status: res.result.status, body: res };
+  const response = await requestData('/users/me', 'GET', {}, token);
+  return { status: response.result.status, body: response };
 };
 
 export const getFullUserData = async (
   token: string,
-  populateOptions?: object[]
+  populateOptions: object[] = []
 ) => {
-  const populate = { cart: { populate: '*' } };
-
-  populateOptions &&
-    populateOptions.forEach((item) => {
-      Object.keys(item).map(() => Object.assign(populate, item));
-    });
   const query = qs.stringify({
-    populate,
+    populate: Object.assign({ cart: { populate: '*' } }, ...populateOptions),
   });
-  const res = await requestData(
+
+  const response = await requestData(
     `/users/me?${query}`,
     'GET',
     {},
     `Bearer ${token}`
   );
-  return { status: res.result.status, body: res.data };
+  return { status: response.result.status, body: response.data };
 };
 
 export const setCookie = async (name: string, cookie: string) => {
@@ -126,7 +138,6 @@ export const setCookie = async (name: string, cookie: string) => {
 
 export const logoutAction = async () => {
   await setCookie('jwt', 'null');
-
   redirect('/login');
 };
 

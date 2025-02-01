@@ -10,13 +10,17 @@ import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 
 export default function Register() {
   const [formState, formAction] = useFormState(registerAction, {
-    user: undefined,
-    jwt: undefined,
+    success: false,
+    user: '',
+    jwt: '',
+    fieldErrors: {},
   });
-  const errors =
-    formState.user?.success === false && formState.user?.fieldErrors
-      ? formState.user.fieldErrors
-      : {};
+  const errors = formState?.fieldErrors as {
+    username?: string[];
+    email?: string[];
+    password?: string[];
+    server?: string[];
+  };
   const router = useRouter();
   useEffect(() => {
     if (formState.jwt && formState.user) {

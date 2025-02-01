@@ -1,4 +1,7 @@
 'use client';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect } from 'react';
+import { useFormState } from 'react-dom';
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
@@ -7,19 +10,16 @@ import {
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useFormState } from 'react-dom';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 
-export default function Page() {
+export default function LoginPage() {
   const [formState, formAction] = useFormState(signinAction, {
     success: false,
     user: '',
     jwt: '',
     fieldErrors: {},
   });
-
+  const { setJwt, setUser } = useDataStore();
   const router = useRouter();
 
   const errors = formState?.fieldErrors as {
@@ -28,22 +28,18 @@ export default function Page() {
     server?: string[];
   };
 
-  const { setJwt, setUser } = useDataStore();
+  const handleLoginSuccess = useCallback(async () => {
+    if (!formState.jwt || !formState.user) return;
+    await setCookie('jwt', `Bearer ${formState.jwt}`);
+    const userData = await getFullUserData(formState.jwt);
+    setJwt(formState.jwt);
+    setUser(userData.body);
+    router.push('/dashboard');
+  }, [formState.jwt, formState.user, setJwt, setUser, router]);
+
   useEffect(() => {
-    if (formState.jwt && formState.user) {
-      setCookie('jwt', `Bearer ${formState.jwt}`).then(async () => {
-        setJwt(formState.jwt);
-        setUser(
-          (
-            await getFullUserData(formState.jwt, [
-              { postalInformation: { populate: '*' } },
-            ])
-          ).body
-        );
-        router.push('/dashboard');
-      });
-    }
-  }, [formState.jwt, formState.user, router, setJwt, setUser]);
+    handleLoginSuccess();
+  }, [handleLoginSuccess]);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
@@ -56,7 +52,9 @@ export default function Page() {
           <p className="text-red-500 text-sm">{errors.email[0]}</p>
         )}
         <InputBox name="password" format="password" placeholder="رمزعبور" />
-
+        {errors?.password && (
+          <p className="text-red-500 text-sm">{errors.password[0]}</p>
+        )}
         {errors?.server && (
           <p className="text-red-500 text-sm">{errors.server[0]}</p>
         )}
