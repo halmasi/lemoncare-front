@@ -5,13 +5,15 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
+import { populateObjectMaker } from '@/app/utils/tools';
+
 export const registerAction = async (
   _prevState: object,
   formData: FormData
 ) => {
   let username = formData.get('username')?.toString();
   const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
+  const password = formData.get('passwordS')?.toString();
 
   username = username?.includes('9')
     ? username.slice(username.indexOf('9'))
@@ -61,11 +63,19 @@ export const signinAction = async (_prevState: object, formData: FormData) => {
       fieldErrors: result.error.flatten().fieldErrors,
     };
   }
+
   const res = await requestData('/auth/local', 'POST', {
     identifier: result.data.email,
     password: result.data.pass,
   });
+  if (res.data.error) {
+    return {
+      success: false,
+      fieldErrors: { server: [res.data.error.message || 'خطای سرور'] },
+    };
+  }
   const { jwt, user } = res.data;
+
   return { jwt, user };
 };
 
@@ -74,16 +84,18 @@ export const loginCheck = async (token: string) => {
   return { status: res.result.status, body: res };
 };
 
-export const GetfulluserData = async (token: string) => {
+export const getFullUserData = async (
+  token: string,
+  populateOptions?: object[]
+) => {
+  const populate = populateOptions
+    ? populateObjectMaker(populateOptions, { cart: { populate: '*' } })
+    : { cart: { populate: '*' } };
+
   const query = qs.stringify({
-    populate: '*',
+    populate,
   });
-  const res = await requestData(
-    `/users/me?${query}`,
-    'GET',
-    {},
-    `Bearer ${token}`
-  );
+  const res = await requestData(`/users/me?${query}`, 'GET', {}, `${token}`);
   return { status: res.result.status, body: res.data };
 };
 
@@ -97,22 +109,25 @@ export const setCookie = async (name: string, cookie: string) => {
   cookies().set(name, cookie, config);
 };
 
+export const getCookie = async (key: string) => {
+  return cookies().get(key)?.value;
+};
+
 export const logoutAction = async () => {
-  cookies().set('jwt', 'null');
   await setCookie('jwt', 'null');
   redirect('/login');
 };
 
-export const RunTest = async (token: string) => {
-  const num = 29;
-
-  const req = await requestData(
-    `/users/${num}`,
-    'PUT',
-    {
-      username: '09187112855',
-    },
-    `Bearer ${token}`
-  );
-  return { status: req.result.status, body: req.data };
-};
+// export const RunTest = async (token: string) => {
+// const num = 29;
+//
+// const req = await requestData(
+// `/users/${num}`,
+// 'PUT',
+// {
+// username: '09187112855',
+// },
+// `Bearer ${token}`
+// );
+// return { status: req.result.status, body: req.data };
+// };

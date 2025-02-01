@@ -4,10 +4,10 @@ import { dataFetch } from './dataFetch';
 import { ContentProps, ImageProps, TagsProps } from './getPosts';
 import {
   getCategorySubHierarchy,
-  getShopCategory,
   ShopCategoryProps,
   ShopSubCategoiesProps,
 } from './getProductCategories';
+import { populateObjectMaker } from '@/app/utils/tools';
 
 export interface MediaProps {
   id: number;
@@ -92,6 +92,7 @@ export interface ProductProps {
     mainPrice: number;
     endOfDiscount: string;
     color: string;
+    uniqueId: number;
     subVariety:
       | {
           id: number;
@@ -100,6 +101,7 @@ export interface ProductProps {
           mainPrice: number;
           endOfDiscount: string;
           color: string;
+          uniqueId: number;
         }[]
       | [];
   }[];
@@ -120,22 +122,30 @@ export interface ProductProps {
 
 export const getProduct = cache(async function (
   slug: string,
+  options?: object[],
   tag?: string[]
 ): Promise<ProductProps[]> {
   const filter =
     slug.length > 6
       ? { documentId: { $eq: slug } }
       : { basicInfo: { contentCode: { $eq: slug } } };
+
+  const populate = options
+    ? populateObjectMaker(options, {
+        basicInfo: { populate: '*' },
+        variety: { populate: '*' },
+      })
+    : {
+        seo: { populate: '*' },
+        basicInfo: { populate: '*' },
+        category: { populate: '*' },
+        tags: { populate: '*' },
+        media: { populate: 1 },
+        variety: { populate: '*' },
+      };
   const query = qs.stringify({
     filters: filter,
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      tags: { populate: '*' },
-      media: { populate: 1 },
-      variety: { populate: '*' },
-    },
+    populate,
   });
   const result = await dataFetch(`/products?${query}`, tag);
   return result;

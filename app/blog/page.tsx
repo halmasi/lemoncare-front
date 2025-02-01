@@ -12,9 +12,9 @@ import Slide from '../components/Slide';
 
 export default async function Home() {
   const slide = await getSlides('blog');
-  const media = slide.medias.map((item) => {
-    return item.media;
-  });
+  // const media = slide.medias.map((item) => {
+  //   return item.media;
+  // });
   const data = await getPosts(3, ['post']);
 
   return (

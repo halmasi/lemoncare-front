@@ -1,3 +1,5 @@
+'use server';
+
 export async function dataFetch(qs: string, tag?: string[]) {
   const options = {
     headers: {
