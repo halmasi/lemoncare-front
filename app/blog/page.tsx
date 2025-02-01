@@ -12,9 +12,7 @@ import Slide from '../components/Slide';
 
 export default async function Home() {
   const slide = await getSlides('blog');
-  // const media = slide.medias.map((item) => {
-  //   return item.media;
-  // });
+
   const data = await getPosts(3, ['post']);
 
   return (
@@ -32,7 +30,7 @@ export default async function Home() {
             post.gravatar = await getGravatar(post.author.email);
             return (
               <PostCard
-                key={post.documentId}
+                key={post.documentId + 'post'}
                 basicInfo={post.basicInfo}
                 category={post.category}
                 seo={post.seo}
