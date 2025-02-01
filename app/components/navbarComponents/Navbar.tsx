@@ -10,9 +10,9 @@ import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
-import { RiAccountPinCircleFill } from 'react-icons/ri';
-import { useDataStore } from '../../utils/states/useUserdata';
 import Cart from './CartButton';
+import { RiAccountPinCircleFill } from 'react-icons/ri';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function Navbar({
   menuItems,
