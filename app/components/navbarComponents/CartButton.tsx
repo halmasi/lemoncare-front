@@ -5,14 +5,6 @@ import { useState } from 'react';
 import { RiShoppingCart2Fill } from 'react-icons/ri';
 import Cart from './Cart';
 
-function CartElement({ func }: { func: (count: number) => void }) {
-  return (
-    <div className="p-5 w-full h-[50svh] overflow-y-scroll">
-      <Cart countFunc={func} />
-    </div>
-  );
-}
-
 export default function CartButton() {
   const [showItems, setShowItems] = useState(false);
   const [itemCount, setItemCount] = useState(0);
@@ -48,7 +40,7 @@ export default function CartButton() {
                   ? { opacity: 1, y: 0 }
                   : { opacity: 0, y: 20, visibility: 'hidden' }
               }
-              exit={{ opacity: 0, y: 20 }}
+              exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
               style={showItems ? {} : {}}
               transition={{
                 duration: 0.3,
@@ -56,7 +48,9 @@ export default function CartButton() {
               }}
               className="absolute left-20 top-44 w-[50%] min-[1024px]:w-[35%] bg-white rounded-lg border"
             >
-              <CartElement func={(count: number) => setItemCount(count)} />
+              <div className="p-5 w-full h-[50svh] overflow-y-scroll">
+                <Cart countFunc={(count: number) => setItemCount(count)} />
+              </div>
             </motion.div>
           }
         </AnimatePresence>

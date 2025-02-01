@@ -82,7 +82,7 @@ export default function Slide({
         style={
           {
             '--swiper-pagination-color': '#fff',
-            '-webkit-backface-visibility': 'hidden',
+            // '-webkit-backface-visibility': 'hidden',
           } as CSSProperties
         }
         slidesPerView={1}
