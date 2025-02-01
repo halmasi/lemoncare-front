@@ -7,7 +7,6 @@ import {
   ShopCategoryProps,
   ShopSubCategoiesProps,
 } from './getProductCategories';
-import { populateObjectMaker } from '@/app/utils/tools';
 
 export interface MediaProps {
   id: number;
@@ -131,10 +130,10 @@ export const getProduct = cache(async function (
       : { basicInfo: { contentCode: { $eq: slug } } };
 
   const populate = options
-    ? populateObjectMaker(options, {
-        basicInfo: { populate: '*' },
-        variety: { populate: '*' },
-      })
+    ? Object.assign(
+        { basicInfo: { populate: '*' }, variety: { populate: '*' } },
+        ...options
+      )
     : {
         seo: { populate: '*' },
         basicInfo: { populate: '*' },
