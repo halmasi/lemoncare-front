@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, CSSProperties } from 'react';
+import { useRef, useState, CSSProperties, useEffect } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperType } from 'swiper';
@@ -20,12 +20,30 @@ import 'swiper/css/thumbs';
 
 import { MediaProps } from '../utils/data/getProducts';
 import { BsPlayCircle } from 'react-icons/bs';
+import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 
 export default function MediaGallery({ media }: { media: MediaProps[] }) {
   const vidRef = useRef<HTMLVideoElement>(null);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
+  const prevBtnRef = useRef<HTMLButtonElement>(null);
+  const [buttonStatus, setButtonStatus] = useState({
+    next: false,
+    prev: false,
+  });
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
-  const handlePlayVideo = () => {
+  useEffect(() => {
+    setButtonStatus({
+      next: !nextBtnRef.current?.disabled,
+      prev: !prevBtnRef.current?.disabled,
+    });
+  }, []);
+
+  const changeSlide = () => {
+    setButtonStatus({
+      next: !nextBtnRef.current?.disabled,
+      prev: !prevBtnRef.current?.disabled,
+    });
     if (vidRef.current) vidRef.current.pause();
   };
 
@@ -37,16 +55,19 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
             style={
               {
                 '--swiper-pagination-color': '#fff',
-                '--swiper-navigation-color': '#fff',
               } as CSSProperties
             }
             slidesPerView={1}
             spaceBetween={10}
             keyboard={{ enabled: true }}
             pagination={{ clickable: true, type: 'bullets' }}
-            navigation={true}
+            navigation={{
+              enabled: true,
+              nextEl: '.slide-next',
+              prevEl: '.slide-prev',
+            }}
             thumbs={{ swiper: thumbsSwiper }}
-            onSlideChange={() => handlePlayVideo()}
+            onSlideChange={() => changeSlide()}
             modules={[
               Keyboard,
               Pagination,
@@ -56,8 +77,30 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
               FreeMode,
               Thumbs,
             ]}
-            className="mySwiper"
+            className="mySwiper flex"
           >
+            <div className="flex z-20 w-full absolute -mt-[30%] mr-3 justify-between">
+              <div
+                className={`transition-opacity text-sm rounded-full bg-background  ${buttonStatus.prev ? 'opacity-70 hover:opacity-80' : 'opacity-20'}`}
+              >
+                <button
+                  ref={prevBtnRef}
+                  className={`flex slide-prev p-2 rounded-full`}
+                >
+                  <BiRightArrow />
+                </button>
+              </div>
+              <div
+                className={`text-sm rounded-full ml-5 bg-background transition-opacity ${buttonStatus.next ? 'opacity-70 hover:opacity-80' : 'opacity-20'}`}
+              >
+                <button
+                  ref={nextBtnRef}
+                  className="flex slide-next p-2 rounded-full"
+                >
+                  <BiLeftArrow />
+                </button>
+              </div>
+            </div>
             {media.map((image, index) => (
               <SwiperSlide
                 key={image.id}

@@ -17,9 +17,7 @@ export default async function shopCategory({
         <h1 className="text-accent-pink">Recomended categories</h1>
       </div>
     );
-  const category = await getShopCategory(slug[slug.length - 1], [
-    'shop-category',
-  ]);
+  const category = await getShopCategory(slug[slug.length - 1]);
   if (!category.length) return notFound();
   const products = await getProductsByCategory(category[0]);
   if (!products.length) return notFound();

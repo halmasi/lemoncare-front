@@ -4,6 +4,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { logoutAction } from '@/app/utils/actions/actionMethods';
 export default function Dashboard() {
   const { resetUser } = useDataStore();
+
   return (
     <div>
       <form

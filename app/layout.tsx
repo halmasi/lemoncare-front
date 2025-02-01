@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import FooterNavbar from './components/FooterNavbar';
@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   description: 'وبسایت تخصصی مراقبت از پوست و مو',
 };
 
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  initialScale: 1,
+  width: 'device-width',
+  minimumScale: 1,
+  maximumScale: 1,
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -19,12 +27,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="fa">
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1"
-      />
-
-      <body className={`${iranFont.className} antialiased`}>
+      <body className={`${iranFont.className} antialiased min-h-svh`}>
         {children}
         <FooterNavbar />
       </body>

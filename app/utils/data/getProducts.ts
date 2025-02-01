@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { dataFetch } from './dataFetch';
 import { ContentProps, ImageProps, TagsProps } from './getPosts';
 import {
-  getShopCategory,
+  getCategorySubHierarchy,
   ShopCategoryProps,
   ShopSubCategoiesProps,
 } from './getProductCategories';
@@ -91,6 +91,7 @@ export interface ProductProps {
     mainPrice: number;
     endOfDiscount: string;
     color: string;
+    uniqueId: number;
     subVariety:
       | {
           id: number;
@@ -99,6 +100,7 @@ export interface ProductProps {
           mainPrice: number;
           endOfDiscount: string;
           color: string;
+          uniqueId: number;
         }[]
       | [];
   }[];
@@ -117,17 +119,32 @@ export interface ProductProps {
   tags: TagsProps[];
 }
 
-export const getProduct = cache(async function (slug: string, tag?: string[]) {
+export const getProduct = cache(async function (
+  slug: string,
+  options?: object[],
+  tag?: string[]
+): Promise<ProductProps[]> {
+  const filter =
+    slug.length > 6
+      ? { documentId: { $eq: slug } }
+      : { basicInfo: { contentCode: { $eq: slug } } };
+
+  const populate = options
+    ? Object.assign(
+        { basicInfo: { populate: '*' }, variety: { populate: '*' } },
+        ...options
+      )
+    : {
+        seo: { populate: '*' },
+        basicInfo: { populate: '*' },
+        category: { populate: '*' },
+        tags: { populate: '*' },
+        media: { populate: 1 },
+        variety: { populate: '*' },
+      };
   const query = qs.stringify({
-    filters: { basicInfo: { contentCode: { $eq: slug } } },
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      tags: { populate: '*' },
-      media: { populate: '*' },
-      variety: { populate: '*' },
-    },
+    filters: filter,
+    populate,
   });
   const result = await dataFetch(`/products?${query}`, tag);
   return result;
@@ -186,52 +203,6 @@ export const getProductsByCategory = cache(async function (
     tag
   );
   return result;
-});
-
-export const getCategorySubHierarchy = cache(async function (
-  category: ShopSubCategoiesProps[],
-  tag?: string[]
-): Promise<ShopCategoryProps[]> {
-  const allCategories: ShopCategoryProps[] = [];
-  const result = await Promise.all(
-    category.map(async (item) => {
-      const res = await getShopCategory(item.slug, tag);
-      return res[0];
-    })
-  );
-
-  for (const e of result) {
-    allCategories.push(e);
-    if (e.shopSubCategories && e.shopSubCategories.length > 0) {
-      const fetchedCategories = await getCategorySubHierarchy(
-        e.shopSubCategories,
-        tag
-      );
-      allCategories.push(...fetchedCategories);
-    }
-  }
-
-  return allCategories;
-});
-
-export const getCategoryparentHierarchy = cache(async function (
-  category: ShopSubCategoiesProps,
-  tag?: string[]
-): Promise<ShopCategoryProps[]> {
-  const allCategories: ShopCategoryProps[] = [];
-  const res = await getShopCategory(category.slug, tag);
-  const result = res[0];
-  allCategories.push(result);
-
-  if (result.shopParentCategory) {
-    getCategoryparentHierarchy(result.shopParentCategory, tag).then(
-      (fetchedCategories) => {
-        allCategories.push(...fetchedCategories);
-      }
-    );
-  }
-
-  return allCategories;
 });
 
 export const getProductsByTag = cache(async function (

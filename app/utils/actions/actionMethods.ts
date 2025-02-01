@@ -13,7 +13,7 @@ export const registerAction = async (
 ) => {
   let username = formData.get('username')?.toString();
   const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
+  const password = formData.get('passwordS')?.toString();
 
   if (!username || !email || !password) {
     return {
@@ -136,21 +136,11 @@ export const setCookie = async (name: string, cookie: string) => {
   cookies().set(name, cookie, config);
 };
 
+export const getCookie = async (key: string) => {
+  return cookies().get(key)?.value;
+};
+
 export const logoutAction = async () => {
   await setCookie('jwt', 'null');
   redirect('/login');
 };
-
-// export const RunTest = async (token: string) => {
-// const num = 29;
-//
-// const req = await requestData(
-// `/users/${num}`,
-// 'PUT',
-// {
-// username: '09187112855',
-// },
-// `Bearer ${token}`
-// );
-// return { status: req.result.status, body: req.data };
-// };
