@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import LoadingAnimation from './LoadingAnimation';
 
 export default function Table({
   rowItems,
@@ -25,23 +26,30 @@ export default function Table({
         </tr>
       </thead>
       <tbody>
-        {rowItems.map((item, index) => (
-          <tr
-            className={`${index % 2 != 0 && 'bg-gray-200/25'} flex h-${rowsHeight}`}
-            key={index}
-          >
-            {item.map((colItem, colIndex) => {
-              return (
-                <td
-                  key={colIndex + 'col'}
-                  className={`flex items-center justify-center overflow-hidden h-full w-${rowsWidth[colIndex]}`}
-                >
-                  {colItem}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
+        {rowItems.length ? (
+          rowItems.map((item, index) => (
+            <tr
+              className={`${index % 2 != 0 && 'bg-gray-200/25'} flex h-${rowsHeight}`}
+              key={index}
+            >
+              {item.map((colItem, colIndex) => {
+                return (
+                  <td
+                    key={colIndex + 'col'}
+                    className={`flex items-center justify-center overflow-hidden h-full w-${rowsWidth[colIndex]}`}
+                  >
+                    {colItem}
+                  </td>
+                );
+              })}
+            </tr>
+          ))
+        ) : (
+          <div className="flex flex-col items-center">
+            <h6>در حال بارگذاری ...</h6>
+            <LoadingAnimation />
+          </div>
+        )}
       </tbody>
     </table>
   );
