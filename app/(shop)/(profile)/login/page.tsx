@@ -32,6 +32,7 @@ export default function LoginPage() {
   const handleLoginSuccess = useCallback(async () => {
     if (!formState.jwt || !formState.user) return;
     await setCookie('jwt', `Bearer ${formState.jwt}`);
+
     const userData = await getFullUserData(formState.jwt);
     setJwt(formState.jwt);
     setUser(userData.body);
