@@ -32,16 +32,7 @@ export const getArticleSuggestions = cache(
       filter: {
         slug,
       },
-      populate: {
-        posts: {
-          seo: { populate: '*' },
-          author: { populate: 1 },
-          basicInfo: { populate: '*' },
-          category: { populate: '*' },
-          tags: { populate: '*' },
-          sources: { populate: '*' },
-        },
-      },
+      populate: '*',
     });
     const data = await dataFetch(`/suggested-articles?${query}`, [
       `suggested-article-${slug}`,
@@ -56,12 +47,7 @@ export const getProductSuggestions = cache(
       filter: {
         slug,
       },
-      populate: {
-        products: {
-          seo: { populate: '*' },
-          basicInfo: { populate: '*' },
-        },
-      },
+      populate: '*',
     });
     const data = await dataFetch(`/suggestion-lists?${query}`, [
       `suggestion-list-${slug}`,
