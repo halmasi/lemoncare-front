@@ -1,6 +1,6 @@
 'use client';
 
-import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
+import { ProductProps } from '@/app/utils/data/getProducts';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -14,7 +14,7 @@ export default function Cart({
 }: {
   countFunc?: (count: number) => void;
 }) {
-  const { user } = useDataStore();
+  const { cart } = useDataStore();
 
   const [tableRow, setTableRow] = useState<ReactNode[][]>([]);
   const [products, setProducts] = useState<
@@ -26,49 +26,11 @@ export default function Cart({
   >([]);
 
   useEffect(() => {
-    if (user && user.cart) {
-      const productsId = user?.cart.map((item) => {
-        return {
-          documentId: item.product.documentId,
-          variety: item.variety,
-          count: item.count,
-        };
-      });
-
-      productsId.forEach(async (item) => {
-        let duplicate = -1;
-        productsId.forEach((check) => {
-          if (
-            item.variety.id == check.variety.id &&
-            item.variety.sub == check.variety.sub &&
-            item.documentId == check.documentId
-          ) {
-            if (duplicate >= 0) {
-              productsId.splice(productsId.indexOf(item), 1);
-              return;
-            }
-            duplicate++;
-          }
-        });
-        if (!duplicate) {
-          const singleProduct = await getProduct(
-            item.documentId,
-            [],
-            ['shopping-cart' + item.documentId]
-          );
-          setProducts((prevs) => {
-            const prev = prevs;
-            prev.push({
-              product: singleProduct[0],
-              variety: item.variety,
-              count: item.count,
-            });
-            return prev;
-          });
-        }
-      });
+    console.log(cart);
+    if (cart && cart.length) {
+      // setProducts(cart);
     }
-  }, [user]);
+  }, [cart]);
 
   useEffect(() => {
     setTableRow(() => {
@@ -135,7 +97,7 @@ export default function Cart({
 
   return (
     <div className="w-full">
-      {user?.cart?.length ? (
+      {cart?.length ? (
         <Table
           rowsWidth={['full', 'full', 'full']}
           rowsHeight={20}

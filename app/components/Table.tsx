@@ -45,10 +45,12 @@ export default function Table({
             </tr>
           ))
         ) : (
-          <div className="flex flex-col items-center">
-            <h6>در حال بارگذاری ...</h6>
-            <LoadingAnimation />
-          </div>
+          <tr className="flex flex-col items-center">
+            <td>
+              <h6>در حال بارگذاری ...</h6>
+              <LoadingAnimation />
+            </td>
+          </tr>
         )}
       </tbody>
     </table>
