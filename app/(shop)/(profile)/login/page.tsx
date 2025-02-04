@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 
 import InputBox from '@/app/components/formElements/InputBox';
@@ -11,12 +11,7 @@ import {
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 
-import {
-  cartProductsProps,
-  CartProps,
-  useDataStore,
-} from '@/app/utils/states/useUserdata';
-import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
+import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
   const [formState, formAction] = useFormState(signinAction, {
@@ -25,8 +20,7 @@ export default function LoginPage() {
     jwt: '',
     fieldErrors: {},
   });
-  const { setJwt, setUser, setCart, cart, cartProducts, setCartProducts } =
-    useDataStore();
+  const { setJwt, setUser, setCart, cart } = useDataStore();
   const router = useRouter();
 
   const errors = formState?.fieldErrors as {
@@ -35,62 +29,26 @@ export default function LoginPage() {
     server?: string[];
   };
 
-  const handleCart = async (fetchedCart: CartProps[]) => {
-    fetchedCart.forEach((fetchedItem) => {
-      cartProducts.forEach((product) => {
-        if (product.documentId == fetchedItem.product.documentId) {
-          fetchedItem.product = product;
-          return;
-        }
-      });
-    });
-    const carts = fetchedCart;
-    carts.forEach((item) => {
-      let dup = 0;
-      carts.forEach(async (check) => {
-        if (
-          item.product.documentId == check.product.documentId &&
-          item.variety.id == check.variety.id &&
-          item.variety.sub == check.variety.sub
-        ) {
-          dup++;
-          if (dup > 1) {
-            carts.splice(carts.indexOf(item), 1);
-          } else {
-            let found = 0;
-            cartProducts.forEach((product) => {
-              if (product.documentId == item.product.documentId) {
-                found++;
-              }
-            });
-            if (found < 1) {
-              const getProducts: ProductProps[] = await getProduct(
-                item.product.documentId,
-                [{}]
-              );
-              const prevCopy = cartProducts;
-              const productDetails: cartProductsProps = {
-                basicInfo: getProducts[0].basicInfo,
-                documentId: getProducts[0].documentId,
-                variety: getProducts[0].variety,
-              };
-              prevCopy.push(productDetails);
-              setCartProducts(prevCopy);
+  const handleCart = (fetchedCart: CartProps[]) => {
+    if (fetchedCart != cart) {
+      const carts = fetchedCart;
+      carts.forEach((item) => {
+        let dup = 0;
+        carts.forEach(async (check) => {
+          if (
+            item.product.documentId == check.product.documentId &&
+            item.variety.id == check.variety.id &&
+            item.variety.sub == check.variety.sub
+          ) {
+            dup++;
+            if (dup > 1) {
+              carts.splice(carts.indexOf(item), 1);
             }
-            cartProducts.forEach((product) => {
-              const sameProduct = carts.filter(
-                (i) => i.product.documentId == product.documentId
-              );
-
-              sameProduct.forEach((same) => {
-                carts[carts.indexOf(same)].product = product;
-              });
-            });
           }
-        }
+        });
       });
-    });
-    setCart(carts);
+      setCart(carts);
+    }
   };
 
   const handleLoginSuccess = useCallback(async () => {
