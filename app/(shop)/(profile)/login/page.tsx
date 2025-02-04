@@ -11,12 +11,12 @@ import {
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setJwt, setUser } = useDataStore();
+  const { setJwt, setUser, cart, setCart } = useDataStore();
   const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
@@ -40,9 +40,10 @@ export default function LoginPage() {
       setJwt(response.jwt);
       return response;
     },
-    onSuccess: async (data) => {
+    onSuccess: async (data: any) => {
       const userData = await getFullUserData(data.jwt);
       setUser(userData.body);
+      handleCart(userData.body.cart);
       queryClient.setQueryData(['user'], userData.body);
       router.push('/dashboard');
     },
@@ -51,12 +52,33 @@ export default function LoginPage() {
     },
   });
 
+  const handleCart = (fetchedCart: CartProps[]) => {
+    if (fetchedCart != cart) {
+      const carts = fetchedCart;
+      carts.forEach((item) => {
+        let dup = 0;
+        carts.forEach(async (check) => {
+          if (
+            item.product.documentId == check.product.documentId &&
+            item.variety.id == check.variety.id &&
+            item.variety.sub == check.variety.sub
+          ) {
+            dup++;
+            if (dup > 1) {
+              carts.splice(carts.indexOf(item), 1);
+            }
+          }
+        });
+      });
+      setCart(carts);
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
-
     setErrors({});
     mutation.mutate({ email, password });
   };
