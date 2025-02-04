@@ -12,34 +12,77 @@ import {
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
-  const [formState, formAction] = useFormState(signinAction, {
-    success: false,
-    user: '',
-    jwt: '',
-    fieldErrors: {},
-  });
-  const { setJwt, setUser } = useDataStore();
   const router = useRouter();
-
-  const errors = formState?.fieldErrors as {
+  const queryClient = useQueryClient();
+  const { setJwt, setUser, cart, setCart } = useDataStore();
+  const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
     server?: string[];
+  }>({});
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const response = await signinAction(email, password);
+      if (!response.success) {
+        setErrors(response.fieldErrors);
+      }
+
+      await setCookie('jwt', `Bearer ${response.jwt}`);
+      setJwt(response.jwt);
+      return response;
+    },
+    onSuccess: async (data: any) => {
+      const userData = await getFullUserData(data.jwt);
+      setUser(userData.body);
+      handleCart(userData.body.cart);
+      queryClient.setQueryData(['user'], userData.body);
+      router.push('/dashboard');
+    },
+    onError: (error: any) => {
+      setErrors({ server: error.message });
+    },
+  });
+
+  const handleCart = (fetchedCart: CartProps[]) => {
+    if (fetchedCart != cart) {
+      const carts = fetchedCart;
+      carts.forEach((item) => {
+        let dup = 0;
+        carts.forEach(async (check) => {
+          if (
+            item.product.documentId == check.product.documentId &&
+            item.variety.id == check.variety.id &&
+            item.variety.sub == check.variety.sub
+          ) {
+            dup++;
+            if (dup > 1) {
+              carts.splice(carts.indexOf(item), 1);
+            }
+          }
+        });
+      });
+      setCart(carts);
+    }
   };
 
-  const handleLoginSuccess = useCallback(async () => {
-    if (!formState.jwt || !formState.user) return;
-    await setCookie('jwt', `Bearer ${formState.jwt}`);
-
-    const userData = await getFullUserData(formState.jwt);
-    setJwt(formState.jwt);
-    setUser(userData.body);
-    router.push('/dashboard');
-  }, [formState.jwt, formState.user, setJwt, setUser, router]);
-
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('identifier')?.toString() || '';
+    const password = formData.get('password')?.toString() || '';
+    setErrors({});
+    mutation.mutate({ email, password });
+  };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
