@@ -56,51 +56,60 @@ export const registerAction = async (
   };
 };
 
-export const signinAction = async (
-  _prevState: SignInState,
-  formData: FormData
-) => {
-  const email = formData.get('identifier')?.toString();
-  const password = formData.get('password')?.toString();
+export const signinAction = async (email: string, password: string) => {
+  let success = false;
 
-  if (!email || !password) {
-    return {
-      success: false,
-      fieldErrors: {
-        email: !email ? ['ایمیل الزامی است'] : undefined,
-        password: !password ? ['رمز عبور الزامی است'] : undefined,
-      },
+  const fieldErrors: { email: string[]; password: string[]; server: string[] } =
+    {
+      email: [],
+      password: [],
+      server: [],
     };
-  }
+
+  let response: {
+    data: {
+      data?: null | '';
+      jwt: string;
+      user: object;
+      error?: { message: string };
+    };
+  } = {
+    data: { jwt: '', user: {} },
+  };
+
+  if (!email) fieldErrors.email.push('ایمیل الزامی است');
+  if (!password) fieldErrors.password.push('رمز عبور الزامی است');
 
   const validationResult = loginSchema.safeParse({
     email,
     pass: password,
   });
 
-  if (!validationResult.success) {
-    return {
-      success: false,
-      fieldErrors: validationResult.error.flatten().fieldErrors,
-    };
+  if (validationResult.error) {
+    const emailError = validationResult.error.flatten().fieldErrors.email;
+    const passwordError = validationResult.error.flatten().fieldErrors.pass;
+    emailError && emailError.forEach((err) => fieldErrors.email.push(err));
+    passwordError &&
+      passwordError.forEach((err) => fieldErrors.password.push(err));
   }
-  const response = await requestData('/auth/local', 'POST', {
-    identifier: validationResult.data.email,
-    password: validationResult.data.pass,
-  });
 
-  if (response.data.error) {
-    return {
-      success: false,
-      fieldErrors: { server: [response.data.error.message || 'خطای سرور'] },
-    };
+  if (validationResult.success) {
+    response = await requestData('/auth/local', 'POST', {
+      identifier: validationResult.data.email,
+      password: validationResult.data.pass,
+    });
+    if (response.data.error) {
+      fieldErrors.server.push(response.data.error.message);
+    } else {
+      success = true;
+    }
   }
 
   return {
-    success: true,
+    success,
     jwt: response.data.jwt,
     user: response.data.user,
-    fieldErrors: {},
+    fieldErrors,
   };
 };
 
