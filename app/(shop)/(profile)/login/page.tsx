@@ -11,56 +11,38 @@ import {
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
+
 import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const [formState, formAction] = useFormState(signinAction, {
+    success: false,
+    user: '',
+    jwt: '',
+    fieldErrors: {},
+  });
   const { setJwt, setUser } = useDataStore();
-  const [errors, setErrors] = useState<{
+  const router = useRouter();
+
+  const errors = formState?.fieldErrors as {
     email?: string[];
     password?: string[];
     server?: string[];
-  }>({});
-
-  const mutation = useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
-      const response = await signinAction(email, password);
-      if (!response.success) {
-        setErrors(response.fieldErrors);
-      }
-
-      await setCookie('jwt', `Bearer ${response.jwt}`);
-      setJwt(response.jwt);
-      return response;
-    },
-    onSuccess: async (data) => {
-      const userData = await getFullUserData(data.jwt);
-      setUser(userData.body);
-      queryClient.setQueryData(['user'], userData.body);
-      router.push('/dashboard');
-    },
-    onError: (error: any) => {
-      setErrors({ server: error.message });
-    },
-  });
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get('identifier')?.toString() || '';
-    const password = formData.get('password')?.toString() || '';
-
-    setErrors({});
-    mutation.mutate({ email, password });
   };
 
+  const handleLoginSuccess = useCallback(async () => {
+    if (!formState.jwt || !formState.user) return;
+    await setCookie('jwt', `Bearer ${formState.jwt}`);
+
+    const userData = await getFullUserData(formState.jwt);
+    setJwt(formState.jwt);
+    setUser(userData.body);
+    router.push('/dashboard');
+  }, [formState.jwt, formState.user, setJwt, setUser, router]);
+
+  useEffect(() => {
+    handleLoginSuccess();
+  }, [handleLoginSuccess]);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
