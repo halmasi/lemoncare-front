@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { setCookie } from '../actions/actionMethods';
-import { ProductProps } from '../data/getProducts';
+import { ImageProps } from '../data/getPosts';
 
 export interface UserProps {
   id?: string;
@@ -14,15 +14,50 @@ export interface UserProps {
 export interface CartProps {
   id: number;
   count: number;
-  product: ProductProps;
+  product: cartProductsProps;
   variety: { id: number; sub: number | null };
 }
+
+export interface cartProductsProps {
+  documentId: string;
+  variety: {
+    id: number;
+    specification: string;
+    priceBeforeDiscount: number;
+    mainPrice: number;
+    endOfDiscount: string;
+    color: string;
+    inventory: number;
+    uniqueId: number;
+    subVariety:
+      | {
+          id: number;
+          specification: string;
+          priceBefforDiscount: number;
+          mainPrice: number;
+          endOfDiscount: string;
+          color: string;
+          inventory: number;
+          uniqueId: number;
+        }[]
+      | [];
+  }[];
+  basicInfo: {
+    id: number;
+    title: string;
+    mainImage: ImageProps;
+    contentCode: number;
+  };
+}
+
 export interface DataStoreState {
   jwt: string | null;
   user: UserProps | null;
   cart: CartProps[];
+  cartProducts: cartProductsProps[];
   setJwt: (jwt: string) => void;
   setCart: (cart: CartProps[]) => void;
+  setCartProducts: (cartProducts: cartProductsProps[]) => void;
   setUser: (user: UserProps) => void;
   resetUser: () => void;
 }
@@ -32,10 +67,12 @@ export const useDataStore = create(
     (set) => ({
       jwt: null,
       cart: [],
+      cartProducts: [],
       user: null,
       setJwt: (jwt) => set(() => ({ jwt })),
       setUser: (user) => set(() => ({ user })),
       setCart: (cart) => set(() => ({ cart })),
+      setCartProducts: (cartProducts) => set(() => ({ cartProducts })),
       resetUser: () => {
         set(() => ({ jwt: null, user: null }));
         setCookie('jwt', 'null');
