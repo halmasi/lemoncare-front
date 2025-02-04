@@ -6,12 +6,36 @@ export default function Table({
   headerItems,
   rowsWidth,
   rowsHeight,
+  highlightColorChange,
+  normalColorChange,
 }: {
   rowItems: ReactNode[][];
   headerItems: ReactNode[];
   rowsWidth: (number | string)[];
-  rowsHeight: number | string;
+  rowsHeight: (number | string) | (number | string)[];
+  highlightColorChange?: number;
+  normalColorChange?: number;
 }) {
+  let counter = 0;
+
+  let colorSwitch = true;
+  let colorSwitchCounter = 0;
+  const highlite = highlightColorChange || 1;
+  const color = normalColorChange || 1;
+  let colorCounter = () => {
+    if (colorSwitch && colorSwitchCounter >= color) {
+      colorSwitchCounter = 0;
+      colorSwitch = !colorSwitch;
+    }
+    if (!colorSwitch && colorSwitchCounter >= highlite) {
+      colorSwitchCounter = 0;
+      colorSwitch = !colorSwitch;
+    }
+    colorSwitchCounter++;
+    if (colorSwitch) return 'bg-white';
+    return 'bg-gray-200/25';
+  };
+
   return (
     <table className="flex flex-col border w-full rounded-2xl overflow-hidden">
       <thead>
@@ -29,7 +53,16 @@ export default function Table({
         {rowItems.length ? (
           rowItems.map((item, index) => (
             <tr
-              className={`${index % 2 != 0 && 'bg-gray-200/25'} flex h-${rowsHeight}`}
+              className={`${colorCounter()} flex items-center h-${
+                typeof rowsHeight == 'string' || typeof rowsHeight == 'number'
+                  ? rowsHeight
+                  : () => {
+                      const res = rowsHeight[counter];
+                      if (rowsHeight.length - 1 == counter) counter = 0;
+                      else counter++;
+                      return res;
+                    }
+              }`}
               key={index}
             >
               {item.map((colItem, colIndex) => {

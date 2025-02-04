@@ -11,13 +11,16 @@ import { getProduct } from '@/app/utils/data/getProducts';
 
 export default function Cart({
   countFunc,
+  priceAmount,
 }: {
   countFunc?: (count: number) => void;
+  priceAmount?: (main: number, before: number) => void;
 }) {
-  const { cart, cartProducts, setCartProducts } = useDataStore();
+  const { cart, setCart, cartProducts, setCartProducts } = useDataStore();
 
   const [tableRow, setTableRow] = useState<ReactNode[][]>([]);
-
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
   useEffect(() => {
     (async () => {
       const productsIdList: string[] = [];
@@ -51,6 +54,9 @@ export default function Cart({
         let name = '';
         let color = '';
         let inventory = 0;
+        let priceBefore = 0;
+        let priceAfter = 0;
+
         const product = cartProducts.find(
           (searchProduct) =>
             searchProduct.documentId == cartItem.product.documentId
@@ -62,6 +68,8 @@ export default function Cart({
                 name = varieties.specification;
                 color = varieties.color;
                 inventory = varieties.inventory;
+                priceAfter = varieties.mainPrice;
+                priceBefore = varieties.priceBeforeDiscount;
               } else {
                 varieties.subVariety.forEach((sub) => {
                   if (sub.uniqueId == cartItem.variety.sub) {
@@ -69,11 +77,15 @@ export default function Cart({
                     color =
                       sub.color != '#000000' ? sub.color : varieties.color;
                     inventory = sub.inventory;
+                    priceAfter = sub.mainPrice;
+                    priceBefore = sub.priceBefforDiscount;
                   }
                 });
               }
             color = color == '#000000' ? '' : color;
           });
+          setTotalPrice((prev) => prev + priceAfter * cartItem.count);
+          setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
           setTableRow((prev) => {
             const copy = prev;
             copy.push([
@@ -81,6 +93,11 @@ export default function Cart({
                 key={index}
                 count={cartItem.count}
                 inventory={inventory}
+                changeAmount={(amount: number) => {
+                  const newCart = cart;
+                  newCart[cart.indexOf(cartItem)].count = amount;
+                  setCart(newCart);
+                }}
               />,
               <Link
                 key={index}
@@ -110,6 +127,23 @@ export default function Cart({
                 />
               </Link>,
             ]);
+            copy.push([
+              <div className="flex items-center justify-start gap-2">
+                <h6>قیمت</h6>
+                {priceBefore > 0 && (
+                  <p className="line-through text-gray-500 text-sm">
+                    {(priceBefore * cartItem.count).toLocaleString('fa-IR')}
+                  </p>
+                )}
+                <p className="font-bold">
+                  {(priceAfter * cartItem.count).toLocaleString('fa-IR')}
+                </p>
+              </div>,
+              <div className="flex gap-2">
+                <p>مبلغ تخفیف:</p>
+                <p>{(priceBefore - priceAfter).toLocaleString('fa-IR')}</p>
+              </div>,
+            ]);
             return copy;
           });
         }
@@ -121,12 +155,18 @@ export default function Cart({
     }
   }, [cart.length, cart, cartProducts]);
 
+  useEffect(() => {
+    if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
+  }, [totalBeforePrice, totalPrice]);
+
   return (
     <div className="w-full">
       {cart?.length ? (
         <Table
           rowsWidth={['full', 'full', 'full']}
-          rowsHeight={20}
+          rowsHeight={[20, 10]}
+          normalColorChange={2}
+          highlightColorChange={2}
           headerItems={[
             <p key={1}>تعداد</p>,
             <p key={2}>محصول</p>,
