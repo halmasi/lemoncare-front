@@ -40,9 +40,6 @@ export default function LoginPage() {
     router.push('/dashboard');
   }, [formState.jwt, formState.user, setJwt, setUser, router]);
 
-  useEffect(() => {
-    handleLoginSuccess();
-  }, [handleLoginSuccess]);
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
