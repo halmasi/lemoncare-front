@@ -5,54 +5,69 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { SignInState } from '@/app/utils/schema/userProps';
 
 export const registerAction = async (
-  _prevState: object,
-  formData: FormData
+  username: string,
+  email: string,
+  password: string
 ) => {
-  let username = formData.get('username')?.toString();
-  const email = formData.get('email')?.toString();
-  const password = formData.get('passwordS')?.toString();
-
-  if (!username || !email || !password) {
-    return {
-      success: false,
-      fieldErrors: { server: ['تمامی فیلد ها اجباری میباشد'] },
+  let success = false;
+  const fieldErrors: {
+    username: string[];
+    email: string[];
+    password: string[];
+    server: string[];
+  } = {
+    username: [],
+    email: [],
+    password: [],
+    server: [],
+  };
+  let response: {
+    data: {
+      data?: null | '';
+      jwt: string;
+      user: object;
+      error?: { message: string };
     };
-  }
-  username = username?.includes('9')
+  } = {
+    data: { jwt: '', user: {} },
+  };
+
+  username = username.includes('9')
     ? username.slice(username.indexOf('9'))
     : username;
+
   const validationResult = registerSchema.safeParse({
     username,
     email,
     password,
   });
 
-  if (!validationResult.success) {
-    return {
-      success: false,
-      fieldErrors: validationResult.error.flatten().fieldErrors,
-    };
+  if (validationResult.error) {
+    const errors = validationResult.error.flatten().fieldErrors;
+    if (errors.username) fieldErrors.username.push(...errors.username);
+    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.password) fieldErrors.password.push(...errors.password);
+  }
+  if (validationResult.success) {
+    const response = await requestData('/auth/local/register', 'POST', {
+      username: '98' + validationResult.data.username,
+      email: validationResult.data.email,
+      password: validationResult.data.password,
+    });
+    if (response.data.error) {
+      fieldErrors.server.push(response.data.error.message);
+    } else {
+      success = true;
+    }
   }
 
-  const response = await requestData('/auth/local/register', 'POST', {
-    username: '98' + validationResult.data.username,
-    email: validationResult.data.email,
-    password: validationResult.data.password,
-  });
-  if (response.data.error) {
-    return {
-      success: false,
-      fieldErrors: { server: [response.data.error.message || 'خطای سرور'] },
-    };
-  }
   return {
-    success: true,
+    success,
     jwt: response.data.jwt,
     user: response.data.user,
-    fieldErrors: {},
+    fieldErrors,
   };
 };
 
@@ -86,11 +101,9 @@ export const signinAction = async (email: string, password: string) => {
   });
 
   if (validationResult.error) {
-    const emailError = validationResult.error.flatten().fieldErrors.email;
-    const passwordError = validationResult.error.flatten().fieldErrors.pass;
-    emailError && emailError.forEach((err) => fieldErrors.email.push(err));
-    passwordError &&
-      passwordError.forEach((err) => fieldErrors.password.push(err));
+    const errors = validationResult.error.flatten().fieldErrors;
+    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.pass) fieldErrors.password.push(...errors.pass);
   }
 
   if (validationResult.success) {

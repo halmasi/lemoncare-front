@@ -82,6 +82,7 @@ export const useDataStore = create(
       name: 'user-store',
       storage: createJSONStorage(() => localStorage),
       // onRehydrateStorage: () => (state) => {
+      // console.log('Use useData State : ', state);
       // if (!state || !state.jwt || !state.user) {
       // return { jwt: null, user: null };
       // }

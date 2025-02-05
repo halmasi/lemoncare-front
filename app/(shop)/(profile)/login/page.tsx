@@ -91,15 +91,21 @@ export default function LoginPage() {
       >
         <InputBox name="identifier" placeholder="ایمیل" />
         {errors?.email && (
-          <p className="text-red-500 text-sm">{errors.email}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.email.join('\n')}
+          </p>
         )}
 
         <InputBox name="password" format="password" placeholder="رمزعبور" />
         {errors?.password && (
-          <p className="text-red-500 text-sm">{errors.password}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.password.join('\n')}
+          </p>
         )}
         {errors?.server && (
-          <p className="text-red-500 text-sm">{errors.server}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.server.join('\n')}
+          </p>
         )}
 
         <SubmitButton disabled={mutation.isPending}>

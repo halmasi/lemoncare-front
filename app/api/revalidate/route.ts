@@ -201,7 +201,6 @@ export async function POST(request: NextRequest) {
     //----------suggested blog article
     case 'suggested-article':
       (async function () {
-        console.log(body);
         revalidateTag('suggested-article-' + body.entry.slug);
       })();
       break;
