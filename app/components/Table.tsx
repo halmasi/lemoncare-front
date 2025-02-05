@@ -10,18 +10,22 @@ export default function Table({
   normalColorChange,
 }: {
   rowItems: ReactNode[][];
-  headerItems: ReactNode[];
+  headerItems?: ReactNode[];
   rowsWidth: (number | string)[];
   rowsHeight: (number | string) | (number | string)[];
   highlightColorChange?: number;
   normalColorChange?: number;
 }) {
-  let counter = 0;
-
   let colorSwitch = true;
   let colorSwitchCounter = 0;
-  const highlite = highlightColorChange || 1;
-  const color = normalColorChange || 1;
+  let highlite = highlightColorChange || 1;
+  let color = normalColorChange || 1;
+  if (highlightColorChange == 0) {
+    highlite = 0;
+  }
+  if (normalColorChange == 0) {
+    color = 0;
+  }
   const colorCounter = () => {
     if (colorSwitch && colorSwitchCounter >= color) {
       colorSwitchCounter = 0;
@@ -38,30 +42,33 @@ export default function Table({
 
   return (
     <table className="flex flex-col border w-full rounded-2xl overflow-hidden">
-      <thead>
-        <tr className="flex bg-gray-200/50">
-          {headerItems.map((item, index) => {
-            return (
-              <th key={index} className={`w-${rowsWidth[index]}`}>
-                {item}
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
+      {headerItems && (
+        <thead>
+          <tr className="flex bg-gray-200/50">
+            {headerItems.map((item, index) => {
+              return (
+                <th key={index} className={`w-${rowsWidth[index]}`}>
+                  {item}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+      )}
       <tbody>
         {rowItems.length ? (
           rowItems.map((item, index) => (
             <tr
-              className={`${colorCounter()} flex items-center h-${
+              className={`${colorCounter()} flex items-center justify-between ${
                 typeof rowsHeight == 'string' || typeof rowsHeight == 'number'
                   ? rowsHeight
-                  : () => {
-                      const res = rowsHeight[counter];
-                      if (rowsHeight.length - 1 == counter) counter = 0;
-                      else counter++;
-                      return res;
-                    }
+                  : (() => {
+                      const res = rowsHeight.map((item) => {
+                        if (index % rowsHeight.length == 0) return 'h-' + item;
+                      });
+
+                      return res[0];
+                    })()
               }`}
               key={index}
             >

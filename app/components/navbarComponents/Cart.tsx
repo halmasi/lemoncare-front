@@ -96,19 +96,9 @@ export default function Cart({
             setTableRow((prev) => {
               const copy = prev;
               copy.push([
-                <Count
-                  key={index}
-                  count={cartItem.count}
-                  inventory={inventory}
-                  changeAmount={(amount: number) => {
-                    const newCart = cart;
-                    newCart[cart.indexOf(cartItem)].count = amount;
-                    setCart(newCart);
-                  }}
-                />,
                 <Link
                   key={index}
-                  className="w-full"
+                  className="w-full pr-3"
                   href={`/shop/product/${product.basicInfo.contentCode}`}
                 >
                   <p className="font-bold">{product.basicInfo.title}</p>
@@ -139,21 +129,36 @@ export default function Cart({
               copy.push([
                 <div
                   key={index}
-                  className="flex items-center justify-start gap-2"
+                  className="flex justify-between w-full h-full bg-accent-yellow/10 px-5 items-center border-b-2"
                 >
-                  <h6>قیمت</h6>
-                  {priceBefore > 0 && (
-                    <p className="line-through text-gray-500 text-sm">
-                      {(priceBefore * cartItem.count).toLocaleString('fa-IR')}
+                  <div className="w-full h-full">
+                    <Count
+                      key={index}
+                      count={cartItem.count}
+                      inventory={inventory}
+                      changeAmount={(amount: number) => {
+                        const newCart = cart;
+                        newCart[cart.indexOf(cartItem)].count = amount;
+                        setCart(newCart);
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap w-full items-center justify-end gap-2">
+                    <h6 className="text-accent-pink text-base">قیمت:</h6>
+                    {priceBefore > 0 && (
+                      <p className="line-through text-gray-400 text-xs">
+                        {((priceBefore * cartItem.count) / 10).toLocaleString(
+                          'fa-IR'
+                        )}
+                      </p>
+                    )}
+                    <p className="font-bold text-accent-green">
+                      {((priceAfter * cartItem.count) / 10).toLocaleString(
+                        'fa-IR'
+                      )}{' '}
+                      <span className="text-xs">تومان</span>
                     </p>
-                  )}
-                  <p className="font-bold">
-                    {(priceAfter * cartItem.count).toLocaleString('fa-IR')}
-                  </p>
-                </div>,
-                <div key={index} className="flex gap-2">
-                  <p>سود شما از این محصول:</p>
-                  <p>{(priceBefore - priceAfter).toLocaleString('fa-IR')}</p>
+                  </div>
                 </div>,
               ]);
               return copy;
@@ -175,15 +180,10 @@ export default function Cart({
     <div className="w-full">
       {showCart ? (
         <Table
-          rowsWidth={['full', 'full', 'full']}
-          rowsHeight={[20, 10]}
-          normalColorChange={2}
-          highlightColorChange={2}
-          headerItems={[
-            <p key={1}>تعداد</p>,
-            <p key={2}>محصول</p>,
-            <p key={3}>تصویر</p>,
-          ]}
+          rowsWidth={['full', 'fit']}
+          rowsHeight={['20', 'fit']}
+          normalColorChange={0}
+          highlightColorChange={0}
           rowItems={tableRow}
         />
       ) : (

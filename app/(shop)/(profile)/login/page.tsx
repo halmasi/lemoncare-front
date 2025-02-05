@@ -58,7 +58,7 @@ export default function LoginPage() {
       const carts = fetchedCart;
       carts.forEach((item) => {
         let dup = 0;
-        carts.forEach(async (check) => {
+        carts.forEach((check) => {
           if (
             item.product.documentId == check.product.documentId &&
             item.variety.id == check.variety.id &&
