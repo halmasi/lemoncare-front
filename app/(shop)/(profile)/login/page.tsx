@@ -1,7 +1,8 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
-import { useFormState } from 'react-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
@@ -14,20 +15,43 @@ import {
 import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
-  const [formState, formAction] = useFormState(signinAction, {
-    success: false,
-    user: '',
-    jwt: '',
-    fieldErrors: {},
-  });
-  const { setJwt, setUser, setCart, cart } = useDataStore();
   const router = useRouter();
-
-  const errors = formState?.fieldErrors as {
+  const queryClient = useQueryClient();
+  const { setJwt, setUser, cart, setCart } = useDataStore();
+  const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
     server?: string[];
-  };
+  }>({});
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const response = await signinAction(email, password);
+      if (!response.success) {
+        setErrors(response.fieldErrors);
+      }
+
+      await setCookie('jwt', `Bearer ${response.jwt}`);
+      setJwt(response.jwt);
+      return response;
+    },
+    onSuccess: async (data: any) => {
+      const userData = await getFullUserData(data.jwt);
+      setUser(userData.body);
+      handleCart(userData.body.cart);
+      queryClient.setQueryData(['user'], userData.body);
+      router.push('/dashboard');
+    },
+    onError: (error: any) => {
+      setErrors({ server: error.message });
+    },
+  });
 
   const handleCart = (fetchedCart: CartProps[]) => {
     if (fetchedCart != cart) {
@@ -51,41 +75,36 @@ export default function LoginPage() {
     }
   };
 
-  const handleLoginSuccess = useCallback(async () => {
-    if (!formState.jwt || !formState.user) return;
-    await setCookie('jwt', `Bearer ${formState.jwt}`);
-
-    const userData = await getFullUserData(formState.jwt);
-    setJwt(formState.jwt);
-    setUser(userData.body);
-    handleCart(userData.body.cart);
-    router.push('/dashboard');
-  }, [formState.jwt, formState.user, setJwt, setUser, router]);
-
-  useEffect(() => {
-    handleLoginSuccess();
-  }, [handleLoginSuccess]);
-
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('identifier')?.toString() || '';
+    const password = formData.get('password')?.toString() || '';
+    setErrors({});
+    mutation.mutate({ email, password });
+  };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
         className="w-full md:w-3/12 flex flex-col gap-2"
-        action={formAction}
+        onSubmit={handleSubmit}
       >
         <InputBox name="identifier" placeholder="ایمیل" />
-
         {errors?.email && (
-          <p className="text-red-500 text-sm">{errors.email[0]}</p>
+          <p className="text-red-500 text-sm">{errors.email}</p>
         )}
+
         <InputBox name="password" format="password" placeholder="رمزعبور" />
         {errors?.password && (
-          <p className="text-red-500 text-sm">{errors.password[0]}</p>
+          <p className="text-red-500 text-sm">{errors.password}</p>
         )}
         {errors?.server && (
-          <p className="text-red-500 text-sm">{errors.server[0]}</p>
+          <p className="text-red-500 text-sm">{errors.server}</p>
         )}
 
-        <SubmitButton>ورود</SubmitButton>
+        <SubmitButton disabled={mutation.isPending}>
+          {mutation.isPending ? 'در حال ورود...' : 'ورود'}
+        </SubmitButton>
       </form>
     </div>
   );
