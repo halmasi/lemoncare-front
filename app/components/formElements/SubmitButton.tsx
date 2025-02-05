@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 interface Props {
   children: ReactNode;
   onClick?: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 }
 export default function SubmitButton({ children, disabled, onClick }: Props) {
   return (

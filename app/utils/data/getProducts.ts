@@ -91,6 +91,7 @@ export interface ProductProps {
     mainPrice: number;
     endOfDiscount: string;
     color: string;
+    inventory: number;
     uniqueId: number;
     subVariety:
       | {
@@ -100,6 +101,7 @@ export interface ProductProps {
           mainPrice: number;
           endOfDiscount: string;
           color: string;
+          inventory: number;
           uniqueId: number;
         }[]
       | [];

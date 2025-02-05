@@ -11,6 +11,7 @@ import {
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
+
 import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function LoginPage() {
@@ -82,7 +83,6 @@ export default function LoginPage() {
     setErrors({});
     mutation.mutate({ email, password });
   };
-
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form

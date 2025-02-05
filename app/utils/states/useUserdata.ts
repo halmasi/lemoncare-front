@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { setCookie } from '../actions/actionMethods';
-import { ImageProps } from '../data/getPosts';
+import { ImageProps } from '@/app/utils/data/getPosts';
 
 export interface UserProps {
   id?: string;
@@ -9,7 +9,7 @@ export interface UserProps {
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
-  cart?: CartProps[];
+  cart: CartProps[];
 }
 export interface CartProps {
   id: number;
@@ -17,7 +17,6 @@ export interface CartProps {
   product: cartProductsProps;
   variety: { id: number; sub: number | null };
 }
-
 export interface cartProductsProps {
   documentId: string;
   variety: {
