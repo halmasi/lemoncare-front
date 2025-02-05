@@ -21,26 +21,33 @@ export default function CartPage() {
         }}
         countFunc={(count: number) => setItemCount(count)}
       />
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <div className="flex items-center gap-3">
-          <h6>مجموع خرید:</h6>
-          <p className="line-through text-gray-500 text-sm">
-            {price.before.toLocaleString('fa-IR')}
-          </p>
-          <p>{price.main.toLocaleString('fa-IR')}</p>
-        </div>
-        <p>سود شما: {(price.before - price.main).toLocaleString('fa-IR')}</p>
-        <p className="text-sm text-gray-500">
-          {((1 - price.main / price.before) * 100).toLocaleString('fa-IR', {
-            style: 'decimal',
-            maximumFractionDigits: 0,
-          })}{' '}
-          درصد تخفیف
-        </p>
-      </div>
-      <div className="w-full md:w-fit mb-3">
-        <SubmitButton>تکمیل سفارش</SubmitButton>
-      </div>
+      {price.main != 0 && (
+        <>
+          <div className="flex flex-wrap items-center gap-3 justify-between">
+            <div className="flex items-center gap-3">
+              <h6>مجموع خرید:</h6>
+              <p className="line-through text-gray-500 text-sm">
+                {(price.before / 10).toLocaleString('fa-IR')}
+              </p>
+              <p>{(price.main / 10).toLocaleString('fa-IR')} تومان</p>
+            </div>
+            <p>
+              سود شما:{' '}
+              {((price.before - price.main) / 10).toLocaleString('fa-IR')} تومان
+            </p>
+            <p className="text-sm text-gray-500">
+              {((1 - price.main / price.before) * 100).toLocaleString('fa-IR', {
+                style: 'decimal',
+                maximumFractionDigits: 0,
+              })}{' '}
+              درصد تخفیف
+            </p>
+          </div>
+          <div className="w-full md:w-fit mb-3">
+            <SubmitButton>تکمیل سفارش</SubmitButton>
+          </div>
+        </>
+      )}
     </div>
   );
 }

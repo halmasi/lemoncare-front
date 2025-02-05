@@ -59,6 +59,7 @@ export interface DataStoreState {
   setCartProducts: (cartProducts: cartProductsProps[]) => void;
   setUser: (user: UserProps) => void;
   resetUser: () => void;
+  resetCart: () => void;
 }
 
 export const useDataStore = create(
@@ -73,8 +74,12 @@ export const useDataStore = create(
       setCart: (cart) => set(() => ({ cart })),
       setCartProducts: (cartProducts) => set(() => ({ cartProducts })),
       resetUser: () => {
-        set(() => ({ jwt: null, user: null }));
+        set(() => ({ cart: [], cartProducts: [], jwt: null, user: null }));
         setCookie('jwt', 'null');
+        localStorage.removeItem('user-store');
+      },
+      resetCart: () => {
+        set(() => ({ cart: [], cartProducts: [] }));
         localStorage.removeItem('user-store');
       },
     }),
