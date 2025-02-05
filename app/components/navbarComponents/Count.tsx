@@ -26,21 +26,21 @@ export default function Count({
   };
 
   return (
-    <div className="flex gap-1 items-center px-5">
+    <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
       <button
         onClick={increase}
         disabled={number >= inventory}
-        className="p-1 border rounded-full"
+        className={`p-1 border-l ${number < inventory && 'hover:bg-gray-50'}`}
       >
         <BiPlus
           className={`text-lg ${number >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
         />
       </button>
-      <p>{number}</p>
+      <p className="w-8 text-center">{number}</p>
       <button
         onClick={decrease}
         disabled={number <= 0}
-        className={`p-1 border rounded-full text-lg text-accent-pink`}
+        className={`p-1 text-lg hover:bg-gray-50 border-r text-accent-pink`}
       >
         {number <= 1 ? <RiDeleteBin2Fill /> : <BiMinus />}
       </button>
