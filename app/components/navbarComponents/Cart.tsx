@@ -62,7 +62,7 @@ export default function Cart({
             searchProduct.documentId == cartItem.product.documentId
         );
         if (product) {
-          product.variety.map((varieties) => {
+          product.variety.forEach((varieties) => {
             if (cartItem.variety.id == varieties.uniqueId)
               if (!cartItem.variety.sub) {
                 name = varieties.specification;
@@ -128,7 +128,10 @@ export default function Cart({
               </Link>,
             ]);
             copy.push([
-              <div className="flex items-center justify-start gap-2">
+              <div
+                key={index}
+                className="flex items-center justify-start gap-2"
+              >
                 <h6>قیمت</h6>
                 {priceBefore > 0 && (
                   <p className="line-through text-gray-500 text-sm">
@@ -139,8 +142,8 @@ export default function Cart({
                   {(priceAfter * cartItem.count).toLocaleString('fa-IR')}
                 </p>
               </div>,
-              <div className="flex gap-2">
-                <p>مبلغ تخفیف:</p>
+              <div key={index} className="flex gap-2">
+                <p>سود شما از این محصول:</p>
                 <p>{(priceBefore - priceAfter).toLocaleString('fa-IR')}</p>
               </div>,
             ]);

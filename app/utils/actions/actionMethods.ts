@@ -5,7 +5,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { SignInState } from '@/app/utils/schema/userProps';
 
 export const registerAction = async (
   _prevState: object,
@@ -88,8 +87,8 @@ export const signinAction = async (email: string, password: string) => {
   if (validationResult.error) {
     const emailError = validationResult.error.flatten().fieldErrors.email;
     const passwordError = validationResult.error.flatten().fieldErrors.pass;
-    emailError && emailError.forEach((err) => fieldErrors.email.push(err));
-    passwordError &&
+    if (emailError) emailError.forEach((err) => fieldErrors.email.push(err));
+    if (passwordError)
       passwordError.forEach((err) => fieldErrors.password.push(err));
   }
 

@@ -22,7 +22,7 @@ export default function Table({
   let colorSwitchCounter = 0;
   const highlite = highlightColorChange || 1;
   const color = normalColorChange || 1;
-  let colorCounter = () => {
+  const colorCounter = () => {
     if (colorSwitch && colorSwitchCounter >= color) {
       colorSwitchCounter = 0;
       colorSwitch = !colorSwitch;
