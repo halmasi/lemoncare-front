@@ -134,13 +134,8 @@ export default function Cart({
                   <div className="w-full h-full">
                     <Count
                       key={index}
-                      count={cartItem.count}
+                      cartItem={cartItem}
                       inventory={inventory}
-                      changeAmount={(amount: number) => {
-                        const newCart = cart;
-                        newCart[cart.indexOf(cartItem)].count = amount;
-                        setCart(newCart);
-                      }}
                     />
                   </div>
                   <div className="flex flex-wrap w-full items-center justify-end gap-2">

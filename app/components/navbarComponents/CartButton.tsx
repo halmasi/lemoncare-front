@@ -4,8 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { RiShoppingCart2Fill } from 'react-icons/ri';
 import Cart from './Cart';
+import { usePathname } from 'next/navigation';
 
 export default function CartButton() {
+  const path = usePathname();
+
   const [showItems, setShowItems] = useState(false);
   const [itemCount, setItemCount] = useState(0);
 
@@ -14,7 +17,7 @@ export default function CartButton() {
       <div
         className="flex flex-col justify-end"
         onMouseOver={() => {
-          setShowItems(true);
+          if (!path.startsWith('/cart')) setShowItems(true);
         }}
         onMouseOut={() => {
           setShowItems(false);
@@ -31,29 +34,31 @@ export default function CartButton() {
           )}
           <RiShoppingCart2Fill className="text-2xl" />
         </div>
-        <AnimatePresence>
-          {
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={
-                showItems
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 20, visibility: 'hidden' }
-              }
-              exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
-              style={showItems ? {} : {}}
-              transition={{
-                duration: 0.3,
-                ease: 'easeOut',
-              }}
-              className="absolute left-20 top-44 w-[50%] min-[1024px]:w-[35%] bg-white rounded-lg border"
-            >
-              <div className="p-5 w-full h-[50svh] overflow-y-scroll">
-                <Cart countFunc={(count: number) => setItemCount(count)} />
-              </div>
-            </motion.div>
-          }
-        </AnimatePresence>
+        {!path.startsWith('/cart') && (
+          <AnimatePresence>
+            {
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={
+                  showItems
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 20, visibility: 'hidden' }
+                }
+                exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
+                style={showItems ? {} : {}}
+                transition={{
+                  duration: 0.3,
+                  ease: 'easeOut',
+                }}
+                className="absolute left-20 top-44 w-[50%] min-[1024px]:w-[35%] bg-white rounded-lg border"
+              >
+                <div className="p-5 w-full h-[50svh] overflow-y-scroll">
+                  <Cart countFunc={(count: number) => setItemCount(count)} />
+                </div>
+              </motion.div>
+            }
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
