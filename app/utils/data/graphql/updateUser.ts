@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const updateUsersCart = gql`
+export const updateUser = gql`
   mutation UpdateUsersPermissionsUser(
     $id: ID!
     $data: UsersPermissionsUserInput!
@@ -12,6 +12,7 @@ export const updateUsersCart = gql`
           fullName
           username
           email
+          cart
         }
       }
     }

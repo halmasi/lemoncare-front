@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import FooterNavbar from './components/FooterNavbar';
-import { ApolloProvider } from '@apollo/client';
-import client from '@/app/utils/apolloClient';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
@@ -30,10 +28,8 @@ export default async function RootLayout({
   return (
     <html lang="fa">
       <body className={`${iranFont.className} antialiased min-h-svh`}>
-        <ApolloProvider client={client}>
-          {children}
-          <FooterNavbar />
-        </ApolloProvider>
+        {children}
+        <FooterNavbar />
       </body>
     </html>
   );

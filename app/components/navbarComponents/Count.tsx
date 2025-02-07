@@ -1,11 +1,11 @@
 'use client';
 
-import { updateCart } from '@/app/utils/actions/cartActionMethods';
 import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
-import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 import { RiDeleteBin2Fill } from 'react-icons/ri';
+import { useUpdateCart } from '@/app/utils/states/useUpdateCart';
+import { loginCheck } from '@/app/utils/actions/actionMethods';
 
 export default function Count({
   inventory,
@@ -15,37 +15,47 @@ export default function Count({
   cartItem: CartProps;
 }) {
   const { jwt, cart, setCart } = useDataStore();
-
   const [number, setNumber] = useState(cartItem.count);
-
-  // const mutation = useMutation({
-  //   mutationFn: async ({ cart }: { cart: CartProps[] }) => {
-  //     await updateCart(cart);
-  //   },
-  //   onSuccess: async (data: any) => {
-  //     console.log(data);
-  //   },
-  //   onError: (error: any) => {},
-  // });
+  const { updateCart, loading, error } = useUpdateCart();
 
   useEffect(() => {
-    const changeAmount = () => {
+    const changeAmount = async () => {
       const newCart = cart;
       newCart[cart.indexOf(cartItem)].count = number;
       setNumber(newCart[cart.indexOf(cartItem)].count);
       setCart(newCart);
-      // if (jwt) mutation.mutate({ cart });
+
+      if (jwt) {
+        const check = await loginCheck();
+        const userData: {
+          id: number;
+          documentId: string;
+          email: string;
+          provider: string;
+          confirmed: boolean;
+          blocked: boolean;
+          createdAt: string;
+          updatedAt: string;
+          publishedAt: string;
+          username: string;
+          fullName: string;
+        } = check.body.data;
+
+        await updateCart(newCart, userData.id);
+      }
     };
 
     if (cartItem.count > inventory) {
       setNumber(inventory);
     } else {
-      if (cart.length) changeAmount();
+      if (cart && cart.length) changeAmount();
     }
-  }, [number, cart]);
+  }, [number, cart, jwt, cartItem, setCart, updateCart]);
 
   return (
     <>
+      {loading && <p>Updating cart...</p>}
+      {error && <p>Error: {error.message}</p>}
       {cart.length && (
         <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
           <button
