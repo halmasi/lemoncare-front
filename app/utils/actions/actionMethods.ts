@@ -127,7 +127,7 @@ export const signinAction = async (email: string, password: string) => {
 };
 
 export const loginCheck = async (tokens?: string) => {
-  const token = (await getCookie('jwt')) || tokens;
+  const token = tokens || (await getCookie('jwt'));
   const response = await requestData('/users/me', 'GET', {}, token);
   return { status: response.result.status, body: response };
 };
