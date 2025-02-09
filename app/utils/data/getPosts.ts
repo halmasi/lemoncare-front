@@ -278,3 +278,35 @@ export const getPostsByTag = cache(async function (
   );
   return result;
 });
+
+export const getPostsByAuthor = cache(async function (
+  slug: string,
+  tag?: string[]
+) {
+  const query = qs.stringify({
+    filters: {
+      author: {
+        username: { $eq: slug },
+      },
+    },
+    populate: {
+      seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+    },
+  });
+  const result: PostsProps[] = await dataFetch(
+    `/posts?${query}&sort[0]=createdAt:desc`,
+    tag
+  );
+  return result;
+});
+
+export const getAuthorInformation = cache(async function (
+  id: string,
+  tag?: string[]
+) {
+  const result: AuthorProps = await dataFetch(`/authors/${id}`, tag);
+  return result;
+});
