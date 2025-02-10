@@ -1,9 +1,7 @@
 'use client';
 
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import { ReactNode, useEffect, useState } from 'react';
-import { ApolloProvider } from '@apollo/client';
-import client from '@/app/utils/apolloClient';
 import Table from '../Table';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,7 +16,7 @@ export default function Cart({
   priceAmount?: (main: number, before: number) => void;
 }) {
   const { cart, setCart, cartProducts, setCartProducts, resetCart } =
-    useDataStore();
+    useCartStore();
 
   const [tableRow, setTableRow] = useState<ReactNode[][]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -133,13 +131,11 @@ export default function Cart({
                   className="flex justify-between w-full h-full bg-accent-yellow/10 px-5 items-center border-b-2"
                 >
                   <div className="w-full h-full">
-                    <ApolloProvider client={client}>
-                      <Count
-                        key={index}
-                        cartItem={cartItem}
-                        inventory={inventory}
-                      />
-                    </ApolloProvider>
+                    <Count
+                      key={index}
+                      cartItem={cartItem}
+                      inventory={inventory}
+                    />
                   </div>
                   <div className="flex flex-wrap w-full items-center justify-end gap-2">
                     <h6 className="text-accent-pink text-base">قیمت:</h6>

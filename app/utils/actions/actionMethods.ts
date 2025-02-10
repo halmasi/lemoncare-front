@@ -126,10 +126,28 @@ export const signinAction = async (email: string, password: string) => {
   };
 };
 
-export const loginCheck = async (tokens?: string) => {
-  const token = tokens || (await getCookie('jwt'));
+export const loginCheck = async (_?: string) => {
+  const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
-  return { status: response.result.status, body: response };
+  const data: {
+    id: number;
+    documentId: string;
+    email: string;
+    provider: string;
+    confirmed: boolean;
+    blocked: boolean;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    username: string;
+    fullName: string;
+  } = response.data;
+
+  return {
+    status: response.result.status,
+    body: data,
+    jwt: token,
+  };
 };
 
 export const getFullUserData = async (

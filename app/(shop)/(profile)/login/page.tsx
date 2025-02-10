@@ -12,12 +12,14 @@ import {
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 
-import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
+import { useDataStore } from '@/app/utils/states/useUserdata';
+import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
 
 export default function LoginPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setJwt, setUser, cart, setCart } = useDataStore();
+  const { setJwt, setUser } = useDataStore();
+  const { cart, setCart } = useCartStore();
   const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];

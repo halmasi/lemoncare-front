@@ -1,9 +1,11 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import { logoutAction } from '@/app/utils/actions/actionMethods';
 export default function Dashboard() {
   const { resetUser } = useDataStore();
+  const { resetCart } = useCartStore();
 
   return (
     <div>
@@ -11,6 +13,7 @@ export default function Dashboard() {
         action={() => {
           logoutAction();
           resetUser();
+          resetCart();
         }}
       >
         <button
