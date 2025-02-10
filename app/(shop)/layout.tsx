@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import '../globals.css';
 import { getShopMenuItems } from '@/app/utils/data/getMenu';
-
 import Navbar from '@/app/components/navbarComponents/Navbar';
 import ClientProvider from '@/app/components/ClientProvider';
 

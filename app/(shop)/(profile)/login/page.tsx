@@ -12,12 +12,14 @@ import {
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 
-import { CartProps, useDataStore } from '@/app/utils/states/useUserdata';
+import { useDataStore } from '@/app/utils/states/useUserdata';
+import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
 
 export default function LoginPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { setJwt, setUser, cart, setCart } = useDataStore();
+  const { setJwt, setUser } = useDataStore();
+  const { cart, setCart } = useCartStore();
   const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
@@ -91,15 +93,21 @@ export default function LoginPage() {
       >
         <InputBox name="identifier" placeholder="ایمیل" />
         {errors?.email && (
-          <p className="text-red-500 text-sm">{errors.email}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.email.join('\n')}
+          </p>
         )}
 
         <InputBox name="password" format="password" placeholder="رمزعبور" />
         {errors?.password && (
-          <p className="text-red-500 text-sm">{errors.password}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.password.join('\n')}
+          </p>
         )}
         {errors?.server && (
-          <p className="text-red-500 text-sm">{errors.server}</p>
+          <p className="text-red-500 text-sm whitespace-pre-line">
+            {errors.server.join('\n')}
+          </p>
         )}
 
         <SubmitButton disabled={mutation.isPending}>
