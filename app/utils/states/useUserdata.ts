@@ -26,7 +26,8 @@ export const useDataStore = create(
       jwt: null,
       user: null,
       setJwt: (jwt) => set(() => ({ jwt })),
-      setUser: (user) => set(() => ({ user })),
+      setUser: (user) =>
+        set(() => ({ user: user ? JSON.parse(JSON.stringify(user)) : null })),
       resetUser: () => {
         set(() => ({ cart: [], cartProducts: [], jwt: null, user: null }));
         setCookie('jwt', 'null');

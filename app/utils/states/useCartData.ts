@@ -53,7 +53,8 @@ export const useCartStore = create(
     (set) => ({
       cart: [],
       cartProducts: [],
-      setCart: (cart) => set(() => ({ cart })),
+      setCart: (cartData) =>
+        set(() => ({ cart: JSON.parse(JSON.stringify(cartData)) })),
       setCartProducts: (cartProducts) => set(() => ({ cartProducts })),
       resetCart: () => {
         set(() => ({ cart: [], cartProducts: [] }));
