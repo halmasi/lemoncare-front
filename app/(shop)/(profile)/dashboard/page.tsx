@@ -1,13 +1,15 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import {
-  getFullUserData,
   logoutAction,
+  getFullUserData,
   RunTest,
 } from '@/app/utils/actions/actionMethods';
 export default function Dashboard() {
   const { resetUser, jwt } = useDataStore();
+  const { resetCart } = useCartStore();
 
   return (
     <div>
@@ -15,6 +17,7 @@ export default function Dashboard() {
         action={() => {
           logoutAction();
           resetUser();
+          resetCart();
         }}
       >
         <button

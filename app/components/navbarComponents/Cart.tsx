@@ -1,8 +1,7 @@
 'use client';
 
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import { ReactNode, useEffect, useState } from 'react';
-
 import Table from '../Table';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +16,7 @@ export default function Cart({
   priceAmount?: (main: number, before: number) => void;
 }) {
   const { cart, setCart, cartProducts, setCartProducts, resetCart } =
-    useDataStore();
+    useCartStore();
 
   const [tableRow, setTableRow] = useState<ReactNode[][]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -134,13 +133,8 @@ export default function Cart({
                   <div className="w-full h-full">
                     <Count
                       key={index}
-                      count={cartItem.count}
+                      cartItem={cartItem}
                       inventory={inventory}
-                      changeAmount={(amount: number) => {
-                        const newCart = cart;
-                        newCart[cart.indexOf(cartItem)].count = amount;
-                        setCart(newCart);
-                      }}
                     />
                   </div>
                   <div className="flex flex-wrap w-full items-center justify-end gap-2">

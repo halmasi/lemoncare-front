@@ -1,0 +1,78 @@
+import { CommentProps } from 'postcss';
+import { requestData } from '../data/dataFetch';
+import { CartProps } from '../states/useCartData';
+
+interface UpdateCartResultProps {
+  id: number;
+  documentId: string;
+  email: string;
+  provider: string;
+  confirmed: boolean;
+  blocked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  username: string;
+  fullName: string;
+  role: {
+    id: number;
+    documentId: string;
+    name: string;
+    description: string;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
+  cart: CartProps[];
+  orderHistory: object[];
+  postalInformation: object[];
+  comments: CommentProps[];
+  favorites: object[];
+  createdBy: {
+    id: number;
+    documentId: string;
+    firstname: string;
+    lastname: string;
+    username: string | null;
+    email: string;
+    isActive: boolean;
+    blocked: boolean;
+    preferedLanguage: string | null;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
+  updatedBy: {
+    id: number;
+    documentId: string;
+    firstname: string;
+    lastname: string;
+    username: string | null;
+    email: string;
+    isActive: boolean;
+    blocked: boolean;
+    preferedLanguage: string | null;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
+  localizations: object[];
+}
+
+export const updateCart = async (
+  id: string,
+  cart: CartProps[],
+  jwt: string
+) => {
+  const response = await requestData(
+    `/users/${id}`,
+    'PUT',
+    {
+      cart: cart,
+    },
+    jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
