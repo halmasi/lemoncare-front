@@ -3,8 +3,8 @@ import { z } from 'zod';
 export const loginSchema = z.object({
   email: z
     .string()
-    .email('آدرس ایمیل را دوباره بررسی کنید')
-    .nonempty('لطفا ایمیل را وارد کنید'),
+    .nonempty('لطفا ایمیل را وارد کنید')
+    .email('آدرس ایمیل را دوباره بررسی کنید'),
   pass: z
     .string()
     .min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
@@ -23,8 +23,8 @@ export const registerSchema = z.object({
 
   email: z
     .string()
-    .email('آدرس ایمیل را دوباره بررسی کنید')
-    .nonempty('ایمیل الزامی است'),
+    .nonempty('ایمیل الزامی است')
+    .email('آدرس ایمیل را دوباره بررسی کنید'),
 
   password: z
     .string()
