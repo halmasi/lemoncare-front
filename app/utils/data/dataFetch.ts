@@ -40,7 +40,11 @@ export async function requestData(
   try {
     const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
     const data = await apiData.json();
-    return { data, result: apiData };
+    const result = {
+      data: JSON.parse(JSON.stringify(data)),
+      result: JSON.parse(JSON.stringify(apiData)),
+    };
+    return result;
   } catch (error) {
     throw new Error('حطای ارتباط با سرور\n' + error);
   }
