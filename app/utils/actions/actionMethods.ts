@@ -5,8 +5,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { count } from 'console';
-import { getProduct } from '../data/getProducts';
 
 export const registerAction = async (
   username: string,
@@ -144,9 +142,9 @@ export const loginCheck = async (_?: string) => {
     username: string;
     fullName: string;
   } = response.data;
-
+  // console.log('Login check output : ', response.result);
   return {
-    status: response.result.status,
+    status: response.status,
     body: data,
     jwt: token,
   };
@@ -166,7 +164,7 @@ export const getFullUserData = async (
     {},
     `Bearer ${token}`
   );
-  return { status: response.result.status, body: response.data };
+  return { status: response.status, body: response.data };
 };
 
 export const setCookie = async (name: string, cookie: string) => {
@@ -221,7 +219,7 @@ export const RunTest = async (token: string | null) => {
     );
     console.log('Updated User Data:', fetchReq.data);
 
-    return { status: fetchReq.result.status, body: fetchReq.data };
+    return { status: fetchReq.status, body: fetchReq.data };
   } catch (error) {
     console.error('Error in RunTest:', error);
     return { status: 500, body: { message: 'Internal Server Error' } };
