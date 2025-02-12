@@ -1,6 +1,7 @@
 import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
 import { CartProps } from '../states/useCartData';
+import { loginCheck } from './actionMethods';
 
 interface UpdateCartResultProps {
   id: number;
@@ -60,18 +61,15 @@ interface UpdateCartResultProps {
   localizations: object[];
 }
 
-export const updateCart = async (
-  id: string,
-  cart: CartProps[],
-  jwt: string
-) => {
+export const updateCart = async (cart: CartProps[], id?: string) => {
+  const check = await loginCheck();
   const response = await requestData(
-    `/users/${id}`,
+    `/users/${id || check.body.id}`,
     'PUT',
     {
       cart: cart,
     },
-    jwt
+    check.jwt
   );
   const data: UpdateCartResultProps = response.data;
   return data;

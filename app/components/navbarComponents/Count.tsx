@@ -8,27 +8,41 @@ import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { updateCart } from '@/app/utils/actions/cartActionMethods';
+import { getFullUserData } from '@/app/utils/actions/actionMethods';
 
 export default function Count({
   inventory,
   cartItem,
+  deleteFunction,
 }: {
   inventory: number;
   cartItem: CartProps;
+  deleteFunction: (cartItem: CartProps) => void;
 }) {
-  const { jwt, user } = useDataStore();
+  const { jwt, user, setUser } = useDataStore();
   const { cart, setCart } = useCartStore();
 
   const [number, setNumber] = useState(cartItem.count);
 
   const updateCartFn = useMutation({
     mutationFn: async (cart: CartProps[]) => {
-      if (user && user.id && jwt && cart.length) {
-        const res = await updateCart(user.id, cart, jwt);
+      if (user && user.id && cart.length) {
+        const res = await updateCart(cart, user.id);
         return res;
       }
     },
-    onSuccess: (data) => {},
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+
+      const getUser = await getFullUserData();
+      setCart(getUser.body.cart);
+      const newUser = user;
+      newUser.cart = getUser.body.cart;
+      setUser(newUser);
+    },
+    onError: async (error) => {
+      console.log(error.cause);
+    },
   });
 
   const itemIndex = cart.findIndex(
@@ -38,29 +52,32 @@ export default function Count({
 
   const handleCartUpdate = useCallback(
     (newCount: number) => {
-      const safeCart = JSON.parse(JSON.stringify(cart));
-      const updatedCart = safeCart.map((item: { id: number }) =>
-        item.id === cartItem.id ? { ...item, count: newCount } : item
-      );
+      if (newCount == 0) {
+        deleteFunction(cartItem);
+      } else {
+        const updateCart = cart;
+        updateCart[updateCart.indexOf(cartItem)].count = newCount;
 
-      setCart(updatedCart);
+        if (jwt && user) {
+          const safeUser = JSON.parse(JSON.stringify(user));
+          const safeUserCart = Array.isArray(safeUser.cart)
+            ? safeUser.cart
+            : [];
 
-      if (jwt && user) {
-        const safeUser = JSON.parse(JSON.stringify(user));
-        const safeUserCart = Array.isArray(safeUser.cart) ? safeUser.cart : [];
+          const shouldUpdate = updateCart.some(
+            (item: { id: number; count: number }) => {
+              const foundItem = safeUserCart.find(
+                (cartItem: { id: number }) => cartItem.id == item.id
+              );
+              return foundItem?.count !== item.count;
+            }
+          );
 
-        const shouldUpdate = updatedCart.some(
-          (item: { id: any; count: any }) => {
-            const foundItem = safeUserCart.find(
-              (cartItem: { id: any }) => cartItem.id === item.id
-            );
-            return foundItem?.count !== item.count;
+          if (shouldUpdate) {
+            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
-        );
-
-        if (shouldUpdate) {
-          updateCartFn.mutate(JSON.parse(JSON.stringify(updatedCart)));
         }
+        setCart(updateCart);
       }
     },
     [cart, setCart, jwt, user, updateCartFn]
@@ -69,6 +86,7 @@ export default function Count({
   useEffect(() => {
     if (cartItem.count > inventory) {
       setNumber(inventory);
+      handleCartUpdate(inventory);
     }
   }, [cartItem.count, inventory]);
 
@@ -76,10 +94,9 @@ export default function Count({
     <>
       {cart.length > 0 && (
         <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
-          {/* Increase Button */}
           <button
             onClick={() => {
-              if (itemIndex !== -1 && cart[itemIndex].count < inventory) {
+              if (cart[itemIndex].count < inventory) {
                 setNumber((prev) => prev + 1);
                 handleCartUpdate(number + 1);
               }
@@ -89,14 +106,13 @@ export default function Count({
               cart[itemIndex].count >= inventory ||
               updateCartFn.isPending
             }
-            className={`p-1 border-l ${itemIndex !== -1 && cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
+            className={`p-1 border-l ${itemIndex === -1 || cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
           >
             <BiPlus
               className={`text-lg ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
             />
           </button>
 
-          {/* Item Count Display */}
           <p className="flex w-8 items-center justify-center">
             {updateCartFn.isPending ? (
               <VscLoading className="animate-spin" />
@@ -105,17 +121,14 @@ export default function Count({
             )}
           </p>
 
-          {/* Decrease Button */}
           <button
             onClick={() => {
-              if (itemIndex !== -1 && cart[itemIndex].count > 1) {
-                setNumber((prev) => prev - 1);
-                handleCartUpdate(number - 1);
-              }
+              setNumber((prev) => prev - 1);
+              handleCartUpdate(number - 1);
             }}
             disabled={
               itemIndex === -1 ||
-              cart[itemIndex].count <= 1 ||
+              cart[itemIndex].count <= 0 ||
               updateCartFn.isPending
             }
             className={`p-1 text-lg hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}

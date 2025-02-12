@@ -41,7 +41,7 @@ export default function Dashboard() {
       </form>
       <form
         action={() => {
-          getFullUserData(jwt, [
+          getFullUserData([
             {
               orderHistory: {
                 populate: { order: { populate: { items: { populate: '*' } } } },
@@ -51,7 +51,7 @@ export default function Dashboard() {
           console.log('JWT TOKEN : ', jwt);
 
           (async () => {
-            const a = await getFullUserData(jwt, []);
+            const a = await getFullUserData();
             console.log(a);
           })();
         }}

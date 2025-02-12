@@ -1,23 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
-import {
-  registerAction,
-  setCookie,
-  getFullUserData,
-} from '@/app/utils/actions/actionMethods';
+import { registerAction, setCookie } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { setJwt, setUser } = useDataStore();
+  const { setJwt } = useDataStore();
 
   const [errors, setErrors] = useState<{
     username?: string[];
@@ -50,8 +43,8 @@ export default function RegisterPage() {
       if (data.success) {
       }
     },
-    onError: (error: any) => {
-      setErrors({ server: [error.message] });
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
     },
   });
 
@@ -59,7 +52,7 @@ export default function RegisterPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    let username = formData.get('username')?.toString() || '';
+    const username = formData.get('username')?.toString() || '';
     const email = formData.get('email')?.toString() || '';
     const password = formData.get('passwordS')?.toString() || '';
 

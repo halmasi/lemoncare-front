@@ -23,7 +23,7 @@ export const registerAction = async (
     password: [],
     server: [],
   };
-  let response: {
+  const response: {
     data: {
       data?: null | '';
       jwt: string;
@@ -126,7 +126,7 @@ export const signinAction = async (email: string, password: string) => {
   };
 };
 
-export const loginCheck = async (_?: string) => {
+export const loginCheck = async () => {
   const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
   const data: {
@@ -142,7 +142,6 @@ export const loginCheck = async (_?: string) => {
     username: string;
     fullName: string;
   } = response.data;
-  // console.log('Login check output : ', response.result);
   return {
     status: response.status,
     body: data,
@@ -150,19 +149,20 @@ export const loginCheck = async (_?: string) => {
   };
 };
 
-export const getFullUserData = async (
-  token: string | null,
-  populateOptions: object[] = []
-) => {
+export const getFullUserData = async (populateOptions?: object[]) => {
+  const options = populateOptions
+    ? Object.assign({ cart: { populate: '*' } }, ...populateOptions)
+    : { cart: { populate: '*' } };
   const query = qs.stringify({
-    populate: Object.assign({ cart: { populate: '*' } }, ...populateOptions),
+    populate: options,
   });
+  const token = await getCookie('jwt');
 
   const response = await requestData(
     `/users/me?${query}`,
     'GET',
     {},
-    `Bearer ${token}`
+    `${token}`
   );
   return { status: response.status, body: response.data };
 };
