@@ -28,7 +28,7 @@ export default function Count({
         return res;
       }
     },
-    onSuccess: (data) => console.log('Cart updated successfully!', data),
+    onSuccess: (data) => {},
   });
 
   const itemIndex = cart.findIndex(
