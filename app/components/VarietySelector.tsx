@@ -1,9 +1,21 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { ProductProps } from '../utils/data/getProducts';
+import { getProduct, ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
+import { useMutation } from '@tanstack/react-query';
+import { useCartStore } from '../utils/states/useCartData';
+import { useDataStore } from '../utils/states/useUserdata';
+import { getFullUserData } from '../utils/actions/actionMethods';
+import { addToCart } from '@/app/utils/actions/cartActionMethods';
+import SubmitButton from './formElements/SubmitButton';
+
+interface NewItemProps {
+  count: number;
+  id: string;
+  variety: { id: number; sub: number | null };
+}
 
 export default function VarietySelector({
   product,
@@ -12,9 +24,51 @@ export default function VarietySelector({
   product: ProductProps;
   list?: boolean;
 }) {
-  const [selected, setSelected] = useState<{ id: number; sub: number | null }>({
+  const { user, setUser } = useDataStore();
+  const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
+
+  const addToCartFn = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      if (user && user.id && cart) {
+        const findProduct = cartProducts.find(
+          (item) => item.documentId == newItem.id
+        );
+        if (!findProduct) {
+          const newArray = cartProducts;
+          newArray.push({
+            basicInfo: product.basicInfo,
+            documentId: product.documentId,
+            variety: product.variety,
+          });
+          setCartProducts(newArray);
+        }
+        const res = await addToCart(cart, newItem);
+        return res;
+      }
+    },
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+      const getUser = await getFullUserData();
+      setCart(getUser.body.cart);
+      const newUser = user;
+      newUser.cart = getUser.body.cart;
+      setUser(newUser);
+    },
+    onError: async (error) => {
+      console.log(error.cause);
+    },
+  });
+
+  const [selected, setSelected] = useState<{
+    id: number;
+    sub: number | null;
+    uniqueId: number;
+    uniqueSub: number | null;
+  }>({
     id: 0,
     sub: null,
+    uniqueId: 0,
+    uniqueSub: null,
   });
   const [available, setAvailable] = useState<boolean>(true);
   const [price, setPrice] = useState<{
@@ -28,22 +82,36 @@ export default function VarietySelector({
     sub: selected.sub,
     price: null,
   });
-  const itemSelectFunc = ({ id, sub }: { id: number; sub: number | null }) => {
-    setSelected({ id, sub });
+  const itemSelectFunc = ({
+    id,
+    sub,
+    uid,
+    usub,
+  }: {
+    id: number;
+    sub: number | null;
+    uid: number;
+    usub: number | null;
+  }) => {
+    setSelected({ id, sub, uniqueId: uid, uniqueSub: usub });
   };
 
   useEffect(() => {
     const lessPrice: {
       id: number | null;
       sub: number | null;
+      uid: number;
+      usub: number | null;
       price: number;
-    } = { id: null, sub: null, price: 0 };
+    } = { id: null, sub: null, uid: 0, usub: null, price: 0 };
     product.variety.map((item) => {
       if (item.subVariety.length) {
         item.subVariety.map((sub) => {
           if (sub.mainPrice < lessPrice.price || !lessPrice.price) {
             lessPrice.id = item.id;
             lessPrice.sub = sub.id;
+            lessPrice.uid = item.uniqueId;
+            lessPrice.usub = sub.uniqueId;
             lessPrice.price = sub.mainPrice;
           }
         });
@@ -53,6 +121,8 @@ export default function VarietySelector({
         ) {
           lessPrice.id = item.id;
           lessPrice.sub = null;
+          lessPrice.uid = item.uniqueId;
+          lessPrice.usub = null;
           lessPrice.price = item.mainPrice;
         }
       }
@@ -61,6 +131,8 @@ export default function VarietySelector({
       setSelected({
         id: lessPrice.id,
         sub: lessPrice.sub,
+        uniqueId: lessPrice.uid,
+        uniqueSub: lessPrice.usub,
       });
     } else setAvailable(true);
   }, []);
@@ -145,16 +217,19 @@ export default function VarietySelector({
               </p>
             </div>
           )}
-          <button
+          <SubmitButton
             onClick={() => {
-              console.log(price);
+              addToCartFn.mutate({
+                count: 1,
+                id: product.documentId,
+                variety: { id: selected.uniqueId, sub: selected.uniqueSub },
+              });
             }}
-            className={`flex w-full md:w-fit items-center gap-2 ${!price.price ? 'bg-gray-300' : 'bg-accent-green'} px-4 py-2 rounded-lg text-white bottom-0`}
-            disabled={!price.price}
+            disabled={!price.price || addToCartFn.isPending}
           >
-            <p>افزودن به سبد خرید</p>
+            افزودن به سبد خرید
             <BiShoppingBag />
-          </button>
+          </SubmitButton>
           {price.end && <DiscountTimer end={price.end} />}
         </div>
       ) : (
@@ -210,7 +285,12 @@ export default function VarietySelector({
           {product.variety.map((item, index) => {
             return (
               <RadioButton
-                value={{ id: item.id, sub: null }}
+                value={{
+                  id: item.id,
+                  sub: null,
+                  uid: item.uniqueId,
+                  usub: null,
+                }}
                 key={index + 'id:' + item.id}
                 group="colors"
                 color={item.color}
@@ -232,7 +312,12 @@ export default function VarietySelector({
                       key={subItem.id}
                       handler={itemSelectFunc}
                       selectedOptions={selected}
-                      value={{ id: item.id, sub: subItem.id }}
+                      value={{
+                        id: item.id,
+                        sub: subItem.id,
+                        uid: item.uniqueId,
+                        usub: subItem.uniqueId,
+                      }}
                       color={subItem.color}
                       group="subItems"
                     >
@@ -244,16 +329,19 @@ export default function VarietySelector({
           })}
         </>
       </div>
-      <button
+      <SubmitButton
         onClick={() => {
-          console.log(price);
+          addToCartFn.mutate({
+            count: 1,
+            id: product.documentId,
+            variety: { id: selected.uniqueId, sub: selected.uniqueSub },
+          });
         }}
-        className={`flex w-full md:w-fit items-center gap-2 ${!price.price ? 'bg-gray-300' : 'bg-accent-green'} px-4 py-2 rounded-lg text-white bottom-0`}
-        disabled={!price.price}
+        disabled={!price.price || addToCartFn.isPending}
       >
-        <p>افزودن به سبد خرید</p>
+        افزودن به سبد خرید
         <BiShoppingBag />
-      </button>
+      </SubmitButton>
     </>
   );
 }

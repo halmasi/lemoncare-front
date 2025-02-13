@@ -43,14 +43,14 @@ export default function LoginPage() {
       setJwt(response.jwt);
       return response;
     },
-    onSuccess: async (data: any) => {
-      const userData = await getFullUserData(data.jwt);
+    onSuccess: async () => {
+      const userData = await getFullUserData();
       setUser(userData.body);
       handleCart(userData.body.cart);
       queryClient.setQueryData(['user'], userData.body);
       router.push('/dashboard');
     },
-    onError: (error: any) => {
+    onError: (error: { message: string[] }) => {
       setErrors({ server: error.message });
     },
   });

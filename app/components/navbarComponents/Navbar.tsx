@@ -196,7 +196,7 @@ export default function Navbar({
               </div>
             </motion.div>
           </motion.div>
-          <div className="hidden items-end md:flex md:flex-row justify-between w-full">
+          <div className="hidden items-end md:flex md:flex-row justify-between w-full max-w-screen-xl">
             <div className="w-2/12">
               <Link className="w-fit inline-block" href="/">
                 <Image
@@ -293,19 +293,21 @@ export default function Navbar({
                 })}
             </div>
           </div>
-          <div className="w-full px-20 hidden md:flex items-center justify-between gap-2">
+          <div className="w-full max-w-screen-xl px-20 hidden md:flex items-center justify-between gap-2">
             <div className="w-9/12 px-10">
               <SearchInput />
             </div>
             <div className="flex w-3/12 items-center gap-3">
-              <Link
-                href={'/login'}
-                className="flex w-fit flex-wrap items-center gap-1 p-2 border rounded-xl"
-              >
-                <RiAccountPinCircleFill className="text-2xl" />
+              <div className="">
+                <Link
+                  href={'/login'}
+                  className="flex w-fit flex-wrap items-center gap-1 p-2 border rounded-xl"
+                >
+                  <RiAccountPinCircleFill className="text-2xl" />
 
-                <p className="max-[1024px]:hidden text-sm">{usersName}</p>
-              </Link>
+                  <p className="max-[1024px]:hidden text-sm">{usersName}</p>
+                </Link>
+              </div>
               <p>|</p>
               <Cart />
             </div>

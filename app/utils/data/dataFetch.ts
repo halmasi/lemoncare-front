@@ -15,7 +15,7 @@ export async function dataFetch(qs: string, tag?: string[]) {
     const data = await apiData.json();
     return data.data;
   } catch (error) {
-    throw new Error('حطای ارتباط با سرور\n' + error);
+    throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }
 
@@ -42,10 +42,11 @@ export async function requestData(
     const data = await apiData.json();
     const result = {
       data: JSON.parse(JSON.stringify(data)),
-      result: JSON.parse(JSON.stringify(apiData)),
+      status: apiData.status,
     };
+
     return result;
   } catch (error) {
-    throw new Error('حطای ارتباط با سرور\n' + error);
+    throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }
