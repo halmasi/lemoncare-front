@@ -17,7 +17,7 @@ export default function Count({
 }: {
   inventory: number;
   cartItem: CartProps;
-  deleteFunction: (cartItem: CartProps) => void;
+  deleteFunction: () => void;
 }) {
   const { jwt, user, setUser } = useDataStore();
   const { cart, setCart } = useCartStore();
@@ -53,7 +53,11 @@ export default function Count({
   const handleCartUpdate = useCallback(
     (newCount: number) => {
       if (newCount == 0) {
-        deleteFunction(cartItem);
+        const updateCart = cart;
+        updateCart.splice(updateCart.indexOf(cartItem), 1);
+        setCart(updateCart);
+        updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+        deleteFunction();
       } else {
         const updateCart = cart;
         updateCart[updateCart.indexOf(cartItem)].count = newCount;

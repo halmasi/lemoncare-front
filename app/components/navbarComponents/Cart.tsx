@@ -38,7 +38,7 @@ export default function Cart({
   }, []);
 
   useEffect(() => {
-    if (user && cart.length != user.cart.length) {
+    if (user && user.cart && cart.length != user.cart.length) {
       updateCart(cart).then(() => {
         getFullUserData().then((data) => {
           setUser(data.body);
@@ -46,7 +46,7 @@ export default function Cart({
         });
       });
     }
-    if (cart.length == 0) {
+    if (!cart || !cart.length) {
       setShowCart(false);
     } else {
       setShowCart(true);
@@ -128,7 +128,7 @@ export default function Cart({
                 <div className="flex items-center gap-1">
                   <div
                     style={{ background: color }}
-                    className={`w-2 h-2 rounded-full`}
+                    className={`w-4 h-4 rounded-full border border-foreground`}
                   />
                   <p>{name}</p>
                 </div>
@@ -157,10 +157,8 @@ export default function Cart({
                     key={index}
                     cartItem={cartItem}
                     inventory={inventory}
-                    deleteFunction={(Item) => {
-                      const newCart = cart;
-                      newCart.splice(newCart.indexOf(Item), 1);
-                      setCart(newCart);
+                    deleteFunction={() => {
+                      route.refresh();
                     }}
                   />
                 </div>
@@ -189,9 +187,9 @@ export default function Cart({
     }
 
     if (countFunc) {
-      countFunc(cart.length);
+      cart && cart.length ? countFunc(cart.length) : countFunc(0);
     }
-  }, [cart.length, cart, setCart, cartProducts, resetCart, route]);
+  }, [cart, setCart, cartProducts, resetCart, route]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);

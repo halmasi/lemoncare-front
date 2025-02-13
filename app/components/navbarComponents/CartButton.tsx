@@ -5,17 +5,19 @@ import { useState } from 'react';
 import { RiShoppingCart2Fill } from 'react-icons/ri';
 import Cart from './Cart';
 import { usePathname } from 'next/navigation';
+import SubmitButton from '../formElements/SubmitButton';
 
 export default function CartButton() {
   const path = usePathname();
 
   const [showItems, setShowItems] = useState(false);
   const [itemCount, setItemCount] = useState(0);
+  const [price, setPrice] = useState({ before: 0, main: 0 });
 
   return (
     <div className="flex flex-col items-center justify-center">
       <div
-        className="flex flex-col justify-end"
+        className="flex flex-col relative w-full"
         onMouseOver={() => {
           if (!path.startsWith('/cart')) setShowItems(true);
         }}
@@ -50,10 +52,38 @@ export default function CartButton() {
                   duration: 0.3,
                   ease: 'easeOut',
                 }}
-                className="absolute left-20 top-44 w-[50%] min-[1024px]:w-[35%] bg-white rounded-lg border"
+                className="absolute left-0 top-full min-w-[40rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
               >
-                <div className="p-5 w-full h-[50svh] overflow-y-scroll">
-                  <Cart countFunc={(count: number) => setItemCount(count)} />
+                <div className="w-full max-h-[50svh] overflow-y-scroll">
+                  <div className="p-5 ">
+                    <Cart
+                      countFunc={(count: number) => setItemCount(count)}
+                      priceAmount={(main, before) => {
+                        setPrice({
+                          before,
+                          main,
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="-bottom-1 z-20 sticky h-20 justify-center">
+                    <div className="w-full h-full bg-background flex items-center justify-between p-5">
+                      <div className="w-full md:w-fit mb-3">
+                        <SubmitButton link="/cart">ثبت سفارش</SubmitButton>
+                      </div>
+                      <div className="flex gap-2 items-center">
+                        <h6>مبلغ کل:</h6>
+                        {price.before != 0 && (
+                          <p className="line-through text-gray-500/50">
+                            {(price.before / 10).toLocaleString('fa-IR')}
+                          </p>
+                        )}
+                        <p className="text-accent-green text-lg">
+                          {(price.main / 10).toLocaleString('fa-IR')} تومان
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             }

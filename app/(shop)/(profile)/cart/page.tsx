@@ -44,7 +44,7 @@ export default function CartPage() {
             </p>
           </div>
           <div className="w-full md:w-fit mb-3">
-            <SubmitButton>تکمیل سفارش</SubmitButton>
+            <SubmitButton>ثبت سفارش</SubmitButton>
           </div>
         </>
       )}
