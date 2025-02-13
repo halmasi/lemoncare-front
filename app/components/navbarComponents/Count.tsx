@@ -52,7 +52,7 @@ export default function Count({
 
   const handleCartUpdate = useCallback(
     (newCount: number) => {
-      if (newCount == 0) {
+      if (newCount <= 0) {
         const updateCart = cart;
         updateCart.splice(updateCart.indexOf(cartItem), 1);
         setCart(updateCart);

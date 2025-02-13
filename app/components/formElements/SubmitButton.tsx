@@ -28,7 +28,9 @@ export default function SubmitButton({
       className={`px-6 py-2 text-lg font-semibold rounded-lg bg-accent-green text-background hover:text-background/80 transition-colors ease-in-out drop-shadow-lg
         ${disabled ? 'opacity-50 cursor-progress' : ''}`}
     >
-      <p className="shadow-foreground drop-shadow-md">{children}</p>
+      <p className="flex items-center gap-2 shadow-foreground drop-shadow-md">
+        {children}
+      </p>
     </button>
   );
 }
