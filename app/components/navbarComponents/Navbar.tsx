@@ -10,7 +10,9 @@ import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
-import { RiAccountPinCircleFill, RiShoppingBagFill } from 'react-icons/ri';
+import Cart from './CartButton';
+import { RiAccountPinCircleFill } from 'react-icons/ri';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function Navbar({
   menuItems,
@@ -27,6 +29,10 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
+  const [usersName, setUsersName] = useState('ورود / ثبت نام');
+
+  const path = usePathname();
+  const { user } = useDataStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,12 +54,25 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
-  const path = usePathname();
+
+  useEffect(() => {
+    if (user && user.fullName) {
+      setUsersName(user.fullName);
+    } else {
+      const storedUser = localStorage.getItem('user-store');
+      const parsedUser = storedUser && JSON.parse(storedUser).state;
+      setUsersName(() => {
+        if (parsedUser && parsedUser.user && parsedUser.jwt)
+          return parsedUser.user.fullName;
+        return 'ورود / ثبت نام';
+      });
+    }
+  }, [user]);
 
   return (
     <>
       <header
-        className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility || menuState ? 'top-0 sticky' : '-top-44'}`}
+        className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility || menuState ? 'top-0 sticky' : '-top-52'}`}
       >
         <div
           className={`flex flex-col items-center w-full border-t-4 ${path.startsWith('/blog') ? 'border-accent-yellow' : 'border-accent-pink'} justify-between shadow-lg bg-white md:px-10 pb-5 pt-10 gap-2`}
@@ -177,7 +196,7 @@ export default function Navbar({
               </div>
             </motion.div>
           </motion.div>
-          <div className="hidden items-end md:flex md:flex-row justify-between w-full">
+          <div className="hidden items-end md:flex md:flex-row justify-between w-full max-w-screen-xl">
             <div className="w-2/12">
               <Link className="w-fit inline-block" href="/">
                 <Image
@@ -274,22 +293,23 @@ export default function Navbar({
                 })}
             </div>
           </div>
-          <div className="w-full px-20 hidden md:flex items-center justify-between gap-2">
+          <div className="w-full max-w-screen-xl px-20 hidden md:flex items-center justify-between gap-2">
             <div className="w-9/12 px-10">
               <SearchInput />
             </div>
-            <div className="flex w-2/12 items-center gap-3">
-              <Link
-                href={'/login'}
-                className="flex items-center gap-1 p-2 border rounded-xl"
-              >
-                <RiAccountPinCircleFill className="text-2xl" />
-                <p className="text-sm">ورود / ثبت نام</p>
-              </Link>
+            <div className="flex w-3/12 items-center gap-3">
+              <div className="">
+                <Link
+                  href={'/login'}
+                  className="flex w-fit flex-wrap items-center gap-1 p-2 border rounded-xl"
+                >
+                  <RiAccountPinCircleFill className="text-2xl" />
+
+                  <p className="max-[1024px]:hidden text-sm">{usersName}</p>
+                </Link>
+              </div>
               <p>|</p>
-              <Link href={'/cart'}>
-                <RiShoppingBagFill className="text-2xl" />
-              </Link>
+              <Cart />
             </div>
           </div>
         </div>

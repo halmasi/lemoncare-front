@@ -1,5 +1,5 @@
 import '../globals.css';
-import Navbar from '@/app/components/Navbar';
+import Navbar from '@/app/components/navbarComponents/Navbar';
 import Footer from '@/app/components/BlogFooter';
 import { getMenuItems } from '@/app/utils/data/getMenu';
 import {

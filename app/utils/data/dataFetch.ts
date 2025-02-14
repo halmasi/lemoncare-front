@@ -1,3 +1,5 @@
+'use server';
+
 export async function dataFetch(qs: string, tag?: string[]) {
   const options = {
     headers: {
@@ -13,7 +15,7 @@ export async function dataFetch(qs: string, tag?: string[]) {
     const data = await apiData.json();
     return data.data;
   } catch (error) {
-    throw new Error('حطای ارتباط با سرور\n' + error);
+    throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }
 
@@ -38,8 +40,13 @@ export async function requestData(
   try {
     const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
     const data = await apiData.json();
-    return { data, result: apiData };
+    const result = {
+      data: JSON.parse(JSON.stringify(data)),
+      status: apiData.status,
+    };
+
+    return result;
   } catch (error) {
-    throw new Error('حطای ارتباط با سرور\n' + error);
+    throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }

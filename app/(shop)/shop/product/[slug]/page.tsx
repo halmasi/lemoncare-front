@@ -17,6 +17,7 @@ export default async function product({
   const productArray: ProductProps[] = await getProduct(slug);
   if (!productArray || !productArray.length) return notFound();
   const product = productArray[0];
+
   return (
     <MainSection>
       <div className="w-full flex flex-col">
