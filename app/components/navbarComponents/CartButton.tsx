@@ -52,9 +52,9 @@ export default function CartButton() {
                   duration: 0.3,
                   ease: 'easeOut',
                 }}
-                className="absolute left-0 top-full min-w-[40rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
+                className="absolute left-0 top-full min-w-[30rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
               >
-                <div className="w-full max-h-[50svh] overflow-y-scroll">
+                <div className="w-full min-h-[16rem] max-h-[50svh] overflow-y-scroll">
                   <div className="p-5 ">
                     <Cart
                       countFunc={(count: number) => setItemCount(count)}
@@ -66,24 +66,26 @@ export default function CartButton() {
                       }}
                     />
                   </div>
-                  <div className="-bottom-1 z-20 sticky h-20 justify-center">
-                    <div className="w-full h-full bg-background flex items-center justify-between p-5">
-                      <div className="w-full md:w-fit mb-3">
-                        <SubmitButton link="/cart">ثبت سفارش</SubmitButton>
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <h6>مبلغ کل:</h6>
-                        {price.before != 0 && (
-                          <p className="line-through text-gray-500/50">
-                            {(price.before / 10).toLocaleString('fa-IR')}
+                  {price.main >= 1 && (
+                    <div className="-bottom-1 z-20 sticky h-20 justify-center">
+                      <div className="w-full h-full bg-background flex items-center justify-between p-5">
+                        <div className="w-full md:w-fit mb-3">
+                          <SubmitButton link="/cart">ثبت سفارش</SubmitButton>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <h6>مبلغ کل:</h6>
+                          {price.before != 0 && (
+                            <p className="line-through text-gray-500/50">
+                              {(price.before / 10).toLocaleString('fa-IR')}
+                            </p>
+                          )}
+                          <p className="text-accent-green text-lg">
+                            {(price.main / 10).toLocaleString('fa-IR')} تومان
                           </p>
-                        )}
-                        <p className="text-accent-green text-lg">
-                          {(price.main / 10).toLocaleString('fa-IR')} تومان
-                        </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </motion.div>
             }
