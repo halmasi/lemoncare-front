@@ -190,7 +190,7 @@ export default function Cart({
     if (countFunc) {
       cart && cart.length ? countFunc(cart.length) : countFunc(0);
     }
-  }, [cart, cart.length, setCart, cartProducts, resetCart, route, totalPrice]);
+  }, [cart, setCart, cartProducts, resetCart, route, totalPrice]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
