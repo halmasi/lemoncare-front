@@ -1,6 +1,6 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { getProduct, ProductProps } from '../utils/data/getProducts';
+import { ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
@@ -10,6 +10,9 @@ import { useDataStore } from '../utils/states/useUserdata';
 import { getFullUserData } from '../utils/actions/actionMethods';
 import { addToCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
+import log from '@/app/utils/logs';
+import Count from './navbarComponents/Count';
+import { useRouter } from 'next/navigation';
 
 interface NewItemProps {
   count: number;
@@ -26,6 +29,8 @@ export default function VarietySelector({
 }) {
   const { user, setUser } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
+
+  const router = useRouter();
 
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
@@ -53,9 +58,18 @@ export default function VarietySelector({
       const newUser = user;
       newUser.cart = getUser.body.cart;
       setUser(newUser);
+      const id = product.variety.find(
+        (item) => item.uniqueId == selected.uniqueId
+      );
+      const sub = id?.subVariety.find(
+        (item) => item.uniqueId == selected.uniqueSub
+      );
+      log(
+        `user ${user.fullName} with the id ${user.id} added new item to cart\nproduct info:\nproduct name: ${product.basicInfo.title}, link: /shop/product/${product.basicInfo.contentCode},\nproduct detail: ${id && id.specification}, ${sub && sub.specification}`
+      );
     },
     onError: async (error) => {
-      console.log(error.cause);
+      log(error.message + ' ' + error.cause, 'error');
     },
   });
 
@@ -217,19 +231,59 @@ export default function VarietySelector({
               </p>
             </div>
           )}
-          <SubmitButton
-            onClick={() => {
-              addToCartFn.mutate({
-                count: 1,
-                id: product.documentId,
-                variety: { id: selected.uniqueId, sub: selected.uniqueSub },
-              });
-            }}
-            disabled={!price.price || addToCartFn.isPending}
-          >
-            افزودن به سبد خرید
-            <BiShoppingBag />
-          </SubmitButton>
+
+          <div className="flex justify-center">
+            {(() => {
+              let findCart = cart.find(
+                (item) =>
+                  item.product.documentId == product.documentId &&
+                  item.variety.id == selected.uniqueId &&
+                  item.variety.sub == selected.uniqueSub
+              );
+              if (!findCart || findCart.count < 1 || addToCartFn.isPending) {
+                return (
+                  <SubmitButton
+                    onClick={() => {
+                      addToCartFn.mutate({
+                        count: 1,
+                        id: product.documentId,
+                        variety: {
+                          id: selected.uniqueId,
+                          sub: selected.uniqueSub,
+                        },
+                      });
+                    }}
+                    disabled={!price.price || addToCartFn.isPending}
+                  >
+                    <span>افزودن به سبد خرید</span> <BiShoppingBag />
+                  </SubmitButton>
+                );
+              } else {
+                const id = product.variety.find(
+                  (item) => item.uniqueId == selected.uniqueId
+                );
+                const sub = id?.subVariety.find(
+                  (item) => item.uniqueId == selected.uniqueSub
+                );
+                let inventory = 0;
+                if (id && sub) {
+                  inventory = sub.inventory;
+                } else if (!sub && id) {
+                  inventory = id.inventory;
+                }
+                return (
+                  <Count
+                    cartItem={findCart}
+                    inventory={inventory}
+                    isProductPage
+                    refreshFunction={() => {
+                      router.refresh();
+                    }}
+                  />
+                );
+              }
+            })()}{' '}
+          </div>
           {price.end && <DiscountTimer end={price.end} />}
         </div>
       ) : (
@@ -329,19 +383,53 @@ export default function VarietySelector({
           })}
         </>
       </div>
-      <SubmitButton
-        onClick={() => {
-          addToCartFn.mutate({
-            count: 1,
-            id: product.documentId,
-            variety: { id: selected.uniqueId, sub: selected.uniqueSub },
-          });
-        }}
-        disabled={!price.price || addToCartFn.isPending}
-      >
-        افزودن به سبد خرید
-        <BiShoppingBag />
-      </SubmitButton>
+      {(() => {
+        let findCart = cart.find(
+          (item) =>
+            item.product.documentId == product.documentId &&
+            item.variety.id == selected.uniqueId &&
+            item.variety.sub == selected.uniqueSub
+        );
+        if (!findCart || findCart.count < 1 || addToCartFn.isPending) {
+          return (
+            <SubmitButton
+              onClick={() => {
+                addToCartFn.mutate({
+                  count: 1,
+                  id: product.documentId,
+                  variety: { id: selected.uniqueId, sub: selected.uniqueSub },
+                });
+              }}
+              disabled={!price.price || addToCartFn.isPending}
+            >
+              <span>افزودن به سبد خرید</span> <BiShoppingBag />
+            </SubmitButton>
+          );
+        } else {
+          const id = product.variety.find(
+            (item) => item.uniqueId == selected.uniqueId
+          );
+          const sub = id?.subVariety.find(
+            (item) => item.uniqueId == selected.uniqueSub
+          );
+          let inventory = 0;
+          if (id && sub) {
+            inventory = sub.inventory;
+          } else if (!sub && id) {
+            inventory = id.inventory;
+          }
+          return (
+            <Count
+              cartItem={findCart}
+              inventory={inventory}
+              isProductPage
+              refreshFunction={() => {
+                router.refresh();
+              }}
+            />
+          );
+        }
+      })()}
     </>
   );
 }

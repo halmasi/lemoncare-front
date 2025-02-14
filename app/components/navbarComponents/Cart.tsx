@@ -157,8 +157,9 @@ export default function Cart({
                     key={index}
                     cartItem={cartItem}
                     inventory={inventory}
-                    deleteFunction={() => {
+                    refreshFunction={() => {
                       route.refresh();
+                      if (cart.length == 0) setTotalPrice(0);
                     }}
                   />
                 </div>
@@ -189,7 +190,7 @@ export default function Cart({
     if (countFunc) {
       cart && cart.length ? countFunc(cart.length) : countFunc(0);
     }
-  }, [cart, setCart, cartProducts, resetCart, route]);
+  }, [cart, cart.length, setCart, cartProducts, resetCart, route, totalPrice]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);

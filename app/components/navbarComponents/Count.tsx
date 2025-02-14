@@ -9,15 +9,17 @@ import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { updateCart } from '@/app/utils/actions/cartActionMethods';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
-
+import log from '@/app/utils/logs';
 export default function Count({
   inventory,
   cartItem,
-  deleteFunction,
+  refreshFunction,
+  isProductPage,
 }: {
   inventory: number;
   cartItem: CartProps;
-  deleteFunction: () => void;
+  isProductPage?: boolean;
+  refreshFunction?: () => void;
 }) {
   const { jwt, user, setUser } = useDataStore();
   const { cart, setCart } = useCartStore();
@@ -25,24 +27,27 @@ export default function Count({
   const [number, setNumber] = useState(cartItem.count);
 
   const updateCartFn = useMutation({
-    mutationFn: async (cart: CartProps[]) => {
-      if (user && user.id && cart.length) {
-        const res = await updateCart(cart, user.id);
-        return res;
+    mutationFn: async (newCart: CartProps[]) => {
+      if (user && user.id) {
+        const res = await updateCart(newCart, user.id);
+        return { result: res, prev: cart };
       }
     },
     onSuccess: async (data) => {
-      if (!data || !user) return;
-
+      if (!data || !data.result || !user) return;
       const getUser = await getFullUserData();
       setCart(getUser.body.cart);
       const newUser = user;
       newUser.cart = getUser.body.cart;
       setUser(newUser);
+      if (refreshFunction) refreshFunction();
     },
     onError: async (error) => {
-      console.log(error.cause);
+      log(error.cause + error.message, 'error');
+      if (refreshFunction) refreshFunction();
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const itemIndex = cart.findIndex(
@@ -55,9 +60,7 @@ export default function Count({
       if (newCount <= 0) {
         const updateCart = cart;
         updateCart.splice(updateCart.indexOf(cartItem), 1);
-        setCart(updateCart);
         updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
-        deleteFunction();
       } else {
         const updateCart = cart;
         updateCart[updateCart.indexOf(cartItem)].count = newCount;
@@ -81,7 +84,6 @@ export default function Count({
             updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
         }
-        setCart(updateCart);
       }
     },
     [cart, setCart, jwt, user, updateCartFn]
@@ -97,7 +99,9 @@ export default function Count({
   return (
     <>
       {cart.length > 0 && (
-        <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
+        <div
+          className={`flex ${isProductPage ? 'h-14' : 'h-7'} bg-white border w-fit rounded-lg overflow-hidden items-center`}
+        >
           <button
             onClick={() => {
               if (cart[itemIndex].count < inventory) {
@@ -113,11 +117,13 @@ export default function Count({
             className={`p-1 border-l ${itemIndex === -1 || cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
           >
             <BiPlus
-              className={`text-lg ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
+              className={`${isProductPage ? 'text-2xl' : 'text-lg'} ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
             />
           </button>
 
-          <p className="flex w-8 items-center justify-center">
+          <p
+            className={`flex ${isProductPage ? 'w-12 text-xl' : 'w-8'} items-center justify-center`}
+          >
             {updateCartFn.isPending ? (
               <VscLoading className="animate-spin" />
             ) : (
@@ -135,7 +141,7 @@ export default function Count({
               cart[itemIndex].count <= 0 ||
               updateCartFn.isPending
             }
-            className={`p-1 text-lg hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
+            className={`p-1 ${isProductPage ? 'text-2xl' : 'text-lg'} hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
           >
             {itemIndex !== -1 && cart[itemIndex].count <= 1 ? (
               <RiDeleteBin2Fill />
