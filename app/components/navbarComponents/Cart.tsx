@@ -13,15 +13,13 @@ import { useRouter } from 'next/navigation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 
 export default function Cart({
-  countFunc,
   priceAmount,
 }: {
-  countFunc?: (count: number) => void;
   priceAmount?: (main: number, before: number) => void;
 }) {
   const { cart, setCart, cartProducts, setCartProducts, resetCart } =
     useCartStore();
-  const { user, setUser } = useDataStore();
+  const { user, jwt, setUser } = useDataStore();
 
   const route = useRouter();
 
@@ -31,10 +29,11 @@ export default function Cart({
   const [showCart, setShowCart] = useState<boolean>(true);
 
   useEffect(() => {
-    getFullUserData().then((data) => {
-      setUser(data.body);
-      setCart(data.body.cart);
-    });
+    if (user && jwt)
+      getFullUserData().then((data) => {
+        setUser(data.body);
+        setCart(data.body.cart);
+      });
   }, []);
 
   useEffect(() => {
@@ -186,11 +185,7 @@ export default function Cart({
         }
       });
     }
-
-    if (countFunc) {
-      cart && cart.length ? countFunc(cart.length) : countFunc(0);
-    }
-  }, [cart, cart.length, setCart, cartProducts, resetCart, route, totalPrice]);
+  }, [cart, setCart, cartProducts, resetCart, route, totalPrice]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
@@ -200,6 +195,7 @@ export default function Cart({
     <div className="w-full">
       {showCart ? (
         <Table
+          key={cart.length}
           rowsWidth={['full', 'fit']}
           rowsHeight={['20', 'fit']}
           normalColorChange={0}

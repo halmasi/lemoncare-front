@@ -57,12 +57,15 @@ export default function Count({
 
   const handleCartUpdate = useCallback(
     (newCount: number) => {
+      const updateCart = cart;
       if (newCount <= 0) {
-        const updateCart = cart;
         updateCart.splice(updateCart.indexOf(cartItem), 1);
-        updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+        if (user && jwt) {
+          updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+        } else {
+          setCart(updateCart);
+        }
       } else {
-        const updateCart = cart;
         updateCart[updateCart.indexOf(cartItem)].count = newCount;
 
         if (jwt && user) {
@@ -83,6 +86,8 @@ export default function Count({
           if (shouldUpdate) {
             updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
+        } else {
+          setCart(updateCart);
         }
       }
     },

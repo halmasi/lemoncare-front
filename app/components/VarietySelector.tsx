@@ -20,6 +20,91 @@ interface NewItemProps {
   variety: { id: number; sub: number | null };
 }
 
+function AddButton({
+  product,
+  selected,
+  price,
+  isPending,
+  handleAddToCart,
+}: {
+  product: ProductProps;
+  selected: {
+    id: number;
+    sub: number | null;
+    uniqueId: number;
+    uniqueSub: number | null;
+  };
+  price: { price: number | null };
+  isPending: boolean;
+  handleAddToCart: (object: NewItemProps) => void;
+}) {
+  const { cart } = useCartStore();
+
+  if (cart) {
+    let findCart = cart.find(
+      (item) =>
+        item.product.documentId == product.documentId &&
+        item.variety.id == selected.uniqueId &&
+        item.variety.sub == selected.uniqueSub
+    );
+    if (!findCart || findCart.count < 1 || isPending) {
+      return (
+        <SubmitButton
+          onClick={() => {
+            handleAddToCart({
+              count: 1,
+              id: product.documentId,
+              variety: { id: selected.uniqueId, sub: selected.uniqueSub },
+            });
+          }}
+          disabled={!price.price || isPending}
+        >
+          <span>افزودن به سبد خرید</span> <BiShoppingBag />
+        </SubmitButton>
+      );
+    } else {
+      const id = product.variety.find(
+        (item) => item.uniqueId == selected.uniqueId
+      );
+      const sub = id?.subVariety.find(
+        (item) => item.uniqueId == selected.uniqueSub
+      );
+      let inventory = 0;
+      if (id && sub) {
+        inventory = sub.inventory;
+      } else if (!sub && id) {
+        inventory = id.inventory;
+      }
+      return (
+        <Count
+          key={selected.sub || selected.id}
+          cartItem={findCart}
+          inventory={inventory}
+          isProductPage
+        />
+      );
+    }
+  } else {
+    return (
+      <SubmitButton
+        onClick={() => {
+          handleAddToCart({
+            count: 1,
+            id: product.documentId,
+            variety: {
+              id: selected.uniqueId,
+              sub: selected.uniqueSub,
+            },
+          });
+        }}
+        disabled={!price.price || isPending}
+      >
+        <span>افزودن به سبد خرید</span> <BiShoppingBag />
+      </SubmitButton>
+    );
+  }
+}
+
 export default function VarietySelector({
   product,
   list,
@@ -27,7 +112,7 @@ export default function VarietySelector({
   product: ProductProps;
   list?: boolean;
 }) {
-  const { user, setUser } = useDataStore();
+  const { user, setUser, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
   const router = useRouter();
@@ -35,18 +120,6 @@ export default function VarietySelector({
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
-        const findProduct = cartProducts.find(
-          (item) => item.documentId == newItem.id
-        );
-        if (!findProduct) {
-          const newArray = cartProducts;
-          newArray.push({
-            basicInfo: product.basicInfo,
-            documentId: product.documentId,
-            variety: product.variety,
-          });
-          setCartProducts(newArray);
-        }
         const res = await addToCart(cart, newItem);
         return res;
       }
@@ -202,6 +275,37 @@ export default function VarietySelector({
     }
   }, [selected]);
 
+  const handleAddToCart = (newItem: NewItemProps) => {
+    const findProduct = cartProducts.find(
+      (item) => item.documentId == newItem.id
+    );
+    if (!findProduct) {
+      const newArray = cartProducts;
+      newArray.push({
+        basicInfo: product.basicInfo,
+        documentId: product.documentId,
+        variety: product.variety,
+      });
+      setCartProducts(newArray);
+    }
+    const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
+
+    if (jwt && user && cart) {
+      addToCartFn.mutate(newItem);
+    } else if (cart) {
+      const found = cart.find((item) => {
+        item.product.documentId == newItem.id &&
+          item.variety == newItem.variety;
+      });
+      if (found) return;
+      const newCart = cart;
+      newCart.push({ ...newItem, product, id });
+      setCart(newCart);
+    } else {
+      setCart([{ ...newItem, product, id }]);
+    }
+  };
+
   return list ? (
     <>
       {price.price ? (
@@ -233,56 +337,14 @@ export default function VarietySelector({
           )}
 
           <div className="flex justify-center">
-            {(() => {
-              let findCart = cart.find(
-                (item) =>
-                  item.product.documentId == product.documentId &&
-                  item.variety.id == selected.uniqueId &&
-                  item.variety.sub == selected.uniqueSub
-              );
-              if (!findCart || findCart.count < 1 || addToCartFn.isPending) {
-                return (
-                  <SubmitButton
-                    onClick={() => {
-                      addToCartFn.mutate({
-                        count: 1,
-                        id: product.documentId,
-                        variety: {
-                          id: selected.uniqueId,
-                          sub: selected.uniqueSub,
-                        },
-                      });
-                    }}
-                    disabled={!price.price || addToCartFn.isPending}
-                  >
-                    <span>افزودن به سبد خرید</span> <BiShoppingBag />
-                  </SubmitButton>
-                );
-              } else {
-                const id = product.variety.find(
-                  (item) => item.uniqueId == selected.uniqueId
-                );
-                const sub = id?.subVariety.find(
-                  (item) => item.uniqueId == selected.uniqueSub
-                );
-                let inventory = 0;
-                if (id && sub) {
-                  inventory = sub.inventory;
-                } else if (!sub && id) {
-                  inventory = id.inventory;
-                }
-                return (
-                  <Count
-                    cartItem={findCart}
-                    inventory={inventory}
-                    isProductPage
-                    refreshFunction={() => {
-                      router.refresh();
-                    }}
-                  />
-                );
-              }
-            })()}{' '}
+            <AddButton
+              key={selected.uniqueSub || selected.uniqueId}
+              handleAddToCart={handleAddToCart}
+              isPending={addToCartFn.isPending}
+              price={price}
+              product={product}
+              selected={selected}
+            />
           </div>
           {price.end && <DiscountTimer end={price.end} />}
         </div>
@@ -383,53 +445,14 @@ export default function VarietySelector({
           })}
         </>
       </div>
-      {(() => {
-        let findCart = cart.find(
-          (item) =>
-            item.product.documentId == product.documentId &&
-            item.variety.id == selected.uniqueId &&
-            item.variety.sub == selected.uniqueSub
-        );
-        if (!findCart || findCart.count < 1 || addToCartFn.isPending) {
-          return (
-            <SubmitButton
-              onClick={() => {
-                addToCartFn.mutate({
-                  count: 1,
-                  id: product.documentId,
-                  variety: { id: selected.uniqueId, sub: selected.uniqueSub },
-                });
-              }}
-              disabled={!price.price || addToCartFn.isPending}
-            >
-              <span>افزودن به سبد خرید</span> <BiShoppingBag />
-            </SubmitButton>
-          );
-        } else {
-          const id = product.variety.find(
-            (item) => item.uniqueId == selected.uniqueId
-          );
-          const sub = id?.subVariety.find(
-            (item) => item.uniqueId == selected.uniqueSub
-          );
-          let inventory = 0;
-          if (id && sub) {
-            inventory = sub.inventory;
-          } else if (!sub && id) {
-            inventory = id.inventory;
-          }
-          return (
-            <Count
-              cartItem={findCart}
-              inventory={inventory}
-              isProductPage
-              refreshFunction={() => {
-                router.refresh();
-              }}
-            />
-          );
-        }
-      })()}
+      <AddButton
+        key={selected.uniqueSub || selected.uniqueId}
+        handleAddToCart={handleAddToCart}
+        isPending={addToCartFn.isPending}
+        price={price}
+        product={product}
+        selected={selected}
+      />
     </>
   );
 }

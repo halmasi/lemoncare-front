@@ -6,13 +6,16 @@ import { RiShoppingCart2Fill } from 'react-icons/ri';
 import Cart from './Cart';
 import { usePathname } from 'next/navigation';
 import SubmitButton from '../formElements/SubmitButton';
+import Link from 'next/link';
+import { useCartStore } from '@/app/utils/states/useCartData';
 
 export default function CartButton() {
   const path = usePathname();
 
   const [showItems, setShowItems] = useState(false);
-  const [itemCount, setItemCount] = useState(0);
   const [price, setPrice] = useState({ before: 0, main: 0 });
+
+  const { cart } = useCartStore();
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -25,17 +28,20 @@ export default function CartButton() {
           setShowItems(false);
         }}
       >
-        <div className="flex flex-col rounded-lg border p-2 h-fit justify-start">
-          {itemCount > 0 && (
+        <Link
+          href={!showItems ? '#' : '/cart'}
+          className="flex flex-col rounded-lg border p-2 h-fit justify-start"
+        >
+          {cart && cart.length > 0 && (
             <div className="flex items-center justify-start">
               <div className="absolute z-0 w-6 h-6 bg-accent-pink rounded-full p-[0.2rem] -mt-4 -mr-4" />
               <div className="absolute text-white -mt-3 -mr-3">
-                <p className="z-10 text-xs font-bold px-1">{itemCount}</p>
+                <p className="z-10 text-xs font-bold px-1">{cart.length}</p>
               </div>
             </div>
           )}
           <RiShoppingCart2Fill className="text-2xl" />
-        </div>
+        </Link>
         {!path.startsWith('/cart') && (
           <AnimatePresence>
             {
@@ -57,7 +63,7 @@ export default function CartButton() {
                 <div className="w-full min-h-[16rem] max-h-[50svh] overflow-y-scroll">
                   <div className="p-5 ">
                     <Cart
-                      countFunc={(count: number) => setItemCount(count)}
+                      key={cart.length}
                       priceAmount={(main, before) => {
                         setPrice({
                           before,
