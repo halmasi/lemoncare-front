@@ -154,7 +154,6 @@ export const loginCheck = async (_?: string) => {
     username: string;
     fullName: string;
   } = response.data;
-  // console.log('Login check output : ', response.result);
   return {
     status: response.status,
     body: data,
