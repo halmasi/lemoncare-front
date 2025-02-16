@@ -126,6 +126,18 @@ export const signinAction = async (email: string, password: string) => {
   };
 };
 
+export const googleAuthAction = async (accessToken: string) => {
+  const response = await requestData('/auth/google/callback', 'POST', {
+    access_token: accessToken,
+  });
+
+  if (response.data.error) {
+    throw new Error(response.data.error.message);
+  }
+
+  return response.data;
+};
+
 export const loginCheck = async (_?: string) => {
   const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
