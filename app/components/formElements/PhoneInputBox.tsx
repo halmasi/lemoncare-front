@@ -3,11 +3,13 @@ import { ReactNode } from 'react';
 export default function PhoneInputBox({
   placeholder,
   name,
+  value,
   children,
   required,
 }: {
   placeholder: string;
   name: string;
+  value?: string | number;
   required?: boolean;
   children?: ReactNode;
 }) {
@@ -26,6 +28,7 @@ export default function PhoneInputBox({
           dir="ltr"
           placeholder={placeholder}
           name={name}
+          value={value}
           id={name}
         />
         <div className="flex justify-center items-center px-3 bg-gray-200 border-2 border-r-0 border-gray-400 rounded-l-xl shadow-lg w-28 h-12">
