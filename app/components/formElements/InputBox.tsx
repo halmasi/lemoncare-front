@@ -4,6 +4,7 @@ interface InputProps {
   format?: string;
   placeholder: string;
   name: string;
+  value?: string | number;
   required?: boolean;
   children?: ReactNode;
 }
@@ -11,6 +12,7 @@ interface InputProps {
 export default function InputBox({
   format,
   placeholder,
+  value,
   name,
   required,
   children,
@@ -29,6 +31,7 @@ export default function InputBox({
         placeholder={placeholder}
         name={name}
         id={name}
+        value={value}
       />
     </div>
   );

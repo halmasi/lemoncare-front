@@ -10,13 +10,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 
-import {
-  Navigation,
-  Pagination,
-  Keyboard,
-  Scrollbar,
-  Autoplay,
-} from 'swiper/modules';
+import { Navigation, Pagination, Keyboard, Autoplay } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -87,9 +81,8 @@ export default function Slide({
         }
         slidesPerView={1}
         spaceBetween={10}
-        centeredSlides={true}
         keyboard={{ enabled: true }}
-        pagination={{ type: 'bullets' }}
+        pagination={{ clickable: true, type: 'bullets' }}
         navigation={{
           enabled: true,
           nextEl: '.slide-next',
@@ -99,11 +92,11 @@ export default function Slide({
           pauseOnMouseEnter: true,
           delay: 5000,
         }}
-        scrollbar={{ draggable: true }}
+        // scrollbar={{ draggable: true }}
         loop
         onSlideChange={() => changeSlide()}
-        modules={[Autoplay, Keyboard, Pagination, Navigation, Scrollbar]}
-        className="w-[90vw] self-center flex items-center justify-center rounded-xl overflow-hidden"
+        modules={[Autoplay, Keyboard, Pagination, Navigation]}
+        className="mySwiper w-[90vw] self-center flex items-center justify-center rounded-xl overflow-hidden"
       >
         <div className="flex justify-center">
           {media.map((item) => (
