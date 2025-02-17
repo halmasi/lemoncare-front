@@ -62,13 +62,33 @@ interface UpdateCartResultProps {
   localizations: object[];
 }
 
+export const updateCartOnLogin = async (
+  newCart: {
+    count: number;
+    product: { documentId: string };
+    variety: { id: number; sub: number | null };
+  }[]
+) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/users/${check.body.id}`,
+    'PUT',
+    {
+      cart: newCart,
+    },
+    check.jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
 export const updateCart = async (cart: CartProps[], id?: string) => {
   const check = await loginCheck();
   const response = await requestData(
     `/users/${id || check.body.id}`,
     'PUT',
     {
-      cart: cart,
+      cart,
     },
     check.jwt
   );

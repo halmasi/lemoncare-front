@@ -1,9 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import {
@@ -14,19 +13,20 @@ import {
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
+import { updateCartOnLogin } from '@/app/utils/actions/cartActionMethods';
 
 export default function LoginPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { setJwt, setUser } = useDataStore();
   const { cart, setCart } = useCartStore();
+  const { setJwt, setUser, user } = useDataStore();
+
   const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
     server?: string[];
   }>({});
 
-  const mutation = useMutation({
+  const loginMutauionFn = useMutation({
     mutationFn: async ({
       email,
       password,
@@ -39,42 +39,80 @@ export default function LoginPage() {
         setErrors(response.fieldErrors);
       }
 
-      await setCookie('jwt', `Bearer ${response.jwt}`);
-      setJwt(response.jwt);
       return response;
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      await setCookie('jwt', `Bearer ${data.jwt}`);
+      setJwt(data.jwt);
       const userData = await getFullUserData();
       setUser(userData.body);
       handleCart(userData.body.cart);
-      queryClient.setQueryData(['user'], userData.body);
-      router.push('/dashboard');
+      router.push('/');
     },
     onError: (error: { message: string[] }) => {
       setErrors({ server: error.message });
     },
   });
 
+  const updateCartFn = useMutation({
+    mutationFn: async (newCart: CartProps[]) => {
+      const updateCart = newCart.map((item) => {
+        return {
+          count: item.count,
+          product: item.product,
+          variety: item.variety,
+        };
+      });
+      const res = await updateCartOnLogin(updateCart);
+      return res;
+    },
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+      const getUser = await getFullUserData();
+      setCart(getUser.body.cart);
+      setUser(getUser.body);
+    },
+    onError: (error: { message: string[] }) => {
+      throw new Error('خطا : ' + error.message);
+    },
+  });
+
   const handleCart = (fetchedCart: CartProps[]) => {
-    if (fetchedCart != cart) {
-      const carts = fetchedCart;
-      carts.forEach((item) => {
-        let dup = 0;
-        carts.forEach((check) => {
+    if (fetchedCart && cart) {
+      let updateNeeded = false;
+      fetchedCart.map((fetched) => {
+        let found = false;
+        cart.map((item) => {
           if (
-            item.product.documentId == check.product.documentId &&
-            item.variety.id == check.variety.id &&
-            item.variety.sub == check.variety.sub
+            item.product.documentId == fetched.product.documentId &&
+            item.variety == fetched.variety
           ) {
-            dup++;
-            if (dup > 1) {
-              carts.splice(carts.indexOf(item), 1);
-            }
+            found = true;
           }
         });
+        if (!found) updateNeeded = true;
       });
-      setCart(carts);
-    }
+      if (updateNeeded) {
+        const cartItems: CartProps[] = [...fetchedCart, ...cart];
+        cartItems.forEach((item) => {
+          let dup = 0;
+          cartItems.forEach((check) => {
+            if (
+              item.product.documentId == check.product.documentId &&
+              item.variety.id == check.variety.id &&
+              item.variety.sub == check.variety.sub
+            ) {
+              dup++;
+              if (dup > 1) {
+                cartItems.splice(cartItems.indexOf(item), 1);
+              }
+            }
+          });
+        });
+        updateCartFn.mutate(cartItems);
+      } else setCart(fetchedCart);
+    } else if (fetchedCart && !cart) setCart(fetchedCart);
+    else if (!fetchedCart && cart) updateCartFn.mutate(cart);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -83,7 +121,7 @@ export default function LoginPage() {
     const email = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
     setErrors({});
-    mutation.mutate({ email, password });
+    loginMutauionFn.mutate({ email, password });
   };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
@@ -110,8 +148,12 @@ export default function LoginPage() {
           </p>
         )}
 
-        <SubmitButton disabled={mutation.isPending}>
-          {mutation.isPending ? 'در حال ورود...' : 'ورود'}
+        <SubmitButton
+          disabled={loginMutauionFn.isPending || updateCartFn.isPending}
+        >
+          {loginMutauionFn.isPending || updateCartFn.isPending
+            ? 'در حال ورود...'
+            : 'ورود'}
         </SubmitButton>
       </form>
     </div>

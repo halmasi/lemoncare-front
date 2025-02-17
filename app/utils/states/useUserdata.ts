@@ -16,7 +16,7 @@ export interface DataStoreState {
   jwt: string | null;
   user: UserProps | null;
   setJwt: (jwt: string) => void;
-  setUser: (user: UserProps) => void;
+  setUser: (user: UserProps | null) => void;
   resetUser: () => void;
 }
 
