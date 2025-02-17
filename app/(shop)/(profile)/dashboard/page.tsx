@@ -8,9 +8,8 @@ export default function Dashboard() {
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    console.log('User Data:', user);
     if (user) {
-      setUserData(user); // Directly set user instead of user.data
+      setUserData(user);
     }
   }, [user]);
 

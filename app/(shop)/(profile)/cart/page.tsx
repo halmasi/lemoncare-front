@@ -1,25 +1,30 @@
 'use client';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Cart from '@/app/components/navbarComponents/Cart';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCartStore } from '@/app/utils/states/useCartData';
 
 export default function CartPage() {
-  const [itemCount, setItemCount] = useState(0);
+  const [count, setCount] = useState(0);
   const [price, setPrice] = useState({ before: 0, main: 0 });
 
   const { cart } = useCartStore();
 
+  useEffect(() => {
+    if (cart && cart.length) {
+      setCount(cart.length);
+    } else setCount(0);
+  }, [cart]);
+
   return (
     <div className="flex flex-col w-full px-4 pt-2 gap-4 md:max-w-screen-lg">
-      {cart && cart.length != 0 && (
+      {count > 0 && (
         <div className="flex gap-1">
-          <p className="text-accent-pink">{cart.length}</p>{' '}
-          <p> محصول در سبد خرید.</p>
+          <p className="text-accent-pink">{count}</p> <p> محصول در سبد خرید.</p>
         </div>
       )}
       <Cart
-        key={cart.length}
+        key={count}
         priceAmount={(main, before) => {
           setPrice({
             before,

@@ -17,8 +17,7 @@ export default function Cart({
 }: {
   priceAmount?: (main: number, before: number) => void;
 }) {
-  const { cart, setCart, cartProducts, setCartProducts, resetCart } =
-    useCartStore();
+  const { cart, setCart, cartProducts, setCartProducts } = useCartStore();
   const { user, jwt, setUser } = useDataStore();
 
   const route = useRouter();
@@ -27,6 +26,13 @@ export default function Cart({
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
   const [showCart, setShowCart] = useState<boolean>(true);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (cart && cart.length) {
+      setCount(cart.length);
+    } else setCount(0);
+  }, [cart]);
 
   useEffect(() => {
     if (user && jwt)
@@ -51,16 +57,18 @@ export default function Cart({
       setShowCart(true);
       const productsIdList: string[] = [];
       cart.forEach((productItem) => {
-        const product = cartProducts.find(
-          (searchProduct) =>
-            searchProduct.documentId == productItem.product.documentId
-        );
-        if (!product) {
-          const check = productsIdList.find(
-            (id) => id == productItem.product.documentId
+        if (productItem && productItem.product) {
+          const product = cartProducts.find(
+            (searchProduct) =>
+              searchProduct.documentId == productItem.product.documentId
           );
-          if (!check) {
-            productsIdList.push(productItem.product.documentId);
+          if (!product) {
+            const check = productsIdList.find(
+              (id) => id == productItem.product.documentId
+            );
+            if (!check) {
+              productsIdList.push(productItem.product.documentId);
+            }
           }
         }
       });
@@ -156,10 +164,6 @@ export default function Cart({
                     key={index}
                     cartItem={cartItem}
                     inventory={inventory}
-                    refreshFunction={() => {
-                      route.refresh();
-                      if (cart.length == 0) setTotalPrice(0);
-                    }}
                   />
                 </div>
                 <div className="flex flex-wrap w-full items-center justify-end gap-2">
@@ -185,7 +189,7 @@ export default function Cart({
         }
       });
     }
-  }, [cart, setCart, cartProducts, resetCart, route, totalPrice]);
+  }, [cart, setCart, cartProducts, route, totalPrice]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
@@ -195,7 +199,7 @@ export default function Cart({
     <div className="w-full">
       {showCart ? (
         <Table
-          key={cart.length}
+          key={count}
           rowsWidth={['full', 'fit']}
           rowsHeight={['20', 'fit']}
           normalColorChange={0}
