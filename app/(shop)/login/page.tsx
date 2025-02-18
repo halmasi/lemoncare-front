@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
@@ -25,7 +25,7 @@ export default function LoginPage() {
     password?: string[];
     server?: string[];
   }>({});
-
+  const queryClient = useQueryClient();
   const loginMutauionFn = useMutation({
     mutationFn: async ({
       email,
@@ -37,16 +37,18 @@ export default function LoginPage() {
       const response = await signinAction(email, password);
       if (!response.success) {
         setErrors(response.fieldErrors);
+        throw new Error('نام کاربری یا رمز عبور نادرست است');
       }
+      await setCookie('jwt', `Bearer ${response.jwt}`);
+      setJwt(response.jwt);
+      const userData = await getFullUserData();
 
-      return response;
+      return { response, userData };
     },
     onSuccess: async (data) => {
-      await setCookie('jwt', `Bearer ${data.jwt}`);
-      setJwt(data.jwt);
-      const userData = await getFullUserData();
-      setUser(userData.body);
-      handleCart(userData.body.cart);
+      setUser(data.userData.body);
+      handleCart(data.userData.body.cart);
+      queryClient.setQueryData(['user'], data.userData.body);
       router.push('/');
     },
     onError: (error: { message: string[] }) => {
@@ -120,7 +122,6 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
-    setErrors({});
     loginMutauionFn.mutate({ email, password });
   };
   return (
@@ -144,7 +145,7 @@ export default function LoginPage() {
         )}
         {errors?.server && (
           <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.server.join('\n')}
+            {errors.server}
           </p>
         )}
 
