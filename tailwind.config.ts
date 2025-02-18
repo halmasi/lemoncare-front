@@ -12,6 +12,7 @@ const config: Config = {
         background: '#FAFAFA',
         foreground: '#333333',
         'lemon-yellow': '#FFEB3B',
+        'accent-yellow': '#eab300',
         'accent-pink': '#E91E63',
         'accent-green': '#4CAF50',
       },

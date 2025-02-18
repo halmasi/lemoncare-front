@@ -1,7 +1,7 @@
-import Content from '@/components/Content';
-import MainSection from '@/components/MainSection';
-import { ContentProps, getPost } from '@/utils/data/getPosts';
-import Breadcrumbs from '@/components/Breadcrumbs';
+import Content from '@/app/components/Content';
+import MainSection from '@/app/components/MainSection';
+import { ContentProps, getPost } from '@/app/utils/data/getPosts';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
 import Image from 'next/image';
 import { LuCalendarClock } from 'react-icons/lu';
 import type { Metadata, ResolvingMetadata } from 'next';

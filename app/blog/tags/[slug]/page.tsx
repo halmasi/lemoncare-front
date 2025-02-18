@@ -1,6 +1,10 @@
-import PostCard from '@/components/PostCard';
-import { getCategoriesUrl } from '@/utils/data/getCategories';
-import { getGravatar, getPostsByTag, PostsProps } from '@/utils/data/getPosts';
+import PostCard from '@/app/components/PostCard';
+import { getCategoriesUrl } from '@/app/utils/data/getCategories';
+import {
+  getGravatar,
+  getPostsByTag,
+  PostsProps,
+} from '@/app/utils/data/getPosts';
 
 export default async function page({ params }: { params: { slug: string } }) {
   const { slug } = params;

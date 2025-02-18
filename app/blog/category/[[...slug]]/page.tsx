@@ -1,18 +1,18 @@
-import { getCategoriesUrl, getCategory } from '@/utils/data/getCategories';
+import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+
+import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 import {
   getGravatar,
   getPostsByCategory,
   PostsProps,
-} from '@/utils/data/getPosts';
-import { Metadata } from 'next';
-const PostsSkeleton = dynamic(() => import('@/components/Skeleton'));
-const PostCard = dynamic(() => import('@/components/PostCard'), {
+} from '@/app/utils/data/getPosts';
+const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
+const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
   loading: () => <PostsSkeleton />,
 });
-
-import dynamic from 'next/dynamic';
-import { notFound } from 'next/navigation';
 
 export async function generateMetadata({
   params,
@@ -20,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
   const slug = (await params).slug;
-  const fetchCategory = await getCategory(slug[slug.length - 1], ['category']);
+  const fetchCategory = await getCategory(slug[slug.length - 1]);
   if (fetchCategory && fetchCategory.length < 1) return notFound();
   const category = fetchCategory[0];
 
@@ -49,8 +49,8 @@ export default async function Category({
   params: Promise<{ slug: string[] }>;
 }) {
   const slug = (await params).slug;
-  const category = await getCategory(slug[slug.length - 1], ['category']);
-  const posts = await getPostsByCategory(category[0], ['category']);
+  const category = await getCategory(slug[slug.length - 1]);
+  const posts = await getPostsByCategory(category[0]);
 
   if (!posts || category.length < 1 || posts.length < 1) return notFound();
 
