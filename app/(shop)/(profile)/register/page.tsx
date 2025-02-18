@@ -7,12 +7,9 @@ import { useState } from 'react';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
-import {
-  registerAction,
-  setCookie,
-  getFullUserData,
-} from '@/app/utils/actions/actionMethods';
+import { registerAction, setCookie } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
+import GoogleLoginButton from '@/app/components/profile/GoogleLoginButton';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -68,7 +65,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
+    <div className="flex flex-col w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
         className="w-full md:w-7/12 container flex flex-col gap-2"
         onSubmit={handleSubmit}
@@ -110,6 +107,7 @@ export default function RegisterPage() {
           {mutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
         </SubmitButton>
       </form>
+      <GoogleLoginButton />
     </div>
   );
 }

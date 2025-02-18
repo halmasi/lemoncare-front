@@ -134,7 +134,7 @@ export const googleAuthAction = async (accessToken: string) => {
   if (response.data.error) {
     throw new Error(response.data.error.message);
   }
-
+  console.log('Google response : \n', response);
   return response.data;
 };
 
