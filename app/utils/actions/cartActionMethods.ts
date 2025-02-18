@@ -1,6 +1,8 @@
 import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
 import { CartProps } from '../states/useCartData';
+import { loginCheck } from './actionMethods';
+import { getProduct, ProductProps } from '../data/getProducts';
 
 interface UpdateCartResultProps {
   id: number;
@@ -60,19 +62,64 @@ interface UpdateCartResultProps {
   localizations: object[];
 }
 
-export const updateCart = async (
-  id: string,
-  cart: CartProps[],
-  jwt: string
+export const updateCartOnLogin = async (
+  newCart: {
+    count: number;
+    product: { documentId: string };
+    variety: { id: number; sub: number | null };
+  }[]
 ) => {
+  const check = await loginCheck();
   const response = await requestData(
-    `/users/${id}`,
+    `/users/${check.body.id}`,
     'PUT',
     {
-      cart: cart,
+      cart: newCart,
     },
-    jwt
+    check.jwt
   );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const updateCart = async (cart: CartProps[], id?: string) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/users/${id || check.body.id}`,
+    'PUT',
+    {
+      cart,
+    },
+    check.jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const addToCart = async (
+  cart: CartProps[],
+  newItem: {
+    count: number;
+    id: string;
+    variety: { id: number; sub: number | null };
+  }
+) => {
+  const newCart: object[] = cart;
+  newCart.push({
+    count: newItem.count,
+    product: { documentId: newItem.id },
+    variety: newItem.variety,
+  });
+  const check = await loginCheck();
+  const response = await requestData(
+    `/users/${check.body.id}`,
+    'PUT',
+    {
+      cart: newCart,
+    },
+    check.jwt
+  );
+
   const data: UpdateCartResultProps = response.data;
   return data;
 };

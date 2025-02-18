@@ -15,10 +15,11 @@ import ProfileMenu from '@/app/components/profile/ProfileMenu';
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import { useMutation } from '@tanstack/react-query';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { resetUser, jwt, user } = useDataStore();
-  const { resetCart } = useCartStore();
+  const { resetUser, jwt, setUser } = useDataStore();
+  const { resetCart, setCart } = useCartStore();
 
   const menuItems = [
     { name: 'سبد خرید', icon: <FaShoppingCart />, key: 'cart', url: '/cart' },
@@ -34,11 +35,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     },
   ];
 
+  const logoutFn = useMutation({
+    mutationFn: async () => {
+      await logoutAction();
+      resetUser();
+      resetCart();
+    },
+  });
+
   return (
-    <div className="flex w-full justify-start bg-gray-100 p-4">
+    <div className="flex w-full justify-start bg-gray-100 p-4 gap-4">
       {/* Sidebar */}
-      <aside className=" bg-white p-4 rounded-xl shadow-sm">
-        {jwt ? (
+      {jwt && (
+        <aside className=" hidden md:flex flex-col bg-white p-4 rounded-xl shadow-sm">
           <>
             <ProfileMenu />
             <nav className="mt-6">
@@ -57,9 +66,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </nav>
             <form
               action={() => {
-                logoutAction();
-                resetUser();
-                resetCart();
+                logoutFn.mutate();
               }}
               className="mt-6"
             >
@@ -71,12 +78,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </button>
             </form>
           </>
-        ) : (
-          <div>login</div>
-        )}
-      </aside>
+        </aside>
+      )}
       {/* Main Content */}
-      <main className="flex w-full bg-white p-6 rounded-xl shadow-md mr-4 justify-center">
+      <main className="flex w-full bg-white p-6 rounded-xl shadow-md justify-center">
         {children}
       </main>
     </div>

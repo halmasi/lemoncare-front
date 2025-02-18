@@ -8,27 +8,44 @@ import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { updateCart } from '@/app/utils/actions/cartActionMethods';
-
+import { getFullUserData } from '@/app/utils/actions/actionMethods';
+import log from '@/app/utils/logs';
 export default function Count({
   inventory,
   cartItem,
+  refreshFunction,
+  isProductPage,
 }: {
   inventory: number;
   cartItem: CartProps;
+  isProductPage?: boolean;
+  refreshFunction?: () => void;
 }) {
-  const { jwt, user } = useDataStore();
+  const { jwt, user, setUser } = useDataStore();
   const { cart, setCart } = useCartStore();
 
   const [number, setNumber] = useState(cartItem.count);
 
   const updateCartFn = useMutation({
-    mutationFn: async (cart: CartProps[]) => {
-      if (user && user.id && jwt && cart.length) {
-        const res = await updateCart(user.id, cart, jwt);
-        return res;
+    mutationFn: async (newCart: CartProps[]) => {
+      if (user && user.id) {
+        const res = await updateCart(newCart, user.id);
+        return { result: res, prev: cart };
       }
     },
-    onSuccess: (data) => {},
+    onSuccess: async (data) => {
+      if (!data || !data.result || !user) return;
+      const getUser = await getFullUserData();
+      setCart(getUser.body.cart);
+      setUser(getUser.body);
+      if (refreshFunction) refreshFunction();
+    },
+    onError: async (error) => {
+      log(error.cause + error.message, 'error');
+      if (refreshFunction) refreshFunction();
+    },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const itemIndex = cart.findIndex(
@@ -38,28 +55,37 @@ export default function Count({
 
   const handleCartUpdate = useCallback(
     (newCount: number) => {
-      const safeCart = JSON.parse(JSON.stringify(cart));
-      const updatedCart = safeCart.map((item: { id: number }) =>
-        item.id === cartItem.id ? { ...item, count: newCount } : item
-      );
+      const updateCart = cart;
+      if (newCount <= 0) {
+        updateCart.splice(updateCart.indexOf(cartItem), 1);
+        if (user && jwt) {
+          updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+        } else {
+          setCart(updateCart);
+        }
+      } else {
+        updateCart[updateCart.indexOf(cartItem)].count = newCount;
 
-      setCart(updatedCart);
+        if (jwt && user) {
+          const safeUser = JSON.parse(JSON.stringify(user));
+          const safeUserCart = Array.isArray(safeUser.cart)
+            ? safeUser.cart
+            : [];
 
-      if (jwt && user) {
-        const safeUser = JSON.parse(JSON.stringify(user));
-        const safeUserCart = Array.isArray(safeUser.cart) ? safeUser.cart : [];
+          const shouldUpdate = updateCart.some(
+            (item: { id: number; count: number }) => {
+              const foundItem = safeUserCart.find(
+                (cartItem: { id: number }) => cartItem.id == item.id
+              );
+              return foundItem?.count !== item.count;
+            }
+          );
 
-        const shouldUpdate = updatedCart.some(
-          (item: { id: any; count: any }) => {
-            const foundItem = safeUserCart.find(
-              (cartItem: { id: any }) => cartItem.id === item.id
-            );
-            return foundItem?.count !== item.count;
+          if (shouldUpdate) {
+            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
-        );
-
-        if (shouldUpdate) {
-          updateCartFn.mutate(JSON.parse(JSON.stringify(updatedCart)));
+        } else {
+          setCart(updateCart);
         }
       }
     },
@@ -69,17 +95,19 @@ export default function Count({
   useEffect(() => {
     if (cartItem.count > inventory) {
       setNumber(inventory);
+      handleCartUpdate(inventory);
     }
   }, [cartItem.count, inventory]);
 
   return (
     <>
       {cart.length > 0 && (
-        <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
-          {/* Increase Button */}
+        <div
+          className={`flex ${isProductPage ? 'h-14' : 'h-7'} bg-white border w-fit rounded-lg overflow-hidden items-center`}
+        >
           <button
             onClick={() => {
-              if (itemIndex !== -1 && cart[itemIndex].count < inventory) {
+              if (cart[itemIndex].count < inventory) {
                 setNumber((prev) => prev + 1);
                 handleCartUpdate(number + 1);
               }
@@ -89,15 +117,16 @@ export default function Count({
               cart[itemIndex].count >= inventory ||
               updateCartFn.isPending
             }
-            className={`p-1 border-l ${itemIndex !== -1 && cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
+            className={`p-1 border-l ${itemIndex === -1 || cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
           >
             <BiPlus
-              className={`text-lg ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
+              className={`${isProductPage ? 'text-2xl' : 'text-lg'} ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
             />
           </button>
 
-          {/* Item Count Display */}
-          <p className="flex w-8 items-center justify-center">
+          <p
+            className={`flex ${isProductPage ? 'w-12 text-xl' : 'w-8'} items-center justify-center`}
+          >
             {updateCartFn.isPending ? (
               <VscLoading className="animate-spin" />
             ) : (
@@ -105,20 +134,17 @@ export default function Count({
             )}
           </p>
 
-          {/* Decrease Button */}
           <button
             onClick={() => {
-              if (itemIndex !== -1 && cart[itemIndex].count > 1) {
-                setNumber((prev) => prev - 1);
-                handleCartUpdate(number - 1);
-              }
+              setNumber((prev) => prev - 1);
+              handleCartUpdate(number - 1);
             }}
             disabled={
               itemIndex === -1 ||
-              cart[itemIndex].count <= 1 ||
+              cart[itemIndex].count <= 0 ||
               updateCartFn.isPending
             }
-            className={`p-1 text-lg hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
+            className={`p-1 ${isProductPage ? 'text-2xl' : 'text-lg'} hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
           >
             {itemIndex !== -1 && cart[itemIndex].count <= 1 ? (
               <RiDeleteBin2Fill />
