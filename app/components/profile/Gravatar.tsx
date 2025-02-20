@@ -35,8 +35,7 @@ export default function Gravatar({ className }: { className?: string }) {
   const { user } = useDataStore();
   useEffect(() => {
     if (user && user.email) {
-      //   getGravatarFn.mutate(user.email);
-      getGravatarFn.mutate('h.almasi2012@gmail.com');
+      getGravatarFn.mutate(user.email);
     }
   }, [user]);
   return (

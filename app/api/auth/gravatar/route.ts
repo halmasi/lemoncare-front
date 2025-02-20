@@ -1,4 +1,4 @@
-import { GravatarProps } from '@/app/utils/data/getPosts';
+import { GravatarProps } from '@/app/utils/schema/otherProps';
 import { NextRequest } from 'next/server';
 import { createHash } from 'node:crypto';
 
