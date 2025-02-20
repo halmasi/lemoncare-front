@@ -11,6 +11,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { updateCart } from '@/app/utils/actions/cartActionMethods';
 import { useRouter } from 'next/navigation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
+import Toman from '../Toman';
 
 export default function Cart({
   priceAmount,
@@ -175,12 +176,13 @@ export default function Cart({
                       )}
                     </p>
                   )}
-                  <p className="font-bold text-accent-green">
-                    {((priceAfter * cartItem.count) / 10).toLocaleString(
-                      'fa-IR'
-                    )}{' '}
-                    <span className="text-xs">تومان</span>
-                  </p>
+                  <Toman className="font-bold text-accent-green fill-accent-green">
+                    <p>
+                      {((priceAfter * cartItem.count) / 10).toLocaleString(
+                        'fa-IR'
+                      )}
+                    </p>
+                  </Toman>
                 </div>
               </div>,
             ]);

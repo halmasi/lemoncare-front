@@ -1,6 +1,5 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
@@ -13,6 +12,8 @@ import SubmitButton from './formElements/SubmitButton';
 import log from '@/app/utils/logs';
 import Count from './navbarComponents/Count';
 import { useRouter } from 'next/navigation';
+import Toman from './Toman';
+import { ProductProps } from '../utils/schema/shopProps/productProps';
 
 interface NewItemProps {
   count: number;
@@ -318,10 +319,11 @@ export default function VarietySelector({
                     {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
                   </span>
                 </p>
-                <h6 className="text-accent-green">
-                  {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
-                  تومان
-                </h6>
+                <Toman className="text-accent-green fill-accent-green">
+                  <h6>
+                    {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                  </h6>
+                </Toman>
               </div>
               <p>
                 <strong className="p-1 bg-accent-pink rounded-xl text-background">
@@ -378,9 +380,11 @@ export default function VarietySelector({
                 </>
               )}
             </div>
-            <h6 className="text-accent-green">
-              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
-            </h6>
+            <Toman className="text-accent-green fill-accent-green">
+              <h6>
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              </h6>
+            </Toman>
             {price.end && <DiscountTimer end={price.end} />}
           </>
         ) : (

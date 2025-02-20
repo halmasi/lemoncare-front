@@ -1,6 +1,6 @@
+import { ImageProps } from 'next/image';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { ImageProps } from '@/app/utils/data/getPosts';
 
 export interface CartProps {
   id: number;

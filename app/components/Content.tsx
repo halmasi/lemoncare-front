@@ -1,11 +1,11 @@
 import Image from 'next/image';
+import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
+import Link from 'next/link';
 import {
   ContentChildrenProps,
   ContentProps,
   ContentTypes,
-} from '@/app/utils/data/getPosts';
-import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
-import Link from 'next/link';
+} from '../utils/schema/otherProps';
 
 function ParagraphBuilder({
   item,

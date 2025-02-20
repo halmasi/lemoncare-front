@@ -3,6 +3,7 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Cart from '@/app/components/navbarComponents/Cart';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import Toman from '@/app/components/Toman';
 
 export default function CartPage() {
   const [count, setCount] = useState(0);
@@ -40,12 +41,19 @@ export default function CartPage() {
               <p className="line-through text-gray-500 text-sm">
                 {(price.before / 10).toLocaleString('fa-IR')}
               </p>
-              <p>{(price.main / 10).toLocaleString('fa-IR')} تومان</p>
+              <Toman className="fill-accent-green text-accent-green">
+                <p className="font-bold text-lg">
+                  {(price.main / 10).toLocaleString('fa-IR')}
+                </p>
+              </Toman>
             </div>
-            <p>
-              سود شما:{' '}
-              {((price.before - price.main) / 10).toLocaleString('fa-IR')} تومان
-            </p>
+            <Toman>
+              {' '}
+              <p className="font-bold text-lg">
+                سود شما:{' '}
+                {((price.before - price.main) / 10).toLocaleString('fa-IR')}{' '}
+              </p>
+            </Toman>
             <p className="text-sm text-gray-500">
               {((1 - price.main / price.before) * 100).toLocaleString('fa-IR', {
                 style: 'decimal',
