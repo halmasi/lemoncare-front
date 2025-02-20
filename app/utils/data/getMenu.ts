@@ -1,39 +1,10 @@
 import { cache } from 'react';
 import { dataFetch } from './dataFetch';
-export interface FooteritemsProps {
-  id: number;
-  title: string;
-  url: string;
-}
-
-export interface SocialLinksProps {
-  id: number;
-  title: 'Telegram' | 'Whatsapp' | 'Instagram';
-  url: string;
-}
-
-interface SubMenuProps {
-  id: number;
-  title: string;
-  url: string;
-}
-
-interface SubMenuProps {
-  id: number;
-  documentId: string;
-  name: string;
-  width: number;
-  height: number;
-  url: string;
-}
-
-export interface MenuProps {
-  id: number;
-  title: string;
-  url: string;
-  subMenu: SubMenuProps[] | [];
-  image: SubMenuProps | null;
-}
+import {
+  FooteritemsProps,
+  MenuProps,
+  SocialLinksProps,
+} from '../schema/menuProps';
 
 export const getMenuItems = cache(async function () {
   const parsedData = await dataFetch('/main-menu?populate[items][populate]=*', [

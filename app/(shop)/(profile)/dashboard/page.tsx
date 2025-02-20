@@ -2,10 +2,8 @@
 
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
-import {
-  OrderHistoryProps,
-  useDataStore,
-} from '@/app/utils/states/useUserdata';
+import { OrderHistoryProps } from '@/app/utils/schema/userProps';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 // import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -21,8 +19,7 @@ export default function Dashboard() {
       return res.body;
     },
     onSuccess: async (data) => {
-      console.log(data);
-      setOrderHistory(data.orderHistory.order);
+      setOrderHistory(data.orderHistory);
     },
     onError: (error: { message: string[] }) => {
       throw new Error('خطا : ' + error.message);
@@ -54,16 +51,18 @@ export default function Dashboard() {
           <div>
             {orderHistory.map((item) => (
               <div>
-                {item.items.map((product) => (
-                  <>
-                    {/* <Image
+                <>
+                  {item.items.map((product) => (
+                    <>
+                      {/* <Image
                       src={product.product.basicInfo.mainImage.url}
                       fill
                       alt=""
                     /> */}
-                    <p>{product.product.documentId}</p>
-                  </>
-                ))}
+                      <p>{product.product.documentId}</p>
+                    </>
+                  ))}
+                </>
               </div>
             ))}
           </div>

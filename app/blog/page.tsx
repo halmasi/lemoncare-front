@@ -1,5 +1,5 @@
 import { getCategoriesUrl } from '@/app/utils/data/getCategories';
-import { getGravatar, getPosts, PostsProps } from '@/app/utils/data/getPosts';
+import { getGravatar, getPosts } from '@/app/utils/data/getPosts';
 const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
 const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
@@ -9,6 +9,7 @@ const PostCard = dynamic(() => import('@/app/components/PostCard'), {
 import dynamic from 'next/dynamic';
 import { getSlides } from '../utils/data/getSuggestions';
 import Slide from '../components/Slide';
+import { PostsProps } from '../utils/schema/blogProps/postProps';
 
 export default async function Home() {
   const slide = await getSlides('blog');

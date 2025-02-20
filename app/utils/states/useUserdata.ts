@@ -1,37 +1,13 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { setCookie } from '../actions/actionMethods';
-import { CartProps } from './useCartData';
-import { ProductProps } from '../data/getProducts';
-
-export interface UserProps {
-  id?: string;
-  fullName?: string;
-  email?: string;
-  username?: string;
-  data?: object | string | object[] | string[];
-  cart: CartProps[];
-}
-
-export interface OrderHistoryProps {
-  id: number;
-  orderDate: string;
-  pay: object | null;
-  address: string;
-  postCode: number;
-  items: {
-    id: number;
-    count: number;
-    variety: { id: number; sub: number | null };
-    product: ProductProps;
-  }[];
-}
+import { FetchUserProps } from '../schema/userProps';
 
 export interface DataStoreState {
   jwt: string | null;
-  user: UserProps | null;
+  user: FetchUserProps | null;
   setJwt: (jwt: string) => void;
-  setUser: (user: UserProps | null) => void;
+  setUser: (user: FetchUserProps | null) => void;
   resetUser: () => void;
 }
 

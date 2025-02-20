@@ -1,5 +1,3 @@
-import Image from 'next/image';
-import TomanIcon from '@/public/toman.svg';
 import { ReactNode } from 'react';
 
 export default function Toman({

@@ -3,14 +3,6 @@
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { logoutAction } from '@/app/utils/actions/actionMethods';
-import {
-  FaShoppingCart,
-  FaRegHeart,
-  FaMapMarkerAlt,
-  FaUser,
-  FaSignOutAlt,
-  FaReceipt,
-} from 'react-icons/fa';
 import ProfileDetailes from '@/app/components/profile/ProfileDetailes';
 import { ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';

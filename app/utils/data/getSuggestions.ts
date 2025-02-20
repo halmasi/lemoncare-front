@@ -1,30 +1,12 @@
 import qs from 'qs';
 
 import { dataFetch } from './dataFetch';
-import { PostsProps } from './getPosts';
-import { MediaProps, ProductProps } from './getProducts';
 import { cache } from 'react';
-
-interface ArticleSuggestionProps {
-  title: string;
-  slug: string;
-  posts: PostsProps[];
-}
-
-interface ProductSuggestionProps {
-  title: string;
-  slug: string;
-  products: ProductProps[];
-}
-
-interface SlideProps {
-  slug: string;
-  location: 'homepage' | 'shop' | 'blog' | 'category' | 'brand';
-  medias: {
-    link: string;
-    media: MediaProps;
-  }[];
-}
+import {
+  ArticleSuggestionProps,
+  ProductSuggestionProps,
+  SlideProps,
+} from '../schema/otherProps';
 
 export const getArticleSuggestions = cache(
   async (slug: string): Promise<ArticleSuggestionProps> => {

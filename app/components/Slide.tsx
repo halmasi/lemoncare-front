@@ -1,7 +1,6 @@
 'use client';
 
 import { CSSProperties, useEffect, useRef, useState } from 'react';
-import { MediaProps } from '../utils/data/getProducts';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,6 +15,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
+import { MediaProps } from '../utils/schema/mediaProps';
 
 export default function Slide({
   media,

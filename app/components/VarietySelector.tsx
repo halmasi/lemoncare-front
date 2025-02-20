@@ -1,6 +1,5 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
@@ -13,8 +12,8 @@ import SubmitButton from './formElements/SubmitButton';
 import log from '@/app/utils/logs';
 import Count from './navbarComponents/Count';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Toman from './Toman';
+import { ProductProps } from '../utils/schema/shopProps/productProps';
 
 interface NewItemProps {
   count: number;

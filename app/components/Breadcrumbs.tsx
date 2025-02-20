@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { IoIosArrowDropleft } from 'react-icons/io';
 import { CgFormatSlash } from 'react-icons/cg';
-import { PostsProps } from '@/app/utils/data/getPosts';
 import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
-import { ProductProps } from '../utils/data/getProducts';
 import {
   getShopCategoriesUrl,
   getShopCategory,
 } from '../utils/data/getProductCategories';
+import { PostsProps } from '../utils/schema/blogProps/postProps';
+import { ProductProps } from '../utils/schema/shopProps/productProps';
 
 export default async function Breadcrumbs({
   post,

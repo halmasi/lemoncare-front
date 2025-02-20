@@ -3,7 +3,6 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Cart from '@/app/components/navbarComponents/Cart';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/app/utils/states/useCartData';
-import Image from 'next/image';
 import Toman from '@/app/components/Toman';
 
 export default function CartPage() {
