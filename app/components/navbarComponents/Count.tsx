@@ -48,9 +48,9 @@ export default function Count({
     retryDelay: 1000,
   });
 
-  const itemIndex = cart.findIndex(
-    (item: { id: number }) => item.id === cartItem.id
-  );
+  const itemIndex = cart
+    ? cart.findIndex((item: { id: number }) => item.id === cartItem.id)
+    : -1;
   const itemCount = itemIndex !== -1 ? cart[itemIndex].count : 0;
 
   const handleCartUpdate = useCallback(

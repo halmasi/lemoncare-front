@@ -1,12 +1,13 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
-import { ContentProps, getPost } from '@/app/utils/data/getPosts';
+import { getPost } from '@/app/utils/data/getPosts';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import Image from 'next/image';
 import { LuCalendarClock } from 'react-icons/lu';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ContentProps } from '@/app/utils/schema/otherProps';
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },

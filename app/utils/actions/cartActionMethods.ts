@@ -2,7 +2,6 @@ import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
 import { CartProps } from '../states/useCartData';
 import { loginCheck } from './actionMethods';
-import { getProduct, ProductProps } from '../data/getProducts';
 
 interface UpdateCartResultProps {
   id: number;

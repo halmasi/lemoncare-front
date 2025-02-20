@@ -1,3 +1,6 @@
+import { CartProps } from '../states/useCartData';
+import { ProductProps } from './shopProps/productProps';
+
 export interface UserProps {
   username: string;
   email: string;
@@ -38,4 +41,27 @@ export interface SignInState {
   };
   jwt?: string;
   user?: string;
+}
+
+export interface FetchUserProps {
+  id?: string;
+  fullName?: string;
+  email?: string;
+  username?: string;
+  data?: object | string | object[] | string[];
+  cart: CartProps[];
+}
+
+export interface OrderHistoryProps {
+  id: number;
+  orderDate: string;
+  pay: object | null;
+  address: string;
+  postCode: number;
+  items: {
+    id: number;
+    count: number;
+    variety: { id: number; sub: number | null };
+    product: ProductProps;
+  }[];
 }

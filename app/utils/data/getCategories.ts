@@ -1,36 +1,7 @@
 import qs from 'qs';
 import { dataFetch } from './dataFetch';
-import { PostsProps } from './getPosts';
 import { cache } from 'react';
-
-export interface SubCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: CategoriesProps[];
-  parentCategories: CategoriesProps[];
-}
-
-export interface CategoriesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  url?: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: SubCategoryProps[];
-  parentCategories: SubCategoryProps[];
-}
+import { CategoriesProps } from '../schema/blogProps/tagsAndCategoryProps';
 
 export const getCategoriesUrl = cache(async function (
   category: CategoriesProps | string,

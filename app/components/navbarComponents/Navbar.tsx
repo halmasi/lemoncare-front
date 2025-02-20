@@ -6,13 +6,14 @@ import Link from 'next/link';
 import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
-import { MenuProps } from '@/app/utils/data/getMenu';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import Cart from './CartButton';
 import { RiAccountPinCircleFill } from 'react-icons/ri';
 import { useDataStore } from '@/app/utils/states/useUserdata';
+import ProfileDropDown from '../profile/ProfileDropDown';
+import { MenuProps } from '@/app/utils/schema/menuProps';
 
 export default function Navbar({
   menuItems,
@@ -299,14 +300,7 @@ export default function Navbar({
             </div>
             <div className="flex w-3/12 items-center gap-3">
               <div className="">
-                <Link
-                  href={'/login'}
-                  className="flex w-fit flex-wrap items-center gap-1 p-2 border rounded-xl"
-                >
-                  <RiAccountPinCircleFill className="text-2xl" />
-
-                  <p className="max-[1024px]:hidden text-sm">{usersName}</p>
-                </Link>
+                <ProfileDropDown usersName={usersName} />
               </div>
               <p>|</p>
               <Cart />
