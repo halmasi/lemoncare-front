@@ -161,7 +161,10 @@ export const loginCheck = async (_?: string) => {
   };
 };
 
-export const getFullUserData = async (populateOptions?: object[]) => {
+export const getFullUserData = async (
+  isDeep: boolean = false,
+  populateOptions?: object[]
+) => {
   const options = populateOptions
     ? Object.assign({ cart: { populate: '*' } }, ...populateOptions)
     : { cart: { populate: '*' } };
@@ -171,7 +174,7 @@ export const getFullUserData = async (populateOptions?: object[]) => {
   const token = await getCookie('jwt');
 
   const response = await requestData(
-    `/users/me?${query}`,
+    `/users/me?${isDeep ? 'pLevel' : query}`,
     'GET',
     {},
     `${token}`

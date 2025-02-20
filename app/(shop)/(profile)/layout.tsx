@@ -33,10 +33,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       {jwt && (
         <aside className=" hidden md:flex flex-col bg-white p-4 rounded-xl shadow-sm">
-          <>
-            <ProfileDetailes />
-            <ProfileMenu />
-          </>
+          <ProfileDetailes />
+          <ProfileMenu />
         </aside>
       )}
       {/* Main Content */}

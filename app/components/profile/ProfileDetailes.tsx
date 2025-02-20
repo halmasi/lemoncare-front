@@ -2,7 +2,6 @@
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { motion } from 'framer-motion';
-import { FiUser } from 'react-icons/fi';
 import Gravatar from './Gravatar';
 
 export default function ProfileDetailes() {
@@ -15,7 +14,7 @@ export default function ProfileDetailes() {
       className="bg-white border-b w-full p-6 ml-4"
     >
       <div className="flex items-center gap-3 ">
-        <Gravatar />
+        <Gravatar className="w-20 h-20" />
         <div>
           <h3 className="text-lg font-bold">{user?.fullName}</h3>
           <p className="text-sm text-gray-500">{user?.username}</p>

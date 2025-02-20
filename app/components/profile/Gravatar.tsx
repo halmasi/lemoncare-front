@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { FiUser } from 'react-icons/fi';
 
-export default function Gravatar() {
+export default function Gravatar({ className }: { className?: string }) {
   const [icon, setIcon] = useState(<FiUser className="text-3xl" />);
   const getGravatarFn = useMutation({
     mutationFn: async (email: string) => {
@@ -15,16 +15,16 @@ export default function Gravatar() {
         body: JSON.stringify({ email: email }),
       });
       const result = await get.json();
-      if (get.status == 200) return result;
+      if (get.status == 200) return JSON.parse(result);
     },
     onSuccess: (data) => {
       setIcon(
         <Image
           src={data.url}
           alt="gravatar"
-          width={5}
-          height={5}
-          className="w-10 h-10 object-cover aspect-square"
+          width={100}
+          height={100}
+          className={`object-cover w-10 h-10  aspect-square ${className}`}
         />
       );
     },
@@ -40,7 +40,9 @@ export default function Gravatar() {
     }
   }, [user]);
   return (
-    <div className="flex rounded-full w-10 h-10 items-center justify-center bg-slate-300">
+    <div
+      className={`flex rounded-full overflow-hidden w-10 h-10 items-center justify-center bg-slate-300 ${className}`}
+    >
       {icon}
     </div>
   );
