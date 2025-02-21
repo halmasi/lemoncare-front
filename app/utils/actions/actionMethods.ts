@@ -165,9 +165,15 @@ export const getFullUserData = async (
   isDeep: boolean = false,
   populateOptions?: object[]
 ) => {
+  const defaultOptions = {
+    cart: { populate: '*' },
+    order_history: { populate: '*' },
+    shopingCart: { populate: '0' },
+    postal_information: { populate: '0' },
+  };
   const options = populateOptions
-    ? Object.assign({ cart: { populate: '*' } }, ...populateOptions)
-    : { cart: { populate: '*' } };
+    ? Object.assign(defaultOptions, ...populateOptions)
+    : defaultOptions;
   const query = qs.stringify({
     populate: options,
   });

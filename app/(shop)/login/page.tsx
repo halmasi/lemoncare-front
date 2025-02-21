@@ -12,8 +12,8 @@ import {
 } from '@/app/utils/actions/actionMethods';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
-import { updateCartOnLogin } from '@/app/utils/actions/cartActionMethods';
+import { useCartStore } from '@/app/utils/states/useCartData';
+// import { updateCartOnLogin } from '@/app/utils/actions/cartActionMethods';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,81 +44,15 @@ export default function LoginPage() {
     onSuccess: async (data) => {
       await setCookie('jwt', `Bearer ${data.jwt}`);
       setJwt(data.jwt);
-      const userData = await getFullUserData(false, [
-        {
-          order_history: { populate: '*' },
-          shopingCart: { populate: '*' },
-          postal_information: { populate: '*' },
-        },
-      ]);
+      const userData = await getFullUserData();
       setUser(userData.body);
-      handleCart(userData.body.cart);
-      router.push('/');
+      // handleCart(userData.body.cart);
+      router.push('/login/loading');
     },
     onError: (error: { message: string[] }) => {
       setErrors({ server: error.message });
     },
   });
-
-  const updateCartFn = useMutation({
-    mutationFn: async (newCart: CartProps[]) => {
-      const updateCart = newCart.map((item) => {
-        return {
-          count: item.count,
-          product: item.product,
-          variety: item.variety,
-        };
-      });
-      const res = await updateCartOnLogin(updateCart);
-      return res;
-    },
-    onSuccess: async (data) => {
-      if (!data || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-    },
-    onError: (error: { message: string[] }) => {
-      throw new Error('خطا : ' + error.message);
-    },
-  });
-
-  const handleCart = (fetchedCart: CartProps[]) => {
-    if (fetchedCart && cart) {
-      let updateNeeded = false;
-      fetchedCart.map((fetched) => {
-        let found = false;
-        cart.map((item) => {
-          if (
-            item.product.documentId == fetched.product.documentId &&
-            item.variety == fetched.variety
-          ) {
-            found = true;
-          }
-        });
-        if (!found) updateNeeded = true;
-      });
-      if (updateNeeded) {
-        const cartItems: CartProps[] = [...fetchedCart, ...cart];
-        cartItems.forEach((item) => {
-          let dup = 0;
-          cartItems.forEach((check) => {
-            if (
-              item.product.documentId == check.product.documentId &&
-              item.variety.id == check.variety.id &&
-              item.variety.sub == check.variety.sub
-            ) {
-              dup++;
-              if (dup > 1) {
-                cartItems.splice(cartItems.indexOf(item), 1);
-              }
-            }
-          });
-        });
-        updateCartFn.mutate(cartItems);
-      } else setCart(fetchedCart);
-    } else if (fetchedCart && !cart) setCart(fetchedCart);
-    else if (!fetchedCart && cart) updateCartFn.mutate(cart);
-  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -153,12 +87,8 @@ export default function LoginPage() {
           </p>
         )}
 
-        <SubmitButton
-          disabled={loginMutauionFn.isPending || updateCartFn.isPending}
-        >
-          {loginMutauionFn.isPending || updateCartFn.isPending
-            ? 'در حال ورود...'
-            : 'ورود'}
+        <SubmitButton disabled={loginMutauionFn.isPending}>
+          {loginMutauionFn.isPending ? 'در حال ورود...' : 'ورود'}
         </SubmitButton>
       </form>
     </div>

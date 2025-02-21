@@ -45,13 +45,7 @@ export default function Cart({
   useEffect(() => {
     if (user && user.cart && cart.length != user.cart.length) {
       updateCart(cart).then(() => {
-        getFullUserData(false, [
-          {
-            order_history: { populate: '*' },
-            shopingCart: { populate: '*' },
-            postal_information: { populate: '*' },
-          },
-        ]).then((data) => {
+        getFullUserData().then((data) => {
           setUser(data.body);
           route.refresh();
         });

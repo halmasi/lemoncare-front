@@ -1,82 +1,57 @@
-import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
-import { CartProps } from '../states/useCartData';
+import { CartProps } from '../schema/shopProps/cartProps';
 import { loginCheck } from './actionMethods';
+import qs from 'qs';
 
 interface UpdateCartResultProps {
-  id: number;
-  documentId: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  username: string;
-  fullName: string;
-  role: {
+  data: {
     id: number;
     documentId: string;
-    name: string;
-    description: string;
-    type: string;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
   };
-  cart: CartProps[];
-  orderHistory: object[];
-  postalInformation: object[];
-  comments: CommentProps[];
-  favorites: object[];
-  createdBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  updatedBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  localizations: object[];
 }
+
+export const getCart = async (documentId: string) => {
+  const check = await loginCheck();
+
+  const query = qs.stringify({
+    populate: {
+      items: { populate: '*' },
+    },
+  });
+
+  const response = await requestData(
+    `/carts/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  return response.data;
+};
 
 export const updateCartOnLogin = async (
   newCart: {
     count: number;
     product: { documentId: string };
     variety: { id: number; sub: number | null };
-  }[]
+  }[],
+  id: string
 ) => {
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart: newCart,
+      data: {
+        items: newCart,
+      },
     },
     check.jwt
   );
+  console.log('from update func: ', newCart);
+  console.log('from update func(result): ', response.data);
   const data: UpdateCartResultProps = response.data;
   return data;
 };
@@ -111,7 +86,7 @@ export const addToCart = async (
   });
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${check.body.id}`,
+    `/carts/${check.body.id}`,
     'PUT',
     {
       cart: newCart,
@@ -119,6 +94,6 @@ export const addToCart = async (
     check.jwt
   );
 
-  const data: UpdateCartResultProps = response.data;
+  const data = response.data;
   return data;
 };

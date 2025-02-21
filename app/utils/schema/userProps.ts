@@ -1,4 +1,4 @@
-import { CartProps } from '../states/useCartData';
+import { CartProps } from './shopProps/cartProps';
 import { ProductProps } from './shopProps/productProps';
 
 export interface UserProps {
@@ -50,6 +50,10 @@ export interface FetchUserProps {
   username?: string;
   data?: object | string | object[] | string[];
   cart: CartProps[];
+  shopingCart: {
+    documentId: string;
+    items: CartProps[];
+  };
 }
 
 export interface OrderHistoryProps {
