@@ -129,9 +129,6 @@ export default function VarietySelector({
       if (!data || !user) return;
       const getUser = await getFullUserData();
       setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
       const id = product.variety.find(
         (item) => item.uniqueId == selected.uniqueId
       );

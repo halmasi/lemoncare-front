@@ -44,7 +44,13 @@ export default function LoginPage() {
     onSuccess: async (data) => {
       await setCookie('jwt', `Bearer ${data.jwt}`);
       setJwt(data.jwt);
-      const userData = await getFullUserData();
+      const userData = await getFullUserData(false, [
+        {
+          order_history: { populate: '*' },
+          shopingCart: { populate: '*' },
+          postal_information: { populate: '*' },
+        },
+      ]);
       setUser(userData.body);
       handleCart(userData.body.cart);
       router.push('/');
@@ -70,7 +76,6 @@ export default function LoginPage() {
       if (!data || !user) return;
       const getUser = await getFullUserData();
       setCart(getUser.body.cart);
-      setUser(getUser.body);
     },
     onError: (error: { message: string[] }) => {
       throw new Error('خطا : ' + error.message);

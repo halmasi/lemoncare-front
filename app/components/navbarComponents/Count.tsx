@@ -37,7 +37,6 @@ export default function Count({
       if (!data || !data.result || !user) return;
       const getUser = await getFullUserData();
       setCart(getUser.body.cart);
-      setUser(getUser.body);
       if (refreshFunction) refreshFunction();
     },
     onError: async (error) => {

@@ -65,3 +65,23 @@ export interface OrderHistoryProps {
     product: ProductProps;
   }[];
 }
+
+interface postalInformationProps {
+  id: number;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  information: {
+    id: number;
+    address: string;
+    postCode: number;
+    firstName: string;
+    lastName: string;
+    province: string;
+    city: string;
+    phoneNumber: number;
+    mobileNumber: number;
+    isDefault: boolean;
+  }[];
+}
