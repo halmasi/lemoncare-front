@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect } from 'react';
 
 export default function GoogleScriptLoader() {
@@ -18,6 +17,10 @@ export default function GoogleScriptLoader() {
         console.log('Google API Loaded.');
         initializeGoogleLogin();
       };
+
+      script.onerror = () => {
+        console.error('Google API script failed to load.');
+      };
     };
 
     const initializeGoogleLogin = () => {
@@ -35,8 +38,6 @@ export default function GoogleScriptLoader() {
 
     loadGoogleScript();
   }, []);
-
-  console.log('Google Client ID:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
 
   return null;
 }

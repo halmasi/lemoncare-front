@@ -143,7 +143,6 @@ export default function LoginPage() {
     loginMutauionFn.mutate({ email, password });
   };
   const handleGoogleLogin = () => {
-    console.log(window.google);
     if (window.google) {
       window.google.accounts.id.prompt();
     } else {
