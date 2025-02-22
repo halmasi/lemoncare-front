@@ -19,7 +19,6 @@ export default function GoogleLoginButton() {
     googleAuthUrl.searchParams.set('prompt', 'consent');
 
     window.location.href = googleAuthUrl.toString();
-    console.log('handel output : ', handleLogin);
   };
 
   return (

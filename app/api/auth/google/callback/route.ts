@@ -1,9 +1,11 @@
+import { setCookie } from '@/app/utils/actions/actionMethods';
+import { requestData } from '@/app/utils/data/dataFetch';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get('code');
-  console.log('Redirect URI:', process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI);
 
   if (!code) {
     return NextResponse.json(
@@ -27,8 +29,7 @@ export async function GET(req: NextRequest) {
     });
 
     const tokenData = await tokenResponse.json();
-    console.log('Google Token Response :', tokenData);
-    console.log('Google Token Response2 :', tokenResponse);
+
     if (!tokenData.access_token) {
       return NextResponse.json(
         { error: 'Failed to get access token' },
@@ -36,9 +37,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch Google user data
     const googleUserRes = await fetch(
-      'https://www.googleapis.com/oauth2/v2/userinfo',
+      'https://www.googleapis.com/oauth2/v3/userinfo',
 
       {
         method: 'GET',
@@ -55,42 +55,53 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Send user data to Strapi for authentication
-    const strapiResponse = await fetch(
-      `${process.env.BACKEND_PATH}/auth/google/callback`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: googleUser.email,
-          username: googleUser.name,
-          provider: 'google',
-          access_token: tokenData.access_token,
-        }),
-      }
+    const strapiResponse = await requestData(
+      `/auth/google/callback?access_token=${tokenData.access_token}`,
+      'GET',
+      {}
     );
 
-    const strapiData = await strapiResponse.json();
+    const strapiData = await strapiResponse.data;
 
+    if (strapiResponse && strapiResponse.data.user) {
+      const { jwt, user } = strapiData;
+
+      // Update user profile with additional data
+      await requestData(
+        `/users/${user.id}`,
+        'PUT',
+        {
+          email: googleUser.email,
+          fullName: googleUser.name,
+          provider: 'google',
+          username: '000000000000',
+        },
+        `${jwt}`
+      );
+      // Set JWT in cookies and redirect
+      await setCookie('jwt', `Bearer ${jwt}`);
+
+      // Redirect and trigger a client-side reload to ensure the middleware picks up the new cookie
+      const response = NextResponse.redirect(new URL('/dashboard', req.url));
+
+      response.headers.set(
+        'Set-Cookie',
+        `jwt=Bearer ${jwt}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`
+      );
+      response.headers.set('Refresh', '0; url=/dashboard');
+
+      return response;
+    }
     if (strapiData.error) {
       return NextResponse.json(
         { error: strapiData.error.message },
         { status: 400 }
       );
     }
-
-    // Set JWT in cookies and redirect
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/dashboard',
-        'Set-Cookie': `jwt=${strapiData.jwt}; Path=/; HttpOnly; Secure;`,
-      },
-    });
   } catch (error) {
     console.error('Google OAuth Error:', error);
     return NextResponse.json(
-      { error: 'Google authentication failed' },
+      { error: 'Google authentication failed 202' },
       { status: 500 }
     );
   }

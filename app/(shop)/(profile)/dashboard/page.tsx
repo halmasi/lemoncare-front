@@ -1,13 +1,21 @@
 'use client';
 
+import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import React, { useEffect, useState } from 'react';
 
-export default function Dashboard() {
-  const { user } = useDataStore();
+export default async function Dashboard() {
+  const { user, setUser } = useDataStore();
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
+    async () => {
+      const response = await getFullUserData();
+      if (response.status === 200) {
+        setUser(response.body);
+      }
+    };
+
     if (user) {
       setUserData(user);
     }

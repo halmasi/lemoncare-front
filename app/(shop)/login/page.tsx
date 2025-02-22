@@ -7,6 +7,7 @@ import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import {
   getFullUserData,
+  googleAuthAction,
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
@@ -55,7 +56,24 @@ export default function LoginPage() {
       setErrors({ server: error.message });
     },
   });
-
+  const googleLoginMutation = useMutation({
+    mutationFn: async (accessToken: string) => {
+      const response = await googleAuthAction(accessToken);
+      return response.jwt;
+    },
+    onSuccess: async (jwt) => {
+      await setCookie('jwt', `Bearer ${jwt}`);
+      setJwt(jwt);
+      const userData = await getFullUserData();
+      setUser(userData.body);
+      handleCart(userData.body.cart);
+      queryClient.setQueryData(['user'], userData.body);
+      router.push('/');
+    },
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
+    },
+  });
   const updateCartFn = useMutation({
     mutationFn: async (newCart: CartProps[]) => {
       const updateCart = newCart.map((item) => {
@@ -124,6 +142,14 @@ export default function LoginPage() {
     const password = formData.get('password')?.toString() || '';
     loginMutauionFn.mutate({ email, password });
   };
+  const handleGoogleLogin = () => {
+    console.log(window.google);
+    if (window.google) {
+      window.google.accounts.id.prompt();
+    } else {
+      console.error('Google API not loaded yet.');
+    }
+  };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
@@ -157,6 +183,14 @@ export default function LoginPage() {
             : 'ورود'}
         </SubmitButton>
       </form>
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={handleGoogleLogin}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          ورود با گوگل
+        </button>
+      </div>
     </div>
   );
 }
