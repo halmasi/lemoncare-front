@@ -20,38 +20,23 @@ export default function page() {
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
     if (fetchedCart && cart) {
-      let updateNeeded = false;
-      fetchedCart.map((fetched) => {
-        let found = false;
-        cart.map((item) => {
+      const cartItems: CartProps[] = [...fetchedCart, ...cart];
+      cartItems.forEach((item) => {
+        let dup = 0;
+        cartItems.forEach((check) => {
           if (
-            item.product.documentId == fetched.product.documentId &&
-            item.variety == fetched.variety
+            item.product.documentId == check.product.documentId &&
+            item.variety.id == check.variety.id &&
+            item.variety.sub == check.variety.sub
           ) {
-            found = true;
+            dup++;
+            if (dup > 1) {
+              cartItems.splice(cartItems.indexOf(item), 1);
+            }
           }
         });
-        if (!found) updateNeeded = true;
       });
-      if (updateNeeded) {
-        const cartItems: CartProps[] = [...fetchedCart, ...cart];
-        cartItems.forEach((item) => {
-          let dup = 0;
-          cartItems.forEach((check) => {
-            if (
-              item.product.documentId == check.product.documentId &&
-              item.variety.id == check.variety.id &&
-              item.variety.sub == check.variety.sub
-            ) {
-              dup++;
-              if (dup > 1) {
-                cartItems.splice(cartItems.indexOf(item), 1);
-              }
-            }
-          });
-        });
-        updateCartFn.mutate({ newCart: cartItems, id });
-      } else setCart(fetchedCart);
+      updateCartFn.mutate({ newCart: cartItems, id });
     } else if (fetchedCart && !cart) setCart(fetchedCart);
     else if (!fetchedCart && cart) updateCartFn.mutate({ newCart: cart, id });
   };

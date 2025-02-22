@@ -288,6 +288,9 @@ export default function VarietySelector({
     const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
 
     if (jwt && user && cart) {
+      const newCart = cart;
+      newCart.push({ ...newItem, product, id });
+      setCart(newCart);
       addToCartFn.mutate(newItem);
     } else if (cart) {
       const found = cart.find((item) => {
