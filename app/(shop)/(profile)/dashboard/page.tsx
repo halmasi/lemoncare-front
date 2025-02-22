@@ -9,8 +9,10 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const { user } = useDataStore();
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>();
+
+  const { user, setUser } = useDataStore();
+
   const getUserDataFn = useMutation({
     mutationFn: async () => {
       const res = await getFullUserData();
@@ -25,7 +27,13 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    getUserDataFn.mutate();
+    async () => {
+      getUserDataFn.mutate();
+      const response = await getFullUserData();
+      if (response.status === 200) {
+        setUser(response.body);
+      }
+    };
   }, [user]);
 
   if (!user) {
