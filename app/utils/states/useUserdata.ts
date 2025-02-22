@@ -20,7 +20,7 @@ export const useDataStore = create(
       setUser: (user) =>
         set(() => ({ user: user ? JSON.parse(JSON.stringify(user)) : null })),
       resetUser: () => {
-        set(() => ({ cart: [], cartProducts: [], jwt: null, user: null }));
+        set(() => ({ jwt: null, user: null }));
         setCookie('jwt', 'null');
         localStorage.removeItem('user-store');
       },

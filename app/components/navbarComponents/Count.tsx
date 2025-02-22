@@ -1,15 +1,16 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCallback, useEffect, useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
-import { updateCart } from '@/app/utils/actions/cartActionMethods';
+import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import log from '@/app/utils/logs';
+import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
 export default function Count({
   inventory,
   cartItem,
@@ -21,7 +22,7 @@ export default function Count({
   isProductPage?: boolean;
   refreshFunction?: () => void;
 }) {
-  const { jwt, user, setUser } = useDataStore();
+  const { jwt, user } = useDataStore();
   const { cart, setCart } = useCartStore();
 
   const [number, setNumber] = useState(cartItem.count);
@@ -29,15 +30,14 @@ export default function Count({
   const updateCartFn = useMutation({
     mutationFn: async (newCart: CartProps[]) => {
       if (user && user.id) {
-        const res = await updateCart(newCart, user.id);
+        const res = await updateCart(newCart, user.shopingCart.documentId);
         return { result: res, prev: cart };
       }
     },
     onSuccess: async (data) => {
       if (!data || !data.result || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      setUser(getUser.body);
+      const getCartData = await getCart(user.shopingCart.documentId);
+      setCart(getCartData.body.items);
       if (refreshFunction) refreshFunction();
     },
     onError: async (error) => {

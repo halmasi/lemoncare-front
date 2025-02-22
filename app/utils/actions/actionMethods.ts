@@ -165,9 +165,14 @@ export const getFullUserData = async (
   isDeep: boolean = false,
   populateOptions?: object[]
 ) => {
+  const defaultOptions = {
+    order_history: { populate: '*' },
+    shopingCart: { populate: '1' },
+    postal_information: { populate: '1' },
+  };
   const options = populateOptions
-    ? Object.assign({ cart: { populate: '*' } }, ...populateOptions)
-    : { cart: { populate: '*' } };
+    ? Object.assign(defaultOptions, ...populateOptions)
+    : defaultOptions;
   const query = qs.stringify({
     populate: options,
   });
@@ -197,7 +202,7 @@ export const getCookie = async (key: string) => {
 };
 
 export const logoutAction = async () => {
-  await setCookie('jwt', 'null');
+  cookies().delete('jwt');
   redirect('/login');
 };
 

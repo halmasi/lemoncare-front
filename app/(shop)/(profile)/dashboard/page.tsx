@@ -13,9 +13,7 @@ export default function Dashboard() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>();
   const getUserDataFn = useMutation({
     mutationFn: async () => {
-      const res = await getFullUserData(true, [
-        { orderHistory: { populate: '*' } },
-      ]);
+      const res = await getFullUserData();
       return res.body;
     },
     onSuccess: async (data) => {

@@ -6,12 +6,11 @@ import DiscountTimer from './DiscountTimer';
 import { useMutation } from '@tanstack/react-query';
 import { useCartStore } from '../utils/states/useCartData';
 import { useDataStore } from '../utils/states/useUserdata';
-import { getFullUserData } from '../utils/actions/actionMethods';
-import { addToCart } from '@/app/utils/actions/cartActionMethods';
+import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
 import log from '@/app/utils/logs';
 import Count from './navbarComponents/Count';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Toman from './Toman';
 import { ProductProps } from '../utils/schema/shopProps/productProps';
 
@@ -113,25 +112,22 @@ export default function VarietySelector({
   product: ProductProps;
   list?: boolean;
 }) {
-  const { user, setUser, jwt } = useDataStore();
+  const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
-        const res = await addToCart(cart, newItem);
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
         return res;
       }
     },
     onSuccess: async (data) => {
       if (!data || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
+      const getCartData = await getCart(user.shopingCart.documentId);
+      setCart(getCartData.data.items);
       const id = product.variety.find(
         (item) => item.uniqueId == selected.uniqueId
       );

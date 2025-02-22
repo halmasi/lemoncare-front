@@ -1,79 +1,56 @@
-import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
-import { CartProps } from '../states/useCartData';
+import { CartProps } from '../schema/shopProps/cartProps';
 import { loginCheck } from './actionMethods';
+import qs from 'qs';
 
 interface UpdateCartResultProps {
-  id: number;
-  documentId: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  username: string;
-  fullName: string;
-  role: {
+  data: {
     id: number;
     documentId: string;
-    name: string;
-    description: string;
-    type: string;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
   };
-  cart: CartProps[];
-  orderHistory: object[];
-  postalInformation: object[];
-  comments: CommentProps[];
-  favorites: object[];
-  createdBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  updatedBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  localizations: object[];
 }
+
+export const getCart = async (documentId: string) => {
+  const check = await loginCheck();
+
+  const query = qs.stringify({
+    populate: {
+      items: { populate: '*' },
+    },
+  });
+
+  const response = await requestData(
+    `/carts/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  return response.data;
+};
 
 export const updateCartOnLogin = async (
   newCart: {
     count: number;
-    product: { documentId: string };
+    product: string;
     variety: { id: number; sub: number | null };
-  }[]
+  }[],
+  id: string
 ) => {
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart: newCart,
+      data: {
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product,
+          variety: item.variety,
+        })),
+      },
     },
     check.jwt
   );
@@ -81,13 +58,19 @@ export const updateCartOnLogin = async (
   return data;
 };
 
-export const updateCart = async (cart: CartProps[], id?: string) => {
+export const updateCart = async (cart: CartProps[], id: string) => {
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${id || check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart,
+      data: {
+        items: cart.map((item) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
+      },
     },
     check.jwt
   );
@@ -101,9 +84,14 @@ export const addToCart = async (
     count: number;
     id: string;
     variety: { id: number; sub: number | null };
-  }
+  },
+  id: string
 ) => {
-  const newCart: object[] = cart;
+  const newCart: {
+    count: number;
+    product: { documentId: string };
+    variety: { id: number; sub: number | null };
+  }[] = cart;
   newCart.push({
     count: newItem.count,
     product: { documentId: newItem.id },
@@ -111,14 +99,20 @@ export const addToCart = async (
   });
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart: newCart,
+      data: {
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
+      },
     },
     check.jwt
   );
 
-  const data: UpdateCartResultProps = response.data;
+  const data = response.data;
   return data;
 };
