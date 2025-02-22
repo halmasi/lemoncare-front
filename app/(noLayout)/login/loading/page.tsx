@@ -119,6 +119,7 @@ export default function page() {
     (async () => {
       const userData = await getFullUserData();
       if (!userData.body.shopingCart) {
+        createCart.mutate();
       } else getCartFn.mutate(userData.body.shopingCart.documentId);
     })();
   }, []);
