@@ -127,7 +127,7 @@ export default function VarietySelector({
     onSuccess: async (data) => {
       if (!data || !user) return;
       const getCartData = await getCart(user.shopingCart.documentId);
-      setCart(getCartData.body.items);
+      setCart(getCartData.data.items);
       const id = product.variety.find(
         (item) => item.uniqueId == selected.uniqueId
       );

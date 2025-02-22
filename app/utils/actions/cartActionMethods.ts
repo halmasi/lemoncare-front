@@ -65,7 +65,11 @@ export const updateCart = async (cart: CartProps[], id: string) => {
     'PUT',
     {
       data: {
-        items: cart,
+        items: cart.map((item) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
       },
     },
     check.jwt
@@ -83,7 +87,11 @@ export const addToCart = async (
   },
   id: string
 ) => {
-  const newCart: object[] = cart;
+  const newCart: {
+    count: number;
+    product: { documentId: string };
+    variety: { id: number; sub: number | null };
+  }[] = cart;
   newCart.push({
     count: newItem.count,
     product: { documentId: newItem.id },
@@ -95,7 +103,11 @@ export const addToCart = async (
     'PUT',
     {
       data: {
-        items: newCart,
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
       },
     },
     check.jwt

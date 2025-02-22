@@ -38,7 +38,7 @@ export default function Cart({
   useEffect(() => {
     if (user && jwt)
       getCart(user.shopingCart.documentId).then((data) => {
-        setCart(data.body.items);
+        setCart(data.data.items);
       });
   }, []);
 

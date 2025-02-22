@@ -5,14 +5,17 @@ import {
   getCart,
   updateCartOnLogin,
 } from '@/app/utils/actions/cartActionMethods';
+import { requestData } from '@/app/utils/data/dataFetch';
 import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function page() {
   const { cart, setCart } = useCartStore();
+  const { jwt, user } = useDataStore();
   const router = useRouter();
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
@@ -52,6 +55,27 @@ export default function page() {
     } else if (fetchedCart && !cart) setCart(fetchedCart);
     else if (!fetchedCart && cart) updateCartFn.mutate({ newCart: cart, id });
   };
+
+  const createCart = useMutation({
+    mutationFn: async () => {
+      if (jwt && user) {
+        const response = await requestData(
+          `/carts`,
+          'POST',
+          {
+            data: { user: user.username, items: [] },
+          },
+          jwt
+        );
+        return response.data;
+      }
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      router.push('/');
+    },
+  });
+
   const getCartFn = useMutation({
     mutationFn: async (documentId: string) => {
       const res = await getCart(documentId);
@@ -94,9 +118,8 @@ export default function page() {
   useEffect(() => {
     (async () => {
       const userData = await getFullUserData();
-      if (!userData.body.shopingCart.documentId) {
-      }
-      getCartFn.mutate(userData.body.shopingCart.documentId);
+      if (!userData.body.shopingCart) {
+      } else getCartFn.mutate(userData.body.shopingCart.documentId);
     })();
   }, []);
 

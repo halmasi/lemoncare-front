@@ -22,7 +22,7 @@ export default function Count({
   isProductPage?: boolean;
   refreshFunction?: () => void;
 }) {
-  const { jwt, user, setUser } = useDataStore();
+  const { jwt, user } = useDataStore();
   const { cart, setCart } = useCartStore();
 
   const [number, setNumber] = useState(cartItem.count);
