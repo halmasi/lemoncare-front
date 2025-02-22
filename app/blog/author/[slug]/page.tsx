@@ -4,8 +4,8 @@ import {
   getAuthorInformation,
   getGravatar,
   getPostsByAuthor,
-  PostsProps,
 } from '@/app/utils/data/getPosts';
+import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 

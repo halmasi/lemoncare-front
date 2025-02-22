@@ -1,8 +1,5 @@
 'use client';
 
-import { PostsProps } from '../utils/data/getPosts';
-import { ProductProps } from '../utils/data/getProducts';
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Scrollbar, A11y, FreeMode } from 'swiper/modules';
 import 'swiper/css';
@@ -13,6 +10,8 @@ import PostCard from './PostCard';
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import VarietySelector from './VarietySelector';
 import Link from 'next/link';
+import { PostsProps } from '../utils/schema/blogProps/postProps';
+import { ProductProps } from '../utils/schema/shopProps/productProps';
 
 interface Props {
   posts?: PostsProps[];

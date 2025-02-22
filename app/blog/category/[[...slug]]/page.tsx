@@ -3,11 +3,8 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
 import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
-import {
-  getGravatar,
-  getPostsByCategory,
-  PostsProps,
-} from '@/app/utils/data/getPosts';
+import { getGravatar, getPostsByCategory } from '@/app/utils/data/getPosts';
+import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
 const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
 const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,

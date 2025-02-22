@@ -1,138 +1,14 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
+import { getCategory } from './getCategories';
+import { cache } from 'react';
+import { PostsProps } from '../schema/blogProps/postProps';
+import { AuthorProps, GravatarProps } from '../schema/otherProps';
 import {
   CategoriesProps,
-  getCategory,
   SubCategoryProps,
-} from './getCategories';
-import { cache } from 'react';
-
-export interface PostsProps {
-  id: number;
-  documentId: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  content: ContentProps[];
-  category: CategoriesProps;
-  tags: TagsProps[];
-  seo: { id: number; seoTitle: string; seoDescription: string };
-  basicInfo: {
-    id: number;
-    title: string;
-    mainImage: ImageProps;
-    contentCode: number;
-  };
-  view: number | null;
-  gravatar?: GravatarProps;
-  categoryUrl?: string;
-  author: AuthorProps;
-  sources?: { id: number; sourceUrl: string; websiteName: string }[];
-}
-export interface GravatarProps {
-  hash: string;
-  display_name: string;
-  profile_url: string;
-  avatar_url: string;
-}
-
-export interface TagsProps {
-  id: number;
-  title: string;
-  slug: string;
-  posts: PostsProps[];
-}
-
-export interface ImageProps {
-  id: number;
-  documentId: string;
-  name: string;
-  alternativeText: string | null;
-  caption: string | null;
-  width: number;
-  height: number;
-  formats: {
-    large: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    small: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    medium: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    thumbnail: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-  };
-  ext: string;
-  url: string;
-}
-
-export interface AuthorProps {
-  id: number;
-  documentId: string;
-  name: string;
-  username: string;
-  description: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-}
-
-export enum ContentTypes {
-  heading = 'heading',
-  paragraph = 'paragraph',
-  image = 'image',
-  list = 'list',
-  quote = 'quote',
-  code = 'code',
-}
-
-export interface ContentProps {
-  type: ContentTypes;
-  children: ContentChildrenProps[];
-  format?: 'unordered' | 'ordered';
-  level?: number;
-  image?: ImageProps;
-  language?: string;
-}
-export interface ContentChildrenProps {
-  text?: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  url?: string;
-  type: 'text' | 'list-item' | 'link';
-  children?: {
-    text: string;
-    type: string;
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-    strikethrough?: boolean;
-  }[];
-}
+} from '../schema/blogProps/tagsAndCategoryProps';
 
 export const getPosts = cache(async function (count?: number, tag?: string[]) {
   const query = qs.stringify({

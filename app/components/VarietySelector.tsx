@@ -1,18 +1,18 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { ProductProps } from '../utils/data/getProducts';
 import RadioButton from './formElements/RadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
 import { useMutation } from '@tanstack/react-query';
 import { useCartStore } from '../utils/states/useCartData';
 import { useDataStore } from '../utils/states/useUserdata';
-import { getFullUserData } from '../utils/actions/actionMethods';
-import { addToCart } from '@/app/utils/actions/cartActionMethods';
+import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
 import log from '@/app/utils/logs';
 import Count from './navbarComponents/Count';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
+import Toman from './Toman';
+import { ProductProps } from '../utils/schema/shopProps/productProps';
 
 interface NewItemProps {
   count: number;
@@ -112,25 +112,22 @@ export default function VarietySelector({
   product: ProductProps;
   list?: boolean;
 }) {
-  const { user, setUser, jwt } = useDataStore();
+  const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
-        const res = await addToCart(cart, newItem);
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
         return res;
       }
     },
     onSuccess: async (data) => {
       if (!data || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
+      const getCartData = await getCart(user.shopingCart.documentId);
+      setCart(getCartData.data.items);
       const id = product.variety.find(
         (item) => item.uniqueId == selected.uniqueId
       );
@@ -318,10 +315,11 @@ export default function VarietySelector({
                     {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
                   </span>
                 </p>
-                <h6 className="text-accent-green">
-                  {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
-                  تومان
-                </h6>
+                <Toman className="text-accent-green fill-accent-green">
+                  <h6>
+                    {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                  </h6>
+                </Toman>
               </div>
               <p>
                 <strong className="p-1 bg-accent-pink rounded-xl text-background">
@@ -378,9 +376,11 @@ export default function VarietySelector({
                 </>
               )}
             </div>
-            <h6 className="text-accent-green">
-              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
-            </h6>
+            <Toman className="text-accent-green fill-accent-green">
+              <h6>
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              </h6>
+            </Toman>
             {price.end && <DiscountTimer end={price.end} />}
           </>
         ) : (
