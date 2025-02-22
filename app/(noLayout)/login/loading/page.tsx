@@ -1,4 +1,5 @@
 'use client';
+import LoadingAnimation from '@/app/components/LoadingAnimation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import {
   getCart,
@@ -6,15 +7,12 @@ import {
 } from '@/app/utils/actions/cartActionMethods';
 import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
-import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function page() {
   const { cart, setCart } = useCartStore();
-  const { setJwt, setUser, user } = useDataStore();
-
   const router = useRouter();
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
@@ -75,11 +73,11 @@ export default function page() {
       const updateCart = newCart.map((item) => {
         return {
           count: item.count,
-          product: item.product,
+          product: item.product.documentId,
           variety: item.variety,
         };
       });
-      const update = await updateCartOnLogin(updateCart, id);
+      await updateCartOnLogin(updateCart, id);
       const res = await getCart(id);
       console.log(res);
       return res.data;
@@ -87,7 +85,7 @@ export default function page() {
     onSuccess: async (data) => {
       if (!data) return;
       setCart(data.items);
-      //   router.push('/');
+      router.push('/');
     },
     onError: (error: { message: string[] }) => {
       throw new Error('خطا : ' + error.message);
@@ -96,9 +94,16 @@ export default function page() {
   useEffect(() => {
     (async () => {
       const userData = await getFullUserData();
+      if (!userData.body.shopingCart.documentId) {
+      }
       getCartFn.mutate(userData.body.shopingCart.documentId);
     })();
   }, []);
 
-  return <div>page</div>;
+  return (
+    <div className="flex flex-col items-center justify-center h-svh w-screen">
+      <h3>در حال جابجایی</h3>
+      <LoadingAnimation />
+    </div>
+  );
 }

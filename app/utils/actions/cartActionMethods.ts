@@ -34,7 +34,7 @@ export const getCart = async (documentId: string) => {
 export const updateCartOnLogin = async (
   newCart: {
     count: number;
-    product: { documentId: string };
+    product: string;
     variety: { id: number; sub: number | null };
   }[],
   id: string
@@ -45,24 +45,28 @@ export const updateCartOnLogin = async (
     'PUT',
     {
       data: {
-        items: newCart,
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product,
+          variety: item.variety,
+        })),
       },
     },
     check.jwt
   );
-  console.log('from update func: ', newCart);
-  console.log('from update func(result): ', response.data);
   const data: UpdateCartResultProps = response.data;
   return data;
 };
 
-export const updateCart = async (cart: CartProps[], id?: string) => {
+export const updateCart = async (cart: CartProps[], id: string) => {
   const check = await loginCheck();
   const response = await requestData(
-    `/users/${id || check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart,
+      data: {
+        items: cart,
+      },
     },
     check.jwt
   );
@@ -76,7 +80,8 @@ export const addToCart = async (
     count: number;
     id: string;
     variety: { id: number; sub: number | null };
-  }
+  },
+  id: string
 ) => {
   const newCart: object[] = cart;
   newCart.push({
@@ -86,10 +91,12 @@ export const addToCart = async (
   });
   const check = await loginCheck();
   const response = await requestData(
-    `/carts/${check.body.id}`,
+    `/carts/${id}`,
     'PUT',
     {
-      cart: newCart,
+      data: {
+        items: newCart,
+      },
     },
     check.jwt
   );

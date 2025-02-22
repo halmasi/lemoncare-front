@@ -166,10 +166,9 @@ export const getFullUserData = async (
   populateOptions?: object[]
 ) => {
   const defaultOptions = {
-    cart: { populate: '*' },
     order_history: { populate: '*' },
-    shopingCart: { populate: '0' },
-    postal_information: { populate: '0' },
+    shopingCart: { populate: '1' },
+    postal_information: { populate: '1' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
@@ -203,7 +202,7 @@ export const getCookie = async (key: string) => {
 };
 
 export const logoutAction = async () => {
-  await setCookie('jwt', 'null');
+  cookies().delete('jwt');
   redirect('/login');
 };
 

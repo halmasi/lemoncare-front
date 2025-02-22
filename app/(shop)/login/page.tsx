@@ -12,13 +12,10 @@ import {
 } from '@/app/utils/actions/actionMethods';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { useCartStore } from '@/app/utils/states/useCartData';
-// import { updateCartOnLogin } from '@/app/utils/actions/cartActionMethods';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { cart, setCart } = useCartStore();
-  const { setJwt, setUser, user } = useDataStore();
+  const { setJwt, setUser } = useDataStore();
 
   const [errors, setErrors] = useState<{
     email?: string[];
@@ -46,7 +43,6 @@ export default function LoginPage() {
       setJwt(data.jwt);
       const userData = await getFullUserData();
       setUser(userData.body);
-      // handleCart(userData.body.cart);
       router.push('/login/loading');
     },
     onError: (error: { message: string[] }) => {
