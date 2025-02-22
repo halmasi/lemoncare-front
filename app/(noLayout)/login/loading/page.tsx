@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 
 export default function page() {
   const { cart, setCart } = useCartStore();
-  const { jwt, user } = useDataStore();
+  const { jwt, user, setUser } = useDataStore();
   const router = useRouter();
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
@@ -63,16 +63,22 @@ export default function page() {
           `/carts`,
           'POST',
           {
-            data: { user: user.username, items: [] },
+            data: { user: user.id, items: [] },
           },
-          jwt
+          'Bearer ' + jwt
         );
         return response.data;
       }
     },
     onSuccess: (data) => {
-      if (!data) return;
-      router.push('/');
+      if (!data || !user) return;
+      const newUser = user;
+      newUser.shopingCart = {
+        documentId: data.data.documentId,
+        items: [],
+      };
+      setUser(newUser);
+      handleCart([], data.data.documentId);
     },
   });
 
@@ -103,7 +109,6 @@ export default function page() {
       });
       await updateCartOnLogin(updateCart, id);
       const res = await getCart(id);
-      console.log(res);
       return res.data;
     },
     onSuccess: async (data) => {

@@ -36,7 +36,7 @@ export default function Cart({
   }, [cart]);
 
   useEffect(() => {
-    if (user && jwt)
+    if (user && jwt && user.shopingCart)
       getCart(user.shopingCart.documentId).then((data) => {
         setCart(data.data.items);
       });
