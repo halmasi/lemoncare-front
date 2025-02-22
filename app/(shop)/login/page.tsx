@@ -13,6 +13,7 @@ import {
 } from '@/app/utils/actions/actionMethods';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
+import logs from '@/app/utils/logs';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function LoginPage() {
     if (window.google) {
       window.google.accounts.id.prompt();
     } else {
-      console.error('Google API not loaded yet.');
+      logs('Google API not loaded yet.', 'error');
     }
   };
   return (
