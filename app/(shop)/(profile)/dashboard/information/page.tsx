@@ -23,7 +23,6 @@ export default function Information() {
     onSuccess: async (data: any) => {
       //   const userData = await getFullUserData(data.jwt);
       queryClient.setQueryData(['user'], user?.data);
-      console.log('onSuccess');
       router.push('/dashboard/information');
     },
     onError: (error: any) => {

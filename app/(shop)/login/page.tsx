@@ -1,12 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import {
   getFullUserData,
+  googleAuthAction,
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
@@ -22,7 +23,7 @@ export default function LoginPage() {
     password?: string[];
     server?: string[];
   }>({});
-
+  const queryClient = useQueryClient();
   const loginMutauionFn = useMutation({
     mutationFn: async ({
       email,
@@ -34,15 +35,36 @@ export default function LoginPage() {
       const response = await signinAction(email, password);
       if (!response.success) {
         setErrors(response.fieldErrors);
+        throw new Error('نام کاربری یا رمز عبور نادرست است');
       }
+      await setCookie('jwt', `Bearer ${response.jwt}`);
+      setJwt(response.jwt);
+      const userData = await getFullUserData();
 
-      return response;
+      return { response, userData };
     },
     onSuccess: async (data) => {
-      await setCookie('jwt', `Bearer ${data.jwt}`);
-      setJwt(data.jwt);
+      await setCookie('jwt', `Bearer ${data.response.jwt}`);
+      setJwt(data.response.jwt);
+      setUser(data.userData.body);
+      queryClient.setQueryData(['user'], data.userData.body);
+      router.push('/login/loading');
+    },
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
+    },
+  });
+  const googleLoginMutation = useMutation({
+    mutationFn: async (accessToken: string) => {
+      const response = await googleAuthAction(accessToken);
+      return response.jwt;
+    },
+    onSuccess: async (jwt) => {
+      await setCookie('jwt', `Bearer ${jwt}`);
+      setJwt(jwt);
       const userData = await getFullUserData();
       setUser(userData.body);
+      queryClient.setQueryData(['user'], userData.body);
       router.push('/login/loading');
     },
     onError: (error: { message: string[] }) => {
@@ -55,8 +77,14 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
-    setErrors({});
     loginMutauionFn.mutate({ email, password });
+  };
+  const handleGoogleLogin = () => {
+    if (window.google) {
+      window.google.accounts.id.prompt();
+    } else {
+      console.error('Google API not loaded yet.');
+    }
   };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
@@ -79,7 +107,7 @@ export default function LoginPage() {
         )}
         {errors?.server && (
           <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.server.join('\n')}
+            {errors.server}
           </p>
         )}
 
@@ -87,6 +115,14 @@ export default function LoginPage() {
           {loginMutauionFn.isPending ? 'در حال ورود...' : 'ورود'}
         </SubmitButton>
       </form>
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={handleGoogleLogin}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          ورود با گوگل
+        </button>
+      </div>
     </div>
   );
 }
