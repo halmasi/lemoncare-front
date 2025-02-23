@@ -39,7 +39,7 @@ export const getCategory = cache(async function (
     },
   });
 
-  return await dataFetch(`/categories?${query}`, tag);
+  return await dataFetch(`/categories?${query}`, 'GET', tag);
 });
 
 export const getCategories = cache(async function (
@@ -52,5 +52,5 @@ export const getCategories = cache(async function (
       posts: { populate: '*' },
     },
   });
-  return await dataFetch(`/categories?${query}`, tag);
+  return await dataFetch(`/categories?${query}`, 'GET', tag);
 });

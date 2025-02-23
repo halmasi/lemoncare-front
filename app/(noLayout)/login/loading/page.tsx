@@ -117,6 +117,7 @@ export default function page() {
   return (
     <div className="flex flex-col items-center justify-center h-svh w-screen">
       <h3>در حال جابجایی</h3>
+      <h6>کمی صبر کنید</h6>
       <LoadingAnimation />
     </div>
   );
