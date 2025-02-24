@@ -43,6 +43,19 @@ export interface SignInState {
   user?: string;
 }
 
+export interface AddressProps {
+  id: number;
+  address: string;
+  postCode: number;
+  firstName: string;
+  lastName: string;
+  province: string;
+  city: string;
+  phoneNumber: number | null;
+  mobileNumber: number;
+  isDefault: boolean;
+}
+
 export interface FetchUserProps {
   id?: string;
   fullName?: string;
@@ -53,6 +66,15 @@ export interface FetchUserProps {
   shopingCart: {
     documentId: string;
     items: CartProps[];
+  };
+  postal_information: {
+    documentId: string;
+    id: number;
+    information: AddressProps[];
+  };
+  order_history: {
+    documentId: string;
+    id: number;
   };
 }
 
