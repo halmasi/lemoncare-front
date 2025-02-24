@@ -48,23 +48,6 @@ export const getPost = cache(async function (slug: string | number) {
   return result;
 });
 
-export const getGravatar = cache(
-  async (email: string): Promise<GravatarProps> => {
-    const data = await fetch(
-      process.env.GRAVATAR_URI +
-        createHash('sha256').update(email).digest('hex'),
-      {
-        headers: {
-          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-        },
-        next: { tags: ['author'] },
-      }
-    );
-    const gravatar: GravatarProps = await data.json();
-    return gravatar;
-  }
-);
-
 export const getCategoryHierarchy = cache(async function (
   category: SubCategoryProps[],
   direction: 'childCategories' | 'parentCategories',
