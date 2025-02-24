@@ -19,20 +19,21 @@ export default function LoginPage() {
   const { setJwt, setUser } = useDataStore();
 
   const [errors, setErrors] = useState<{
-    email?: string[];
+    identifier?: string[];
     password?: string[];
     server?: string[];
   }>({});
   const queryClient = useQueryClient();
   const loginMutauionFn = useMutation({
     mutationFn: async ({
-      email,
+      identifier,
       password,
     }: {
-      email: string;
+      identifier: string;
       password: string;
     }) => {
-      const response = await signinAction(email, password);
+      const response = await signinAction(identifier, password);
+      console.log('response from login form ', response);
       if (!response.success) {
         setErrors(response.fieldErrors);
         throw new Error('نام کاربری یا رمز عبور نادرست است');
@@ -58,9 +59,9 @@ export default function LoginPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const email = formData.get('identifier')?.toString() || '';
+    const identifier = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
-    loginMutauionFn.mutate({ email, password });
+    loginMutauionFn.mutate({ identifier, password });
   };
 
   return (
@@ -69,10 +70,10 @@ export default function LoginPage() {
         className="w-full md:w-3/12 flex flex-col gap-2"
         onSubmit={handleSubmit}
       >
-        <InputBox name="identifier" placeholder="ایمیل" />
-        {errors?.email && (
+        <InputBox name="identifier" placeholder="ایمیل یا شماره تلفن" />
+        {errors?.identifier && (
           <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.email.join('\n')}
+            {errors.identifier.join('\n')}
           </p>
         )}
 

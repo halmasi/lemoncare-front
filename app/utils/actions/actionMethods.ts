@@ -34,9 +34,9 @@ export const registerAction = async (
     data: { jwt: '', user: {} },
   };
 
-  username = username.includes('9')
-    ? username.slice(username.indexOf('9'))
-    : username;
+  if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
+    username = '98' + username.replace(/^(\+98|98|0)?/, '');
+  }
 
   const validationResult = registerSchema.safeParse({
     username,
@@ -71,15 +71,18 @@ export const registerAction = async (
   };
 };
 
-export const signinAction = async (email: string, password: string) => {
+export const signinAction = async (identifier: string, password: string) => {
   let success = false;
 
-  const fieldErrors: { email: string[]; password: string[]; server: string[] } =
-    {
-      email: [],
-      password: [],
-      server: [],
-    };
+  const fieldErrors: {
+    identifier: string[];
+    password: string[];
+    server: string[];
+  } = {
+    identifier: [],
+    password: [],
+    server: [],
+  };
 
   let response: {
     data: {
@@ -92,23 +95,26 @@ export const signinAction = async (email: string, password: string) => {
     data: { jwt: '', user: {} },
   };
 
-  if (!email) fieldErrors.email.push('ایمیل الزامی است');
+  if (!identifier)
+    fieldErrors.identifier.push('ایمیل یا شماره تلفن الزامی است');
   if (!password) fieldErrors.password.push('رمز عبور الزامی است');
 
+  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
+    identifier = '98' + identifier.replace(/^(\+98|98|0)?/, '');
+  }
   const validationResult = loginSchema.safeParse({
-    email,
+    identifier,
     pass: password,
   });
-
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
     if (errors.pass) fieldErrors.password.push(...errors.pass);
   }
 
   if (validationResult.success) {
     response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.email,
+      identifier: validationResult.data.identifier,
       password: validationResult.data.pass,
     });
     if (response.data.error) {

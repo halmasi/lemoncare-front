@@ -1,10 +1,14 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
-    .nonempty('لطفا ایمیل را وارد کنید')
-    .email('آدرس ایمیل را دوباره بررسی کنید'),
+    .nonempty('ایمیل یا شماره تلفن الزامی است')
+    .refine(
+      (val) =>
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(val) || /^9\d{11}$/.test(val),
+      'ایمیل یا شماره تلفن وارد شده معتبر نیست'
+    ),
   pass: z
     .string()
     .min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
