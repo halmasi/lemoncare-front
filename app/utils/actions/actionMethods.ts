@@ -6,6 +6,37 @@ import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 
+export const checkUserExists = async (identifier: string) => {
+  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
+    identifier = identifier.replace(/^(\+98|98|0)?/, '');
+  }
+
+  const validationResult = loginSchema
+    .pick({ identifier: true })
+    .safeParse({ identifier });
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: validationResult.error.flatten().fieldErrors.identifier || [
+        'ایمیل یا شماره تلفن نامعتبر است',
+      ],
+    };
+  }
+
+  const query = qs.stringify({
+    filters: {
+      $or: [{ email: identifier }, { username: '98' + identifier }],
+    },
+  });
+
+  const response = await requestData(`/users?${query}`, 'GET', {});
+  console.log('checkUserExist 2: ', response.data);
+
+  return {
+    success: response.data.length > 0,
+  };
+};
+
 export const registerAction = async (
   username: string,
   email: string,
@@ -100,12 +131,13 @@ export const signinAction = async (identifier: string, password: string) => {
   if (!password) fieldErrors.password.push('رمز عبور الزامی است');
 
   if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
-    identifier = '98' + identifier.replace(/^(\+98|98|0)?/, '');
+    identifier = identifier.replace(/^(\+98|98|0)?/, '');
   }
   const validationResult = loginSchema.safeParse({
     identifier,
     pass: password,
   });
+  console.log('sigin action : ', validationResult);
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
     if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
@@ -114,7 +146,7 @@ export const signinAction = async (identifier: string, password: string) => {
 
   if (validationResult.success) {
     response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.identifier,
+      identifier: '98' + validationResult.data.identifier,
       password: validationResult.data.pass,
     });
     if (response.data.error) {

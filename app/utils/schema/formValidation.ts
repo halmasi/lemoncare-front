@@ -6,7 +6,7 @@ export const loginSchema = z.object({
     .nonempty('ایمیل یا شماره تلفن الزامی است')
     .refine(
       (val) =>
-        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(val) || /^9\d{11}$/.test(val),
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(val) || /^9\d{9}$/.test(val),
       'ایمیل یا شماره تلفن وارد شده معتبر نیست'
     ),
   pass: z
