@@ -1,6 +1,6 @@
 'use client';
 
-import ColoredButton from '@/components/ColoredButton';
+import ColoredButton from '@/app/components/ColoredButton';
 import { useEffect } from 'react';
 
 interface ErrorProps {
