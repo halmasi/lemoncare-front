@@ -62,13 +62,7 @@ export default function LoginPage() {
     const password = formData.get('password')?.toString() || '';
     loginMutauionFn.mutate({ email, password });
   };
-  const handleGoogleLogin = () => {
-    if (window.google) {
-      window.google.accounts.id.prompt();
-    } else {
-      logs('Google API not loaded yet.', 'error');
-    }
-  };
+
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
