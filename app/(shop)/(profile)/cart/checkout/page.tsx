@@ -7,9 +7,9 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import states from '@/app/utils/data/cities.json';
+import states from '@/public/cities.json';
 import CitySelector from '@/app/components/formElements/CitySelector';
 
 export default function page() {
@@ -139,7 +139,7 @@ export default function page() {
             </div>
           )}
           {showTextBox && (
-            <div className="flex flex-col gap-2 py-3">
+            <form className="flex flex-col gap-2 py-3">
               <fieldset>
                 <label htmlFor="province">استان</label>
                 <CitySelector
@@ -152,12 +152,13 @@ export default function page() {
                   onChange={(selecctedProvince) =>
                     setProvince(selecctedProvince)
                   }
+                  className="md:w-full"
                 />
               </fieldset>
 
               {province && (
                 <fieldset>
-                  <label htmlFor="city">شهرستان</label>
+                  <label htmlFor="city">شهر</label>
                   <CitySelector
                     id="city"
                     placeholder="شهر را انتخاب کنید"
@@ -182,7 +183,7 @@ export default function page() {
                 />
               </fieldset>
               <SubmitButton>ثبت</SubmitButton>
-            </div>
+            </form>
           )}
           <button
             onClick={() => {

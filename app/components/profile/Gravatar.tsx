@@ -10,7 +10,7 @@ export default function Gravatar({ className }: { className?: string }) {
   const [icon, setIcon] = useState(<FiUser className="text-3xl" />);
   const getGravatarFn = useMutation({
     mutationFn: async (email: string) => {
-      const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+      const get = await fetch('api/auth/gravatar', {
         method: 'POST',
         body: JSON.stringify({ email: email }),
       });
