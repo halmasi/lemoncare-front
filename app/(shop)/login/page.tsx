@@ -15,7 +15,6 @@ import {
   checkUserExists,
 } from '@/app/utils/actions/actionMethods';
 import { motion } from 'framer-motion';
-import { loginSchema } from '@/app/utils/schema/formValidation';
 
 export default function AuthPage() {
   const [step, setStep] = useState<'identifier' | 'login' | 'register'>(
@@ -33,16 +32,6 @@ export default function AuthPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const checkUserExistence = async (enteredIdentifier: string) => {
-    const { success } = await checkUserExists(enteredIdentifier);
-
-    if (success) {
-      setStep('login');
-    } else {
-      setStep('register');
-    }
-  };
-
   const loginMutation = useMutation({
     mutationFn: async ({
       identifier,
@@ -52,29 +41,29 @@ export default function AuthPage() {
       password: string;
     }) => {
       const response = await signinAction(identifier, password);
-      console.log('loginMutation res : ', response);
+      console.log('loginMutation res:', response);
+
       if (!response.success) {
-        setErrors((prev) => ({
-          ...prev,
-          server: ['نام کاربری یا رمز عبور نادرست است'],
-        }));
-        throw new Error('نام کاربری یا رمز عبور نادرست است');
+        setErrors(response.fieldErrors);
+        return; // Prevent further execution
       }
+
       await setCookie('jwt', `Bearer ${response.jwt}`);
       setJwt(response.jwt);
       const userData = await getFullUserData();
-      console.log('check sigin ', response);
+
       return { response, userData };
     },
     onSuccess: async (data) => {
+      if (!data) return; // Prevent navigation if data is undefined
       await setCookie('jwt', `Bearer ${data.response.jwt}`);
       setJwt(data.response.jwt);
       setUser(data.userData.body);
       queryClient.setQueryData(['user'], data.userData.body);
       router.push('/login/loading');
     },
-    onError: (error) => {
-      setErrors((prev) => ({ ...prev, server: [error.message] }));
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
     },
   });
 
@@ -89,19 +78,23 @@ export default function AuthPage() {
       password: string;
     }) => {
       const response = await registerAction(username, email, password);
+
       if (!response.success) {
-        setErrors((prev) => ({ ...prev, server: ['ثبت‌نام ناموفق بود'] }));
-        throw new Error('ثبت‌نام ناموفق بود');
+        console.log('Register Mutation :', response);
+        setErrors(response.fieldErrors);
+        return;
       }
       await setCookie('jwt', `Bearer ${response.jwt}`);
       setJwt(response.jwt);
       return response;
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      if (!data) return;
       setStep('login');
     },
-    onError: (error) => {
-      setErrors((prev) => ({ ...prev, server: [error.message] }));
+
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
     },
   });
 
@@ -119,24 +112,18 @@ export default function AuthPage() {
 
     if (step === 'identifier') {
       const enteredIdentifier = formData.get('identifier')?.toString() || '';
+      setIdentifier(enteredIdentifier);
+
       const result = await checkUserExists(enteredIdentifier);
 
-      if (!result.success) {
-        setStep('register');
-      } else {
-        setStep('login');
-      }
-
-      setIdentifier(enteredIdentifier);
-      await checkUserExistence(enteredIdentifier);
+      setStep(result.success ? 'login' : 'register');
     } else if (step === 'login') {
-      console.log('step 2: ', step);
       loginMutation.mutate({
         identifier,
         password: formData.get('password')?.toString() || '',
       });
-    } else {
-      console.log('step 3: ', step);
+    } else if (step === 'register') {
+      console.log('Register Mutation ');
       registerMutation.mutate({
         username: formData.get('username')?.toString() || '',
         email: formData.get('email')?.toString() || '',
@@ -155,7 +142,9 @@ export default function AuthPage() {
           <>
             <InputBox name="identifier" placeholder="ایمیل یا شماره تلفن" />
             {errors.identifier && (
-              <p className="text-red-500 text-sm">{errors.identifier}</p>
+              <p className="text-red-500 text-sm">
+                {errors.identifier.join('\n')}
+              </p>
             )}
             <SubmitButton>ادامه</SubmitButton>
           </>
@@ -164,7 +153,9 @@ export default function AuthPage() {
           <>
             <InputBox name="password" format="password" placeholder="رمزعبور" />
             {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
+              <p className="text-red-500 text-sm">
+                {errors.password.join('\n.\n')}
+              </p>
             )}
             <SubmitButton disabled={loginMutation.isPending}>
               {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
@@ -174,10 +165,23 @@ export default function AuthPage() {
         {step === 'register' && (
           <>
             <PhoneInputBox name="username" required placeholder="شماره تلفن" />
+            {errors?.username && (
+              <p className="text-red-500 text-sm whitespace-pre-line">
+                {errors.username.join('\n')}
+              </p>
+            )}
             <InputBox name="email" required placeholder="ایمیل" />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.join('\n')}</p>
+            )}
             <InputBox name="password" format="password" placeholder="رمزعبور" />
+            {errors.password && (
+              <p className="text-red-500 text-sm">
+                {errors.password.join('\n')}
+              </p>
+            )}
             {errors.server && (
-              <p className="text-red-500 text-sm">{errors.server}</p>
+              <p className="text-red-500 text-sm">{errors.server.join('\n')}</p>
             )}
             <SubmitButton disabled={registerMutation.isPending}>
               {registerMutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
