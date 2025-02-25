@@ -20,7 +20,6 @@ export default function CitySelector({
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState('');
-  const [dropdownWidth, setDropdownWidth] = useState(0);
 
   const clickRef = useRef<HTMLDivElement>(null);
 
@@ -62,7 +61,7 @@ export default function CitySelector({
         {cities.map((singleCity) => (
           <li
             key={singleCity.name + singleCity.id}
-            className={`p-2 text-sm hover:bg-accent-yellow/25 hover:text-accent-pink ${singleCity.name == selectedCity && 'bg-accent-yellow/25 text-accent-pink'} ${!singleCity.name.startsWith(inputValue) && 'hidden'}`}
+            className={`p-2 text-sm cursor-pointer hover:bg-accent-yellow/25 hover:text-accent-pink ${singleCity.name == selectedCity && 'bg-accent-yellow/25 text-accent-pink'} ${!singleCity.name.startsWith(inputValue) && 'hidden'}`}
             onClick={() => {
               setSelectedCity(singleCity.name);
               setInputValue('');
