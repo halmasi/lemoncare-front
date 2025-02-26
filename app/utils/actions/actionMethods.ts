@@ -5,8 +5,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-import { count } from 'console';
-import { getProduct } from '../data/getProducts';
 
 export const registerAction = async (
   username: string,
@@ -25,7 +23,7 @@ export const registerAction = async (
     password: [],
     server: [],
   };
-  let response: {
+  const response: {
     data: {
       data?: null | '';
       jwt: string;
@@ -128,6 +126,17 @@ export const signinAction = async (email: string, password: string) => {
   };
 };
 
+export const googleAuthAction = async (accessToken: string) => {
+  const response = await requestData('/auth/google/callback', 'POST', {
+    access_token: accessToken,
+  });
+
+  if (response.data.error) {
+    throw new Error(response.data.error.message);
+  }
+  return response.data;
+};
+
 export const loginCheck = async (_?: string) => {
   const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
@@ -144,29 +153,37 @@ export const loginCheck = async (_?: string) => {
     username: string;
     fullName: string;
   } = response.data;
-
   return {
-    status: response.result.status,
+    status: response.status,
     body: data,
     jwt: token,
   };
 };
 
 export const getFullUserData = async (
-  token: string | null,
-  populateOptions: object[] = []
+  isDeep: boolean = false,
+  populateOptions?: object[]
 ) => {
+  const defaultOptions = {
+    order_history: { populate: '*' },
+    shopingCart: { populate: '1' },
+    postal_information: { populate: '1' },
+  };
+  const options = populateOptions
+    ? Object.assign(defaultOptions, ...populateOptions)
+    : defaultOptions;
   const query = qs.stringify({
-    populate: Object.assign({ cart: { populate: '*' } }, ...populateOptions),
+    populate: options,
   });
+  const token = await getCookie('jwt');
 
   const response = await requestData(
-    `/users/me?${query}`,
+    `/users/me?${isDeep ? 'pLevel' : query}`,
     'GET',
     {},
-    `Bearer ${token}`
+    `${token}`
   );
-  return { status: response.result.status, body: response.data };
+  return { status: response.status, body: response.data };
 };
 
 export const setCookie = async (name: string, cookie: string) => {
@@ -184,46 +201,6 @@ export const getCookie = async (key: string) => {
 };
 
 export const logoutAction = async () => {
-  await setCookie('jwt', 'null');
+  cookies().delete('jwt');
   redirect('/login');
-};
-
-export const RunTest = async (token: string | null) => {
-  const userId = 1;
-
-  try {
-    const updateReq = await requestData(
-      `/users/${userId}`,
-      'PUT',
-      {
-        cart: [
-          {
-            id: 14,
-            count: 9,
-            // variety: {
-            // id: 1000000004,
-            // sub: null,
-            // },
-            // product: { documentId: 'ti4elghq9pj6hfckkwjd9dev' },
-          },
-        ],
-      },
-
-      `Bearer ${token}`
-    );
-    console.log('Update Response:', updateReq.data);
-
-    const fetchReq = await requestData(
-      `/users/me?populate=*`,
-      'GET',
-      {},
-      `Bearer ${token}`
-    );
-    console.log('Updated User Data:', fetchReq.data);
-
-    return { status: fetchReq.result.status, body: fetchReq.data };
-  } catch (error) {
-    console.error('Error in RunTest:', error);
-    return { status: 500, body: { message: 'Internal Server Error' } };
-  }
 };

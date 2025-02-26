@@ -1,30 +1,12 @@
 import qs from 'qs';
 
 import { dataFetch } from './dataFetch';
-import { PostsProps } from './getPosts';
-import { MediaProps, ProductProps } from './getProducts';
 import { cache } from 'react';
-
-interface ArticleSuggestionProps {
-  title: string;
-  slug: string;
-  posts: PostsProps[];
-}
-
-interface ProductSuggestionProps {
-  title: string;
-  slug: string;
-  products: ProductProps[];
-}
-
-interface SlideProps {
-  slug: string;
-  location: 'homepage' | 'shop' | 'blog' | 'category' | 'brand';
-  medias: {
-    link: string;
-    media: MediaProps;
-  }[];
-}
+import {
+  ArticleSuggestionProps,
+  ProductSuggestionProps,
+  SlideProps,
+} from '../schema/otherProps';
 
 export const getArticleSuggestions = cache(
   async (slug: string): Promise<ArticleSuggestionProps> => {
@@ -34,7 +16,7 @@ export const getArticleSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggested-articles?${query}`, [
+    const data = await dataFetch(`/suggested-articles?${query}`, 'GET', [
       `suggested-article-${slug}`,
     ]);
     return data[0];
@@ -49,7 +31,7 @@ export const getProductSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggestion-lists?${query}`, [
+    const data = await dataFetch(`/suggestion-lists?${query}`, 'GET', [
       `suggestion-list-${slug}`,
     ]);
     return data[0];
@@ -69,7 +51,7 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, [
+  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, 'GET', [
     `slide-${location}`,
   ]);
   return data[0];

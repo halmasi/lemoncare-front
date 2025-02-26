@@ -1,138 +1,14 @@
 import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
+import { getCategory } from './getCategories';
+import { cache } from 'react';
+import { PostsProps } from '../schema/blogProps/postProps';
+import { AuthorProps, GravatarProps } from '../schema/otherProps';
 import {
   CategoriesProps,
-  getCategory,
   SubCategoryProps,
-} from './getCategories';
-import { cache } from 'react';
-
-export interface PostsProps {
-  id: number;
-  documentId: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  content: ContentProps[];
-  category: CategoriesProps;
-  tags: TagsProps[];
-  seo: { id: number; seoTitle: string; seoDescription: string };
-  basicInfo: {
-    id: number;
-    title: string;
-    mainImage: ImageProps;
-    contentCode: number;
-  };
-  view: number | null;
-  gravatar?: GravatarProps;
-  categoryUrl?: string;
-  author: AuthorProps;
-  sources?: { id: number; sourceUrl: string; websiteName: string }[];
-}
-export interface GravatarProps {
-  hash: string;
-  display_name: string;
-  profile_url: string;
-  avatar_url: string;
-}
-
-export interface TagsProps {
-  id: number;
-  title: string;
-  slug: string;
-  posts: PostsProps[];
-}
-
-export interface ImageProps {
-  id: number;
-  documentId: string;
-  name: string;
-  alternativeText: string | null;
-  caption: string | null;
-  width: number;
-  height: number;
-  formats: {
-    large: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    small: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    medium: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-    thumbnail: {
-      ext: string;
-      url: string;
-      name: string;
-      width: number;
-      height: number;
-    };
-  };
-  ext: string;
-  url: string;
-}
-
-export interface AuthorProps {
-  id: number;
-  documentId: string;
-  name: string;
-  username: string;
-  description: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-}
-
-export enum ContentTypes {
-  heading = 'heading',
-  paragraph = 'paragraph',
-  image = 'image',
-  list = 'list',
-  quote = 'quote',
-  code = 'code',
-}
-
-export interface ContentProps {
-  type: ContentTypes;
-  children: ContentChildrenProps[];
-  format?: 'unordered' | 'ordered';
-  level?: number;
-  image?: ImageProps;
-  language?: string;
-}
-export interface ContentChildrenProps {
-  text?: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  url?: string;
-  type: 'text' | 'list-item' | 'link';
-  children?: {
-    text: string;
-    type: string;
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-    strikethrough?: boolean;
-  }[];
-}
+} from '../schema/blogProps/tagsAndCategoryProps';
 
 export const getPosts = cache(async function (count?: number, tag?: string[]) {
   const query = qs.stringify({
@@ -147,7 +23,7 @@ export const getPosts = cache(async function (count?: number, tag?: string[]) {
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: PostsProps[] = await dataFetch(link, tag);
+  const result: PostsProps[] = await dataFetch(link, 'GET', tag);
 
   return result;
 });
@@ -171,23 +47,6 @@ export const getPost = cache(async function (slug: string | number) {
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
 });
-
-export const getGravatar = cache(
-  async (email: string): Promise<GravatarProps> => {
-    const data = await fetch(
-      process.env.GRAVATAR_URI +
-        createHash('sha256').update(email).digest('hex'),
-      {
-        headers: {
-          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-        },
-        next: { tags: ['author'] },
-      }
-    );
-    const gravatar: GravatarProps = await data.json();
-    return gravatar;
-  }
-);
 
 export const getCategoryHierarchy = cache(async function (
   category: SubCategoryProps[],
@@ -250,6 +109,7 @@ export const getPostsByCategory = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -274,6 +134,7 @@ export const getPostsByTag = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -298,6 +159,7 @@ export const getPostsByAuthor = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -307,6 +169,6 @@ export const getAuthorInformation = cache(async function (
   id: string,
   tag?: string[]
 ) {
-  const result: AuthorProps = await dataFetch(`/authors/${id}`, tag);
+  const result: AuthorProps = await dataFetch(`/authors/${id}`, 'GET', tag);
   return result;
 });

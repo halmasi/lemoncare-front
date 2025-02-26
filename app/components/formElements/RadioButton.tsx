@@ -12,9 +12,22 @@ export default function RadioButton({
   children: ReactNode;
   color?: string;
   group: string;
-  value: { id: number; sub: number | null };
-  selectedOptions: { id: number; sub: number | null };
-  handler: ({ id, sub }: { id: number; sub: number | null }) => void;
+  value: { id: number; sub: number | null; uid: number; usub: number | null };
+  selectedOptions: {
+    id: number;
+    sub: number | null;
+  };
+  handler: ({
+    id,
+    sub,
+    uid,
+    usub,
+  }: {
+    id: number;
+    sub: number | null;
+    uid: number;
+    usub: number | null;
+  }) => void;
 }) {
   const isChecked: boolean = value.sub
     ? selectedOptions.id == value.id && selectedOptions.sub == value.sub

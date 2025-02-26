@@ -1,9 +1,10 @@
-import { CategoriesProps } from '@/app/utils/data/getCategories';
-import { GravatarProps, ImageProps } from '@/app/utils/data/getPosts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
+import { GravatarProps } from '../utils/schema/otherProps';
+import { CategoriesProps } from '../utils/schema/blogProps/tagsAndCategoryProps';
+import { ImageProps } from '../utils/schema/mediaProps';
 
 export default function PostCard({
   category,

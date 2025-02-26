@@ -1,35 +1,10 @@
 import { cache } from 'react';
-import { ProductProps } from './getProducts';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
-
-export interface ShopSubCategoiesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  products: ProductProps[];
-  shopSubCategories: ShopCategoryProps[];
-  shopParentCategory: ShopCategoryProps;
-}
-
-export interface ShopCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  products: ProductProps[];
-  shopSubCategories: ShopSubCategoiesProps[];
-  shopParentCategory: ShopSubCategoiesProps;
-}
+import {
+  ShopCategoryProps,
+  ShopSubCategoiesProps,
+} from '../schema/shopProps/categoryProps';
 
 export const getShopCategory = cache(async function (
   slug: string,
@@ -42,7 +17,7 @@ export const getShopCategory = cache(async function (
       shopSubCategories: { populate: '*' },
     },
   });
-  const result = await dataFetch(`/shop-categories?${query}`, tag);
+  const result = await dataFetch(`/shop-categories?${query}`, 'GET', tag);
   return result;
 });
 
@@ -62,6 +37,7 @@ export const getShopCategoriesUrl = cache(async function (
   });
   const data: ShopCategoryProps[] = await dataFetch(
     `/shop-categories?${query}`,
+    'GET',
     tag
   );
   const result = data[0];

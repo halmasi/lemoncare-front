@@ -3,30 +3,29 @@
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import {
   getFullUserData,
+  googleAuthAction,
   setCookie,
   signinAction,
 } from '@/app/utils/actions/actionMethods';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
+import logs from '@/app/utils/logs';
 
 export default function LoginPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { setJwt, setUser } = useDataStore();
-  const { cart, setCart } = useCartStore();
+
   const [errors, setErrors] = useState<{
     email?: string[];
     password?: string[];
     server?: string[];
   }>({});
-
-  const mutation = useMutation({
+  const queryClient = useQueryClient();
+  const loginMutauionFn = useMutation({
     mutationFn: async ({
       email,
       password,
@@ -37,53 +36,56 @@ export default function LoginPage() {
       const response = await signinAction(email, password);
       if (!response.success) {
         setErrors(response.fieldErrors);
+        throw new Error('نام کاربری یا رمز عبور نادرست است');
       }
-
       await setCookie('jwt', `Bearer ${response.jwt}`);
       setJwt(response.jwt);
-      return response;
+      const userData = await getFullUserData();
+
+      return { response, userData };
     },
-    onSuccess: async (data: any) => {
-      const userData = await getFullUserData(data.jwt);
-      setUser(userData.body);
-      handleCart(userData.body.cart);
-      queryClient.setQueryData(['user'], userData.body);
-      router.push('/dashboard');
+    onSuccess: async (data) => {
+      await setCookie('jwt', `Bearer ${data.response.jwt}`);
+      setJwt(data.response.jwt);
+      setUser(data.userData.body);
+      queryClient.setQueryData(['user'], data.userData.body);
+      router.push('/login/loading');
     },
-    onError: (error: any) => {
+    onError: (error: { message: string[] }) => {
       setErrors({ server: error.message });
     },
   });
-
-  const handleCart = (fetchedCart: CartProps[]) => {
-    if (fetchedCart != cart) {
-      const carts = fetchedCart;
-      carts.forEach((item) => {
-        let dup = 0;
-        carts.forEach((check) => {
-          if (
-            item.product.documentId == check.product.documentId &&
-            item.variety.id == check.variety.id &&
-            item.variety.sub == check.variety.sub
-          ) {
-            dup++;
-            if (dup > 1) {
-              carts.splice(carts.indexOf(item), 1);
-            }
-          }
-        });
-      });
-      setCart(carts);
-    }
-  };
+  const googleLoginMutation = useMutation({
+    mutationFn: async (accessToken: string) => {
+      const response = await googleAuthAction(accessToken);
+      return response.jwt;
+    },
+    onSuccess: async (jwt) => {
+      await setCookie('jwt', `Bearer ${jwt}`);
+      setJwt(jwt);
+      const userData = await getFullUserData();
+      setUser(userData.body);
+      queryClient.setQueryData(['user'], userData.body);
+      router.push('/login/loading');
+    },
+    onError: (error: { message: string[] }) => {
+      setErrors({ server: error.message });
+    },
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get('identifier')?.toString() || '';
     const password = formData.get('password')?.toString() || '';
-    setErrors({});
-    mutation.mutate({ email, password });
+    loginMutauionFn.mutate({ email, password });
+  };
+  const handleGoogleLogin = () => {
+    if (window.google) {
+      window.google.accounts.id.prompt();
+    } else {
+      logs('Google API not loaded yet.', 'error');
+    }
   };
   return (
     <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
@@ -106,14 +108,22 @@ export default function LoginPage() {
         )}
         {errors?.server && (
           <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.server.join('\n')}
+            {errors.server}
           </p>
         )}
 
-        <SubmitButton disabled={mutation.isPending}>
-          {mutation.isPending ? 'در حال ورود...' : 'ورود'}
+        <SubmitButton disabled={loginMutauionFn.isPending}>
+          {loginMutauionFn.isPending ? 'در حال ورود...' : 'ورود'}
         </SubmitButton>
       </form>
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={handleGoogleLogin}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          ورود با گوگل
+        </button>
+      </div>
     </div>
   );
 }

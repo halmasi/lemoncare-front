@@ -11,6 +11,8 @@ import {
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { createHash } from 'node:crypto';
+import { dataFetch } from '@/app/utils/data/dataFetch';
+import qs from 'qs';
 
 export async function POST(request: NextRequest) {
   const token = request.headers.get('token');
@@ -220,6 +222,26 @@ export async function POST(request: NextRequest) {
     //----------Coupon
     case 'coupon':
       (async function () {})();
+      break;
+
+    case 'cart':
+      (async function () {
+        const query = qs.stringify({
+          filters: {
+            user: { $null: true },
+          },
+        });
+        const carts: {
+          id: number;
+          documentId: string;
+          createdAt: string;
+          updatedAt: string;
+          publishedAt: string;
+        }[] = await dataFetch(`/carts?${query}`, 'GET');
+        carts.map(async (item) => {
+          await dataFetch(`/carts/${item.documentId}`, 'DELETE');
+        });
+      })();
       break;
 
     default:

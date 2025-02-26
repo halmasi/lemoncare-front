@@ -1,78 +1,133 @@
-import { CommentProps } from 'postcss';
 import { requestData } from '../data/dataFetch';
-import { CartProps } from '../states/useCartData';
+import { CartProps } from '../schema/shopProps/cartProps';
+import { loginCheck } from './actionMethods';
+import qs from 'qs';
 
 interface UpdateCartResultProps {
-  id: number;
-  documentId: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  username: string;
-  fullName: string;
-  role: {
+  data: {
     id: number;
     documentId: string;
-    name: string;
-    description: string;
-    type: string;
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
   };
-  cart: CartProps[];
-  orderHistory: object[];
-  postalInformation: object[];
-  comments: CommentProps[];
-  favorites: object[];
-  createdBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  updatedBy: {
-    id: number;
-    documentId: string;
-    firstname: string;
-    lastname: string;
-    username: string | null;
-    email: string;
-    isActive: boolean;
-    blocked: boolean;
-    preferedLanguage: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
-  localizations: object[];
 }
 
-export const updateCart = async (
-  id: string,
-  cart: CartProps[],
-  jwt: string
-) => {
+export const getCart = async (documentId: string) => {
+  const check = await loginCheck();
+
+  const query = qs.stringify({
+    populate: {
+      items: { populate: '*' },
+    },
+  });
+
   const response = await requestData(
-    `/users/${id}`,
+    `/carts/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  return response.data;
+};
+
+export const updateCartOnLogin = async (
+  newCart: {
+    count: number;
+    product: string;
+    variety: { id: number; sub: number | null };
+  }[],
+  id: string
+) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/carts/${id}`,
     'PUT',
     {
-      cart: cart,
+      data: {
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product,
+          variety: item.variety,
+        })),
+      },
     },
-    jwt
+    check.jwt
   );
   const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const updateCart = async (cart: CartProps[], id: string) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/carts/${id}`,
+    'PUT',
+    {
+      data: {
+        items: cart.map((item) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
+      },
+    },
+    check.jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const addToCart = async (
+  cart: CartProps[],
+  newItem: {
+    count: number;
+    id: string;
+    variety: { id: number; sub: number | null };
+  },
+  id: string
+) => {
+  const newCart: {
+    count: number;
+    product: string;
+    variety: { id: number; sub: number | null };
+  }[] = cart.map((item) => ({
+    count: item.count,
+    product: item.product.documentId,
+    variety: item.variety,
+  }));
+  newCart.push({
+    count: newItem.count,
+    product: newItem.id,
+    variety: newItem.variety,
+  });
+  newCart.map((item) => {
+    let found = -1;
+    newCart.forEach((check) => {
+      if (check.product == item.product && check.variety == item.variety) {
+        found++;
+      }
+    });
+    if (found) {
+      newCart.splice(newCart.indexOf(item), 1);
+    }
+  });
+  const check = await loginCheck();
+  const response = await requestData(
+    `/carts/${id}`,
+    'PUT',
+    {
+      data: {
+        items: newCart.map((item) => ({
+          count: item.count,
+          product: item.product,
+          variety: item.variety,
+        })),
+      },
+    },
+    check.jwt
+  );
+
+  const data = response.data;
   return data;
 };
