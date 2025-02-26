@@ -1,43 +1,53 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import {
-  getFullUserData,
-  googleAuthAction,
-  setCookie,
   signinAction,
+  registerAction,
+  setCookie,
+  getFullUserData,
+  checkUserExists,
 } from '@/app/utils/actions/actionMethods';
+import { motion } from 'framer-motion';
 
-import { useDataStore } from '@/app/utils/states/useUserdata';
-import logs from '@/app/utils/logs';
-
-export default function LoginPage() {
-  const router = useRouter();
-  const { setJwt, setUser } = useDataStore();
-
+export default function AuthPage() {
+  const [step, setStep] = useState<'identifier' | 'login' | 'register'>(
+    'identifier'
+  );
+  const [identifier, setIdentifier] = useState('');
   const [errors, setErrors] = useState<{
-    email?: string[];
+    identifier?: string[];
+    username?: string[];
     password?: string[];
+    email?: string[];
     server?: string[];
   }>({});
+  const { setJwt, setUser } = useDataStore();
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const loginMutauionFn = useMutation({
+
+  const loginMutation = useMutation({
     mutationFn: async ({
-      email,
+      identifier,
       password,
     }: {
-      email: string;
+      identifier: string;
       password: string;
     }) => {
-      const response = await signinAction(email, password);
+      const response = await signinAction(identifier, password);
+      console.log('loginMutation res:', response);
+
       if (!response.success) {
         setErrors(response.fieldErrors);
-        throw new Error('نام کاربری یا رمز عبور نادرست است');
+        return; // Prevent further execution
       }
+
       await setCookie('jwt', `Bearer ${response.jwt}`);
       setJwt(response.jwt);
       const userData = await getFullUserData();
@@ -45,6 +55,7 @@ export default function LoginPage() {
       return { response, userData };
     },
     onSuccess: async (data) => {
+      if (!data) return; // Prevent navigation if data is undefined
       await setCookie('jwt', `Bearer ${data.response.jwt}`);
       setJwt(data.response.jwt);
       setUser(data.userData.body);
@@ -55,75 +66,129 @@ export default function LoginPage() {
       setErrors({ server: error.message });
     },
   });
-  const googleLoginMutation = useMutation({
-    mutationFn: async (accessToken: string) => {
-      const response = await googleAuthAction(accessToken);
-      return response.jwt;
+
+  const registerMutation = useMutation({
+    mutationFn: async ({
+      username,
+      email,
+      password,
+    }: {
+      username: string;
+      email: string;
+      password: string;
+    }) => {
+      const response = await registerAction(username, email, password);
+
+      if (!response.success) {
+        console.log('Register Mutation :', response);
+        setErrors(response.fieldErrors);
+        return;
+      }
+      await setCookie('jwt', `Bearer ${response.jwt}`);
+      setJwt(response.jwt);
+      return response;
     },
-    onSuccess: async (jwt) => {
-      await setCookie('jwt', `Bearer ${jwt}`);
-      setJwt(jwt);
-      const userData = await getFullUserData();
-      setUser(userData.body);
-      queryClient.setQueryData(['user'], userData.body);
-      router.push('/login/loading');
+    onSuccess: async (data) => {
+      if (!data) return;
+      setStep('login');
     },
+
     onError: (error: { message: string[] }) => {
       setErrors({ server: error.message });
     },
   });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const email = formData.get('identifier')?.toString() || '';
-    const password = formData.get('password')?.toString() || '';
-    loginMutauionFn.mutate({ email, password });
-  };
-  const handleGoogleLogin = () => {
-    if (window.google) {
-      window.google.accounts.id.prompt();
-    } else {
-      logs('Google API not loaded yet.', 'error');
+
+    setErrors({
+      identifier: [],
+      password: [],
+      server: [],
+      username: [],
+      email: [],
+    });
+
+    if (step === 'identifier') {
+      const enteredIdentifier = formData.get('identifier')?.toString() || '';
+      setIdentifier(enteredIdentifier);
+
+      const result = await checkUserExists(enteredIdentifier);
+
+      setStep(result.success ? 'login' : 'register');
+    } else if (step === 'login') {
+      loginMutation.mutate({
+        identifier,
+        password: formData.get('password')?.toString() || '',
+      });
+    } else if (step === 'register') {
+      console.log('Register Mutation ');
+      registerMutation.mutate({
+        username: formData.get('username')?.toString() || '',
+        email: formData.get('email')?.toString() || '',
+        password: formData.get('password')?.toString() || '',
+      });
     }
   };
+
   return (
-    <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
-      <form
+    <div className="flex w-full justify-center items-center h-screen">
+      <motion.form
         className="w-full md:w-3/12 flex flex-col gap-2"
         onSubmit={handleSubmit}
       >
-        <InputBox name="identifier" placeholder="ایمیل" />
-        {errors?.email && (
-          <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.email.join('\n')}
-          </p>
+        {step === 'identifier' && (
+          <>
+            <InputBox name="identifier" placeholder="ایمیل یا شماره تلفن" />
+            {errors.identifier && (
+              <p className="text-red-500 text-sm">
+                {errors.identifier.join('\n')}
+              </p>
+            )}
+            <SubmitButton>ادامه</SubmitButton>
+          </>
         )}
-
-        <InputBox name="password" format="password" placeholder="رمزعبور" />
-        {errors?.password && (
-          <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.password.join('\n')}
-          </p>
+        {step === 'login' && (
+          <>
+            <InputBox name="password" format="password" placeholder="رمزعبور" />
+            {errors.password && (
+              <p className="text-red-500 text-sm">
+                {errors.password.join('\n.\n')}
+              </p>
+            )}
+            <SubmitButton disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
+            </SubmitButton>
+          </>
         )}
-        {errors?.server && (
-          <p className="text-red-500 text-sm whitespace-pre-line">
-            {errors.server}
-          </p>
+        {step === 'register' && (
+          <>
+            <PhoneInputBox name="username" required placeholder="شماره تلفن" />
+            {errors?.username && (
+              <p className="text-red-500 text-sm whitespace-pre-line">
+                {errors.username.join('\n')}
+              </p>
+            )}
+            <InputBox name="email" required placeholder="ایمیل" />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.join('\n')}</p>
+            )}
+            <InputBox name="password" format="password" placeholder="رمزعبور" />
+            {errors.password && (
+              <p className="text-red-500 text-sm">
+                {errors.password.join('\n')}
+              </p>
+            )}
+            {errors.server && (
+              <p className="text-red-500 text-sm">{errors.server.join('\n')}</p>
+            )}
+            <SubmitButton disabled={registerMutation.isPending}>
+              {registerMutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
+            </SubmitButton>
+          </>
         )}
-
-        <SubmitButton disabled={loginMutauionFn.isPending}>
-          {loginMutauionFn.isPending ? 'در حال ورود...' : 'ورود'}
-        </SubmitButton>
-      </form>
-      <div className="flex flex-col gap-2">
-        <button
-          onClick={handleGoogleLogin}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          ورود با گوگل
-        </button>
-      </div>
+      </motion.form>
     </div>
   );
 }

@@ -8,7 +8,6 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import { registerAction, setCookie } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import GoogleLoginButton from '@/app/components/profile/GoogleLoginButton';
 
 export default function RegisterPage() {
   const { setJwt } = useDataStore();
@@ -104,7 +103,6 @@ export default function RegisterPage() {
           {mutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
         </SubmitButton>
       </form>
-      <GoogleLoginButton />
     </div>
   );
 }
