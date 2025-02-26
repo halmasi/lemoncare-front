@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import CitySelector from '../formElements/CitySelector';
 import SubmitButton from '../formElements/SubmitButton';
 import states from '@/public/cities.json';
@@ -16,33 +16,25 @@ export default function NewAddressForm({
   existingAddresses?: AddressProps[];
   onSuccessFn?: (data: object) => void;
 }) {
+  type ErrorState = {
+    province?: string[];
+    city?: string[];
+    address?: string[];
+    postCode?: string[];
+    phone?: string[];
+    mobile?: string[];
+    firstName?: string[];
+    lastName?: string[];
+    server?: string[];
+  };
+
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
   const [province, setProvince] = useState('');
   const [city, setCity] = useState('');
   const { user } = useDataStore();
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
-  const [errors, setErrors] = useState<{
-    province: string[];
-    city: string[];
-    address: string[];
-    postCode: string[];
-    phone: string[];
-    mobile: string[];
-    firstName: string[];
-    lastName: string[];
-    server: string[];
-  }>({
-    province: [],
-    city: [],
-    address: [],
-    postCode: [],
-    phone: [],
-    mobile: [],
-    firstName: [],
-    lastName: [],
-    server: [],
-  });
+  const [errors, setErrors] = useState<ErrorState>({});
   useEffect(() => {
     const state = states.find((item) => item.name == province);
     const statesCity = state?.cities.map((item) => ({
@@ -84,69 +76,22 @@ export default function NewAddressForm({
         lastName,
       });
       if (!isValid.success) {
+        const errorMessages = isValid.error.flatten().fieldErrors;
+
         setErrors({
-          province: [],
-          city: [],
-          address: [],
-          postCode: [],
-          phone: [],
-          mobile: [],
-          firstName: [],
-          lastName: [],
-          server: [],
+          province: errorMessages.province || [],
+          city: errorMessages.city || [],
+          address: errorMessages.address || [],
+          postCode: errorMessages.postCode || [],
+          phone: errorMessages.phoneNumber || [],
+          mobile: errorMessages.mobileNumber || [],
+          firstName: errorMessages.firstName || [],
+          lastName: errorMessages.lastName || [],
         });
-        const error = isValid.error.flatten().fieldErrors;
-        if (error.province)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { province: error.province });
-            return newErrors;
-          });
-        if (error.city)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { city: error.city });
-            return newErrors;
-          });
-        if (error.address)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { address: error.address });
-            return newErrors;
-          });
-        if (error.postCode)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { postCode: error.postCode });
-            return newErrors;
-          });
-        if (error.phoneNumber)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { phone: error.phoneNumber });
-            return newErrors;
-          });
-        if (error.mobileNumber)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { mobile: error.mobileNumber });
-            return newErrors;
-          });
-        if (error.firstName)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { firstName: error.firstName });
-            return newErrors;
-          });
-        if (error.lastName)
-          setErrors((prev) => {
-            const newErrors = prev;
-            Object.assign(newErrors, { lastName: error.lastName });
-            return newErrors;
-          });
 
         throw new Error();
       }
+
       const addressesArray: AddressProps[] = [
         {
           id: 0,
@@ -184,29 +129,24 @@ export default function NewAddressForm({
     },
   });
 
-  const submitFunction = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const province = data.get('province')?.toString() || '';
-    const city = data.get('city')?.toString() || '';
-    const address = data.get('address')?.toString() || '';
-    const firstName = data.get('firstName')?.toString() || '';
-    const lastName = data.get('lastName')?.toString() || '';
-    const postCode = parseInt(data.get('postCode')?.toString() || '0');
-    const phone = parseInt(data.get('phone')?.toString() || '0');
-    const mobile = data.get('mobile')?.toString() || '';
-    if (user)
-      submitFn.mutate({
-        province,
-        city,
-        address,
-        postCode,
-        phone,
-        mobile,
-        firstName,
-        lastName,
-      });
-  };
+  const submitFunction = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      const formValues = {
+        province: data.get('province')?.toString() || '',
+        city: data.get('city')?.toString() || '',
+        address: data.get('address')?.toString() || '',
+        firstName: data.get('firstName')?.toString() || '',
+        lastName: data.get('lastName')?.toString() || '',
+        postCode: parseInt(data.get('postCode')?.toString() || '0'),
+        phone: parseInt(data.get('phone')?.toString() || '0'),
+        mobile: data.get('mobile')?.toString() || '',
+      };
+      if (user) submitFn.mutate(formValues);
+    },
+    [user, submitFn]
+  );
 
   return (
     <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
@@ -219,7 +159,7 @@ export default function NewAddressForm({
             name: item.name,
             id: item.id,
           }))}
-          onChange={(selecctedProvince) => setProvince(selecctedProvince)}
+          onChange={(selectedProvince) => setProvince(selectedProvince)}
           className="md:w-full"
         />
         <input

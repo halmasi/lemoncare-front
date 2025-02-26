@@ -40,6 +40,7 @@ export const addressSchema = z
       .max(9999999999, 'شماره تلفن وارد شده معتبر نیست'),
     mobileNumber: z
       .string({ message: 'شماره تلفن همراه وارد شده معتبر نیست' })
+      .nonempty('شماره تلفن همراه الزامی است')
       .regex(/^9\d{9}$/, 'شماره تلفن همراه وارد شده معتبر نیست'),
   })
   .superRefine((data, ctx) => {
