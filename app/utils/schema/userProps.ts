@@ -51,8 +51,8 @@ export interface AddressProps {
   lastName: string;
   province: string;
   city: string;
-  phoneNumber: number | null;
-  mobileNumber: number;
+  phoneNumber: number | string | null;
+  mobileNumber: number | string;
   isDefault: boolean;
 }
 
@@ -90,17 +90,4 @@ export interface OrderHistoryProps {
     variety: { id: number; sub: number | null };
     product: ProductProps;
   }[];
-}
-
-export interface postalInformationProps {
-  id: number;
-  address: string;
-  postCode: number;
-  firstName: string;
-  lastName: string;
-  province: string;
-  city: string;
-  phoneNumber: number;
-  mobileNumber: number;
-  isDefault: boolean;
 }

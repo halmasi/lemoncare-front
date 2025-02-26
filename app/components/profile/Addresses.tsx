@@ -94,7 +94,14 @@ export default function Addresses() {
           })}
         </div>
       )}
-      {showTextBox && <NewAddressForm />}
+      {showTextBox && (
+        <NewAddressForm
+          onSuccessFn={(data) => {
+            console.log(data);
+          }}
+          existingAddresses={addresses}
+        />
+      )}
       <button
         onClick={() => {
           setShowTextBox(true);

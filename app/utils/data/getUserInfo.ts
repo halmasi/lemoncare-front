@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { requestData } from './dataFetch';
-import { postalInformationProps } from '../schema/userProps';
+import { AddressProps } from '../schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 
 export const getPostalInformation = async (documentId: string) => {
@@ -21,7 +21,7 @@ export const getPostalInformation = async (documentId: string) => {
 };
 
 export const updatePostalInformation = async (
-  newAddressList: postalInformationProps[],
+  newAddressList: AddressProps[],
   id: string
 ) => {
   const check = await loginCheck();
