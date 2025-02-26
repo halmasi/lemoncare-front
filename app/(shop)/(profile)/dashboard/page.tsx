@@ -5,7 +5,6 @@ import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-// import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {

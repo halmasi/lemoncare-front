@@ -6,6 +6,37 @@ import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 
+export const checkUserExists = async (identifier: string) => {
+  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
+    identifier = identifier.replace(/^(\+98|98|0)?/, '');
+  }
+
+  const validationResult = loginSchema
+    .pick({ identifier: true })
+    .safeParse({ identifier });
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: validationResult.error.flatten().fieldErrors.identifier || [
+        'ایمیل یا شماره تلفن نامعتبر است',
+      ],
+    };
+  }
+
+  const query = qs.stringify({
+    filters: {
+      $or: [{ email: identifier }, { username: '98' + identifier }],
+    },
+  });
+
+  const response = await requestData(`/users?${query}`, 'GET', {});
+  console.log('checkUserExist 2: ', response.data);
+
+  return {
+    success: response.data.length > 0,
+  };
+};
+
 export const registerAction = async (
   username: string,
   email: string,
@@ -34,9 +65,9 @@ export const registerAction = async (
     data: { jwt: '', user: {} },
   };
 
-  username = username.includes('9')
-    ? username.slice(username.indexOf('9'))
-    : username;
+  if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
+    username = '98' + username.replace(/^(\+98|98|0)?/, '');
+  }
 
   const validationResult = registerSchema.safeParse({
     username,
@@ -71,15 +102,18 @@ export const registerAction = async (
   };
 };
 
-export const signinAction = async (email: string, password: string) => {
+export const signinAction = async (identifier: string, password: string) => {
   let success = false;
 
-  const fieldErrors: { email: string[]; password: string[]; server: string[] } =
-    {
-      email: [],
-      password: [],
-      server: [],
-    };
+  const fieldErrors: {
+    identifier: string[];
+    password: string[];
+    server: string[];
+  } = {
+    identifier: [],
+    password: [],
+    server: [],
+  };
 
   let response: {
     data: {
@@ -92,23 +126,27 @@ export const signinAction = async (email: string, password: string) => {
     data: { jwt: '', user: {} },
   };
 
-  if (!email) fieldErrors.email.push('ایمیل الزامی است');
+  if (!identifier)
+    fieldErrors.identifier.push('ایمیل یا شماره تلفن الزامی است');
   if (!password) fieldErrors.password.push('رمز عبور الزامی است');
 
+  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
+    identifier = identifier.replace(/^(\+98|98|0)?/, '');
+  }
   const validationResult = loginSchema.safeParse({
-    email,
+    identifier,
     pass: password,
   });
-
+  console.log('sigin action : ', validationResult);
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
     if (errors.pass) fieldErrors.password.push(...errors.pass);
   }
 
   if (validationResult.success) {
     response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.email,
+      identifier: '98' + validationResult.data.identifier,
       password: validationResult.data.pass,
     });
     if (response.data.error) {
@@ -124,17 +162,6 @@ export const signinAction = async (email: string, password: string) => {
     user: response.data.user,
     fieldErrors,
   };
-};
-
-export const googleAuthAction = async (accessToken: string) => {
-  const response = await requestData('/auth/google/callback', 'POST', {
-    access_token: accessToken,
-  });
-
-  if (response.data.error) {
-    throw new Error(response.data.error.message);
-  }
-  return response.data;
 };
 
 export const loginCheck = async (_?: string) => {
