@@ -19,13 +19,16 @@ export default function Addresses() {
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {
       const res: {
-        id: number;
-        documentId: string;
-        information: AddressProps[];
+        data: {
+          id: number;
+          documentId: string;
+          information: AddressProps[];
+        };
       } = await getPostalInformation(id);
-      return res;
+      return res.data;
     },
     onSuccess: (data) => {
+      console.log(data);
       data.information.map((item) => {
         setAddresses((prev) => {
           const pre = prev;
@@ -41,6 +44,7 @@ export default function Addresses() {
   };
 
   useEffect(() => {
+    console.log(addresses);
     if (addresses && addresses.length)
       addresses.map((item) => {
         if (item.isDefault) {
