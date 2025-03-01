@@ -8,9 +8,9 @@ import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
-import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import log from '@/app/utils/logs';
 import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
+import { useRouter } from 'next/navigation';
 export default function Count({
   inventory,
   cartItem,
@@ -22,6 +22,7 @@ export default function Count({
   isProductPage?: boolean;
   refreshFunction?: () => void;
 }) {
+  const router = useRouter();
   const { jwt, user } = useDataStore();
   const { cart, setCart } = useCartStore();
 
@@ -38,7 +39,7 @@ export default function Count({
       if (!data || !data.result || !user) return;
       const getCartData = await getCart(user.shopingCart.documentId);
       setCart(getCartData.body.items);
-      if (refreshFunction) refreshFunction();
+      router.refresh();
     },
     onError: async (error) => {
       log(error.cause + error.message, 'error');
@@ -58,14 +59,13 @@ export default function Count({
       const updateCart = cart;
       if (newCount <= 0) {
         updateCart.splice(updateCart.indexOf(cartItem), 1);
+        setCart(updateCart);
         if (user && jwt) {
           updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
-        } else {
-          setCart(updateCart);
         }
       } else {
         updateCart[updateCart.indexOf(cartItem)].count = newCount;
-
+        setCart(updateCart);
         if (jwt && user) {
           const safeUser = JSON.parse(JSON.stringify(user));
           const safeUserCart = Array.isArray(safeUser.cart)
@@ -84,8 +84,6 @@ export default function Count({
           if (shouldUpdate) {
             updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
-        } else {
-          setCart(updateCart);
         }
       }
     },

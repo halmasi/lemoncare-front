@@ -1,7 +1,12 @@
 'use server';
 
-export async function dataFetch(qs: string, tag?: string[]) {
+export async function dataFetch(
+  qs: string,
+  method: string = 'GET',
+  tag?: string[]
+) {
   const options = {
+    method,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -15,6 +20,7 @@ export async function dataFetch(qs: string, tag?: string[]) {
     const data = await apiData.json();
     return data.data;
   } catch (error) {
+    console.trace();
     throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }
@@ -47,6 +53,7 @@ export async function requestData(
 
     return result;
   } catch (error) {
+    console.trace();
     throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }

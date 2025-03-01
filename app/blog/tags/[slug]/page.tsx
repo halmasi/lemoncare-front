@@ -1,6 +1,6 @@
 import PostCard from '@/app/components/PostCard';
 import { getCategoriesUrl } from '@/app/utils/data/getCategories';
-import { getGravatar, getPostsByTag } from '@/app/utils/data/getPosts';
+import { getPostsByTag } from '@/app/utils/data/getPosts';
 import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
 
 export default async function page({ params }: { params: { slug: string } }) {
@@ -14,7 +14,18 @@ export default async function page({ params }: { params: { slug: string } }) {
           post.categoryUrl = await getCategoriesUrl(post.category, [
             'category',
           ]);
-          post.gravatar = await getGravatar(post.author.email);
+
+          const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({ email: post.author.email }),
+          });
+
+          const gravatarJson = await get.json();
+
+          post.gravatar = JSON.parse(gravatarJson).data;
           return (
             <PostCard
               key={post.documentId}
