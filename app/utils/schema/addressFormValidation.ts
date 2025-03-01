@@ -44,7 +44,6 @@ export const addressSchema = z
       .regex(/^9\d{9}$/, 'شماره تلفن همراه وارد شده معتبر نیست'),
   })
   .superRefine((data, ctx) => {
-    // Validate city within province
     if (!isValidCityInProvince(data.city, data.province)) {
       ctx.addIssue({
         path: ['city'],

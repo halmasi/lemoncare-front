@@ -10,7 +10,6 @@ export const checkUserExists = async (identifier: string) => {
   if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
     identifier = identifier.replace(/^(\+98|98|0)?/, '');
   }
-
   const validationResult = loginSchema
     .pick({ identifier: true })
     .safeParse({ identifier });
@@ -30,8 +29,6 @@ export const checkUserExists = async (identifier: string) => {
   });
 
   const response = await requestData(`/users?${query}`, 'GET', {});
-  console.log('checkUserExist 2: ', response.data);
-
   return {
     success: response.data.length > 0,
   };
@@ -66,9 +63,8 @@ export const registerAction = async (
   };
 
   if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
-    username = '98' + username.replace(/^(\+98|98|0)?/, '');
+    username = username.replace(/^(\+98|98|0)?/, '');
   }
-
   const validationResult = registerSchema.safeParse({
     username,
     email,
@@ -137,7 +133,7 @@ export const signinAction = async (identifier: string, password: string) => {
     identifier,
     pass: password,
   });
-  console.log('sigin action : ', validationResult);
+
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
     if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
@@ -145,8 +141,12 @@ export const signinAction = async (identifier: string, password: string) => {
   }
 
   if (validationResult.success) {
+    if (/^9\d{9}$/.test(validationResult.data?.identifier)) {
+      validationResult.data.identifier =
+        '98' + validationResult.data.identifier;
+    }
     response = await requestData('/auth/local', 'POST', {
-      identifier: '98' + validationResult.data.identifier,
+      identifier: validationResult.data.identifier,
       password: validationResult.data.pass,
     });
     if (response.data.error) {
@@ -155,7 +155,6 @@ export const signinAction = async (identifier: string, password: string) => {
       success = true;
     }
   }
-
   return {
     success,
     jwt: response.data.jwt,

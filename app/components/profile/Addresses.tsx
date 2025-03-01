@@ -28,7 +28,6 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
-      console.log(data);
       data.information.map((item) => {
         setAddresses((prev) => {
           const pre = prev;
@@ -44,7 +43,6 @@ export default function Addresses() {
   };
 
   useEffect(() => {
-    console.log(addresses);
     if (addresses && addresses.length)
       addresses.map((item) => {
         if (item.isDefault) {

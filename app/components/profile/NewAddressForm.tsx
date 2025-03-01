@@ -65,19 +65,22 @@ export default function NewAddressForm({
       firstName: string;
       lastName: string;
     }) => {
+      if (/^(\+98|98|0)?9\d{9}$/.test(mobile)) {
+        mobile = mobile.replace(/^(\+98|98|0)?/, '');
+      }
       const isValid = addressSchema.safeParse({
         province,
         city,
         address,
         postCode,
-        phone,
-        mobile,
+        phoneNumber: phone,
+        mobileNumber: mobile,
         firstName,
         lastName,
       });
+      setErrors({});
       if (!isValid.success) {
         const errorMessages = isValid.error.flatten().fieldErrors;
-
         setErrors({
           province: errorMessages.province || [],
           city: errorMessages.city || [],

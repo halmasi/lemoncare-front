@@ -41,11 +41,10 @@ export default function AuthPage() {
       password: string;
     }) => {
       const response = await signinAction(identifier, password);
-      console.log('loginMutation res:', response);
 
       if (!response.success) {
-        setErrors(response.fieldErrors);
-        return; // Prevent further execution
+        setErrors((prev) => ({ ...prev, ...response.fieldErrors }));
+        throw new Error();
       }
 
       await setCookie('jwt', `Bearer ${response.jwt}`);
@@ -62,9 +61,6 @@ export default function AuthPage() {
       queryClient.setQueryData(['user'], data.userData.body);
       router.push('/login/loading');
     },
-    onError: (error: { message: string[] }) => {
-      setErrors({ server: error.message });
-    },
   });
 
   const registerMutation = useMutation({
@@ -80,9 +76,8 @@ export default function AuthPage() {
       const response = await registerAction(username, email, password);
 
       if (!response.success) {
-        console.log('Register Mutation :', response);
-        setErrors(response.fieldErrors);
-        return;
+        setErrors((prev) => ({ ...prev, ...response.fieldErrors }));
+        throw new Error();
       }
       await setCookie('jwt', `Bearer ${response.jwt}`);
       setJwt(response.jwt);
@@ -92,30 +87,18 @@ export default function AuthPage() {
       if (!data) return;
       setStep('login');
     },
-
-    onError: (error: { message: string[] }) => {
-      setErrors({ server: error.message });
-    },
   });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    setErrors({
-      identifier: [],
-      password: [],
-      server: [],
-      username: [],
-      email: [],
-    });
-
     if (step === 'identifier') {
       const enteredIdentifier = formData.get('identifier')?.toString() || '';
       setIdentifier(enteredIdentifier);
 
       const result = await checkUserExists(enteredIdentifier);
-
+      console.log('identify :', result);
       setStep(result.success ? 'login' : 'register');
     } else if (step === 'login') {
       loginMutation.mutate({
@@ -123,7 +106,6 @@ export default function AuthPage() {
         password: formData.get('password')?.toString() || '',
       });
     } else if (step === 'register') {
-      console.log('Register Mutation ');
       registerMutation.mutate({
         username: formData.get('username')?.toString() || '',
         email: formData.get('email')?.toString() || '',
@@ -156,6 +138,9 @@ export default function AuthPage() {
               <p className="text-red-500 text-sm">
                 {errors.password.join('\n.\n')}
               </p>
+            )}
+            {errors.server && (
+              <p className="text-red-500 text-sm">{errors.server.join('\n')}</p>
             )}
             <SubmitButton disabled={loginMutation.isPending}>
               {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
