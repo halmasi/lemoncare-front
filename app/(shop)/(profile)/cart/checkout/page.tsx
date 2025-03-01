@@ -1,5 +1,6 @@
 'use client';
 
+import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import Addresses from '@/app/components/profile/Addresses';
 import Toman from '@/app/components/Toman';
 import { useCartStore } from '@/app/utils/states/useCartData';
@@ -7,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 export default function page() {
   const { cart, cartProducts } = useCartStore();
-
+  const [paymentMethods, setPaymentMethods] = useState();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
 
@@ -46,8 +47,8 @@ export default function page() {
   if (!totalPrice) return <div>loading</div>;
   return (
     <>
-      <div className="w-full justify-start">
-        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+      <div className="w-full flex flex-col gap-2 md:flex-row justify-between">
+        <div className="w-full md:w-7/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
           <div className="text-center flex flex-wrap gap-2 border-b items-center justify-center">
             <h6>مجموع خرید:</h6>
             <div className="flex md:pr-5 items-center justify-center gap-2">
@@ -65,6 +66,10 @@ export default function page() {
           </div>
           <h6>انتخاب آدرس:</h6>
           <Addresses />
+        </div>
+        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+          <h6>روش ارسال:</h6>
+          <DeliveryMethods />
         </div>
       </div>
     </>

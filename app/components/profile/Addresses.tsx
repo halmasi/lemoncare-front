@@ -8,6 +8,7 @@ import {
   IoRadioButtonOnOutline,
 } from 'react-icons/io5';
 import NewAddressForm from './NewAddressForm';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 
 export default function Addresses() {
   const [showTextBox, setShowTextBox] = useState<boolean>(false);
@@ -16,6 +17,8 @@ export default function Addresses() {
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
 
   const { user } = useDataStore();
+  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {
       const res: {
@@ -55,7 +58,12 @@ export default function Addresses() {
     if (user && user.postal_information) {
       getUserAddresses(user.postal_information.documentId);
       setShowTextBox(false);
-    } else setShowTextBox(true);
+    } else if (checkoutAddress) {
+      setAddresses([checkoutAddress]);
+      setShowTextBox(false);
+    } else {
+      setShowTextBox(true);
+    }
   }, [user]);
 
   return (

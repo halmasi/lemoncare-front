@@ -8,6 +8,8 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { addressSchema } from '@/app/utils/schema/addressFormValidation';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import { useRouter } from 'next/navigation';
 
 export default function NewAddressForm({
   existingAddresses,
@@ -31,10 +33,13 @@ export default function NewAddressForm({
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
   const [province, setProvince] = useState('');
   const [city, setCity] = useState('');
-  const { user } = useDataStore();
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<ErrorState>({});
+  const router = useRouter();
+  const { user } = useDataStore();
+  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+
   useEffect(() => {
     const state = states.find((item) => item.name == province);
     const statesCity = state?.cities.map((item) => ({
@@ -109,6 +114,7 @@ export default function NewAddressForm({
           isDefault: false,
         },
       ];
+      setCheckoutAddress(addressesArray[0]);
       if (existingAddresses) {
         addressesArray.push(...existingAddresses);
       }
@@ -118,10 +124,13 @@ export default function NewAddressForm({
           user.postal_information.documentId
         );
         return postalInfo;
+      } else {
+        return checkoutAddress;
       }
     },
     onSuccess: (data) => {
-      if (onSuccessFn) onSuccessFn(data);
+      if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
+      router.refresh();
     },
     onError: (error: { message: string[] }) => {
       setErrors((prev) => {
@@ -146,7 +155,7 @@ export default function NewAddressForm({
         phone: parseInt(data.get('phone')?.toString() || '0'),
         mobile: data.get('mobile')?.toString() || '',
       };
-      if (user) submitFn.mutate(formValues);
+      submitFn.mutate(formValues);
     },
     [user, submitFn]
   );
