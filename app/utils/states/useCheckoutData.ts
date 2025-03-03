@@ -4,11 +4,13 @@ import { AddressProps } from '../schema/userProps';
 
 export interface checkoutStoreState {
   price: number;
+  beforePrice: number;
   cartId: string;
   checkoutAddress: AddressProps | null;
   shippingOption: string;
   paymentOption: string;
   setPrice: (price: number) => void;
+  setBeforePrice: (beforePrice: number) => void;
   setCartId: (cartIt: string) => void;
   setCheckoutAddress: (getAddress: AddressProps) => void;
   setShippingOption: (option: string) => void;
@@ -20,11 +22,13 @@ export const useCheckoutStore = create(
   persist<checkoutStoreState>(
     (set) => ({
       price: 0,
+      beforePrice: 0,
       cartId: '',
       checkoutAddress: null,
       shippingOption: '',
       paymentOption: '',
       setPrice: (price) => set(() => ({ price })),
+      setBeforePrice: (beforePrice) => set(() => ({ beforePrice })),
       setCartId: (id) => set(() => ({ cartId: id })),
       setCheckoutAddress: (getAddress: AddressProps) =>
         set(() => ({ checkoutAddress: getAddress })),

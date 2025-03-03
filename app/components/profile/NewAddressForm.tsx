@@ -32,7 +32,9 @@ export default function NewAddressForm({
 
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
   const [province, setProvince] = useState('');
+  const [provinceId, setProvinceId] = useState(0);
   const [city, setCity] = useState('');
+  const [cityId, setCityId] = useState(0);
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<ErrorState>({});
@@ -114,7 +116,11 @@ export default function NewAddressForm({
           isDefault: false,
         },
       ];
-      setCheckoutAddress(addressesArray[0]);
+      setCheckoutAddress({
+        ...addressesArray[0],
+        cityCode: cityId,
+        provinceCode: provinceId,
+      });
       if (existingAddresses) {
         addressesArray.push(...existingAddresses);
       }
@@ -171,7 +177,10 @@ export default function NewAddressForm({
             name: item.name,
             id: item.id,
           }))}
-          onChange={(selectedProvince) => setProvince(selectedProvince)}
+          onChangeFn={(selectedProvince, id) => {
+            setProvince(selectedProvince);
+            setProvinceId(id);
+          }}
           className="md:w-full"
         />
         <input
@@ -198,7 +207,10 @@ export default function NewAddressForm({
             id="city"
             placeholder="شهر را انتخاب کنید"
             cities={cities}
-            onChange={(selecctedCity) => setCity(selecctedCity)}
+            onChangeFn={(selecctedCity, id) => {
+              setCity(selecctedCity);
+              setCityId(id);
+            }}
           />
           <input
             id="city"

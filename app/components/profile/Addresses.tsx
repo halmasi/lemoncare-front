@@ -103,7 +103,7 @@ export default function Addresses() {
       {showTextBox && (
         <NewAddressForm
           onSuccessFn={(data) => {
-            console.log(data);
+            // console.log(data);
           }}
           existingAddresses={addresses}
         />

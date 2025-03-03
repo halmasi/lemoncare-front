@@ -4,10 +4,12 @@ import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import Addresses from '@/app/components/profile/Addresses';
 import Toman from '@/app/components/Toman';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useEffect, useState } from 'react';
 
 export default function page() {
   const { cart, cartProducts } = useCartStore();
+  const { setPrice, price, setBeforePrice } = useCheckoutStore();
   const [paymentMethods, setPaymentMethods] = useState();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
@@ -44,6 +46,10 @@ export default function page() {
       }
     });
   }, [cart]);
+  useEffect(() => {
+    setPrice(totalPrice);
+    setBeforePrice(totalBeforePrice);
+  }, [totalPrice]);
   if (!totalPrice) return <div>loading</div>;
   return (
     <>
@@ -58,7 +64,7 @@ export default function page() {
               <Toman className="fill-accent-green text-accent-green">
                 <p>
                   <strong className="text-3xl">
-                    {(totalPrice / 10).toLocaleString('fa-IR')}
+                    {(price / 10).toLocaleString('fa-IR')}
                   </strong>
                 </p>
               </Toman>
