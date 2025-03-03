@@ -40,6 +40,7 @@ export const registerAction = async (
   password: string
 ) => {
   let success = false;
+  let q = '';
   const fieldErrors: {
     username: string[];
     email: string[];
@@ -83,10 +84,56 @@ export const registerAction = async (
       email: validationResult.data.email,
       password: validationResult.data.password,
     });
+
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
     } else {
       success = true;
+      await requestData(
+        '/carts',
+        'POST',
+        {
+          data: {
+            user: response.data.user.id,
+            items: [],
+          },
+        },
+        `Bearer ${response.data.jwt}`
+      );
+      await requestData(
+        '/order-histories',
+        'POST',
+        {
+          data: {
+            user: response.data.user.id,
+            order: [],
+          },
+        },
+        `Bearer ${response.data.jwt}`
+      );
+      await requestData(
+        '/postal-informations',
+        'POST',
+        {
+          data: {
+            user: response.data.user.id,
+            information: [],
+          },
+        },
+        `Bearer ${response.data.jwt}`
+      );
+      await requestData(
+        '/favorites',
+        'POST',
+        {
+          data: {
+            user: response.data.user.id,
+            posts: [],
+            products: [],
+          },
+        },
+        `Bearer ${response.data.jwt}`
+      );
     }
   }
 
