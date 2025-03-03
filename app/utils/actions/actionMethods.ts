@@ -40,7 +40,6 @@ export const registerAction = async (
   password: string
 ) => {
   let success = false;
-  let q = '';
   const fieldErrors: {
     username: string[];
     email: string[];
