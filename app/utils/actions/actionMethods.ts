@@ -89,50 +89,22 @@ export const registerAction = async (
       fieldErrors.server.push(response.data.error.message);
     } else {
       success = true;
-      await requestData(
-        '/carts',
-        'POST',
+      const userId = response.data.user.id;
+
+      const requests = [
+        { url: '/carts', data: { user: userId, items: [] } },
+        { url: '/order-histories', data: { user: userId, order: [] } },
         {
-          data: {
-            user: response.data.user.id,
-            items: [],
-          },
+          url: '/postal-informations',
+          data: { user: userId, information: [] },
         },
-        `Bearer ${response.data.jwt}`
-      );
-      await requestData(
-        '/order-histories',
-        'POST',
-        {
-          data: {
-            user: response.data.user.id,
-            order: [],
-          },
-        },
-        `Bearer ${response.data.jwt}`
-      );
-      await requestData(
-        '/postal-informations',
-        'POST',
-        {
-          data: {
-            user: response.data.user.id,
-            information: [],
-          },
-        },
-        `Bearer ${response.data.jwt}`
-      );
-      await requestData(
-        '/favorites',
-        'POST',
-        {
-          data: {
-            user: response.data.user.id,
-            posts: [],
-            products: [],
-          },
-        },
-        `Bearer ${response.data.jwt}`
+        { url: '/favorites', data: { user: userId, posts: [], products: [] } },
+      ];
+
+      await Promise.all(
+        requests.map(({ url, data }) =>
+          requestData(url, 'POST', { data }, `Bearer ${response.data.jwt}`)
+        )
       );
     }
   }
