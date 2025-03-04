@@ -3,6 +3,11 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Toman from '../Toman';
+import Image from 'next/image';
+
+import PostLogo from '@/public/Iran-Post-Logo.svg';
+import ChaparLogo from '@/public/chaparLogo.png';
+
 interface CourierProps {
   courierCode: string;
   courierName: string;
@@ -35,12 +40,17 @@ interface PostMethodsProps {
     }[];
   };
 }
-export default function DeliveryMethods() {
+export default function DeliveryMethods({
+  onChangeFn,
+}: {
+  onChangeFn: (isSelected: boolean) => void;
+}) {
   const [courier, setCourier] = useState<CourierProps[]>([]);
   const [selected, setSelected] = useState<CourierProps>(courier[0]);
-  const [shipingPrice, SetShipingPrice] = useState(0);
-
-  const { checkoutAddress, beforePrice } = useCheckoutStore();
+  // const [shippingPrice, SetShippingPrice] = useState(0);
+  const [error, setError] = useState<string>('');
+  const { checkoutAddress, beforePrice, setShippingOption, setShippingPrice } =
+    useCheckoutStore();
 
   const router = useRouter();
   useEffect(() => {
@@ -50,9 +60,8 @@ export default function DeliveryMethods() {
       if (data.isSuccess && data.data[0].courierCode) {
         data.data.map((item) => {
           if (
-            item.courierName == 'شرکت ملی پست' ||
-            item.courierName == 'تیپاکس' ||
-            item.courierName == 'چاپار'
+            (item.courierCode == 'IR_POST' || item.courierCode == 'CHAPAR') &&
+            item.courierServiceCode != 'CERTIFIED'
           ) {
             setCourier((prev) => {
               const copy = prev;
@@ -81,7 +90,7 @@ export default function DeliveryMethods() {
           width: 25,
           length: 25,
           box_type_id: 8,
-          total_weight: 500,
+          total_weight: 200,
           total_value: beforePrice,
         },
         has_collection: true,
@@ -97,42 +106,54 @@ export default function DeliveryMethods() {
     },
     onSuccess: (data) => {
       const neededData = data.data.servicePrices[0];
-      SetShipingPrice(neededData.totalPrice / 10);
+      setShippingPrice(neededData.totalPrice);
+      onChangeFn(true);
+    },
+    onError: () => {
+      onChangeFn(false);
+      setShippingPrice(0);
     },
   });
 
   useEffect(() => {
-    if (selected && checkoutAddress && checkoutAddress.cityCode)
+    setShippingPrice(0);
+    if (selected && checkoutAddress && checkoutAddress.cityCode) {
+      setError('');
+      setShippingPrice(0);
       getPrice.mutate(checkoutAddress.cityCode);
+      setShippingOption({
+        courier_code: selected.courierCode,
+        service_type: selected.courierServiceCode,
+      });
+    }
+    if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
+      setShippingPrice(0);
+      setError('لطفا ابتدا آدرس خود را وارد کنید.');
+    }
   }, [selected]);
 
   return (
     <div key={courier.length}>
-      <div className="flex gap-2 items-center">
-        {shipingPrice != 0 && (
-          <>
-            <h6>هزینه ارسال:</h6>
-            <Toman className="fill-accent-green text-accent-green">
-              <p>
-                {(Math.ceil(shipingPrice / 1000) * 1000).toLocaleString(
-                  'fa-IR'
-                )}
-              </p>
-            </Toman>
-          </>
-        )}
-      </div>
-      <div className="flex flex-wrap">
+      <p className="text-red-700">{error}</p>
+      <div className="flex flex-wrap items-center justify-center">
         {courier.map((item, index) => (
           <button
             key={index}
             onClick={() => {
               setSelected(item);
             }}
-            className={`p-2 text-center rounded-lg border m-2 aspect-square w-40 ${selected == item && 'bg-accent-pink/20 hover:bg-accent-pink/20'} hover:bg-gray-200 ${getPrice.isPending && 'cursor-wait'}`}
+            className={`flex flex-col p-2 text-center justify-between items-center rounded-lg border m-2 aspect-square w-40 ${selected == item && 'bg-accent-pink/20 hover:bg-accent-pink/20'} hover:bg-gray-200 ${getPrice.isPending && 'cursor-wait'}`}
           >
-            <p className="text-xs">{item.courierName}</p>
-            <p>{item.courierServiceName}</p>
+            <Image
+              src={item.courierCode == 'IR_POST' ? PostLogo : ChaparLogo.src}
+              alt={item.courierName}
+              width={100}
+              height={100}
+            />
+            <div>
+              <p className="text-xs">{item.courierName}</p>
+              <p>{item.courierServiceName}</p>
+            </div>
           </button>
         ))}
       </div>

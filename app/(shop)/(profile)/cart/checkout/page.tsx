@@ -1,6 +1,7 @@
 'use client';
 
 import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
+import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Addresses from '@/app/components/profile/Addresses';
 import Toman from '@/app/components/Toman';
 import { useCartStore } from '@/app/utils/states/useCartData';
@@ -9,10 +10,10 @@ import { useEffect, useState } from 'react';
 
 export default function page() {
   const { cart, cartProducts } = useCartStore();
-  const { setPrice, price, setBeforePrice } = useCheckoutStore();
-  const [paymentMethods, setPaymentMethods] = useState();
+  const { setPrice, price, setBeforePrice, shippingPrice } = useCheckoutStore();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
+  const [showNext, setShowNext] = useState<boolean>(false);
 
   useEffect(() => {
     setTotalBeforePrice(0);
@@ -54,28 +55,62 @@ export default function page() {
   return (
     <>
       <div className="w-full flex flex-col gap-2 md:flex-row justify-between">
-        <div className="w-full md:w-7/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
-          <div className="text-center flex flex-wrap gap-2 border-b items-center justify-center">
-            <h6>مجموع خرید:</h6>
-            <div className="flex md:pr-5 items-center justify-center gap-2">
+        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border">
+          <h6>انتخاب آدرس:</h6>
+          <Addresses />
+        </div>
+        <div className="w-full md:w-4/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+          <h6>روش ارسال:</h6>
+          <DeliveryMethods
+            onChangeFn={(isSelected: boolean) => {
+              setShowNext(isSelected);
+            }}
+          />
+        </div>
+        <div className="flex flex-col h-fit w-full md:w-3/12 border rounded-lg p-5 md:sticky md:top-5 items-center gap-3 justify-between">
+          <div className="flex flex-wrap gap-2 text-sm">
+            <p>مجموع خرید:</p>
+            <div className="flex flex-wrap md:pr-5 items-center justify-center gap-2">
               <p className="line-through text-xl text-gray-500">
                 {totalBeforePrice / 10}
               </p>
               <Toman className="fill-accent-green text-accent-green">
                 <p>
-                  <strong className="text-3xl">
-                    {(price / 10).toLocaleString('fa-IR')}
-                  </strong>
+                  <strong>{(price / 10).toLocaleString('fa-IR')}</strong>
                 </p>
               </Toman>
             </div>
           </div>
-          <h6>انتخاب آدرس:</h6>
-          <Addresses />
-        </div>
-        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
-          <h6>روش ارسال:</h6>
-          <DeliveryMethods />
+
+          <div className="flex flex-wrap gap-2 text-sm">
+            <p>هزینه ارسال:</p>
+            {shippingPrice != 0 ? (
+              <Toman className="fill-accent-green text-accent-green">
+                <p>
+                  {(Math.ceil(shippingPrice / 10 / 1000) * 1000).toLocaleString(
+                    'fa-IR'
+                  )}
+                </p>
+              </Toman>
+            ) : (
+              <p className="text-gray-500">آدرس یا نحوه ارسال تعیین نشده</p>
+            )}
+          </div>
+          <div className="flex flex-wrap border-t gap-2 text-sm">
+            <p>جمع کل:</p>
+
+            <Toman className="fill-accent-green text-accent-green">
+              <p>
+                {(
+                  Math.ceil(shippingPrice / 10 / 1000) * 1000 +
+                  price / 10
+                ).toLocaleString('fa-IR')}
+              </p>
+            </Toman>
+          </div>
+          <SubmitButton link="/cart/checkout/payment" disabled={!showNext}>
+            ثبت سفارش
+          </SubmitButton>
         </div>
       </div>
     </>

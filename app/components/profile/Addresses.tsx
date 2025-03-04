@@ -67,7 +67,7 @@ export default function Addresses() {
   }, [user]);
 
   return (
-    <div>
+    <div key={checkoutAddress?.address}>
       {addresses && (
         <div className="flex flex-col gap-2">
           {addresses.map((item, index) => {
