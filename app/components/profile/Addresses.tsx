@@ -9,8 +9,11 @@ import {
 } from 'react-icons/io5';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import { useRouter } from 'next/navigation';
 
 export default function Addresses() {
+  const router = useRouter();
+
   const [showTextBox, setShowTextBox] = useState<boolean>(false);
 
   const [addresses, setAddresses] = useState<AddressProps[]>([]);
@@ -64,7 +67,7 @@ export default function Addresses() {
     } else {
       setShowTextBox(true);
     }
-  }, [user]);
+  }, [user, checkoutAddress]);
 
   return (
     <div key={checkoutAddress?.address}>
@@ -102,8 +105,8 @@ export default function Addresses() {
       )}
       {showTextBox && (
         <NewAddressForm
-          onSuccessFn={(data) => {
-            // console.log(data);
+          onSuccessFn={() => {
+            router.refresh();
           }}
           existingAddresses={addresses}
         />

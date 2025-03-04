@@ -55,7 +55,7 @@ export default function page() {
   return (
     <>
       <div className="w-full flex flex-col gap-2 md:flex-row justify-between">
-        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border">
+        <div className="w-full md:w-4/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border">
           <h6>انتخاب آدرس:</h6>
           <Addresses />
         </div>
@@ -86,11 +86,7 @@ export default function page() {
             <p>هزینه ارسال:</p>
             {shippingPrice != 0 ? (
               <Toman className="fill-accent-green text-accent-green">
-                <p>
-                  {(Math.ceil(shippingPrice / 10 / 1000) * 1000).toLocaleString(
-                    'fa-IR'
-                  )}
-                </p>
+                <p>{(shippingPrice / 10).toLocaleString('fa-IR')}</p>
               </Toman>
             ) : (
               <p className="text-gray-500">آدرس یا نحوه ارسال تعیین نشده</p>
@@ -100,12 +96,7 @@ export default function page() {
             <p>جمع کل:</p>
 
             <Toman className="fill-accent-green text-accent-green">
-              <p>
-                {(
-                  Math.ceil(shippingPrice / 10 / 1000) * 1000 +
-                  price / 10
-                ).toLocaleString('fa-IR')}
-              </p>
+              <p>{(shippingPrice / 10 + price / 10).toLocaleString('fa-IR')}</p>
             </Toman>
           </div>
           <SubmitButton link="/cart/checkout/payment" disabled={!showNext}>

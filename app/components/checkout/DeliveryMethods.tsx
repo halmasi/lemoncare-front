@@ -47,7 +47,6 @@ export default function DeliveryMethods({
 }) {
   const [courier, setCourier] = useState<CourierProps[]>([]);
   const [selected, setSelected] = useState<CourierProps>(courier[0]);
-  // const [shippingPrice, SetShippingPrice] = useState(0);
   const [error, setError] = useState<string>('');
   const { checkoutAddress, beforePrice, setShippingOption, setShippingPrice } =
     useCheckoutStore();
@@ -106,7 +105,8 @@ export default function DeliveryMethods({
     },
     onSuccess: (data) => {
       const neededData = data.data.servicePrices[0];
-      setShippingPrice(neededData.totalPrice);
+      setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
+
       onChangeFn(true);
     },
     onError: () => {
