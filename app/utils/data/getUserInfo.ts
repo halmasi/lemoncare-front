@@ -70,6 +70,5 @@ export const getOrderHistory = async (documentId: string) => {
     {},
     check.jwt
   );
-  console.log('GET Order History Function : ', response);
   return response.data;
 };

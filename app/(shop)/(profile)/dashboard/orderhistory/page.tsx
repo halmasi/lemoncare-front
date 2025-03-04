@@ -3,6 +3,7 @@
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { getOrderHistory } from '@/app/utils/data/getUserInfo';
+import logs from '@/app/utils/logs';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
@@ -16,28 +17,26 @@ export default function Dashboard() {
   const getUserDataFn = useMutation({
     mutationFn: async () => {
       const res = await getFullUserData();
-      console.log('FROM ORDER HISTORY PAGE 1 : ', res.body.order_history.order);
+
       return res.body;
     },
     onSuccess: async (data) => {
       const orderHistoryData = await getOrderHistory(
         data.order_history.documentId
       );
-      console.log('order output : ', orderHistoryData);
+
       setOrderHistory(orderHistoryData.data.order || []);
       setUser(data);
     },
     onError: (error: { message: string[] }) => {
-      console.error('Error:', error.message);
+      logs('Error:' + error.message, 'error');
     },
   });
 
   useEffect(() => {
     getUserDataFn.mutate();
   }, []);
-  orderHistory.map((Item) => {
-    console.log('Map output : ', Item.items);
-  });
+
   if (!user) {
     return (
       <div>
