@@ -204,7 +204,7 @@ export default function AuthForm() {
                   format="password"
                   placeholder="رمزعبور"
                 />
-                <SubmitButton disabled={loginMutation.isPending}>
+                <SubmitButton isPending={loginMutation.isPending}>
                   {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
                 </SubmitButton>
               </>
@@ -222,7 +222,7 @@ export default function AuthForm() {
                   format="password"
                   placeholder="رمزعبور"
                 />
-                <SubmitButton disabled={registerMutation.isPending}>
+                <SubmitButton isPending={registerMutation.isPending}>
                   {registerMutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
                 </SubmitButton>
               </>
