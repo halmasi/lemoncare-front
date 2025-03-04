@@ -20,7 +20,6 @@ export async function dataFetch(
     const data = await apiData.json();
     return data.data;
   } catch (error) {
-    console.trace();
     throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }
@@ -53,7 +52,6 @@ export async function requestData(
 
     return result;
   } catch (error) {
-    console.trace();
     throw new Error('خطای ارتباط با سرور\n' + error);
   }
 }

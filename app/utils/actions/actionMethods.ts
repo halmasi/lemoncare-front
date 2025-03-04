@@ -83,10 +83,28 @@ export const registerAction = async (
       email: validationResult.data.email,
       password: validationResult.data.password,
     });
+
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
     } else {
       success = true;
+      const userId = response.data.user.id;
+
+      const requests = [
+        { url: '/carts', data: { user: userId, items: [] } },
+        { url: '/order-histories', data: { user: userId, order: [] } },
+        {
+          url: '/postal-informations',
+          data: { user: userId, information: [] },
+        },
+        { url: '/favorites', data: { user: userId, posts: [], products: [] } },
+      ];
+
+      await Promise.all(
+        requests.map(({ url, data }) =>
+          requestData(url, 'POST', { data }, `Bearer ${response.data.jwt}`)
+        )
+      );
     }
   }
 
