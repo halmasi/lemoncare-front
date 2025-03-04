@@ -8,14 +8,20 @@ import {
   IoRadioButtonOnOutline,
 } from 'react-icons/io5';
 import NewAddressForm from './NewAddressForm';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import { useRouter } from 'next/navigation';
 
 export default function Addresses() {
+  const router = useRouter();
+
   const [showTextBox, setShowTextBox] = useState<boolean>(false);
 
   const [addresses, setAddresses] = useState<AddressProps[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
 
   const { user } = useDataStore();
+  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {
       const res: {
@@ -28,7 +34,6 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
-      console.log(data);
       data.information.map((item) => {
         setAddresses((prev) => {
           const pre = prev;
@@ -44,7 +49,6 @@ export default function Addresses() {
   };
 
   useEffect(() => {
-    console.log(addresses);
     if (addresses && addresses.length)
       addresses.map((item) => {
         if (item.isDefault) {
@@ -57,11 +61,16 @@ export default function Addresses() {
     if (user && user.postal_information) {
       getUserAddresses(user.postal_information.documentId);
       setShowTextBox(false);
-    } else setShowTextBox(true);
-  }, [user]);
+    } else if (checkoutAddress) {
+      setAddresses([checkoutAddress]);
+      setShowTextBox(false);
+    } else {
+      setShowTextBox(true);
+    }
+  }, [user, checkoutAddress]);
 
   return (
-    <div>
+    <div key={checkoutAddress?.address}>
       {addresses && (
         <div className="flex flex-col gap-2">
           {addresses.map((item, index) => {
@@ -96,8 +105,8 @@ export default function Addresses() {
       )}
       {showTextBox && (
         <NewAddressForm
-          onSuccessFn={(data) => {
-            console.log(data);
+          onSuccessFn={() => {
+            router.refresh();
           }}
           existingAddresses={addresses}
         />

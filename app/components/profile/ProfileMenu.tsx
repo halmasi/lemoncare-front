@@ -45,7 +45,12 @@ export default function ProfileMenu({
       key: 'cart',
       url: '/cart',
     },
-    { name: <p>سفارش‌ها</p>, icon: <FaReceipt />, key: 'orders' },
+    {
+      name: <p>سفارش‌ها</p>,
+      icon: <FaReceipt />,
+      key: 'orders',
+      url: `/dashboard/orderhistory`,
+    },
     { name: <p>مالی</p>, icon: <FaUser />, key: 'finance' },
     { name: <p>آدرس‌ها</p>, icon: <FaMapMarkerAlt />, key: 'addresses' },
     { name: <p>علاقه‌مندی‌ها</p>, icon: <FaRegHeart />, key: 'favorites' },

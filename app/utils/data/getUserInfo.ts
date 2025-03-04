@@ -47,3 +47,28 @@ export const updatePostalInformation = async (
   const data = response.data;
   return data;
 };
+
+export const getOrderHistory = async (documentId: string) => {
+  const check = await loginCheck();
+  const query = qs.stringify({
+    populate: {
+      order: {
+        populate: {
+          items: {
+            populate: {
+              product: { populate: { basicInfo: { populate: ['mainImage'] } } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const response = await requestData(
+    `/order-histories/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  return response.data;
+};

@@ -73,8 +73,8 @@ export default function Dashboard() {
           </div>
         )
       )}
-
       <ul className="bg-gray-100 p-4 rounded-lg shadow">
+        <p>AA : </p>
         {Object.entries(user).map(([key, value]) => (
           <li key={key} className="p-2 border-b last:border-none">
             <strong>{key}:</strong>

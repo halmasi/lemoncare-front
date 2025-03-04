@@ -41,32 +41,6 @@ export default function page() {
     else if (!fetchedCart && cart) updateCartFn.mutate({ newCart: cart, id });
   };
 
-  const createCart = useMutation({
-    mutationFn: async () => {
-      if (jwt && user) {
-        const response = await requestData(
-          `/carts`,
-          'POST',
-          {
-            data: { user: user.id, items: [] },
-          },
-          'Bearer ' + jwt
-        );
-        return response.data;
-      }
-    },
-    onSuccess: (data) => {
-      if (!data || !user) return;
-      const newUser = user;
-      newUser.shopingCart = {
-        documentId: data.data.documentId,
-        items: [],
-      };
-      setUser(newUser);
-      handleCart([], data.data.documentId);
-    },
-  });
-
   const getCartFn = useMutation({
     mutationFn: async (documentId: string) => {
       const res = await getCart(documentId);
@@ -108,9 +82,9 @@ export default function page() {
   useEffect(() => {
     (async () => {
       const userData = await getFullUserData();
-      if (!userData.body.shopingCart) {
-        createCart.mutate();
-      } else getCartFn.mutate(userData.body.shopingCart.documentId);
+      if (userData.body.shopingCart) {
+        getCartFn.mutate(userData.body.shopingCart.documentId);
+      }
     })();
   }, []);
 

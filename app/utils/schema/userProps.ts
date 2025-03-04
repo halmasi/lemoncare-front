@@ -50,7 +50,9 @@ export interface AddressProps {
   firstName: string;
   lastName: string;
   province: string;
+  provinceCode?: number;
   city: string;
+  cityCode?: number;
   phoneNumber: number | string | null;
   mobileNumber: number | string;
   isDefault: boolean;
