@@ -7,13 +7,13 @@ import { BiChevronDown, BiChevronUp } from 'react-icons/bi';
 export default function CitySelector({
   cities,
   placeholder,
-  onChange,
+  onChangeFn,
   id,
   className,
 }: {
   cities: { name: string; id: number }[];
   placeholder: string;
-  onChange: (selected: string) => void;
+  onChangeFn: (selected: string, id: number) => void;
   id: string;
   className?: string;
 }) {
@@ -66,7 +66,7 @@ export default function CitySelector({
               setSelectedCity(singleCity.name);
               setInputValue('');
               setIsOpen(false);
-              onChange(singleCity.name);
+              onChangeFn(singleCity.name, singleCity.id);
             }}
           >
             {singleCity.name}
