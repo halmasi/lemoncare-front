@@ -60,7 +60,7 @@ export default function InputBox({
         <button
           type="button"
           onClick={togglePassword}
-          className="justify-center transform  text-gray-600"
+          className="justify-center transform text-black"
         >
           {showPassword ? <LuEyeClosed size={20} /> : <LuEye size={20} />}
         </button>
