@@ -1,3 +1,4 @@
+'use server';
 import qs from 'qs';
 import { requestData } from './dataFetch';
 import { AddressProps } from '../schema/userProps';
@@ -71,4 +72,13 @@ export const getOrderHistory = async (documentId: string) => {
     check.jwt
   );
   return response.data;
+};
+
+export const getGravatar = async (email: string) => {
+  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+    method: 'POST',
+    body: JSON.stringify({ email: email }),
+  });
+  const result = await get.json();
+  return { result, status: get.status };
 };
