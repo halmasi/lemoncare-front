@@ -57,15 +57,15 @@ export default function Dashboard() {
             {orderHistory.map((item) => (
               <div>
                 <>
-                  {item.items.map((product) => (
-                    <>
+                  {item.items.map((product, index) => (
+                    <div key={index}>
                       {/* <Image
                       src={product.product.basicInfo.mainImage.url}
                       fill
                       alt=""
                     /> */}
                       <p>{product.product.documentId}</p>
-                    </>
+                    </div>
                   ))}
                 </>
               </div>
@@ -74,7 +74,6 @@ export default function Dashboard() {
         )
       )}
       <ul className="bg-gray-100 p-4 rounded-lg shadow">
-        <p>AA : </p>
         {Object.entries(user).map(([key, value]) => (
           <li key={key} className="p-2 border-b last:border-none">
             <strong>{key}:</strong>
