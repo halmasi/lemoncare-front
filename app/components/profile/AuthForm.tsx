@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import InputBox from '@/app/components/formElements/InputBox';
@@ -16,8 +16,15 @@ import {
 } from '@/app/utils/actions/actionMethods';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AiOutlineArrowRight } from 'react-icons/ai';
+import { useCartStore } from '@/app/utils/states/useCartData';
+import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
+import {
+  getCart,
+  updateCartOnLogin,
+} from '@/app/utils/actions/cartActionMethods';
 
 export default function AuthForm() {
+  const usePath = usePathname();
   const [step, setStep] = useState<'identifier' | 'login' | 'register'>(
     'identifier'
   );
@@ -38,9 +45,11 @@ export default function AuthForm() {
     email?: string[];
     server?: string[];
   }>({});
-  const { setJwt, setUser } = useDataStore();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const { setJwt, setUser } = useDataStore();
+  const { cart, setCart } = useCartStore();
 
   const loginMutation = useMutation({
     mutationFn: async ({
@@ -67,7 +76,7 @@ export default function AuthForm() {
       setJwt(data.response.jwt);
       setUser(data.userData.body);
       queryClient.setQueryData(['user'], data.userData.body);
-      router.push('/login/loading');
+      if (usePath.startsWith('/login')) router.push('/');
     },
   });
 
@@ -92,7 +101,73 @@ export default function AuthForm() {
     },
     onSuccess: async () => {
       setCompletedSteps((prev) => ({ ...prev, register: true }));
+      const userData = await getFullUserData();
+      if (userData.body.shopingCart) {
+        getCartFn.mutate(userData.body.shopingCart.documentId);
+      }
       setStep('login');
+    },
+  });
+
+  const handleCart = (fetchedCart: CartProps[], id: string) => {
+    if (fetchedCart && cart) {
+      const cartItems: CartProps[] = [...fetchedCart, ...cart];
+      cartItems.forEach((item) => {
+        let dup = 0;
+        cartItems.forEach((check) => {
+          if (
+            item.product.documentId == check.product.documentId &&
+            item.variety.id == check.variety.id &&
+            item.variety.sub == check.variety.sub
+          ) {
+            dup++;
+            if (dup > 1) {
+              cartItems.splice(cartItems.indexOf(item), 1);
+            }
+          }
+        });
+      });
+      updateCartFn.mutate({ newCart: cartItems, id });
+    } else if (fetchedCart && !cart) setCart(fetchedCart);
+    else if (!fetchedCart && cart) updateCartFn.mutate({ newCart: cart, id });
+  };
+
+  const getCartFn = useMutation({
+    mutationFn: async (documentId: string) => {
+      const res = await getCart(documentId);
+      return { result: res, documentId };
+    },
+    onSuccess: (data) => {
+      handleCart(data.result.data.items, data.documentId);
+    },
+  });
+
+  const updateCartFn = useMutation({
+    mutationFn: async ({
+      newCart,
+      id,
+    }: {
+      newCart: CartProps[];
+      id: string;
+    }) => {
+      const updateCart = newCart.map((item) => {
+        return {
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        };
+      });
+      await updateCartOnLogin(updateCart, id);
+      const res = await getCart(id);
+      return res.data;
+    },
+    onSuccess: async (data) => {
+      if (!data) return;
+      setCart(data.items);
+      if (usePath.startsWith('/login')) router.push('/');
+    },
+    onError: (error: { message: string[] }) => {
+      throw new Error('خطا : ' + error.message);
     },
   });
 
@@ -129,9 +204,9 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="flex w-full justify-center items-center h-screen bg-gray-100">
+    <div className="flex w-full justify-center items-center">
       <motion.div
-        className="w-full md:w-3/12 bg-white p-6 rounded-2xl shadow-lg relative"
+        className="w-full bg-white p-6 rounded-2xl shadow-lg relative"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -231,6 +306,9 @@ export default function AuthForm() {
               <>
                 <PhoneInputBox
                   name="username"
+                  value={
+                    /^(\+98|98|0)?9\d{9}$/.test(identifier) ? identifier : ' '
+                  }
                   required
                   placeholder="شماره تلفن"
                 />
