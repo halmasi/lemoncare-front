@@ -29,6 +29,7 @@ export const checkUserExists = async (identifier: string) => {
   });
 
   const response = await requestData(`/users?${query}`, 'GET', {});
+  console.log(response.data);
   return {
     success: response.data.length > 0,
   };
