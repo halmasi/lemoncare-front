@@ -39,3 +39,17 @@ export const registerSchema = z.object({
       'رمز عبور باید شامل حروف بزرگ، کوچک، عدد و کاراکتر خاص باشد'
     ),
 });
+export const updateUserInformationSchema = z.object({
+  fullName: z
+    .string()
+    .min(3, 'نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد')
+    .max(50, 'نام و نام خانوادگی نباید بیشتر از ۵۰ کاراکتر باشد')
+    .optional(),
+
+  email: z.string().email('آدرس ایمیل معتبر نیست').optional(),
+
+  username: z
+    .string()
+    .regex(/^9\d{9}$/, 'شماره تلفن معتبر نیست')
+    .optional(),
+});

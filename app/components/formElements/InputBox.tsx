@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { LuEye, LuEyeClosed } from 'react-icons/lu';
 
 interface InputProps {
@@ -23,9 +23,14 @@ export default function InputBox({
   flex,
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [inputValue, setInputValue] = useState<string | number>(value || '');
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
+
+  useEffect(() => {
+    if (value) setInputValue(value);
+  }, [value]);
   return (
     <div
       className={`flex flex-col items-center ${flex && flex == 'col' ? 'md:flex-col md:items-start' : 'md:flex-row'}`}
@@ -54,7 +59,8 @@ export default function InputBox({
         placeholder={placeholder}
         name={name}
         id={name}
-        value={value}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
       />
       {format == 'password' && (
         <button
