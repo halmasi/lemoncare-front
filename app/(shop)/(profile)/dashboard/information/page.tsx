@@ -3,6 +3,8 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { requestData } from '@/app/utils/data/dataFetch';
+import { updateUserInformation } from '@/app/utils/data/getUserInfo';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -13,7 +15,15 @@ export default function Information() {
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async ({ input }: { input: string }) => {
+    mutationFn: async (inputUserData: {
+      fullName?: string;
+      userName?: string;
+      email?: string;
+    }) => {
+      // if (user?.documentId) {
+      // const response = updateUserInformation(user.documentId, inputUserData);
+      // }
+      //
       const response = '';
       if (!response) {
         console.log('not response');
@@ -31,8 +41,14 @@ export default function Information() {
   });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const input = '';
-    mutation.mutate({ input });
+    const formData = new FormData(event.currentTarget);
+    const inputUserData = {
+      fullName: formData.get('fullName')?.toString() || '',
+      username: formData.get('username')?.toString() || '',
+      email: formData.get('email')?.toString() || '',
+    };
+
+    mutation.mutate(inputUserData);
   };
   return (
     <>
@@ -45,12 +61,8 @@ export default function Information() {
         >
           شماره تلفن
         </PhoneInputBox>
-        <InputBox
-          name="fullName"
-          placeholder="نام و نام خانوادگی"
-          value={user?.fullName}
-        >
-          نام و نام خانوادگی
+        <InputBox name="fullName" placeholder="نام کامل" value={user?.fullName}>
+          نام کامل
         </InputBox>
         <InputBox name="email" placeholder="آدرس ایمیل" value={user?.email}>
           آدرس ایمیل

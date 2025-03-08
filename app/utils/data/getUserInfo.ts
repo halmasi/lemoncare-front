@@ -1,8 +1,24 @@
+'use server';
 import qs from 'qs';
 import { requestData } from './dataFetch';
 import { AddressProps } from '../schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 
+export const updateUserInformation = async (
+  documentId: string,
+  userData: object[]
+) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/users/${documentId}`,
+    'PUT',
+    {
+      data: userData,
+    },
+    check.jwt
+  );
+  return response.data;
+};
 export const getPostalInformation = async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({
@@ -71,4 +87,13 @@ export const getOrderHistory = async (documentId: string) => {
     check.jwt
   );
   return response.data;
+};
+
+export const getGravatar = async (email: string) => {
+  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+    method: 'POST',
+    body: JSON.stringify({ email: email }),
+  });
+  const result = await get.json();
+  return { result, status: get.status };
 };

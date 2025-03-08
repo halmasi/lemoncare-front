@@ -15,9 +15,9 @@ import {
   checkUserExists,
 } from '@/app/utils/actions/actionMethods';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
-import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
+import { AiOutlineArrowRight } from 'react-icons/ai';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
 import {
   getCart,
   updateCartOnLogin,
@@ -214,10 +214,13 @@ export default function AuthForm() {
         <div className="flex justify-between items-center mb-4">
           {step !== 'identifier' && (
             <button
-              onClick={() => setStep('identifier')}
+              onClick={() => {
+                setStep('identifier');
+                setErrors({});
+              }}
               className="text-gray-500 hover:text-gray-700"
             >
-              <AiOutlineArrowLeft size={24} />
+              <AiOutlineArrowRight size={24} />
             </button>
           )}
           <h2 className="text-lg font-semibold text-gray-800">
@@ -269,6 +272,11 @@ export default function AuthForm() {
             {step === 'identifier' && (
               <>
                 <InputBox name="identifier" placeholder="ایمیل یا شماره تلفن" />
+                {errors.identifier && (
+                  <p className="text-red-500 text-sm">
+                    {errors.identifier.join('\n')}
+                  </p>
+                )}
                 <SubmitButton>ادامه</SubmitButton>
               </>
             )}
@@ -279,6 +287,16 @@ export default function AuthForm() {
                   format="password"
                   placeholder="رمزعبور"
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm">
+                    {errors.password.join('\n.\n')}
+                  </p>
+                )}
+                {errors.server && (
+                  <p className="text-red-500 text-sm">
+                    {errors.server.join('\n')}
+                  </p>
+                )}
                 <SubmitButton isPending={loginMutation.isPending}>
                   {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
                 </SubmitButton>
@@ -294,19 +312,32 @@ export default function AuthForm() {
                   required
                   placeholder="شماره تلفن"
                 />
-                <InputBox
-                  name="email"
-                  required
-                  placeholder="ایمیل"
-                  value={
-                    !/^(\+98|98|0)?9\d{9}$/.test(identifier) ? identifier : ' '
-                  }
-                />
+                {errors?.username && (
+                  <p className="text-red-500 text-sm whitespace-pre-line">
+                    {errors.username.join('\n')}
+                  </p>
+                )}
+                <InputBox name="email" required placeholder="ایمیل" />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">
+                    {errors.email.join('\n')}
+                  </p>
+                )}
                 <InputBox
                   name="password"
                   format="password"
                   placeholder="رمزعبور"
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm">
+                    {errors.password.join('\n')}
+                  </p>
+                )}
+                {errors.server && (
+                  <p className="text-red-500 text-sm">
+                    {errors.server.join('\n')}
+                  </p>
+                )}
                 <SubmitButton isPending={registerMutation.isPending}>
                   {registerMutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
                 </SubmitButton>
