@@ -10,6 +10,7 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
+import { cleanPhone } from '@/app/utils/miniFunctions';
 
 export default function NewAddressForm({
   existingAddresses,
@@ -72,9 +73,7 @@ export default function NewAddressForm({
       firstName: string;
       lastName: string;
     }) => {
-      if (/^(\+98|98|0)?9\d{9}$/.test(mobile)) {
-        mobile = mobile.replace(/^(\+98|98|0)?/, '');
-      }
+      mobile = cleanPhone(mobile);
       const isValid = addressSchema.safeParse({
         province,
         city,
