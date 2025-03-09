@@ -77,17 +77,18 @@ export default function AuthForm() {
     },
     onSuccess: async (data) => {
       if (!data) return;
+      const userData = await getFullUserData();
       setCompletedSteps((prev) => ({ ...prev, login: true }));
       await setCookie('jwt', `Bearer ${data.response.jwt}`);
       setJwt(data.response.jwt);
-      setUser(data.userData.body);
-      queryClient.setQueryData(['user'], data.userData.body);
-      if (user?.postal_information) {
+      setUser(userData.body);
+      queryClient.setQueryData(['user'], userData.body);
+      if (userData.body.postal_information) {
         const userPostalInformation = await getPostalInformation(
-          user.postal_information.documentId
+          userData.body.postal_information.documentId
         );
-        if (!userPostalInformation && checkoutAddress) {
-          updatePostalInformation(
+        if (checkoutAddress?.address && !userPostalInformation.lenght) {
+          await updatePostalInformation(
             [
               {
                 address: checkoutAddress.address,
@@ -102,13 +103,8 @@ export default function AuthForm() {
                 isDefault: true,
               },
             ],
-            user.postal_information.documentId
+            userData.body.postal_information.documentId
           );
-
-          if (!user.fullName) {
-            const fullname =
-              checkoutAddress.firstName + ' ' + checkoutAddress.lastName;
-          }
         }
       }
       if (data.userData.body.shopingCart) {
