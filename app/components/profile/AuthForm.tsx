@@ -22,6 +22,11 @@ import {
   getCart,
   updateCartOnLogin,
 } from '@/app/utils/actions/cartActionMethods';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import {
+  getPostalInformation,
+  updatePostalInformation,
+} from '@/app/utils/data/getUserInfo';
 
 export default function AuthForm() {
   const usePath = usePathname();
@@ -48,8 +53,9 @@ export default function AuthForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { setJwt, setUser } = useDataStore();
+  const { setJwt, setUser, user } = useDataStore();
   const { cart, setCart } = useCartStore();
+  const { checkoutAddress } = useCheckoutStore();
 
   const loginMutation = useMutation({
     mutationFn: async ({
@@ -71,11 +77,39 @@ export default function AuthForm() {
     },
     onSuccess: async (data) => {
       if (!data) return;
+      const userData = await getFullUserData();
       setCompletedSteps((prev) => ({ ...prev, login: true }));
       await setCookie('jwt', `Bearer ${data.response.jwt}`);
       setJwt(data.response.jwt);
-      setUser(data.userData.body);
-      queryClient.setQueryData(['user'], data.userData.body);
+      setUser(userData.body);
+      queryClient.setQueryData(['user'], userData.body);
+      if (userData.body.postal_information) {
+        const userPostalInformation = await getPostalInformation(
+          userData.body.postal_information.documentId
+        );
+        if (checkoutAddress?.address && !userPostalInformation.lenght) {
+          await updatePostalInformation(
+            [
+              {
+                address: checkoutAddress.address,
+                province: checkoutAddress.province,
+                city: checkoutAddress.city,
+                firstName: checkoutAddress.firstName,
+                lastName: checkoutAddress.lastName,
+                mobileNumber: checkoutAddress.mobileNumber,
+                phoneNumber: checkoutAddress.phoneNumber,
+                postCode: checkoutAddress.postCode,
+                id: 0,
+                isDefault: true,
+              },
+            ],
+            userData.body.postal_information.documentId
+          );
+        }
+      }
+      if (data.userData.body.shopingCart) {
+        getCartFn.mutate(data.userData.body.shopingCart.documentId);
+      }
       if (usePath.startsWith('/login')) router.push('/');
     },
   });
@@ -101,10 +135,6 @@ export default function AuthForm() {
     },
     onSuccess: async () => {
       setCompletedSteps((prev) => ({ ...prev, register: true }));
-      const userData = await getFullUserData();
-      if (userData.body.shopingCart) {
-        getCartFn.mutate(userData.body.shopingCart.documentId);
-      }
       setStep('login');
     },
   });
