@@ -5,6 +5,8 @@ import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
+import { cleanPhone } from '@/app/utils/miniFunctions';
+import { updateUserInformationSchema } from '@/app/utils/schema/formValidation';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -17,21 +19,28 @@ export default function Information() {
   const mutation = useMutation({
     mutationFn: async (inputUserData: {
       fullName?: string;
-      userName?: string;
+      username?: string;
       email?: string;
     }) => {
-      // if (user?.documentId) {
-      // const response = updateUserInformation(user.documentId, inputUserData);
-      // }
-      //
-      const response = '';
-      if (!response) {
-        console.log('not response');
+      if (user && user.id && jwt) {
+        const response = await updateUserInformation(
+          user.id,
+          jwt,
+          inputUserData
+        );
+
+        if (!response) {
+          console.log('not response');
+        }
+        return response;
+      } else {
+        console.error('error document id ');
+        return;
       }
-      return response;
     },
     onSuccess: async (data: any) => {
       //   const userData = await getFullUserData(data.jwt);
+      //queryClient.invalidateQueries(['user']);
       queryClient.setQueryData(['user'], user?.data);
       router.push('/dashboard/information');
     },
@@ -44,10 +53,14 @@ export default function Information() {
     const formData = new FormData(event.currentTarget);
     const inputUserData = {
       fullName: formData.get('fullName')?.toString() || '',
-      username: formData.get('username')?.toString() || '',
+      username: cleanPhone(formData.get('username')?.toString() || ''),
       email: formData.get('email')?.toString() || '',
     };
-
+    const validation = updateUserInformationSchema.safeParse(inputUserData);
+    if (!validation.success) {
+      console.error(validation.error.format());
+      return;
+    }
     mutation.mutate(inputUserData);
   };
   return (

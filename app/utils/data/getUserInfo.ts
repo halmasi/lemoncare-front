@@ -5,18 +5,24 @@ import { AddressProps } from '../schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 
 export const updateUserInformation = async (
-  documentId: string,
-  userData: object[]
+  id: string,
+  token: string,
+  userData: {
+    fullName?: string;
+    username?: string;
+    email?: string;
+  }
 ) => {
-  const check = await loginCheck();
+  if (userData.username) {
+    userData.username = '98' + userData.username;
+  }
   const response = await requestData(
-    `/users/${documentId}`,
+    `/users/${id}`,
     'PUT',
-    {
-      data: userData,
-    },
-    check.jwt
+    userData,
+    `Bearer ${token}`
   );
+  console.log(response);
   return response.data;
 };
 export const getPostalInformation = async (documentId: string) => {
