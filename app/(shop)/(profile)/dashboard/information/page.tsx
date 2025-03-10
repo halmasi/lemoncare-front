@@ -28,7 +28,6 @@ export default function Information() {
           jwt,
           inputUserData
         );
-
         if (!response) {
           console.log('not response');
         }
@@ -39,13 +38,9 @@ export default function Information() {
       }
     },
     onSuccess: async (data: any) => {
-      //   const userData = await getFullUserData(data.jwt);
-      //queryClient.invalidateQueries(['user']);
-      queryClient.setQueryData(['user'], user?.data);
+      console.log('onSuccess : ', data);
+      useDataStore.setState({ user: data });
       router.push('/dashboard/information');
-    },
-    onError: (error: any) => {
-      console.log('onError');
     },
   });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
