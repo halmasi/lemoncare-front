@@ -26,6 +26,7 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import {
   getPostalInformation,
   updatePostalInformation,
+  updateUserInformation,
 } from '@/app/utils/data/getUserInfo';
 
 export default function AuthForm() {
@@ -81,6 +82,22 @@ export default function AuthForm() {
       setCompletedSteps((prev) => ({ ...prev, login: true }));
       await setCookie('jwt', `Bearer ${data.response.jwt}`);
       setJwt(data.response.jwt);
+      if (
+        !userData.body.fullName &&
+        checkoutAddress &&
+        checkoutAddress.firstName &&
+        checkoutAddress.lastName
+      ) {
+        userData.body.fullName =
+          checkoutAddress.firstName + ' ' + checkoutAddress.lastName;
+        await updateUserInformation(
+          userData.body.id,
+          `Bearer ${data.response.jwt}`,
+          {
+            fullName: userData.body.fullName,
+          }
+        );
+      }
       setUser(userData.body);
       queryClient.setQueryData(['user'], userData.body);
       if (userData.body.postal_information) {
