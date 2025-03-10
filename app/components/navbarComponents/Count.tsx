@@ -8,7 +8,7 @@ import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
-import log from '@/app/utils/logs';
+import { logs } from '@/app/utils/miniFunctions';
 import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
 import { useRouter } from 'next/navigation';
 export default function Count({
@@ -42,7 +42,7 @@ export default function Count({
       router.refresh();
     },
     onError: async (error) => {
-      log(error.cause + error.message, 'error');
+      logs.error(error.cause + error.message);
       if (refreshFunction) refreshFunction();
     },
     retry: 2,

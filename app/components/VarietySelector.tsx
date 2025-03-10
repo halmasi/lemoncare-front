@@ -8,7 +8,7 @@ import { useCartStore } from '../utils/states/useCartData';
 import { useDataStore } from '../utils/states/useUserdata';
 import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
-import log from '@/app/utils/logs';
+import { logs } from '@/app/utils/miniFunctions';
 import Count from './navbarComponents/Count';
 // import { useRouter } from 'next/navigation';
 import Toman from './Toman';
@@ -134,12 +134,12 @@ export default function VarietySelector({
       const sub = id?.subVariety.find(
         (item) => item.uniqueId == selected.uniqueSub
       );
-      log(
+      logs.log(
         `user ${user.fullName} with the id ${user.id} added new item to cart\nproduct info:\nproduct name: ${product.basicInfo.title}, link: /shop/product/${product.basicInfo.contentCode},\nproduct detail: ${id && id.specification}, ${sub && sub.specification}`
       );
     },
     onError: async (error) => {
-      log(error.message + ' ' + error.cause, 'error');
+      logs.error(error.message + ' ' + error.cause);
     },
   });
 
