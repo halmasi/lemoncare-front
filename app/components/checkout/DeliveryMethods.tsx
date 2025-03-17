@@ -2,7 +2,6 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Toman from '../Toman';
 import Image from 'next/image';
 
 import PostLogo from '@/public/Iran-Post-Logo.svg';

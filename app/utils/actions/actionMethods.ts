@@ -240,5 +240,4 @@ export const getCookie = async (key: string) => {
 
 export const logoutAction = async () => {
   cookies().delete('jwt');
-  redirect('/login');
 };
