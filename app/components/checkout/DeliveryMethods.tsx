@@ -24,7 +24,7 @@ interface GetMethodsProps {
 interface PostMethodsProps {
   isSuccess: boolean;
   data: {
-    optionalServices: {};
+    optionalServices: object;
     servicePrices: {
       courierName: string;
       courierCode: string;

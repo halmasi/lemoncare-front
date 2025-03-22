@@ -1,14 +1,13 @@
-import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
 import { getCategory } from './getCategories';
 import { cache } from 'react';
-import { PostsProps } from '../schema/blogProps/postProps';
-import { AuthorProps, GravatarProps } from '../schema/otherProps';
 import {
+  PostsProps,
   CategoriesProps,
   SubCategoryProps,
-} from '../schema/blogProps/tagsAndCategoryProps';
+} from '@/app/utils/schema/blogProps';
+import { AuthorProps } from '@/app/utils/schema/otherProps';
 
 export const getPosts = cache(async function (count?: number, tag?: string[]) {
   const query = qs.stringify({

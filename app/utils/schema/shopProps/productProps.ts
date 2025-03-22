@@ -1,7 +1,7 @@
 import { ContentProps } from '../otherProps';
 import { ImageProps, MediaProps } from '../mediaProps';
 import { ShopCategoryProps } from './categoryProps';
-import { TagsProps } from '../blogProps/tagsAndCategoryProps';
+import { TagsProps } from '@/app/utils/schema/blogProps';
 
 export interface ProductProps {
   id: number;

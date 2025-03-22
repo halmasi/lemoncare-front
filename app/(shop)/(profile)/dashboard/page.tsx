@@ -26,13 +26,13 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    async () => {
+    (async () => {
       getUserDataFn.mutate();
       const response = await getFullUserData();
       if (response.status === 200) {
         setUser(response.body);
       }
-    };
+    })();
   }, [user]);
 
   if (!user) {
@@ -54,8 +54,8 @@ export default function Dashboard() {
       ) : (
         orderHistory && (
           <div>
-            {orderHistory.map((item) => (
-              <div>
+            {orderHistory.map((item, index) => (
+              <div key={index}>
                 <>
                   {item.items.map((product, index) => (
                     <div key={index}>

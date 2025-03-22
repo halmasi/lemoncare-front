@@ -9,9 +9,9 @@ const PostCard = dynamic(() => import('@/app/components/PostCard'), {
 import dynamic from 'next/dynamic';
 import { getSlides } from '../utils/data/getSuggestions';
 import Slide from '../components/Slide';
-import { PostsProps } from '../utils/schema/blogProps/postProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
 
-export default async function Home() {
+export default async function BlogHomePage() {
   const slide = await getSlides('blog');
 
   const data = await getPosts(3, ['post']);

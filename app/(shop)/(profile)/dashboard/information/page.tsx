@@ -3,7 +3,6 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { requestData } from '@/app/utils/data/dataFetch';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
 import { logs } from '@/app/utils/miniFunctions';
 import { cleanPhone } from '@/app/utils/miniFunctions';
@@ -38,13 +37,13 @@ export default function Information() {
         return;
       }
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async () => {
       //   const userData = await getFullUserData(data.jwt);
       //queryClient.invalidateQueries(['user']);
-      queryClient.setQueryData(['user'], user?.data);
+      if (user) queryClient.setQueryData(['user'], user.data);
       router.push('/dashboard/information');
     },
-    onError: (error: any) => {
+    onError: (error: string) => {
       logs.error('onError: ' + error);
     },
   });

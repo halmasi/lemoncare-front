@@ -4,7 +4,7 @@ import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct } from '@/app/utils/data/getProducts';
-import { ProductProps } from '@/app/utils/schema/shopProps/productProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';

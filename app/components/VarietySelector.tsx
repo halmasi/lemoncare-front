@@ -12,7 +12,7 @@ import { logs } from '@/app/utils/miniFunctions';
 import Count from './navbarComponents/Count';
 // import { useRouter } from 'next/navigation';
 import Toman from './Toman';
-import { ProductProps } from '../utils/schema/shopProps/productProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 interface NewItemProps {
   count: number;
@@ -41,7 +41,7 @@ function AddButton({
   const { cart } = useCartStore();
 
   if (cart) {
-    let findCart = cart.find(
+    const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
         item.variety.id == selected.uniqueId &&
@@ -294,8 +294,10 @@ export default function VarietySelector({
       addToCartFn.mutate(newItem);
     } else if (cart) {
       const found = cart.find((item) => {
-        item.product.documentId == newItem.id &&
-          item.variety == newItem.variety;
+        return (
+          item.product.documentId == newItem.id &&
+          item.variety == newItem.variety
+        );
       });
       if (found) return;
       const newCart = cart;

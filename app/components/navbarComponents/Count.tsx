@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
 import { logs } from '@/app/utils/miniFunctions';
-import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { useRouter } from 'next/navigation';
 export default function Count({
   inventory,

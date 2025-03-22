@@ -1,7 +1,7 @@
 import PostCard from '@/app/components/PostCard';
 import { getCategoriesUrl } from '@/app/utils/data/getCategories';
 import { getPostsByTag } from '@/app/utils/data/getPosts';
-import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
 
 export default async function page({ params }: { params: { slug: string } }) {
   const { slug } = params;

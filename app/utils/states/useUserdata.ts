@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { logoutAction, setCookie } from '../actions/actionMethods';
-import { FetchUserProps } from '../schema/userProps';
+import { FetchUserProps } from '@/app/utils/schema/userProps';
 
 export interface DataStoreState {
   loginProcces: boolean;

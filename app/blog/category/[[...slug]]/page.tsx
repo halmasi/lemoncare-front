@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
 import { getPostsByCategory } from '@/app/utils/data/getPosts';
-import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
 const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
 const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,

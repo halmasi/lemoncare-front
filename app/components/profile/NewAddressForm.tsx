@@ -3,7 +3,7 @@ import CitySelector from '../formElements/CitySelector';
 import SubmitButton from '../formElements/SubmitButton';
 import states from '@/public/cities.json';
 import InputBox from '../formElements/InputBox';
-import { Mutation, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { addressSchema } from '@/app/utils/schema/addressFormValidation';
 import { AddressProps } from '@/app/utils/schema/userProps';
@@ -133,7 +133,7 @@ export default function NewAddressForm({
         return checkoutAddress;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
       router.refresh();
     },

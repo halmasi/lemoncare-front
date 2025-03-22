@@ -2,11 +2,11 @@ import qs from 'qs';
 import { cache } from 'react';
 import { dataFetch } from './dataFetch';
 import { getCategorySubHierarchy } from './getProductCategories';
-import { ProductProps } from '../schema/shopProps/productProps';
 import {
+  ProductProps,
   ShopCategoryProps,
   ShopSubCategoiesProps,
-} from '../schema/shopProps/categoryProps';
+} from '@/app/utils/schema/shopProps';
 
 export const getProduct = cache(async function (
   slug: string,

@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  getFullUserData,
-  logoutAction,
-  setCookie,
-} from '@/app/utils/actions/actionMethods';
+import { getFullUserData, setCookie } from '@/app/utils/actions/actionMethods';
 import {
   getCart,
   updateCartOnLogin,
@@ -14,7 +10,7 @@ import {
   updatePostalInformation,
   updateUserInformation,
 } from '@/app/utils/data/getUserInfo';
-import { CartProps } from '@/app/utils/schema/shopProps/cartProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';

@@ -2,7 +2,6 @@
 
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
@@ -175,7 +174,7 @@ export const signinAction = async (identifier: string, password: string) => {
   };
 };
 
-export const loginCheck = async (_?: string) => {
+export const loginCheck = async () => {
   const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
   const data: {
