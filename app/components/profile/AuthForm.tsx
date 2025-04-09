@@ -60,8 +60,11 @@ export default function AuthForm() {
     onSuccess: async (data) => {
       if (!data) return;
       setJwt(data.jwt);
-      setLoginProcces(true);
       if (usePath.startsWith('/login')) router.push('/');
+      setLoginProcces(true);
+    },
+    onError: () => {
+      setLoginProcces(false); // Ensure login process is reset on error
     },
   });
 
@@ -103,12 +106,12 @@ export default function AuthForm() {
       }
       setStep(result.success ? 'login' : 'register');
     } else if (step === 'login') {
-      loginMutation.mutate({
+      loginMutation.mutateAsync({
         identifier,
         password: formData.get('password')?.toString() || '',
       });
     } else if (step === 'register') {
-      registerMutation.mutate({
+      registerMutation.mutateAsync({
         username: formData.get('username')?.toString() || '',
         email: formData.get('email')?.toString() || '',
         password: formData.get('password')?.toString() || '',

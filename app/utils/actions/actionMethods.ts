@@ -192,6 +192,7 @@ export const loginCheck = async () => {
   } = response.data;
   return {
     status: response.status,
+    isAuthenticated: response.status === 200,
     body: data,
     jwt: token,
   };
