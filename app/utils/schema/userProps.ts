@@ -1,5 +1,4 @@
-import { CartProps } from './shopProps/cartProps';
-import { ProductProps } from './shopProps/productProps';
+import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
   username: string;
@@ -60,6 +59,7 @@ export interface AddressProps {
 
 export interface FetchUserProps {
   id?: string;
+  documentId?: string;
   fullName?: string;
   email?: string;
   username?: string;

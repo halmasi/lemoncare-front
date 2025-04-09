@@ -2,9 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
-import { GravatarProps } from '../utils/schema/otherProps';
-import { CategoriesProps } from '../utils/schema/blogProps/tagsAndCategoryProps';
-import { ImageProps } from '../utils/schema/mediaProps';
+import { GravatarProps } from '@/app/utils/schema/otherProps';
+import { CategoriesProps } from '@/app/utils/schema/blogProps';
+import { ImageProps } from '@/app/utils/schema/mediaProps';
 
 export default function PostCard({
   category,

@@ -1,5 +1,5 @@
 import { requestData } from '../data/dataFetch';
-import { CartProps } from '../schema/shopProps/cartProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { loginCheck } from './actionMethods';
 import qs from 'qs';
 

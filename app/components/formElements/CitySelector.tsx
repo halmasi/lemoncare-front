@@ -24,8 +24,8 @@ export default function CitySelector({
   const clickRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(e: any) {
-      if (clickRef.current && !clickRef.current.contains(e.target)) {
+    function handleClickOutside(e: MouseEvent) {
+      if (clickRef.current && !clickRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }

@@ -1,8 +1,30 @@
+'use server';
 import qs from 'qs';
 import { requestData } from './dataFetch';
-import { AddressProps } from '../schema/userProps';
+import { AddressProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 
+export const updateUserInformation = async (
+  id: string,
+  token: string,
+  userData: {
+    fullName?: string;
+    username?: string;
+    email?: string;
+  }
+) => {
+  if (userData.username) {
+    userData.username = '98' + userData.username;
+  }
+  const response = await requestData(
+    `/users/${id}`,
+    'PUT',
+    userData,
+    `Bearer ${token}`
+  );
+  // console.log(response);
+  return response.data;
+};
 export const getPostalInformation = async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({
@@ -71,4 +93,13 @@ export const getOrderHistory = async (documentId: string) => {
     check.jwt
   );
   return response.data;
+};
+
+export const getGravatar = async (email: string) => {
+  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+    method: 'POST',
+    body: JSON.stringify({ email: email }),
+  });
+  const result = await get.json();
+  return { result, status: get.status };
 };

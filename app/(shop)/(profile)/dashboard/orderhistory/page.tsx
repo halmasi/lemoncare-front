@@ -3,7 +3,7 @@
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { getOrderHistory } from '@/app/utils/data/getUserInfo';
-import logs from '@/app/utils/logs';
+import { logs } from '@/app/utils/miniFunctions';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
@@ -28,7 +28,7 @@ export default function Dashboard() {
       setUser(data);
     },
     onError: (error: { message: string[] }) => {
-      logs('Error: ' + error.message, 'error');
+      logs.error('Error: ' + error.message);
     },
   });
 

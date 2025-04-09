@@ -2,14 +2,12 @@
 
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
+import { cleanPhone } from '../miniFunctions';
 
 export const checkUserExists = async (identifier: string) => {
-  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
-    identifier = identifier.replace(/^(\+98|98|0)?/, '');
-  }
+  identifier = cleanPhone(identifier);
   const validationResult = loginSchema
     .pick({ identifier: true })
     .safeParse({ identifier });
@@ -62,10 +60,7 @@ export const registerAction = async (
   } = {
     data: { jwt: '', user: {} },
   };
-
-  if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
-    username = username.replace(/^(\+98|98|0)?/, '');
-  }
+  username = cleanPhone(username);
   const validationResult = registerSchema.safeParse({
     username,
     email,
@@ -144,10 +139,7 @@ export const signinAction = async (identifier: string, password: string) => {
   if (!identifier)
     fieldErrors.identifier.push('ایمیل یا شماره تلفن الزامی است');
   if (!password) fieldErrors.password.push('رمز عبور الزامی است');
-
-  if (/^(\+98|98|0)?9\d{9}$/.test(identifier)) {
-    identifier = identifier.replace(/^(\+98|98|0)?/, '');
-  }
+  identifier = cleanPhone(identifier);
   const validationResult = loginSchema.safeParse({
     identifier,
     pass: password,
@@ -182,7 +174,7 @@ export const signinAction = async (identifier: string, password: string) => {
   };
 };
 
-export const loginCheck = async (_?: string) => {
+export const loginCheck = async () => {
   const token = await getCookie('jwt');
   const response = await requestData('/users/me', 'GET', {}, token);
   const data: {
@@ -200,6 +192,7 @@ export const loginCheck = async (_?: string) => {
   } = response.data;
   return {
     status: response.status,
+    isAuthenticated: response.status === 200,
     body: data,
     jwt: token,
   };
@@ -247,5 +240,4 @@ export const getCookie = async (key: string) => {
 
 export const logoutAction = async () => {
   cookies().delete('jwt');
-  redirect('/login');
 };

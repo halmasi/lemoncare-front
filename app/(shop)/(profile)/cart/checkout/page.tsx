@@ -10,7 +10,7 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useEffect, useState } from 'react';
 
-export default function page() {
+export default function CheckoutPage() {
   const { cart, cartProducts } = useCartStore();
   const { setPrice, price, setBeforePrice, shippingPrice } = useCheckoutStore();
   const { user } = useDataStore();

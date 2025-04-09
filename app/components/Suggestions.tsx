@@ -10,8 +10,8 @@ import PostCard from './PostCard';
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import VarietySelector from './VarietySelector';
 import Link from 'next/link';
-import { PostsProps } from '../utils/schema/blogProps/postProps';
-import { ProductProps } from '../utils/schema/shopProps/productProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 interface Props {
   posts?: PostsProps[];

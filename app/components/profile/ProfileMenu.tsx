@@ -2,6 +2,7 @@
 
 import { logoutAction } from '@/app/utils/actions/actionMethods';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -30,12 +31,14 @@ export default function ProfileMenu({
 }) {
   const { resetUser } = useDataStore();
   const { resetCart } = useCartStore();
+  const { resetCheckout } = useCheckoutStore();
 
   const logoutFn = useMutation({
     mutationFn: async () => {
-      await logoutAction();
       resetUser();
       resetCart();
+      resetCheckout();
+      await logoutAction();
     },
   });
   const defaultItems: MenuItemsProps[] = [
