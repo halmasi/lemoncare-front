@@ -68,7 +68,7 @@ export default function DeliveryMethods({
             });
           }
         });
-        router.refresh();
+        // router.refresh();
       }
     })();
   }, []);
@@ -115,6 +115,10 @@ export default function DeliveryMethods({
   });
 
   useEffect(() => {
+    console.log('selected:', selected);
+    console.log('checkoutAddress:', checkoutAddress);
+    console.log('checkoutAddress.cityCode:', checkoutAddress?.cityCode);
+
     setShippingPrice(0);
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
@@ -129,7 +133,7 @@ export default function DeliveryMethods({
       setShippingPrice(0);
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
     }
-  }, [selected]);
+  }, [selected, checkoutAddress, checkoutAddress?.cityCode]);
 
   return (
     <div key={courier.length}>

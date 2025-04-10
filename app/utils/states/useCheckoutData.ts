@@ -14,7 +14,7 @@ export interface checkoutStoreState {
   setShippingPrice: (shippingPrice: number) => void;
   setBeforePrice: (beforePrice: number) => void;
   setCartId: (cartIt: string) => void;
-  setCheckoutAddress: (getAddress: AddressProps) => void;
+  setCheckoutAddress: (getAddress: AddressProps | null) => void;
   setShippingOption: (option: {
     courier_code: string;
     service_type: string;
@@ -37,7 +37,7 @@ export const useCheckoutStore = create(
       setShippingPrice: (shippingPrice) => set(() => ({ shippingPrice })),
       setBeforePrice: (beforePrice) => set(() => ({ beforePrice })),
       setCartId: (id) => set(() => ({ cartId: id })),
-      setCheckoutAddress: (getAddress: AddressProps) =>
+      setCheckoutAddress: (getAddress: AddressProps | null) =>
         set(() => ({ checkoutAddress: getAddress })),
       setShippingOption: (option) => set(() => ({ shippingOption: option })),
       setPaymentOption: (option) => set(() => ({ paymentOption: option })),
