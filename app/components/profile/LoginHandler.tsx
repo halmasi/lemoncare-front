@@ -1,6 +1,11 @@
 'use client';
 
-import { getFullUserData, setCookie } from '@/app/utils/actions/actionMethods';
+import {
+  getCookie,
+  getFullUserData,
+  logoutAction,
+  setCookie,
+} from '@/app/utils/actions/actionMethods';
 import {
   getCart,
   updateCartOnLogin,
@@ -21,8 +26,9 @@ import { useEffect } from 'react';
 export default function LoginHandler() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { setUser, jwt, user, loginProcces, setLoginProcces } = useDataStore();
-  const { cart, setCart } = useCartStore();
+  const { setUser, jwt, user, loginProcces, setLoginProcces, resetUser } =
+    useDataStore();
+  const { cart, setCart, resetCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
@@ -153,6 +159,20 @@ export default function LoginHandler() {
 
     if (!user && loginProcces) loginFn();
   }, [loginProcces, user, jwt, router]);
+
+  useEffect(() => {
+    const checkJwtCookie = async () => {
+      const jwtCookie = await getCookie('jwt');
+      if (!jwtCookie) {
+        setCookie('jwt', 'Bearer ' + jwt);
+      } else if (!jwt) {
+        logoutAction();
+        resetUser();
+        resetCart();
+      }
+    };
+    checkJwtCookie();
+  }, [jwt, user, resetUser, resetCart]);
 
   return <></>;
 }
