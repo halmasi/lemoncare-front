@@ -64,7 +64,6 @@ export default function Information() {
   };
   return (
     <>
-      <div className="flex ">information page</div>;
       <form className="flex flex-col w-5/12" onSubmit={handleSubmit}>
         <PhoneInputBox
           name="username"
