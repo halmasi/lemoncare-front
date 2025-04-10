@@ -1,27 +1,27 @@
 'use client';
 
-import LoadingAnimation from '@/app/components/LoadingAnimation';
+import { useEffect, useState, Fragment } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { getOrderHistory } from '@/app/utils/data/getUserInfo';
-import { getProducts } from '@/app/utils/data/getProducts';
 import { logs } from '@/app/utils/miniFunctions';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { useMutation } from '@tanstack/react-query';
-import Image from 'next/image';
-import { Fragment, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import OrderDetailsModal from '@/app/components/profile/OrderDetailsModal';
+import { getProducts } from '@/app/utils/data/getProducts';
+import type { OrderDetailsModalProps } from '@/app/components/profile/OrderDetailsModal';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 
-export default function Dashboard() {
+export default function OrderHistory() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<OrderHistoryProps | null>(
-    null
-  );
+  const [selectedOrder, setSelectedOrder] = useState<
+    OrderDetailsModalProps['order'] | null
+  >(null);
   const [productDetails, setProductDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const { user, setUser } = useDataStore();
-  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const getUserDataFn = useMutation({
     mutationFn: async () => {
@@ -42,8 +42,10 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    getUserDataFn.mutate();
-  }, []);
+    if (!user) {
+      getUserDataFn.mutate();
+    }
+  }, [user]); // Added `user` as a dependency
 
   const fetchProductDetails = async (order: OrderHistoryProps) => {
     try {
@@ -55,60 +57,57 @@ export default function Dashboard() {
         const fetchedProducts = await Promise.all(
           contentCodes.map((code) => getProducts(code))
         );
-        const flattened = fetchedProducts.flat();
-        setProductDetails(flattened);
-        console.log('✅ Product Details:', flattened);
+        return fetchedProducts.flat();
       }
+      return [];
     } catch (error) {
       logs.error('Error fetching product details: ' + error);
+      return [];
     }
   };
 
   const handleOrderClick = async (order: OrderHistoryProps) => {
     setLoadingDetails(true);
-    setSelectedOrder(order);
-    console.log('Selected Order:', order); // Debugging
 
     try {
-      const updatedItems = await Promise.all(
-        order.items.map(async (item) => {
-          const productData = await getProducts(
-            item.product.basicInfo.contentCode
-          );
-          return {
-            ...item,
-            product: productData[0],
-          };
-        })
-      );
-
-      const enrichedOrder = {
+      // Transform the order to match the expected structure
+      const transformedOrder = {
         ...order,
-        items: updatedItems,
+        items: order.items.map((item) => ({
+          ...item,
+          variety: {
+            id: String(item.variety.id), // Convert `id` to string
+            sub: item.variety.sub ? String(item.variety.sub) : null, // Convert `sub` to string if it exists
+          },
+          product: {
+            ...item.product,
+            variety: Array.isArray(item.product.variety) // Check if `variety` exists and is an array
+              ? item.product.variety.map((v) => ({
+                  ...v,
+                  uniqueId: String(v.uniqueId), // Convert `uniqueId` to string
+                  subVariety: Array.isArray(v.subVariety) // Check if `subVariety` exists and is an array
+                    ? v.subVariety.map((sv) => ({
+                        ...sv,
+                        uniqueId: String(sv.uniqueId), // Convert `subVariety.uniqueId` to string
+                      }))
+                    : [], // Default to an empty array if `subVariety` is undefined
+                }))
+              : [], // Default to an empty array if `variety` is undefined
+          },
+        })),
       };
 
-      setSelectedOrder(enrichedOrder);
-      console.log('Enriched Order:', enrichedOrder); // Debugging
+      setSelectedOrder(transformedOrder as OrderDetailsModalProps['order']);
+      console.log('selectedOrder:', transformedOrder);
 
-      const productDetails = await fetchProductDetails(enrichedOrder);
-      setProductDetails(productDetails);
-      console.log('Product Details:', productDetails); // Debugging
+      const details = await fetchProductDetails(order);
+      setProductDetails(details);
     } catch (error) {
       logs.error('Error fetching product details: ' + error);
     } finally {
       setLoadingDetails(false);
     }
   };
-
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h4 className="text-lg font-semibold mb-2">در حال بارگذاری ...</h4>
-        <LoadingAnimation />
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 w-full max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
@@ -120,7 +119,7 @@ export default function Dashboard() {
           <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
         </div>
       ) : orderHistory.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+        <div>
           {orderHistory.map((order) => (
             <motion.div
               key={order.id}
@@ -128,39 +127,44 @@ export default function Dashboard() {
               whileHover={{ scale: 1.02 }}
               onClick={() => handleOrderClick(order)}
             >
-              <p className="text-sm text-gray-500">
-                📅 تاریخ:{' '}
-                {new Date(order.orderDate).toLocaleDateString('fa-IR')}
-              </p>
-
               {order.items && order.items.length > 0 ? (
-                <div className="mt-1 space-y-1">
-                  {order.items.map((product) => (
-                    <Fragment key={product.id}>
-                      <div className="flex items-center rounded-lg">
-                        <Image
-                          src={
-                            product?.product?.basicInfo.mainImage.formats
-                              .thumbnail.url
-                          }
-                          alt={product?.product.basicInfo.title}
-                          width={50}
-                          height={50}
-                          className="w-full rounded-md"
-                        />
+                <div className="flex flex-col">
+                  <p className="text-sm text-gray-500">
+                    📅 تاریخ:{' '}
+                    {new Date(order.orderDate).toLocaleDateString('fa-IR')}
+                  </p>
+                  <div className="flex flex-row mt-1 gap-3">
+                    {order.items.map((product) => (
+                      <div key={product.id}>
+                        <div className="flex items-center rounded-lg">
+                          <Image
+                            src={
+                              product?.product?.basicInfo?.mainImage?.formats
+                                ?.thumbnail?.url || '/placeholder.png'
+                            }
+                            alt={
+                              product?.product?.basicInfo?.title || 'بدون نام'
+                            }
+                            width={100}
+                            height={100}
+                            className="rounded-md"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-700">
+                            {product?.product?.basicInfo?.title || 'بدون نام'}
+                          </p>
+                          <p className="text-gray-500">
+                            🛍️ تعداد: {product.count}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          {product?.product?.basicInfo.title || 'بدون نام'}
-                        </p>
-                        <p className="text-gray-500">
-                          🛍️ تعداد: {product.count}
-                        </p>
-                      </div>
-                    </Fragment>
-                  ))}
+                    ))}
+                  </div>
                   <p
-                    className={`text-sm font-semibold ${order.pay ? 'text-green-600' : 'text-red-500'}`}
+                    className={`text-sm font-semibold ${
+                      order.pay ? 'text-green-600' : 'text-red-500'
+                    }`}
                   >
                     💳 وضعیت پرداخت:{' '}
                     {order.pay ? 'پرداخت شده' : 'در انتظار پرداخت'}
@@ -178,7 +182,7 @@ export default function Dashboard() {
         <p className="text-gray-500 text-center mt-6">هیچ سفارشی یافت نشد.</p>
       )}
 
-      {productDetails?.length > 0 && (
+      {selectedOrder && (
         <OrderDetailsModal
           order={selectedOrder}
           productDetails={productDetails}
