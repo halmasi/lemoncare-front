@@ -2,7 +2,6 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Toman from '../Toman';
 import Image from 'next/image';
 
 import PostLogo from '@/public/Iran-Post-Logo.svg';
@@ -25,7 +24,7 @@ interface GetMethodsProps {
 interface PostMethodsProps {
   isSuccess: boolean;
   data: {
-    optionalServices: {};
+    optionalServices: object;
     servicePrices: {
       courierName: string;
       courierCode: string;

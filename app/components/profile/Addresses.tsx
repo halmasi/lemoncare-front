@@ -20,7 +20,7 @@ export default function Addresses() {
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
 
   const { user } = useDataStore();
-  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+  const { checkoutAddress } = useCheckoutStore();
 
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {

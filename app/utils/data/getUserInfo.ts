@@ -1,7 +1,7 @@
 'use server';
 import qs from 'qs';
 import { requestData } from './dataFetch';
-import { AddressProps } from '../schema/userProps';
+import { AddressProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 
 export const updateUserInformation = async (
@@ -22,7 +22,7 @@ export const updateUserInformation = async (
     userData,
     `Bearer ${token}`
   );
-  console.log(response);
+  // console.log(response);
   return response.data;
 };
 export const getPostalInformation = async (documentId: string) => {

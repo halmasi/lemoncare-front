@@ -1,5 +1,4 @@
-import { CartProps } from './shopProps/cartProps';
-import { ProductProps } from './shopProps/productProps';
+import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
   username: string;

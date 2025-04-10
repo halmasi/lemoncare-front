@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { dataFetch } from './dataFetch';
 import { cache } from 'react';
-import { CategoriesProps } from '../schema/blogProps/tagsAndCategoryProps';
+import { CategoriesProps } from '@/app/utils/schema/blogProps';
 
 export const getCategoriesUrl = cache(async function (
   category: CategoriesProps | string,

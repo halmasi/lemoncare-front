@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { AddressProps } from '../schema/userProps';
+import { AddressProps } from '@/app/utils/schema/userProps';
 
 export interface checkoutStoreState {
   price: number;

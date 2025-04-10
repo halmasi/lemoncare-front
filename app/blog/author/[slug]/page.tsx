@@ -4,7 +4,7 @@ import {
   getAuthorInformation,
   getPostsByAuthor,
 } from '@/app/utils/data/getPosts';
-import { PostsProps } from '@/app/utils/schema/blogProps/postProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 

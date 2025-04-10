@@ -5,18 +5,14 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Addresses from '@/app/components/profile/Addresses';
 import AuthForm from '@/app/components/profile/AuthForm';
 import Toman from '@/app/components/Toman';
-import { getFullUserData } from '@/app/utils/actions/actionMethods';
-import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-export default function page() {
+export default function CheckoutPage() {
   const { cart, cartProducts } = useCartStore();
-  const { setPrice, price, setBeforePrice, shippingPrice, checkoutAddress } =
-    useCheckoutStore();
+  const { setPrice, price, setBeforePrice, shippingPrice } = useCheckoutStore();
   const { user } = useDataStore();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);

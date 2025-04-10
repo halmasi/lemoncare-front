@@ -1,24 +1,12 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { useCartStore } from '@/app/utils/states/useCartData';
-import { logoutAction } from '@/app/utils/actions/actionMethods';
 import ProfileDetailes from '@/app/components/profile/ProfileDetailes';
 import { ReactNode } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import ProfileMenu from '@/app/components/profile/ProfileMenu';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { resetUser, jwt } = useDataStore();
-  const { resetCart } = useCartStore();
-
-  const logoutFn = useMutation({
-    mutationFn: async () => {
-      await logoutAction();
-      resetUser();
-      resetCart();
-    },
-  });
+  const { jwt } = useDataStore();
 
   return (
     <div className="flex w-full justify-start bg-gray-100 p-4 gap-4">

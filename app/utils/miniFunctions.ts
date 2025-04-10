@@ -4,3 +4,21 @@ export const cleanPhone = (username: string) => {
   }
   return username;
 };
+export const logs = {
+  error: async (log: string) => {
+    console.trace();
+    console.error(log);
+  },
+  log: async (log: string) => {
+    console.trace();
+    console.log(log);
+  },
+  warn: async (log: string) => {
+    console.trace();
+    console.warn(log);
+  },
+  info: async (log: string) => {
+    console.trace();
+    console.info(log);
+  },
+};

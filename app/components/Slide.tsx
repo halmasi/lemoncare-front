@@ -15,7 +15,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
-import { MediaProps } from '../utils/schema/mediaProps';
+import { MediaProps } from '@/app/utils/schema/mediaProps';
 
 export default function Slide({
   media,

@@ -6,7 +6,7 @@ import {
   ArticleSuggestionProps,
   ProductSuggestionProps,
   SlideProps,
-} from '../schema/otherProps';
+} from '@/app/utils/schema/otherProps';
 
 export const getArticleSuggestions = cache(
   async (slug: string): Promise<ArticleSuggestionProps> => {

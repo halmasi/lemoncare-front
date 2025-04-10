@@ -3,8 +3,8 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { requestData } from '@/app/utils/data/dataFetch';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
+import { logs } from '@/app/utils/miniFunctions';
 import { cleanPhone } from '@/app/utils/miniFunctions';
 import { updateUserInformationSchema } from '@/app/utils/schema/formValidation';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -29,18 +29,22 @@ export default function Information() {
           inputUserData
         );
         if (!response) {
-          console.log('not response');
+          throw new Error('پاسخی از سرور دریافت نشد');
         }
         return response;
       } else {
-        console.error('error document id ');
+        logs.error('error document id ');
         return;
       }
     },
-    onSuccess: async (data: any) => {
-      console.log('onSuccess : ', data);
-      useDataStore.setState({ user: data });
+    onSuccess: async () => {
+      //   const userData = await getFullUserData(data.jwt);
+      //queryClient.invalidateQueries(['user']);
+      if (user) queryClient.setQueryData(['user'], user.data);
       router.push('/dashboard/information');
+    },
+    onError: (error: string) => {
+      logs.error('onError: ' + error);
     },
   });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

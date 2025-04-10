@@ -5,7 +5,7 @@ import {
   ContentChildrenProps,
   ContentProps,
   ContentTypes,
-} from '../utils/schema/otherProps';
+} from '@/app/utils/schema/otherProps';
 
 function ParagraphBuilder({
   item,
