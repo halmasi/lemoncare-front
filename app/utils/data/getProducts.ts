@@ -2,11 +2,11 @@ import qs from 'qs';
 import { cache } from 'react';
 import { dataFetch } from './dataFetch';
 import { getCategorySubHierarchy } from './getProductCategories';
-import { ProductProps } from '../schema/shopProps/productProps';
 import {
+  ProductProps,
   ShopCategoryProps,
   ShopSubCategoiesProps,
-} from '../schema/shopProps/categoryProps';
+} from '@/app/utils/schema/shopProps';
 
 export const getProduct = cache(async function (
   slug: string,
@@ -35,7 +35,7 @@ export const getProduct = cache(async function (
     filters: filter,
     populate,
   });
-  const result = await dataFetch(`/products?${query}`, tag);
+  const result = await dataFetch(`/products?${query}`, 'GET', tag);
   return result;
 });
 
@@ -55,7 +55,7 @@ export const getProducts = cache(async function (
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: ProductProps[] = await dataFetch(link, tag);
+  const result: ProductProps[] = await dataFetch(link, 'GET', tag);
   return result;
 });
 
@@ -89,6 +89,7 @@ export const getProductsByCategory = cache(async function (
 
   const result: ProductProps[] = await dataFetch(
     `/products?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -113,6 +114,7 @@ export const getProductsByTag = cache(async function (
   });
   const result: ProductProps[] = await dataFetch(
     `/products?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;

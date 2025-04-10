@@ -4,7 +4,7 @@ import qs from 'qs';
 import {
   ShopCategoryProps,
   ShopSubCategoiesProps,
-} from '../schema/shopProps/categoryProps';
+} from '@/app/utils/schema/shopProps';
 
 export const getShopCategory = cache(async function (
   slug: string,
@@ -17,7 +17,7 @@ export const getShopCategory = cache(async function (
       shopSubCategories: { populate: '*' },
     },
   });
-  const result = await dataFetch(`/shop-categories?${query}`, tag);
+  const result = await dataFetch(`/shop-categories?${query}`, 'GET', tag);
   return result;
 });
 
@@ -37,6 +37,7 @@ export const getShopCategoriesUrl = cache(async function (
   });
   const data: ShopCategoryProps[] = await dataFetch(
     `/shop-categories?${query}`,
+    'GET',
     tag
   );
   const result = data[0];

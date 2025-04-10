@@ -6,14 +6,13 @@ import DiscountTimer from './DiscountTimer';
 import { useMutation } from '@tanstack/react-query';
 import { useCartStore } from '../utils/states/useCartData';
 import { useDataStore } from '../utils/states/useUserdata';
-import { getFullUserData } from '../utils/actions/actionMethods';
-import { addToCart } from '@/app/utils/actions/cartActionMethods';
+import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
-import log from '@/app/utils/logs';
+import { logs } from '@/app/utils/miniFunctions';
 import Count from './navbarComponents/Count';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Toman from './Toman';
-import { ProductProps } from '../utils/schema/shopProps/productProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 interface NewItemProps {
   count: number;
@@ -42,7 +41,7 @@ function AddButton({
   const { cart } = useCartStore();
 
   if (cart) {
-    let findCart = cart.find(
+    const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
         item.variety.id == selected.uniqueId &&
@@ -113,37 +112,34 @@ export default function VarietySelector({
   product: ProductProps;
   list?: boolean;
 }) {
-  const { user, setUser, jwt } = useDataStore();
+  const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
-        const res = await addToCart(cart, newItem);
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
         return res;
       }
     },
     onSuccess: async (data) => {
       if (!data || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
+      const getCartData = await getCart(user.shopingCart.documentId);
+      setCart(getCartData.data.items);
       const id = product.variety.find(
         (item) => item.uniqueId == selected.uniqueId
       );
       const sub = id?.subVariety.find(
         (item) => item.uniqueId == selected.uniqueSub
       );
-      log(
+      logs.log(
         `user ${user.fullName} with the id ${user.id} added new item to cart\nproduct info:\nproduct name: ${product.basicInfo.title}, link: /shop/product/${product.basicInfo.contentCode},\nproduct detail: ${id && id.specification}, ${sub && sub.specification}`
       );
     },
     onError: async (error) => {
-      log(error.message + ' ' + error.cause, 'error');
+      logs.error(error.message + ' ' + error.cause);
     },
   });
 
@@ -292,11 +288,16 @@ export default function VarietySelector({
     const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
 
     if (jwt && user && cart) {
+      const newCart = cart;
+      newCart.push({ ...newItem, product, id });
+      setCart(newCart);
       addToCartFn.mutate(newItem);
     } else if (cart) {
       const found = cart.find((item) => {
-        item.product.documentId == newItem.id &&
-          item.variety == newItem.variety;
+        return (
+          item.product.documentId == newItem.id &&
+          item.variety == newItem.variety
+        );
       });
       if (found) return;
       const newCart = cart;

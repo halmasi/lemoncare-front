@@ -1,7 +1,6 @@
-import { ImageProps } from 'next/image';
-import { PostsProps } from './blogProps/postProps';
-import { ProductProps } from './shopProps/productProps';
-import { MediaProps } from './mediaProps';
+import { PostsProps } from './blogProps';
+import { ProductProps } from './shopProps';
+import { ImageProps, MediaProps } from './mediaProps';
 
 export interface GravatarProps {
   hash: string;

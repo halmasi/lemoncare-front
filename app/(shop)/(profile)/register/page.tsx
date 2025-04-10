@@ -61,7 +61,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
+    <div className="flex flex-col w-full justify-center items-center pt-5 px-10 gap-2 h-screen">
       <form
         className="w-full md:w-7/12 container flex flex-col gap-2"
         onSubmit={handleSubmit}

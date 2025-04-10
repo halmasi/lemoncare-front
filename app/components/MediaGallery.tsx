@@ -18,9 +18,9 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 
-import { MediaProps } from '../utils/data/getProducts';
 import { BsPlayCircle } from 'react-icons/bs';
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
+import { MediaProps } from '@/app/utils/schema/mediaProps';
 
 export default function MediaGallery({ media }: { media: MediaProps[] }) {
   const vidRef = useRef<HTMLVideoElement>(null);

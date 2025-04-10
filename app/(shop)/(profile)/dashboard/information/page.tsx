@@ -3,6 +3,10 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { updateUserInformation } from '@/app/utils/data/getUserInfo';
+import { logs } from '@/app/utils/miniFunctions';
+import { cleanPhone } from '@/app/utils/miniFunctions';
+import { updateUserInformationSchema } from '@/app/utils/schema/formValidation';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -13,27 +17,50 @@ export default function Information() {
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async ({ input }: { input: string }) => {
-      const response = '';
-      if (!response) {
-        console.log('not response');
+    mutationFn: async (inputUserData: {
+      fullName?: string;
+      username?: string;
+      email?: string;
+    }) => {
+      if (user && user.id && jwt) {
+        const response = await updateUserInformation(
+          user.id,
+          jwt,
+          inputUserData
+        );
+        if (!response) {
+          throw new Error('پاسخی از سرور دریافت نشد');
+        }
+        return response;
+      } else {
+        logs.error('error document id ');
+        return;
       }
-      return response;
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async () => {
       //   const userData = await getFullUserData(data.jwt);
-      queryClient.setQueryData(['user'], user?.data);
-      console.log('onSuccess');
+      //queryClient.invalidateQueries(['user']);
+      if (user) queryClient.setQueryData(['user'], user.data);
       router.push('/dashboard/information');
     },
-    onError: (error: any) => {
-      console.log('onError');
+    onError: (error: string) => {
+      logs.error('onError: ' + error);
     },
   });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const input = '';
-    mutation.mutate({ input });
+    const formData = new FormData(event.currentTarget);
+    const inputUserData = {
+      fullName: formData.get('fullName')?.toString() || '',
+      username: cleanPhone(formData.get('username')?.toString() || ''),
+      email: formData.get('email')?.toString() || '',
+    };
+    const validation = updateUserInformationSchema.safeParse(inputUserData);
+    if (!validation.success) {
+      console.error(validation.error.format());
+      return;
+    }
+    mutation.mutate(inputUserData);
   };
   return (
     <>
@@ -46,12 +73,8 @@ export default function Information() {
         >
           شماره تلفن
         </PhoneInputBox>
-        <InputBox
-          name="fullName"
-          placeholder="نام و نام خانوادگی"
-          value={user?.fullName}
-        >
-          نام و نام خانوادگی
+        <InputBox name="fullName" placeholder="نام کامل" value={user?.fullName}>
+          نام کامل
         </InputBox>
         <InputBox name="email" placeholder="آدرس ایمیل" value={user?.email}>
           آدرس ایمیل

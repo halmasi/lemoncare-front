@@ -1,5 +1,4 @@
-import { CartProps } from '../states/useCartData';
-import { ProductProps } from './shopProps/productProps';
+import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
   username: string;
@@ -43,13 +42,42 @@ export interface SignInState {
   user?: string;
 }
 
+export interface AddressProps {
+  id: number;
+  address: string;
+  postCode: number;
+  firstName: string;
+  lastName: string;
+  province: string;
+  provinceCode?: number;
+  city: string;
+  cityCode?: number;
+  phoneNumber: number | string | null;
+  mobileNumber: number | string;
+  isDefault: boolean;
+}
+
 export interface FetchUserProps {
   id?: string;
+  documentId?: string;
   fullName?: string;
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
   cart: CartProps[];
+  shopingCart: {
+    documentId: string;
+    items: CartProps[];
+  };
+  postal_information: {
+    documentId: string;
+    id: number;
+    information: AddressProps[];
+  };
+  order_history: {
+    documentId: string;
+    id: number;
+  };
 }
 
 export interface OrderHistoryProps {

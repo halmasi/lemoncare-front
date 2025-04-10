@@ -1,14 +1,13 @@
-import { createHash } from 'node:crypto';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
 import { getCategory } from './getCategories';
 import { cache } from 'react';
-import { PostsProps } from '../schema/blogProps/postProps';
-import { AuthorProps, GravatarProps } from '../schema/otherProps';
 import {
+  PostsProps,
   CategoriesProps,
   SubCategoryProps,
-} from '../schema/blogProps/tagsAndCategoryProps';
+} from '@/app/utils/schema/blogProps';
+import { AuthorProps } from '@/app/utils/schema/otherProps';
 
 export const getPosts = cache(async function (count?: number, tag?: string[]) {
   const query = qs.stringify({
@@ -23,7 +22,7 @@ export const getPosts = cache(async function (count?: number, tag?: string[]) {
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: PostsProps[] = await dataFetch(link, tag);
+  const result: PostsProps[] = await dataFetch(link, 'GET', tag);
 
   return result;
 });
@@ -47,23 +46,6 @@ export const getPost = cache(async function (slug: string | number) {
   const result: PostsProps[] = await dataFetch(`/posts?${query}`);
   return result;
 });
-
-export const getGravatar = cache(
-  async (email: string): Promise<GravatarProps> => {
-    const data = await fetch(
-      process.env.GRAVATAR_URI +
-        createHash('sha256').update(email).digest('hex'),
-      {
-        headers: {
-          Authorization: 'Bearer ' + process.env.GRAVATAR_SECRET,
-        },
-        next: { tags: ['author'] },
-      }
-    );
-    const gravatar: GravatarProps = await data.json();
-    return gravatar;
-  }
-);
 
 export const getCategoryHierarchy = cache(async function (
   category: SubCategoryProps[],
@@ -126,6 +108,7 @@ export const getPostsByCategory = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -150,6 +133,7 @@ export const getPostsByTag = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -174,6 +158,7 @@ export const getPostsByAuthor = cache(async function (
   });
   const result: PostsProps[] = await dataFetch(
     `/posts?${query}&sort[0]=createdAt:desc`,
+    'GET',
     tag
   );
   return result;
@@ -183,6 +168,6 @@ export const getAuthorInformation = cache(async function (
   id: string,
   tag?: string[]
 ) {
-  const result: AuthorProps = await dataFetch(`/authors/${id}`, tag);
+  const result: AuthorProps = await dataFetch(`/authors/${id}`, 'GET', tag);
   return result;
 });

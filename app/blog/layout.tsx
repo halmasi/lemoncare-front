@@ -4,7 +4,10 @@ import Footer from '@/app/components/BlogFooter';
 import { getMenuItems } from '@/app/utils/data/getMenu';
 import { getFooterItems, getSocialLinksItems } from '@/app/utils/data/getMenu';
 import { Metadata } from 'next';
-import { FooteritemsProps, SocialLinksProps } from '../utils/schema/menuProps';
+import {
+  FooteritemsProps,
+  SocialLinksProps,
+} from '@/app/utils/schema/menuProps';
 
 export const metadata: Metadata = {
   title: 'LemonCare - لمن کر',

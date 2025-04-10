@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+'use client';
+import { ReactNode, useEffect, useState } from 'react';
 
 export default function PhoneInputBox({
   placeholder,
@@ -13,6 +14,12 @@ export default function PhoneInputBox({
   required?: boolean;
   children?: ReactNode;
 }) {
+  const [inputValue, setInputValue] = useState<string | number>(value || '');
+
+  useEffect(() => {
+    if (value) setInputValue(value);
+  }, [value]);
+
   return (
     <div className="flex flex-col md:flex-row w-full items-center">
       {children && (
@@ -28,7 +35,10 @@ export default function PhoneInputBox({
           dir="ltr"
           placeholder={placeholder}
           name={name}
-          value={value}
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+          }}
           id={name}
         />
         <div className="flex justify-center items-center px-3 bg-gray-200 border-2 border-r-0 border-gray-400 rounded-l-xl shadow-lg w-28 h-12">

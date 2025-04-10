@@ -5,17 +5,16 @@ import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-// import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const { user } = useDataStore();
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>();
+
+  const { user, setUser } = useDataStore();
+
   const getUserDataFn = useMutation({
     mutationFn: async () => {
-      const res = await getFullUserData(true, [
-        { orderHistory: { populate: '*' } },
-      ]);
+      const res = await getFullUserData();
       return res.body;
     },
     onSuccess: async (data) => {
@@ -27,7 +26,13 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    getUserDataFn.mutate();
+    (async () => {
+      getUserDataFn.mutate();
+      const response = await getFullUserData();
+      if (response.status === 200) {
+        setUser(response.body);
+      }
+    })();
   }, [user]);
 
   if (!user) {
@@ -49,18 +54,18 @@ export default function Dashboard() {
       ) : (
         orderHistory && (
           <div>
-            {orderHistory.map((item) => (
-              <div>
+            {orderHistory.map((item, index) => (
+              <div key={index}>
                 <>
-                  {item.items.map((product) => (
-                    <>
+                  {item.items.map((product, index) => (
+                    <div key={index}>
                       {/* <Image
                       src={product.product.basicInfo.mainImage.url}
                       fill
                       alt=""
                     /> */}
                       <p>{product.product.documentId}</p>
-                    </>
+                    </div>
                   ))}
                 </>
               </div>
@@ -68,7 +73,6 @@ export default function Dashboard() {
           </div>
         )
       )}
-
       <ul className="bg-gray-100 p-4 rounded-lg shadow">
         {Object.entries(user).map(([key, value]) => (
           <li key={key} className="p-2 border-b last:border-none">

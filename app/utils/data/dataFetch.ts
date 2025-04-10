@@ -1,7 +1,12 @@
 'use server';
 
-export async function dataFetch(qs: string, tag?: string[]) {
+export async function dataFetch(
+  qs: string,
+  method: string = 'GET',
+  tag?: string[]
+) {
   const options = {
+    method,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',

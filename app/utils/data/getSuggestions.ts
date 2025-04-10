@@ -6,7 +6,7 @@ import {
   ArticleSuggestionProps,
   ProductSuggestionProps,
   SlideProps,
-} from '../schema/otherProps';
+} from '@/app/utils/schema/otherProps';
 
 export const getArticleSuggestions = cache(
   async (slug: string): Promise<ArticleSuggestionProps> => {
@@ -16,7 +16,7 @@ export const getArticleSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggested-articles?${query}`, [
+    const data = await dataFetch(`/suggested-articles?${query}`, 'GET', [
       `suggested-article-${slug}`,
     ]);
     return data[0];
@@ -31,7 +31,7 @@ export const getProductSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggestion-lists?${query}`, [
+    const data = await dataFetch(`/suggestion-lists?${query}`, 'GET', [
       `suggestion-list-${slug}`,
     ]);
     return data[0];
@@ -51,7 +51,7 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, [
+  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, 'GET', [
     `slide-${location}`,
   ]);
   return data[0];

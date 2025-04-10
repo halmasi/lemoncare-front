@@ -6,8 +6,8 @@ import {
   getShopCategoriesUrl,
   getShopCategory,
 } from '../utils/data/getProductCategories';
-import { PostsProps } from '../utils/schema/blogProps/postProps';
-import { ProductProps } from '../utils/schema/shopProps/productProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 export default async function Breadcrumbs({
   post,

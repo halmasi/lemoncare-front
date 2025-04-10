@@ -1,5 +1,5 @@
 import { getCategoriesUrl } from '@/app/utils/data/getCategories';
-import { getGravatar, getPosts } from '@/app/utils/data/getPosts';
+import { getPosts } from '@/app/utils/data/getPosts';
 const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
 const PostCard = dynamic(() => import('@/app/components/PostCard'), {
   ssr: false,
@@ -9,9 +9,9 @@ const PostCard = dynamic(() => import('@/app/components/PostCard'), {
 import dynamic from 'next/dynamic';
 import { getSlides } from '../utils/data/getSuggestions';
 import Slide from '../components/Slide';
-import { PostsProps } from '../utils/schema/blogProps/postProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
 
-export default async function Home() {
+export default async function BlogHomePage() {
   const slide = await getSlides('blog');
 
   const data = await getPosts(3, ['post']);
@@ -28,7 +28,19 @@ export default async function Home() {
             post.categoryUrl = await getCategoriesUrl(post.category, [
               'category',
             ]);
-            post.gravatar = await getGravatar(post.author.email);
+            const get = await fetch(
+              process.env.SITE_URL + '/api/auth/gravatar',
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify({ email: post.author.email }),
+              }
+            );
+
+            const gravatarJson = await get.json();
+            const gravatar = JSON.parse(gravatarJson).data;
             return (
               <PostCard
                 key={post.documentId + 'post'}
@@ -36,7 +48,7 @@ export default async function Home() {
                 category={post.category}
                 seo={post.seo}
                 categoryUrl={post.categoryUrl}
-                gravatar={post.gravatar}
+                gravatar={gravatar}
                 authorName={post.author.name}
                 authorSlug={post.author.username}
               />
