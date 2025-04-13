@@ -1,8 +1,8 @@
-import { ProductProps } from './schema/shopProps';
+import { cartProductsProps, ProductProps } from './schema/shopProps';
 
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
-  product: ProductProps
+  product: ProductProps | cartProductsProps
 ) => {
   let value: {
     specification: string;
@@ -28,7 +28,12 @@ export const varietyFinder = (
         value = {
           specification:
             item.specification + ' | ' + subItem?.specification || '',
-          color: subItem?.color || '',
+          color:
+            subItem?.color == '#000000'
+              ? item?.color == '#000000'
+                ? ''
+                : item?.color
+              : subItem?.color || '',
           priceBefforDiscount: subItem?.priceBefforDiscount || 0,
           mainPrice: subItem?.mainPrice || 0,
           inventory: subItem?.inventory || 0,
@@ -36,20 +41,22 @@ export const varietyFinder = (
         };
       }
     });
+    return value;
+  } else {
+    const item = product.variety.find((i) => i.uniqueId == variety.id);
+    value = {
+      color: item?.color == '#000000' ? '' : item?.color || '',
+      inventory: item?.inventory || 0,
+      mainPrice: item?.mainPrice || 0,
+      priceBefforDiscount: item?.priceBeforeDiscount || 0,
+      specification: item?.specification || '',
+      endOfDiscount: new Date(item?.endOfDiscount!).getTime() || null,
+    };
   }
-  const item = product.variety.find((i) => i.uniqueId == variety.id);
-  value = {
-    color: item?.color || '',
-    inventory: item?.inventory || 0,
-    mainPrice: item?.mainPrice || 0,
-    priceBefforDiscount: item?.priceBeforeDiscount || 0,
-    specification: item?.specification || '',
-    endOfDiscount: new Date(item?.endOfDiscount!).getTime() || null,
-  };
   return value;
 };
 
-export const lowestPrice = (product: ProductProps) => {
+export const lowestPrice = (product: ProductProps | cartProductsProps) => {
   const lessPrice: {
     id: number | null;
     sub: number | null;

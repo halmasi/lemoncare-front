@@ -10,7 +10,6 @@ import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
 import { logs } from '@/app/utils/miniFunctions';
 import Count from './navbarComponents/Count';
-// import { useRouter } from 'next/navigation';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
@@ -109,8 +108,6 @@ export default function VarietySelector({
   const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
-  // const router = useRouter();
-
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
@@ -193,54 +190,6 @@ export default function VarietySelector({
       end: price.endOfDiscount || null,
       price: price.mainPrice,
     });
-    // const mainIdPrice = product.variety.find(
-    //   (e) => e.id == selected.id
-    // )?.mainPrice;
-    // const subIdPrice = product.variety
-    //   .find((e) => e.id == selected.id)
-    //   ?.subVariety.find((s) => s.id == selected.sub)?.mainPrice;
-    // if (mainIdPrice && selected.sub == null) {
-    //   const endDate =
-    //     new Date(
-    //       product.variety.find((e) => e.id == selected.id)!.endOfDiscount!
-    //     ).getTime() || null;
-
-    //   setPrice({
-    //     id: selected.id,
-    //     sub: selected.sub,
-    //     before:
-    //       product.variety.find((e) => e.id == selected.id)
-    //         ?.priceBeforeDiscount || null,
-    //     end: endDate || null,
-    //     price: mainIdPrice,
-    //   });
-    // } else if (selected.sub != null && subIdPrice) {
-    //   const endDate =
-    //     new Date(
-    //       product.variety
-    //         .find((e) => e.id == selected.id)!
-    //         .subVariety.find((s) => s.id == selected.sub)!.endOfDiscount!
-    //     ).getTime() || null;
-    //   setPrice({
-    //     id: selected.id,
-    //     sub: selected.sub,
-    //     before:
-    //       product.variety
-    //         .find((e) => e.id == selected.id)
-    //         ?.subVariety.find((s) => s.id == selected.sub)
-    //         ?.priceBefforDiscount || null,
-    //     end: endDate || null,
-    //     price: subIdPrice,
-    //   });
-    // } else {
-    //   setPrice({
-    //     id: selected.id,
-    //     sub: null,
-    //     before: null,
-    //     end: null,
-    //     price: null,
-    //   });
-    // }
   }, [selected]);
 
   const handleAddToCart = (newItem: NewItemProps) => {
