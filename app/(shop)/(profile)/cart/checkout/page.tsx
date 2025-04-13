@@ -5,6 +5,7 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Addresses from '@/app/components/profile/Addresses';
 import AuthForm from '@/app/components/profile/AuthForm';
 import Toman from '@/app/components/Toman';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -31,20 +32,10 @@ export default function CheckoutPage() {
       );
 
       if (product) {
-        product.variety.forEach((varieties) => {
-          if (cartItem.variety.id == varieties.uniqueId)
-            if (!cartItem.variety.sub) {
-              priceAfter = varieties.mainPrice;
-              priceBefore = varieties.priceBeforeDiscount;
-            } else {
-              varieties.subVariety.forEach((sub) => {
-                if (sub.uniqueId == cartItem.variety.sub) {
-                  priceAfter = sub.mainPrice;
-                  priceBefore = sub.priceBefforDiscount;
-                }
-              });
-            }
-        });
+        const variety = varietyFinder(cartItem.variety, product);
+        priceBefore = variety.priceBefforDiscount;
+        priceAfter = variety.mainPrice;
+
         setTotalPrice((prev) => prev + priceAfter * cartItem.count);
         setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
       }
