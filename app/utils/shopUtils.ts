@@ -1,5 +1,5 @@
 import { cartProductsProps, ProductProps } from './schema/shopProps';
-
+import { getProduct } from './data/getProducts';
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
   product: ProductProps | cartProductsProps
@@ -89,4 +89,41 @@ export const lowestPrice = (product: ProductProps | cartProductsProps) => {
     }
   });
   return lessPrice;
+};
+
+export const cartProductSetter = async (
+  documentId: string,
+  cartProducts: cartProductsProps[]
+) => {
+  const newArray = cartProducts;
+
+  const findProduct = cartProducts.find(
+    (item) => item.documentId == documentId
+  );
+
+  if (!findProduct) {
+    const product = await getProduct(documentId);
+    newArray.push({
+      basicInfo: product[0].basicInfo,
+      documentId: product[0].documentId,
+      variety: product[0].variety,
+    });
+  }
+
+  return newArray;
+};
+
+export const cartProductSelector = async (
+  documentId: string,
+  cartProducts: cartProductsProps[]
+) => {
+  const findProduct = cartProducts.find(
+    (item) => item.documentId == documentId
+  );
+
+  if (!findProduct) {
+    const product = await getProduct(documentId);
+    return product[0];
+  }
+  return findProduct;
 };

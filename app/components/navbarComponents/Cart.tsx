@@ -6,14 +6,13 @@ import Table from '../Table';
 import Image from 'next/image';
 import Link from 'next/link';
 import Count from './Count';
-import { getProduct } from '@/app/utils/data/getProducts';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
 import { useRouter } from 'next/navigation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
-import { CartProductSetter } from '@/app/utils/clientUtils';
+import { cartProductSetter } from '@/app/utils/shopUtils';
 
 export default function Cart({
   priceAmount,
@@ -76,7 +75,7 @@ export default function Cart({
       });
       if (productsIdList.length) {
         productsIdList.forEach(async (item) => {
-          CartProductSetter(item, cartProducts).then(async (data) => {
+          cartProductSetter(item, cartProducts).then(async (data) => {
             setCartProducts(data);
           });
         });
