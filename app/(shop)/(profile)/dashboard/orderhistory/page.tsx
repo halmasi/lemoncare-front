@@ -7,22 +7,42 @@ import { getOrderHistory } from '@/app/utils/data/getUserInfo';
 import { logs } from '@/app/utils/miniFunctions';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import OrderDetailsModal from '@/app/components/profile/OrderDetailsModal';
-import { getProducts } from '@/app/utils/data/getProducts';
 import type { OrderDetailsModalProps } from '@/app/components/profile/OrderDetailsModal';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import {
+  cartProductSelector,
+  cartProductSetter,
+  varietyFinder,
+} from '@/app/utils/shopUtils';
+import { useCartStore } from '@/app/utils/states/useCartData';
+import { cartProductsProps } from '@/app/utils/schema/shopProps';
+import Modal from '@/app/components/Modal';
 
 export default function OrderHistory() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<
-    OrderDetailsModalProps['order'] | null
-  >(null);
-  const [productDetails, setProductDetails] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  // const [selectedOrder, setSelectedOrder] = useState<
+  //   OrderDetailsModalProps['order'] | null
+  // >(null);
+  const [productDetails, setProductDetails] = useState<
+    {
+      variety: {
+        id: number;
+        sub: number | null;
+      };
+      product: cartProductsProps;
+      count: number;
+      color: string;
+      priceBefore: number;
+      priceAfter: number;
+      name: string;
+    }[]
+  >();
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const { user, setUser } = useDataStore();
-
+  const { cartProducts, setCartProducts } = useCartStore();
   const getUserDataFn = useMutation({
     mutationFn: async () => {
       const res = await getFullUserData();
@@ -47,67 +67,40 @@ export default function OrderHistory() {
     }
   }, [user]); // Added `user` as a dependency
 
-  const fetchProductDetails = async (order: OrderHistoryProps) => {
-    try {
-      const contentCodes = order.items
-        ?.map((item) => item.product?.basicInfo?.contentCode)
-        .filter(Boolean);
-
-      if (contentCodes && contentCodes.length > 0) {
-        const fetchedProducts = await Promise.all(
-          contentCodes.map((code) => getProducts(code))
-        );
-        return fetchedProducts.flat();
-      }
-      return [];
-    } catch (error) {
-      logs.error('Error fetching product details: ' + error);
-      return [];
-    }
-  };
-
   const handleOrderClick = async (order: OrderHistoryProps) => {
     setLoadingDetails(true);
 
-    try {
-      // Transform the order to match the expected structure
-      const transformedOrder = {
-        ...order,
-        items: order.items.map((item) => ({
-          ...item,
-          variety: {
-            id: String(item.variety.id), // Convert `id` to string
-            sub: item.variety.sub ? String(item.variety.sub) : null, // Convert `sub` to string if it exists
-          },
-          product: {
-            ...item.product,
-            variety: Array.isArray(item.product.variety) // Check if `variety` exists and is an array
-              ? item.product.variety.map((v) => ({
-                  ...v,
-                  uniqueId: String(v.uniqueId), // Convert `uniqueId` to string
-                  subVariety: Array.isArray(v.subVariety) // Check if `subVariety` exists and is an array
-                    ? v.subVariety.map((sv) => ({
-                        ...sv,
-                        uniqueId: String(sv.uniqueId), // Convert `subVariety.uniqueId` to string
-                      }))
-                    : [], // Default to an empty array if `subVariety` is undefined
-                }))
-              : [], // Default to an empty array if `variety` is undefined
-          },
-        })),
-      };
+    order.items.forEach(async (item) => {
+      const productsList = await cartProductSetter(
+        item.product.documentId,
+        cartProducts
+      );
+      setCartProducts(productsList);
+    });
 
-      setSelectedOrder(transformedOrder as OrderDetailsModalProps['order']);
-      console.log('selectedOrder:', transformedOrder);
-
-      const details = await fetchProductDetails(order);
-      setProductDetails(details);
-    } catch (error) {
-      logs.error('Error fetching product details: ' + error);
-    } finally {
-      setLoadingDetails(false);
-    }
+    const details = Promise.all(
+      order.items.map(async (item) => {
+        const product = await cartProductSelector(
+          item.product.documentId,
+          cartProducts
+        );
+        const { color, priceBefforDiscount, mainPrice, specification } =
+          varietyFinder(item.variety, product);
+        return {
+          variety: item.variety,
+          product,
+          count: item.count,
+          color,
+          priceBefore: priceBefforDiscount,
+          priceAfter: mainPrice,
+          name: specification,
+        };
+      })
+    );
+    setProductDetails(await details);
+    setShowModal(true);
   };
+
   return (
     <div className="p-6 w-full max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
@@ -181,14 +174,20 @@ export default function OrderHistory() {
       ) : (
         <p className="text-gray-500 text-center mt-6">هیچ سفارشی یافت نشد.</p>
       )}
-
-      {selectedOrder && (
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        className="overflow-y-scroll"
+      >
+        <div>hello</div>
+      </Modal>
+      {/* {selectedOrder && (
         <OrderDetailsModal
           order={selectedOrder}
           productDetails={productDetails}
           onClose={() => setSelectedOrder(null)}
         />
-      )}
+      )} */}
     </div>
   );
 }

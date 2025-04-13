@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { varietyFinder } from '@/app/utils/shopUtils';
+import { cartProductsProps, ProductProps } from '@/app/utils/schema/shopProps';
 
 interface ProductDetailsProps {
   id: number;
@@ -27,33 +29,13 @@ export interface OrderDetailsModalProps {
     pay: boolean;
     items: {
       count: number;
-      product: {
-        id: number;
-        basicInfo: {
-          title: string;
-          mainImage: {
-            formats: {
-              thumbnail: {
-                url: string;
-              };
-            };
-          };
-        };
-        variety: {
-          color: string;
-          uniqueId: string; // Ensure this is a string
-          subVariety: {
-            uniqueId: string; // Ensure this is a string
-          }[];
-        }[];
-      };
+      product: ProductProps; // Use ProductProps from shopUtils
       variety: {
-        id: string; // Ensure this is a string
-        sub: string | null; // Ensure this is a string or null
+        id: number; // Ensure this is a number
+        sub: number | null; // Ensure this is a number or null
       };
     }[];
   } | null;
-  productDetails?: any;
   onClose: () => void;
 }
 
@@ -77,14 +59,55 @@ const OrderDetailsModal = ({ order, onClose }: OrderDetailsModalProps) => {
 
         {order.items.length > 0 ? (
           order.items.map((item, index) => {
-            const { product, variety: selectedVariety } = item;
+            const { product, variety } = item;
 
-            // Find the matched variety based on the unique ID
-            const matchedVariety = Array.isArray(product.variety)
-              ? product.variety.find((v) => v.uniqueId === selectedVariety.id)
-              : null;
+            // Check if the product.variety array exists and is not empty
+            if (
+              !Array.isArray(product.variety) ||
+              product.variety.length === 0
+            ) {
+              console.warn(
+                `Product with ID ${product.id} has an empty or missing variety array.`
+              );
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 border-b pb-2 mb-2"
+                >
+                  <Image
+                    src={
+                      product.basicInfo.mainImage?.formats?.thumbnail?.url ||
+                      '/placeholder.png'
+                    }
+                    alt={product.basicInfo.title || 'بدون نام'}
+                    width={50}
+                    height={50}
+                    className="rounded-md"
+                  />
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      {product.basicInfo.title || 'بدون نام'}
+                    </p>
+                    <p className="text-sm text-gray-500">🎨 رنگ: نامشخص</p>
+                    <p className="text-sm text-gray-500">
+                      🛍️ تعداد: {item.count}
+                    </p>
+                    <p className="text-sm text-gray-500">💰 قیمت: 0 تومان</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        order.pay ? 'text-green-600' : 'text-red-500'
+                      }`}
+                    >
+                      💳 وضعیت پرداخت:{' '}
+                      {order.pay ? 'پرداخت شده' : 'در انتظار پرداخت'}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
 
-            const color = matchedVariety?.color || 'نامشخص';
+            // Use varietyFinder to get the details of the product's variety and sub-variety
+            const varietyDetails = varietyFinder(variety, product);
 
             return (
               <div
@@ -105,9 +128,14 @@ const OrderDetailsModal = ({ order, onClose }: OrderDetailsModalProps) => {
                   <p className="font-medium text-gray-800">
                     {product.basicInfo.title || 'بدون نام'}
                   </p>
-                  <p className="text-sm text-gray-500">🎨 رنگ: {color}</p>
+                  <p className="text-sm text-gray-500">
+                    🎨 رنگ: {varietyDetails.color || 'نامشخص'}
+                  </p>
                   <p className="text-sm text-gray-500">
                     🛍️ تعداد: {item.count}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    💰 قیمت: {varietyDetails.mainPrice.toLocaleString()} تومان
                   </p>
                   <p
                     className={`text-sm font-semibold ${
