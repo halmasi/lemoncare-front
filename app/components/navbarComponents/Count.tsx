@@ -42,7 +42,7 @@ export default function Count({
       router.refresh();
     },
     onError: async (error) => {
-      logs.error(error.cause + error.message);
+      logs.error(error.cause + ' ' + error.message);
       if (refreshFunction) refreshFunction();
     },
     retry: 2,
