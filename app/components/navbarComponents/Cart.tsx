@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
+import { CartProductSetter } from '@/app/utils/clientUtils';
 
 export default function Cart({
   priceAmount,
@@ -75,14 +76,9 @@ export default function Cart({
       });
       if (productsIdList.length) {
         productsIdList.forEach(async (item) => {
-          const getProductArray = await getProduct(item, [{}]);
-          const copy = cartProducts;
-          copy.push({
-            basicInfo: getProductArray[0].basicInfo,
-            documentId: getProductArray[0].documentId,
-            variety: getProductArray[0].variety,
+          CartProductSetter(item, cartProducts).then(async (data) => {
+            setCartProducts(data);
           });
-          setCartProducts(copy);
         });
       }
       setTableRow([]);

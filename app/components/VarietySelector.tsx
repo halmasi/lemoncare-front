@@ -13,6 +13,7 @@ import Count from './navbarComponents/Count';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
+import { CartProductSetter } from '../utils/clientUtils';
 
 interface NewItemProps {
   count: number;
@@ -193,18 +194,10 @@ export default function VarietySelector({
   }, [selected]);
 
   const handleAddToCart = (newItem: NewItemProps) => {
-    const findProduct = cartProducts.find(
-      (item) => item.documentId == newItem.id
+    CartProductSetter(newItem.id, cartProducts).then((list) =>
+      setCartProducts(list)
     );
-    if (!findProduct) {
-      const newArray = cartProducts;
-      newArray.push({
-        basicInfo: product.basicInfo,
-        documentId: product.documentId,
-        variety: product.variety,
-      });
-      setCartProducts(newArray);
-    }
+
     const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
 
     if (jwt && user && cart) {
