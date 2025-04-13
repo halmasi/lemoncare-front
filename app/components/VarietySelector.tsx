@@ -144,10 +144,12 @@ export default function VarietySelector({
     before?: number | null;
     end?: number | null;
     price: number | null;
+    inventory: number;
   }>({
     id: selected.id,
     sub: selected.sub,
     price: null,
+    inventory: 0,
   });
   const itemSelectFunc = ({
     id,
@@ -190,6 +192,7 @@ export default function VarietySelector({
       before: price.priceBefforDiscount,
       end: price.endOfDiscount || null,
       price: price.mainPrice,
+      inventory: price.inventory,
     });
   }, [selected]);
 
@@ -271,7 +274,7 @@ export default function VarietySelector({
   ) : (
     <>
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        {price.price ? (
+        {price.price && price.inventory ? (
           <>
             <h5>{product.off}</h5>
             <strong>قیمت</strong>
@@ -366,7 +369,7 @@ export default function VarietySelector({
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
         handleAddToCart={handleAddToCart}
-        isPending={addToCartFn.isPending}
+        isPending={addToCartFn.isPending || price.inventory < 1}
         price={price}
         product={product}
         selected={selected}
