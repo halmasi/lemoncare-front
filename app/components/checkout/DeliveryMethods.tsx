@@ -115,10 +115,6 @@ export default function DeliveryMethods({
   });
 
   useEffect(() => {
-    console.log('selected:', selected);
-    console.log('checkoutAddress:', checkoutAddress);
-    console.log('checkoutAddress.cityCode:', checkoutAddress?.cityCode);
-
     setShippingPrice(0);
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
