@@ -10,9 +10,10 @@ import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
 import { logs } from '@/app/utils/miniFunctions';
 import Count from './navbarComponents/Count';
-// import { useRouter } from 'next/navigation';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
+import { lowestPrice, varietyFinder } from '../utils/shopUtils';
+import { cartProductSetter } from '../utils/shopUtils';
 
 interface NewItemProps {
   count: number;
@@ -63,18 +64,11 @@ function AddButton({
         </SubmitButton>
       );
     } else {
-      const id = product.variety.find(
-        (item) => item.uniqueId == selected.uniqueId
+      const variety = varietyFinder(
+        { id: selected.uniqueId, sub: selected.uniqueSub },
+        product
       );
-      const sub = id?.subVariety.find(
-        (item) => item.uniqueId == selected.uniqueSub
-      );
-      let inventory = 0;
-      if (id && sub) {
-        inventory = sub.inventory;
-      } else if (!sub && id) {
-        inventory = id.inventory;
-      }
+      let inventory = variety.inventory;
       return (
         <Count
           key={selected.sub || selected.id}
@@ -115,8 +109,6 @@ export default function VarietySelector({
   const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
-  // const router = useRouter();
-
   const addToCartFn = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
@@ -128,15 +120,6 @@ export default function VarietySelector({
       if (!data || !user) return;
       const getCartData = await getCart(user.shopingCart.documentId);
       setCart(getCartData.data.items);
-      const id = product.variety.find(
-        (item) => item.uniqueId == selected.uniqueId
-      );
-      const sub = id?.subVariety.find(
-        (item) => item.uniqueId == selected.uniqueSub
-      );
-      logs.log(
-        `user ${user.fullName} with the id ${user.id} added new item to cart\nproduct info:\nproduct name: ${product.basicInfo.title}, link: /shop/product/${product.basicInfo.contentCode},\nproduct detail: ${id && id.specification}, ${sub && sub.specification}`
-      );
     },
     onError: async (error) => {
       logs.error(error.message + ' ' + error.cause);
@@ -161,10 +144,12 @@ export default function VarietySelector({
     before?: number | null;
     end?: number | null;
     price: number | null;
+    inventory: number;
   }>({
     id: selected.id,
     sub: selected.sub,
     price: null,
+    inventory: 0,
   });
   const itemSelectFunc = ({
     id,
@@ -181,36 +166,7 @@ export default function VarietySelector({
   };
 
   useEffect(() => {
-    const lessPrice: {
-      id: number | null;
-      sub: number | null;
-      uid: number;
-      usub: number | null;
-      price: number;
-    } = { id: null, sub: null, uid: 0, usub: null, price: 0 };
-    product.variety.map((item) => {
-      if (item.subVariety.length) {
-        item.subVariety.map((sub) => {
-          if (sub.mainPrice < lessPrice.price || !lessPrice.price) {
-            lessPrice.id = item.id;
-            lessPrice.sub = sub.id;
-            lessPrice.uid = item.uniqueId;
-            lessPrice.usub = sub.uniqueId;
-            lessPrice.price = sub.mainPrice;
-          }
-        });
-        if (
-          (item.mainPrice && item.mainPrice < lessPrice.price) ||
-          !lessPrice.price
-        ) {
-          lessPrice.id = item.id;
-          lessPrice.sub = null;
-          lessPrice.uid = item.uniqueId;
-          lessPrice.usub = null;
-          lessPrice.price = item.mainPrice;
-        }
-      }
-    });
+    const lessPrice = lowestPrice(product);
     if (lessPrice.price && lessPrice.id) {
       setSelected({
         id: lessPrice.id,
@@ -218,73 +174,33 @@ export default function VarietySelector({
         uniqueId: lessPrice.uid,
         uniqueSub: lessPrice.usub,
       });
-    } else setAvailable(true);
+    } else setAvailable(false);
   }, []);
 
   useEffect(() => {
-    const mainIdPrice = product.variety.find(
-      (e) => e.id == selected.id
-    )?.mainPrice;
-    const subIdPrice = product.variety
-      .find((e) => e.id == selected.id)
-      ?.subVariety.find((s) => s.id == selected.sub)?.mainPrice;
-    if (mainIdPrice && selected.sub == null) {
-      const endDate =
-        new Date(
-          product.variety.find((e) => e.id == selected.id)!.endOfDiscount!
-        ).getTime() || null;
+    const price = varietyFinder(
+      {
+        id: selected.uniqueId,
+        sub: selected.uniqueSub,
+      },
+      product
+    );
 
-      setPrice({
-        id: selected.id,
-        sub: selected.sub,
-        before:
-          product.variety.find((e) => e.id == selected.id)
-            ?.priceBeforeDiscount || null,
-        end: endDate || null,
-        price: mainIdPrice,
-      });
-    } else if (selected.sub != null && subIdPrice) {
-      const endDate =
-        new Date(
-          product.variety
-            .find((e) => e.id == selected.id)!
-            .subVariety.find((s) => s.id == selected.sub)!.endOfDiscount!
-        ).getTime() || null;
-      setPrice({
-        id: selected.id,
-        sub: selected.sub,
-        before:
-          product.variety
-            .find((e) => e.id == selected.id)
-            ?.subVariety.find((s) => s.id == selected.sub)
-            ?.priceBefforDiscount || null,
-        end: endDate || null,
-        price: subIdPrice,
-      });
-    } else {
-      setPrice({
-        id: selected.id,
-        sub: null,
-        before: null,
-        end: null,
-        price: null,
-      });
-    }
+    setPrice({
+      id: selected.id,
+      sub: selected.sub,
+      before: price.priceBefforDiscount,
+      end: price.endOfDiscount || null,
+      price: price.mainPrice,
+      inventory: price.inventory,
+    });
   }, [selected]);
 
   const handleAddToCart = (newItem: NewItemProps) => {
-    const findProduct = cartProducts.find(
-      (item) => item.documentId == newItem.id
+    cartProductSetter(newItem.id, cartProducts).then((list) =>
+      setCartProducts(list)
     );
-    if (!findProduct) {
-      const newArray = cartProducts;
-      newArray.push({
-        basicInfo: product.basicInfo,
-        documentId: product.documentId,
-        variety: product.variety,
-      });
-      setCartProducts(newArray);
-    }
+
     const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
 
     if (jwt && user && cart) {
@@ -358,7 +274,7 @@ export default function VarietySelector({
   ) : (
     <>
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        {price.price ? (
+        {price.price && price.inventory ? (
           <>
             <h5>{product.off}</h5>
             <strong>قیمت</strong>
@@ -453,7 +369,7 @@ export default function VarietySelector({
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
         handleAddToCart={handleAddToCart}
-        isPending={addToCartFn.isPending}
+        isPending={addToCartFn.isPending || price.inventory < 1}
         price={price}
         product={product}
         selected={selected}

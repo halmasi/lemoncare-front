@@ -83,7 +83,7 @@ export interface FetchUserProps {
 export interface OrderHistoryProps {
   id: number;
   orderDate: string;
-  pay: object | null;
+  pay: boolean;
   address: string;
   postCode: number;
   items: {

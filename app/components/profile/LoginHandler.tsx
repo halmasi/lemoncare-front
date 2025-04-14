@@ -3,7 +3,6 @@
 import {
   getCookie,
   getFullUserData,
-  logoutAction,
   setCookie,
 } from '@/app/utils/actions/actionMethods';
 import {
@@ -26,8 +25,15 @@ import { useEffect } from 'react';
 export default function LoginHandler() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { setUser, jwt, user, loginProcces, setLoginProcces, resetUser } =
-    useDataStore();
+  const {
+    setUser,
+    jwt,
+    setJwt,
+    user,
+    loginProcces,
+    setLoginProcces,
+    resetUser,
+  } = useDataStore();
   const { cart, setCart, resetCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
 
@@ -163,12 +169,14 @@ export default function LoginHandler() {
   useEffect(() => {
     const checkJwtCookie = async () => {
       const jwtCookie = await getCookie('jwt');
-      if (!jwtCookie) {
+      if (!jwtCookie && jwt) {
         setCookie('jwt', 'Bearer ' + jwt);
-      } else if (!jwt) {
-        logoutAction();
-        resetUser();
-        resetCart();
+      } else if (jwtCookie && !jwt) {
+        const jwtWithoutBearer = jwtCookie.replace(/Bearer /g, '');
+        setJwt(jwtWithoutBearer);
+      } else if (jwt && !user) {
+        const userData = await getFullUserData();
+        setUser(userData.body);
       }
     };
     checkJwtCookie();

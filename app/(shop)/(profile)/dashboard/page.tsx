@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>();
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]); // Initialize as an empty array
 
   const { user, setUser } = useDataStore();
 
@@ -18,22 +18,19 @@ export default function Dashboard() {
       return res.body;
     },
     onSuccess: async (data) => {
-      setOrderHistory(data.orderHistory);
+      setOrderHistory(data.orderHistory || []); // Ensure fallback to an empty array
+      setUser(data);
     },
     onError: (error: { message: string[] }) => {
-      throw new Error('خطا : ' + error.message);
+      console.error('Error:', error.message);
     },
   });
 
   useEffect(() => {
-    (async () => {
+    if (!user) {
       getUserDataFn.mutate();
-      const response = await getFullUserData();
-      if (response.status === 200) {
-        setUser(response.body);
-      }
-    })();
-  }, [user]);
+    }
+  }, []); // Removed `user` dependency to prevent infinite loop
 
   if (!user) {
     return (
@@ -52,22 +49,15 @@ export default function Dashboard() {
           <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
         </div>
       ) : (
-        orderHistory && (
+        orderHistory.length > 0 && (
           <div>
             {orderHistory.map((item, index) => (
               <div key={index}>
-                <>
-                  {item.items.map((product, index) => (
-                    <div key={index}>
-                      {/* <Image
-                      src={product.product.basicInfo.mainImage.url}
-                      fill
-                      alt=""
-                    /> */}
-                      <p>{product.product.documentId}</p>
-                    </div>
-                  ))}
-                </>
+                {item.items.map((product, index) => (
+                  <div key={index}>
+                    <p>{product.product.documentId}</p>
+                  </div>
+                ))}
               </div>
             ))}
           </div>

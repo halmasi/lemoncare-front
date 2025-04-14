@@ -11,6 +11,8 @@ import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
 
+import states from '@/public/cities.json';
+
 export default function Addresses() {
   const router = useRouter();
 
@@ -20,7 +22,7 @@ export default function Addresses() {
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
 
   const { user } = useDataStore();
-  const { checkoutAddress } = useCheckoutStore();
+  const { checkoutAddress, setCheckoutAddress } = useCheckoutStore();
 
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {
@@ -53,9 +55,47 @@ export default function Addresses() {
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
+          //find cityCode in states
+          const province = states.find((state) => {
+            return state.name == item.province;
+          });
+          const city = province?.cities.find((city) => {
+            return city.name == item.city;
+          });
+          if (city) {
+            setCheckoutAddress({
+              ...item,
+              cityCode: city.id,
+            });
+          } else {
+            setCheckoutAddress({ ...item, cityCode: 0 });
+          }
         }
       });
-  }, [addresses.length]);
+  }, [addresses]);
+
+  useEffect(() => {
+    addresses.find((item) => {
+      if (item.id == selectedAddress) {
+        //find cityCode in states
+        const province = states.find((state) => {
+          return state.name == item.province;
+        });
+        const city = province?.cities.find((city) => {
+          return city.name == item.city;
+        });
+        if (city) {
+          setCheckoutAddress({
+            ...item,
+            cityCode: city.id,
+          });
+        } else {
+          setCheckoutAddress({ ...item, cityCode: 0 });
+        }
+        return item;
+      }
+    });
+  }, [selectedAddress]);
 
   useEffect(() => {
     if (user && user.postal_information) {
@@ -78,6 +118,7 @@ export default function Addresses() {
               <div key={index}>
                 <button
                   onClick={() => {
+                    setSelectedAddress(0);
                     setSelectedAddress(item.id);
                   }}
                   className="flex items-center p-1 bg-white border rounded-lg h-fit text-foreground hover:text-foreground/80"
