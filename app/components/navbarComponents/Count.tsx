@@ -38,14 +38,16 @@ export default function Count({
     onSuccess: async (data) => {
       if (!data || !data.result || !user) return;
       const getCartData = await getCart(user.shopingCart.documentId);
-      setCart(getCartData.body.items);
+      if (getCartData.body && getCartData.body.items) {
+        setCart(getCartData.body.items);
+      }
       router.refresh();
     },
     onError: async (error) => {
       logs.error(error.cause + ' ' + error.message);
       if (refreshFunction) refreshFunction();
     },
-    retry: 2,
+    retry: 5,
     retryDelay: 1000,
   });
 

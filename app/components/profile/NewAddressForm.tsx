@@ -11,13 +11,18 @@ import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
 import { cleanPhone } from '@/app/utils/miniFunctions';
+import BooleanSwitch from './BooleanSwitch';
 
 export default function NewAddressForm({
   existingAddresses,
   onSuccessFn,
+  editModeAddress,
+  onCancel,
 }: {
   existingAddresses?: AddressProps[];
   onSuccessFn?: (data: object) => void;
+  editModeAddress?: AddressProps;
+  onCancel?: () => void;
 }) {
   type ErrorState = {
     province?: string[];
@@ -36,13 +41,44 @@ export default function NewAddressForm({
   const [provinceId, setProvinceId] = useState(0);
   const [city, setCity] = useState('');
   const [cityId, setCityId] = useState(0);
+  const [errors, setErrors] = useState<ErrorState>({});
+  const [defaultAddress, setDefaultAddress] = useState(false);
+
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
-  const [errors, setErrors] = useState<ErrorState>({});
+  const addressReff = useRef<HTMLTextAreaElement>(null);
+  const postCodeRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const mobileRef = useRef<HTMLInputElement>(null);
+
   const router = useRouter();
   const { user } = useDataStore();
   const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+  useEffect(() => {
+    if (editModeAddress) {
+      setProvince(editModeAddress.province);
+      setCity(editModeAddress.city);
+      setCityId(editModeAddress.cityCode!);
+      setProvinceId(editModeAddress.provinceCode!);
 
+      if (provinceRef.current)
+        provinceRef.current.value = editModeAddress.province;
+      if (cityRef.current) cityRef.current.value = editModeAddress.city;
+      if (addressReff.current)
+        addressReff.current.value = editModeAddress.address;
+      if (postCodeRef.current)
+        postCodeRef.current.value = editModeAddress.postCode.toString();
+      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
+      if (lastNameRef.current)
+        lastNameRef.current.value = editModeAddress.lastName;
+      if (phoneRef.current)
+        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
+      if (mobileRef.current)
+        mobileRef.current.value = editModeAddress.mobileNumber.toString();
+    }
+  }, [editModeAddress]);
   useEffect(() => {
     const state = states.find((item) => item.name == province);
     const statesCity = state?.cities.map((item) => ({
@@ -63,6 +99,7 @@ export default function NewAddressForm({
       mobile,
       firstName,
       lastName,
+      isDefault = false,
     }: {
       province: string;
       city: string;
@@ -72,6 +109,7 @@ export default function NewAddressForm({
       mobile: string;
       firstName: string;
       lastName: string;
+      isDefault: boolean;
     }) => {
       mobile = cleanPhone(mobile);
       const isValid = addressSchema.safeParse({
@@ -112,7 +150,7 @@ export default function NewAddressForm({
           mobileNumber: mobile,
           firstName,
           lastName,
-          isDefault: false,
+          isDefault: existingAddresses?.length ? defaultAddress : true,
         },
       ];
       setCheckoutAddress({
@@ -120,12 +158,28 @@ export default function NewAddressForm({
         cityCode: cityId,
         provinceCode: provinceId,
       });
+      if (editModeAddress) {
+        const address = addressesArray.find((item) => item == editModeAddress);
+        if (address) {
+          addressesArray.splice(addressesArray.indexOf(address), 1);
+        }
+      }
+      let editedAddresses = [...addressesArray];
       if (existingAddresses) {
-        addressesArray.push(...existingAddresses);
+        editedAddresses.push(...existingAddresses);
+        if (defaultAddress) {
+          const addresses: AddressProps[] = editedAddresses.map((item) => {
+            if (item == addressesArray[0]) {
+              return item;
+            }
+            return { ...item, isDefault: false };
+          });
+          editedAddresses = [...addresses];
+        }
       }
       if (user && user.postal_information) {
         const postalInfo = await updatePostalInformation(
-          addressesArray,
+          editedAddresses,
           user.postal_information.documentId
         );
         return postalInfo;
@@ -159,6 +213,7 @@ export default function NewAddressForm({
         postCode: parseInt(data.get('postCode')?.toString() || '0'),
         phone: parseInt(data.get('phone')?.toString() || '0'),
         mobile: data.get('mobile')?.toString() || '',
+        isDefault: defaultAddress,
       };
       submitFn.mutate(formValues);
     },
@@ -168,7 +223,9 @@ export default function NewAddressForm({
   return (
     <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
       <fieldset>
-        <label htmlFor="province">استان</label>
+        <label className="text-green-700" htmlFor="province">
+          استان
+        </label>
         <CitySelector
           id="province"
           placeholder="استان را انتخاب کنید"
@@ -186,7 +243,7 @@ export default function NewAddressForm({
           id="province"
           name="province"
           ref={provinceRef}
-          key={province}
+          key={'استان' + province}
           className="hidden"
           onChange={() => {}}
           type="text"
@@ -200,7 +257,9 @@ export default function NewAddressForm({
       </fieldset>
       {province && (
         <fieldset>
-          <label htmlFor="city">شهر</label>
+          <label className="text-green-700" htmlFor="city">
+            شهر
+          </label>
           <CitySelector
             key={province}
             id="city"
@@ -214,12 +273,12 @@ export default function NewAddressForm({
           <input
             id="city"
             name="city"
-            ref={cityRef}
-            key={city}
+            key={'شهر' + city}
             className="hidden"
             onChange={() => {}}
             type="text"
             value={city}
+            ref={cityRef}
           />
           {errors.city && (
             <p className="text-red-500 text-sm whitespace-pre-line">
@@ -229,8 +288,11 @@ export default function NewAddressForm({
         </fieldset>
       )}
       <fieldset>
-        <label htmlFor="address">آدرس</label>
+        <label className="text-green-700" htmlFor="address">
+          آدرس
+        </label>
         <textarea
+          ref={addressReff}
           id="address"
           name="address"
           className="border h-20 overflow-y-scroll rounded-lg w-full outline-none p-1"
@@ -247,6 +309,8 @@ export default function NewAddressForm({
         placeholder="کد پستی"
         format="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={postCodeRef}
       >
         کد پستی
       </InputBox>
@@ -261,6 +325,8 @@ export default function NewAddressForm({
         placeholder="نام"
         format="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={nameRef}
       >
         نام
       </InputBox>
@@ -275,6 +341,8 @@ export default function NewAddressForm({
         placeholder="نام خانوادگی"
         format="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={lastNameRef}
       >
         نام خانوادگی
       </InputBox>
@@ -289,6 +357,8 @@ export default function NewAddressForm({
         placeholder="تلفن"
         format="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={phoneRef}
       >
         شماره تلفن
       </InputBox>
@@ -303,6 +373,8 @@ export default function NewAddressForm({
         placeholder="موبایل"
         format="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={mobileRef}
       >
         شماره همراه
       </InputBox>
@@ -311,7 +383,29 @@ export default function NewAddressForm({
           {errors.mobile.join('\n')}
         </p>
       )}
-      <SubmitButton>ثبت</SubmitButton>
+      {editModeAddress && (
+        <BooleanSwitch
+          toggle={(b: boolean) => {
+            setDefaultAddress(b);
+          }}
+        />
+      )}
+      <div className="flex w-full gap-2">
+        <SubmitButton className="w-full">
+          {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
+        </SubmitButton>
+        {onCancel && (
+          <SubmitButton
+            className="w-full bg-accent-pink"
+            type="button"
+            onClick={() => {
+              onCancel();
+            }}
+          >
+            لغو
+          </SubmitButton>
+        )}
+      </div>
     </form>
   );
 }

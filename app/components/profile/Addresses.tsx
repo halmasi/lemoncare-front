@@ -12,6 +12,8 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
 
 import states from '@/public/cities.json';
+import { BiEdit } from 'react-icons/bi';
+import SubmitButton from '../formElements/SubmitButton';
 
 export default function Addresses() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function Addresses() {
 
   const [addresses, setAddresses] = useState<AddressProps[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
+  const [editAddress, setEditAddress] = useState<AddressProps | null>(null);
 
   const { user } = useDataStore();
   const { checkoutAddress, setCheckoutAddress } = useCheckoutStore();
@@ -77,7 +80,6 @@ export default function Addresses() {
   useEffect(() => {
     addresses.find((item) => {
       if (item.id == selectedAddress) {
-        //find cityCode in states
         const province = states.find((state) => {
           return state.name == item.province;
         });
@@ -110,55 +112,84 @@ export default function Addresses() {
   }, [user, checkoutAddress]);
 
   return (
-    <div key={checkoutAddress?.address}>
+    <div className="w-full flex flex-col gap-2" key={checkoutAddress?.address}>
       {addresses && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-fit">
           {addresses.map((item, index) => {
             return (
               <div key={index}>
-                <button
-                  onClick={() => {
-                    setSelectedAddress(0);
-                    setSelectedAddress(item.id);
-                  }}
-                  className="flex items-center p-1 bg-white border rounded-lg h-fit text-foreground hover:text-foreground/80"
-                >
-                  <div className="text-2xl px-2">
-                    {selectedAddress == item.id ? (
-                      <IoRadioButtonOnOutline className="fill-accent-pink" />
-                    ) : (
-                      <IoRadioButtonOffOutline />
+                <div>
+                  <div className="flex w-full justify-between gap-3">
+                    <div>
+                      <button
+                        onClick={() => {
+                          setSelectedAddress(0);
+                          setSelectedAddress(item.id);
+                        }}
+                        className="flex items-center p-1 bg-white border rounded-lg h-fit text-foreground hover:text-foreground/80"
+                      >
+                        <div className="text-2xl px-2">
+                          {selectedAddress == item.id ? (
+                            <IoRadioButtonOnOutline className="fill-accent-pink" />
+                          ) : (
+                            <IoRadioButtonOffOutline />
+                          )}
+                        </div>
+                        {'استان ' +
+                          item.province +
+                          ' شهر ' +
+                          item.city +
+                          ' آدرس ' +
+                          item.address +
+                          ' کد پستی ' +
+                          item.postCode}
+                      </button>
+                    </div>
+                    {(!editAddress || editAddress != item) && (
+                      <button
+                        onClick={() => {
+                          setEditAddress(item);
+                        }}
+                        className="ml-2 text-sm text-accent-pink hover:text-accent-pink/50"
+                      >
+                        <BiEdit className="text-lg" />
+                      </button>
                     )}
                   </div>
-                  {'استان ' +
-                    item.province +
-                    ' شهر ' +
-                    item.city +
-                    ' آدرس ' +
-                    item.address +
-                    ' کد پستی ' +
-                    item.postCode}
-                </button>
+                  {editAddress == item && (
+                    <NewAddressForm
+                      onSuccessFn={() => {
+                        router.refresh();
+                      }}
+                      existingAddresses={addresses}
+                      onCancel={() => setEditAddress(null)}
+                      editModeAddress={item}
+                    />
+                  )}
+                </div>
+                {showTextBox && (
+                  <NewAddressForm
+                    onSuccessFn={() => {
+                      router.refresh();
+                    }}
+                    existingAddresses={addresses}
+                    onCancel={() => setEditAddress(null)}
+                  />
+                )}
               </div>
             );
           })}
         </div>
       )}
-      {showTextBox && (
-        <NewAddressForm
-          onSuccessFn={() => {
-            router.refresh();
-          }}
-          existingAddresses={addresses}
-        />
-      )}
-      <button
+      <SubmitButton
         onClick={() => {
           setShowTextBox(true);
         }}
+        className="w-fit"
+        type="button"
       >
         افزودن آدرس جدید +
-      </button>
+      </SubmitButton>
     </div>
   );
 }
