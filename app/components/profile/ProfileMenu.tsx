@@ -55,7 +55,12 @@ export default function ProfileMenu({
       url: `/dashboard/orderhistory`,
     },
     { name: <p>مالی</p>, icon: <FaUser />, key: 'finance' },
-    { name: <p>آدرس‌ها</p>, icon: <FaMapMarkerAlt />, key: 'addresses' },
+    {
+      name: <p>آدرس‌ها</p>,
+      icon: <FaMapMarkerAlt />,
+      key: 'addresses',
+      url: '/dashboard/addresses',
+    },
     { name: <p>علاقه‌مندی‌ها</p>, icon: <FaRegHeart />, key: 'favorites' },
     {
       name: <p>اطلاعات حساب کاربری</p>,
