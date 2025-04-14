@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { CgClose } from 'react-icons/cg';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Modal({
   children,
@@ -13,23 +14,39 @@ export default function Modal({
   className?: string;
 }) {
   return (
-    <div
-      className={`${show ? 'fixed' : 'hidden'} inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50`}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div
-        className={`w-fit h-fit min-w-52 min-h-32 rounded-lg bg-background ${className}`}
-      >
-        <CgClose
-          onClick={() => onClose()}
-          className="text-xl m-1 p-[0.2 rem] w-fit text-gray-700 hover:text-red-500 cursor-pointer inset-0"
-        />
-        <div className=" px-2 py-1 md:py-2">{children}</div>
-      </div>
-    </div>
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-2 sm:px-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className={`relative w-full mt-20 md:mt-36 max-h-[70svh] md:max-h-[75svh] bg-white rounded-2xl shadow-xl overflow-hidden ${className}`}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 z-10 text-gray-500 hover:text-red-500 transition-colors"
+            >
+              <CgClose className="text-2xl" />
+            </button>
+
+            {/* Modal Content */}
+            <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+              {children}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
