@@ -54,15 +54,15 @@ export default function LoginHandler() {
     }
   };
 
-  const getCartFn = useMutation({
-    mutationFn: async (documentId: string) => {
-      const res = await getCart(documentId);
-      return { result: res, documentId };
-    },
-    onSuccess: (data) => {
-      handleCart(data.result.data.items, data.documentId);
-    },
-  });
+  // const getCartFn = useMutation({
+  //   mutationFn: async (documentId: string) => {
+  //     const res = await getCart(documentId);
+  //     return { result: res, documentId };
+  //   },
+  //   onSuccess: (data) => {
+  //     handleCart(data.result.data.items, data.documentId);
+  //   },
+  // });
 
   const updateCartFn = useMutation({
     mutationFn: async ({

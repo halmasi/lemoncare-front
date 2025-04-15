@@ -37,7 +37,7 @@ export const varietyFinder = (
           priceBefforDiscount: subItem?.priceBefforDiscount || 0,
           mainPrice: subItem?.mainPrice || 0,
           inventory: subItem?.inventory || 0,
-          endOfDiscount: new Date(subItem?.endOfDiscount!).getTime() || null,
+          endOfDiscount: new Date(subItem!.endOfDiscount!).getTime(),
         };
       }
     });
@@ -50,7 +50,7 @@ export const varietyFinder = (
       mainPrice: item?.mainPrice || 0,
       priceBefforDiscount: item?.priceBeforeDiscount || 0,
       specification: item?.specification || '',
-      endOfDiscount: new Date(item?.endOfDiscount!).getTime() || null,
+      endOfDiscount: new Date(item!.endOfDiscount!).getTime(),
     };
   }
   return value;

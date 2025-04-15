@@ -1,6 +1,6 @@
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
@@ -50,7 +50,7 @@ export default function DeliveryMethods({
   const { checkoutAddress, beforePrice, setShippingOption, setShippingPrice } =
     useCheckoutStore();
 
-  const router = useRouter();
+  // const router = useRouter();
   useEffect(() => {
     (async () => {
       const res = await fetch('/api/checkout');

@@ -39,13 +39,7 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
-      data.information.map((item) => {
-        setAddresses((prev) => {
-          const pre = prev;
-          pre.push(item);
-          return pre;
-        });
-      });
+      setAddresses(data.information);
     },
   });
 
@@ -58,7 +52,6 @@ export default function Addresses() {
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
-          //find cityCode in states
           const province = states.find((state) => {
             return state.name == item.province;
           });
@@ -78,25 +71,54 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    addresses.find((item) => {
-      if (item.id == selectedAddress) {
-        const province = states.find((state) => {
-          return state.name == item.province;
-        });
-        const city = province?.cities.find((city) => {
-          return city.name == item.city;
-        });
-        if (city) {
-          setCheckoutAddress({
-            ...item,
-            cityCode: city.id,
-          });
-        } else {
-          setCheckoutAddress({ ...item, cityCode: 0 });
+    const defaultAddress = addresses.find((item) => item.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress((prevSelectedAddress) => {
+        if (prevSelectedAddress !== defaultAddress.id) {
+          return defaultAddress.id;
         }
-        return item;
+        return prevSelectedAddress;
+      });
+
+      const province = states.find(
+        (state) => state.name === defaultAddress.province
+      );
+      const city = province?.cities.find(
+        (city) => city.name === defaultAddress.city
+      );
+
+      const newCheckoutAddress = city
+        ? { ...defaultAddress, cityCode: city.id }
+        : { ...defaultAddress, cityCode: 0 };
+
+      if (
+        JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
+      ) {
+        setCheckoutAddress(newCheckoutAddress);
       }
-    });
+    }
+  }, [addresses]);
+
+  useEffect(() => {
+    const selectedAddressData = addresses.find(
+      (item) => item.id == selectedAddress
+    );
+    if (selectedAddressData) {
+      const province = states.find((state) => {
+        return state.name == selectedAddressData.province;
+      });
+      const city = province?.cities.find((city) => {
+        return city.name == selectedAddressData.city;
+      });
+      if (city) {
+        setCheckoutAddress({
+          ...selectedAddressData,
+          cityCode: city.id,
+        });
+      } else {
+        setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+      }
+    }
   }, [selectedAddress]);
 
   useEffect(() => {
@@ -109,10 +131,10 @@ export default function Addresses() {
     } else {
       setShowTextBox(true);
     }
-  }, [user, checkoutAddress]);
+  }, [user]);
 
   return (
-    <div className="w-full flex flex-col gap-2" key={checkoutAddress?.address}>
+    <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
       {addresses && (
         <div className="flex flex-col gap-2 w-fit">
           {addresses.map((item, index) => {

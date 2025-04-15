@@ -68,7 +68,7 @@ function AddButton({
         { id: selected.uniqueId, sub: selected.uniqueSub },
         product
       );
-      let inventory = variety.inventory;
+      const inventory = variety.inventory;
       return (
         <Count
           key={selected.sub || selected.id}
