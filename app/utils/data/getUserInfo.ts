@@ -3,6 +3,8 @@ import qs from 'qs';
 import { requestData } from './dataFetch';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
+import { cleanPhone, isPhone } from '../miniFunctions';
+import { loginSchema } from '../schema/formValidation';
 
 export const updateUserInformation = async (
   id: string,
@@ -102,4 +104,34 @@ export const getGravatar = async (email: string) => {
   });
   const result = await get.json();
   return { result, status: get.status };
+};
+
+export const checkUserExists = async (identifier: string) => {
+  identifier = cleanPhone(identifier);
+  const validationResult = loginSchema
+    .pick({ identifier: true })
+    .safeParse({ identifier });
+  if (!validationResult.success) {
+    return {
+      isPhone: false,
+      success: false,
+      error: validationResult.error.flatten().fieldErrors.identifier || [
+        'ایمیل یا شماره تلفن نامعتبر است',
+      ],
+    };
+  }
+
+  const query = qs.stringify({
+    filters: {
+      $or: [{ email: identifier }, { username: '98' + identifier }],
+    },
+  });
+
+  const response = await requestData(`/users?${query}`, 'GET', {});
+
+  return {
+    isPhone: isPhone(response.data.username),
+    success: response.data.length > 0,
+    error: [],
+  };
 };

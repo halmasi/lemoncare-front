@@ -4,6 +4,14 @@ export const cleanPhone = (username: string) => {
   }
   return username;
 };
+
+export const isPhone = (username: string) => {
+  if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
+    return true;
+  }
+  return false;
+};
+
 export const logs = {
   error: async (log: string) => {
     console.trace();

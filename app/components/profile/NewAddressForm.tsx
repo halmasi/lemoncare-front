@@ -307,7 +307,7 @@ export default function NewAddressForm({
         flex="col"
         name="postCode"
         placeholder="کد پستی"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={postCodeRef}
@@ -323,7 +323,7 @@ export default function NewAddressForm({
         flex="col"
         name="firstName"
         placeholder="نام"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={nameRef}
@@ -339,7 +339,7 @@ export default function NewAddressForm({
         flex="col"
         name="lastName"
         placeholder="نام خانوادگی"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={lastNameRef}
@@ -355,7 +355,7 @@ export default function NewAddressForm({
         flex="col"
         name="phone"
         placeholder="تلفن"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={phoneRef}
@@ -371,7 +371,7 @@ export default function NewAddressForm({
         flex="col"
         name="mobile"
         placeholder="موبایل"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={mobileRef}
