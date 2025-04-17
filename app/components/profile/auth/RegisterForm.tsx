@@ -1,15 +1,18 @@
 'use client';
+
+import { useRef } from 'react';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { useMutation } from '@tanstack/react-query';
-import { registerAction, setCookie } from '@/app/utils/actions/actionMethods';
 import { useLoginData } from '@/app/utils/states/useLoginData';
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useMutation } from '@tanstack/react-query';
+import { registerAction } from '@/app/utils/actions/actionMethods';
 
 export default function RegisterForm() {
-  const { setErrors, errors, setUsername, setEmail, setStep } = useLoginData();
-  const { setJwt } = useDataStore();
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const { setStep, setErrors } = useLoginData();
 
   const registerMutation = useMutation({
     mutationFn: async ({
@@ -23,64 +26,58 @@ export default function RegisterForm() {
     }) => {
       const response = await registerAction(username, email, password);
       if (!response.success) {
-        setErrors({
-          ...errors,
-          ...response.fieldErrors,
-        });
-        throw new Error();
+        throw new Error('نام کاربری تکراری است.');
       }
-      await setCookie('jwt', `Bearer ${response.jwt}`);
-      setJwt(response.jwt);
       return response.jwt;
     },
-    onSuccess() {
+    onSuccess: () => {
       setStep('login');
+    },
+    onError: (error: Error) => {
+      setErrors({
+        identifier: [],
+        username: [error.message],
+        password: [],
+        email: [],
+        server: [],
+      });
     },
   });
 
-  const handleRegister = () => {
-    const form = document.querySelector('form')!;
-    const formData = new FormData(form);
-    const username = formData.get('username')?.toString() || '';
-    const email = formData.get('email')?.toString() || '';
-    const password = formData.get('password')?.toString() || '';
-    setUsername(username);
-    setEmail(email);
-
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const username = usernameRef.current?.value || '';
+    const email = emailRef.current?.value || '';
+    const password = passwordRef.current?.value || '';
     registerMutation.mutate({ username, email, password });
   };
 
   return (
-    <>
-      <PhoneInputBox name="username" required placeholder="شماره تلفن" />
-      {errors.username?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.username.join('\n')}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PhoneInputBox
+        ref={usernameRef}
+        name="username"
+        placeholder="شماره تلفن"
+        required
+      />
+      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required />
+      <InputBox
+        ref={passwordRef}
+        name="password"
+        type="password"
+        placeholder="رمزعبور"
+        required
+      />
+      {registerMutation.isError && (
+        <p className="text-red-500 text-sm">
+          {registerMutation.error?.message}
         </p>
       )}
-      <InputBox name="email" required placeholder="ایمیل" />
-      {errors.email?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.email.join('\n')}
-        </p>
-      )}
-      <InputBox name="password" type="password" placeholder="رمزعبور" />
-      {errors.password?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.password.join('\n')}
-        </p>
-      )}
-      {errors.server?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.server.join('\n')}
-        </p>
-      )}
-      <SubmitButton
-        isPending={registerMutation.isPending}
-        onClick={handleRegister}
-      >
-        {registerMutation.isPending ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
+      <SubmitButton isPending={registerMutation.status === 'pending'}>
+        {registerMutation.status === 'pending'
+          ? 'در حال ثبت‌نام...'
+          : 'ثبت‌نام'}
       </SubmitButton>
-    </>
+    </form>
   );
 }

@@ -1,74 +1,62 @@
 'use client';
+
 import { useRef } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { checkUserExists } from '@/app/utils/data/getUserInfo';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { isPhone } from '@/app/utils/miniFunctions';
 import { useLoginData } from '@/app/utils/states/useLoginData';
+import { useMutation } from '@tanstack/react-query';
+import { checkUserExists } from '@/app/utils/data/getUserInfo';
 
-interface LoginFormProps {
-  identifier: string; // Add this line
-  onSubmit: (formData: FormData) => Promise<void>;
-  errors?: { [key: string]: string[] };
-  isPending: boolean;
-}
-
-export default function LoginForm({
-  onSubmit,
-  errors,
-  isPending,
-}: LoginFormProps) {
+export default function LoginForm() {
   const identifierRef = useRef<HTMLInputElement>(null);
-  const { setEmail, setUsername, setStep, setErrors } = useLoginData();
+  const { setStep, setIdentifier, setErrors } = useLoginData();
 
-  const loginCheck = useMutation({
+  const loginCheckMutation = useMutation({
     mutationFn: async (identifier: string) => {
       const result = await checkUserExists(identifier);
       if (!result.success) {
-        // Update errors in the store
-        setErrors({
-          identifier: result.error,
-          username: [],
-          password: [],
-          email: [],
-          server: [],
-        });
-        throw new Error();
+        throw new Error('کاربر یافت نشد. لطفاً ثبت‌نام کنید.');
       }
-      return identifier;
+      return result.success;
     },
-    onSuccess(identifier) {
-      if (isPhone(identifier)) setUsername(identifier);
-      else setEmail(identifier);
-      setStep('login');
+    onSuccess: (userExists) => {
+      const identifier = identifierRef.current?.value || '';
+      setIdentifier(identifier);
+      setStep(userExists ? 'login' : 'register');
     },
-    onError() {},
+    onError: (error: Error) => {
+      setErrors({
+        identifier: [error.message],
+        username: [],
+        password: [],
+        email: [],
+        server: [],
+      });
+    },
   });
 
-  const identifierErrors = errors?.identifier;
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const identifier = identifierRef.current?.value || '';
+    loginCheckMutation.mutateAsync(identifier);
+  };
 
   return (
-    <>
+    <form onSubmit={handleSubmit} className="space-y-4">
       <InputBox
         ref={identifierRef}
         name="identifier"
         placeholder="ایمیل یا شماره تلفن"
+        required
       />
-      {identifierErrors && identifierErrors.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {identifierErrors.join('\n')}
+      {loginCheckMutation.isError && (
+        <p className="text-red-500 text-sm">
+          {loginCheckMutation.error?.message}
         </p>
       )}
-      <SubmitButton
-        isPending={isPending}
-        onClick={() => {
-          loginCheck.mutateAsync(identifierRef.current!.value);
-        }}
-      >
-        ادامه
+      <SubmitButton isPending={loginCheckMutation.status === 'pending'}>
+        {loginCheckMutation.status === 'pending' ? 'در حال بررسی...' : 'ادامه'}
       </SubmitButton>
-    </>
+    </form>
   );
 }
-LoginForm.displayName = 'LoginForm';

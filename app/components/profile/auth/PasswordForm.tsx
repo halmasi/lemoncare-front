@@ -1,67 +1,59 @@
 'use client';
+
+import { useRef } from 'react';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
-import { signinAction, setCookie } from '@/app/utils/actions/actionMethods';
-import { useRouter } from 'next/navigation';
-import { useDataStore } from '@/app/utils/states/useUserdata';
+import { signinAction } from '@/app/utils/actions/actionMethods';
 
 export default function PasswordForm() {
-  const { username, email, errors, setErrors, setStep } = useLoginData();
-  const { setJwt, setLoginProcces } = useDataStore();
-  const router = useRouter();
-
-  const identifier = username || email;
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const { identifier, setErrors } = useLoginData();
 
   const loginMutation = useMutation({
     mutationFn: async (password: string) => {
-      setLoginProcces(false);
       const response = await signinAction(identifier, password);
       if (!response.success) {
-        setErrors({
-          ...errors,
-          ...response.fieldErrors,
-        });
-        throw new Error();
+        throw new Error('رمز عبور اشتباه است.');
       }
-      await setCookie('jwt', `Bearer ${response.jwt}`);
       return response.jwt;
     },
-    onSuccess(jwt) {
-      setJwt(jwt);
-      setLoginProcces(true);
-      router.push('/');
+    onSuccess: () => {
+      console.log('Login successful');
     },
-    onError() {
-      setLoginProcces(false);
+    onError: (error: Error) => {
+      setErrors({
+        identifier: [],
+        username: [],
+        password: [error.message],
+        email: [],
+        server: [],
+      });
     },
   });
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const password = passwordRef.current?.value || '';
+    loginMutation.mutate(password);
+  };
+
   return (
-    <>
-      <InputBox name="password" type="password" placeholder="رمزعبور" />
-      {errors.password?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.password.join('\n')}
-        </p>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <InputBox
+        ref={passwordRef}
+        name="password"
+        type="password"
+        placeholder="رمزعبور"
+        required
+      />
+      {loginMutation.isError && (
+        <p className="text-red-500 text-sm">{loginMutation.error?.message}</p>
       )}
-      {errors.server?.length > 0 && (
-        <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.server.join('\n')}
-        </p>
-      )}
-      <SubmitButton
-        isPending={loginMutation.isPending}
-        onClick={() => {
-          const passwordInput = document.querySelector<HTMLInputElement>(
-            'input[name="password"]'
-          );
-          loginMutation.mutate(passwordInput?.value || '');
-        }}
-      >
-        {loginMutation.isPending ? 'در حال ورود...' : 'ورود'}
+      <SubmitButton isPending={loginMutation.status === 'pending'}>
+        {loginMutation.status === 'pending' ? 'در حال ورود...' : 'ورود'}
       </SubmitButton>
-    </>
+    </form>
   );
 }

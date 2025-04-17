@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-interface ErrorsProps {
+export interface ErrorsProps {
   identifier: string[];
   username: string[];
   password: string[];
@@ -14,6 +14,11 @@ export interface LoginDataProps {
   identifier: string;
   step: 'identifier' | 'login' | 'register';
   errors: ErrorsProps;
+  completedSteps: {
+    identifier: boolean;
+    login: boolean;
+    register: boolean;
+  };
   setErrors: (errors: ErrorsProps) => void;
   setEmail: (email: string) => void;
   setUsername: (username: string) => void;
@@ -36,6 +41,11 @@ export const useLoginData = create(
         identifier: [],
         server: [],
       },
+      completedSteps: {
+        identifier: false,
+        login: false,
+        register: false,
+      },
       setErrors: (errors) => set(() => ({ errors })),
       setEmail: (email) => set(() => ({ email })),
       setUsername: (username) => set(() => ({ username })),
@@ -53,6 +63,11 @@ export const useLoginData = create(
             password: [],
             identifier: [],
             server: [],
+          },
+          completedSteps: {
+            identifier: false,
+            login: false,
+            register: false,
           },
         }));
         localStorage.removeItem('login-store');
