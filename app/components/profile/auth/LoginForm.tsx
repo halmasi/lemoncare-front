@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
-import { useLoginData } from '@/app/utils/states/useLoginData';
+import { ErrorsProps, useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import { checkUserExists } from '@/app/utils/data/getUserInfo';
 
@@ -15,31 +15,31 @@ export default function LoginForm() {
     mutationFn: async (identifier: string) => {
       const result = await checkUserExists(identifier);
       if (!result.success) {
-        setStep(result ? 'login' : 'register');
+        return { userExists: false };
       }
-
-      return result.success;
+      return { userExists: true };
     },
-    onSuccess: (userExists) => {
+    onSuccess: ({ userExists }) => {
       const identifier = identifierRef.current?.value || '';
       setIdentifier(identifier);
       setStep(userExists ? 'login' : 'register');
     },
-    onError: (error: Error) => {
+    onError: () => {
       setErrors({
-        identifier: [error.message],
+        identifier: ['کاربر یافت نشد. لطفاً ثبت‌نام کنید.'],
         username: [],
         password: [],
         email: [],
         server: [],
       });
+      setStep('register');
     },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const identifier = identifierRef.current?.value || '';
-    loginCheckMutation.mutateAsync(identifier);
+    loginCheckMutation.mutate(identifier);
   };
 
   return (
@@ -51,11 +51,9 @@ export default function LoginForm() {
         required
       />
       {loginCheckMutation.isError && (
-        <div>
-          <p className="text-red-500 text-sm">
-            {loginCheckMutation.error?.message}
-          </p>
-        </div>
+        <p className="text-red-500 text-sm">
+          {loginCheckMutation.error?.message || 'خطایی رخ داده است.'}
+        </p>
       )}
       <SubmitButton isPending={loginCheckMutation.status === 'pending'}>
         {loginCheckMutation.status === 'pending' ? 'در حال بررسی...' : 'ادامه'}
