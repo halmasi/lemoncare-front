@@ -12,7 +12,8 @@ export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { setStep, setErrors } = useLoginData();
+  const { setStep, setErrors, setUsername, setEmail, setPassword, errors } =
+    useLoginData();
 
   const registerMutation = useMutation({
     mutationFn: async ({
@@ -46,10 +47,17 @@ export default function RegisterForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const username = usernameRef.current?.value || '';
-    const email = emailRef.current?.value || '';
-    const password = passwordRef.current?.value || '';
-    registerMutation.mutate({ username, email, password });
+    const enteredUsername = usernameRef.current?.value || '';
+    const enteredEmail = emailRef.current?.value || '';
+    const enteredPassword = passwordRef.current?.value || '';
+    setUsername(enteredUsername);
+    setEmail(enteredEmail);
+    setPassword(enteredPassword);
+    registerMutation.mutate({
+      username: enteredUsername,
+      email: enteredEmail,
+      password: enteredPassword,
+    });
   };
 
   return (
@@ -68,15 +76,11 @@ export default function RegisterForm() {
         placeholder="رمزعبور"
         required
       />
-      {registerMutation.isError && (
-        <p className="text-red-500 text-sm">
-          {registerMutation.error?.message}
-        </p>
+      {errors.username && (
+        <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
       )}
-      <SubmitButton isPending={registerMutation.status === 'pending'}>
-        {registerMutation.status === 'pending'
-          ? 'در حال ثبت‌نام...'
-          : 'ثبت‌نام'}
+      <SubmitButton isPending={registerMutation.status == 'pending'}>
+        {registerMutation.status ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
       </SubmitButton>
     </form>
   );
