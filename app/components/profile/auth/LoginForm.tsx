@@ -15,8 +15,9 @@ export default function LoginForm() {
     mutationFn: async (identifier: string) => {
       const result = await checkUserExists(identifier);
       if (!result.success) {
-        throw new Error('کاربر یافت نشد. لطفاً ثبت‌نام کنید.');
+        setStep(result ? 'login' : 'register');
       }
+
       return result.success;
     },
     onSuccess: (userExists) => {
@@ -50,9 +51,11 @@ export default function LoginForm() {
         required
       />
       {loginCheckMutation.isError && (
-        <p className="text-red-500 text-sm">
-          {loginCheckMutation.error?.message}
-        </p>
+        <div>
+          <p className="text-red-500 text-sm">
+            {loginCheckMutation.error?.message}
+          </p>
+        </div>
       )}
       <SubmitButton isPending={loginCheckMutation.status === 'pending'}>
         {loginCheckMutation.status === 'pending' ? 'در حال بررسی...' : 'ادامه'}
