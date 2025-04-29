@@ -1,6 +1,6 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import RadioButton from './formElements/RadioButton';
+import ProductSelectorRadioButton from './formElements/ProductSelectorRadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
 import { useMutation } from '@tanstack/react-query';
@@ -321,7 +321,7 @@ export default function VarietySelector({
         <div className="flex gap-2 p-2">
           {product.variety.map((item, index) => {
             return (
-              <RadioButton
+              <ProductSelectorRadioButton
                 value={{
                   id: item.id,
                   sub: null,
@@ -335,7 +335,7 @@ export default function VarietySelector({
                 selectedOptions={selected}
               >
                 {item.specification}
-              </RadioButton>
+              </ProductSelectorRadioButton>
             );
           })}
         </div>
@@ -345,7 +345,7 @@ export default function VarietySelector({
               <div className="flex gap-2 p-2" key={index}>
                 {item.subVariety.length > 0 &&
                   item.subVariety.map((subItem) => (
-                    <RadioButton
+                    <ProductSelectorRadioButton
                       key={subItem.id}
                       handler={itemSelectFunc}
                       selectedOptions={selected}
@@ -359,7 +359,7 @@ export default function VarietySelector({
                       group="subItems"
                     >
                       {subItem.specification}
-                    </RadioButton>
+                    </ProductSelectorRadioButton>
                   ))}
               </div>
             );

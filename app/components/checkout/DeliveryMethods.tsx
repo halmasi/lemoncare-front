@@ -1,13 +1,14 @@
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useMutation } from '@tanstack/react-query';
-// import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import PostLogo from '@/public/Iran-Post-Logo.svg';
 import ChaparLogo from '@/public/chaparLogo.png';
+import { shippingPrice } from '@/app/utils/paymentUtils';
+import RadioButton from '../formElements/RadioButton';
 
-interface CourierProps {
+export interface CourierProps {
   courierCode: string;
   courierName: string;
   courierServiceId: number;
@@ -21,7 +22,7 @@ interface GetMethodsProps {
   isSuccess: boolean;
   data: CourierProps[];
 }
-interface PostMethodsProps {
+export interface PostMethodsProps {
   isSuccess: boolean;
   data: {
     optionalServices: object;
@@ -50,7 +51,6 @@ export default function DeliveryMethods({
   const { checkoutAddress, beforePrice, setShippingOption, setShippingPrice } =
     useCheckoutStore();
 
-  // const router = useRouter();
   useEffect(() => {
     (async () => {
       const res = await fetch('/api/checkout');
@@ -68,38 +68,13 @@ export default function DeliveryMethods({
             });
           }
         });
-        // router.refresh();
       }
     })();
   }, []);
 
   const getPrice = useMutation({
     mutationFn: async (cityCode: number) => {
-      const body = {
-        courier: {
-          courier_code: selected.courierCode,
-          service_type: selected.courierServiceCode,
-          payment_type: 'SENDER',
-        },
-        from_city_code: 286,
-        to_city_code: cityCode,
-        parcel_properties: {
-          height: 35,
-          width: 25,
-          length: 25,
-          box_type_id: 8,
-          total_weight: 200,
-          total_value: beforePrice,
-        },
-        has_collection: true,
-        has_distribution: true,
-        value_added_service: [0],
-      };
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
-      const data: PostMethodsProps = await res.json();
+      const data = await shippingPrice(cityCode, selected, beforePrice, 200);
       return data;
     },
     onSuccess: (data) => {
@@ -134,26 +109,29 @@ export default function DeliveryMethods({
   return (
     <div key={courier.length}>
       <p className="text-red-700">{error}</p>
-      <div className="flex flex-wrap items-center justify-center">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         {courier.map((item, index) => (
-          <button
-            key={index}
+          <RadioButton
+            id={item.courierCode}
             onClick={() => {
               setSelected(item);
             }}
-            className={`flex flex-col p-2 text-center justify-between items-center rounded-lg border m-2 aspect-square w-40 ${selected == item && 'bg-accent-pink/20 hover:bg-accent-pink/20'} hover:bg-gray-200 ${getPrice.isPending && 'cursor-wait'}`}
+            isSelected={selected == item}
+            className="flex flex-col items-center justify-center w-52 aspect-square"
           >
-            <Image
-              src={item.courierCode == 'IR_POST' ? PostLogo : ChaparLogo.src}
-              alt={item.courierName}
-              width={100}
-              height={100}
-            />
-            <div>
-              <p className="text-xs">{item.courierName}</p>
-              <p>{item.courierServiceName}</p>
+            <div className="flex flex-col text-center gap-2">
+              <Image
+                src={item.courierCode == 'IR_POST' ? PostLogo : ChaparLogo.src}
+                alt={item.courierName}
+                width={100}
+                height={100}
+              />
+              <div>
+                <p className="text-xs">{item.courierName}</p>
+                <p>{item.courierServiceName}</p>
+              </div>
             </div>
-          </button>
+          </RadioButton>
         ))}
       </div>
     </div>
