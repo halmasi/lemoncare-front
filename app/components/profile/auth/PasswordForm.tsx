@@ -6,21 +6,28 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import { signinAction } from '@/app/utils/actions/actionMethods';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export default function PasswordForm() {
+  const { email, username, setErrors } = useLoginData();
+  const { setLoginProcces, setJwt } = useDataStore();
+
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { identifier, setErrors } = useLoginData();
 
   const loginMutation = useMutation({
     mutationFn: async (password: string) => {
+      const identifier = email || username;
       const response = await signinAction(identifier, password);
       if (!response.success) {
         throw new Error('رمز عبور اشتباه است.');
       }
-      return response.jwt;
+      return response;
     },
-    onSuccess: () => {
-      console.log('Login successful');
+    onSuccess: (data) => {
+      // setCookie('jwt', 'Bearer ' + data.jwt);
+      setJwt(data.jwt);
+      setLoginProcces(true);
+      // if (path.startsWith('login')) router.push('/');
     },
     onError: (error: Error) => {
       setErrors({
@@ -36,7 +43,7 @@ export default function PasswordForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const password = passwordRef.current?.value || '';
-    loginMutation.mutate(password);
+    loginMutation.mutateAsync(password);
   };
 
   return (

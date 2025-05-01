@@ -19,12 +19,14 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function LoginHandler() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const path = usePathname();
+
   const {
     setUser,
     jwt,
@@ -39,7 +41,6 @@ export default function LoginHandler() {
 
   const handleCart = (fetchedCart: CartProps[], id: string) => {
     if (fetchedCart && cart) {
-      // Use a Map to deduplicate items
       const cartMap = new Map<string, CartProps>();
       [...fetchedCart, ...cart].forEach((item) => {
         const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
@@ -91,9 +92,8 @@ export default function LoginHandler() {
       throw new Error('خطا : ' + error.message);
     },
   });
-
-  useEffect(() => {
-    const loginFn = async () => {
+  const loginFn = useMutation({
+    mutationFn: async () => {
       try {
         setLoginProcces(true);
 
@@ -151,19 +151,22 @@ export default function LoginHandler() {
 
         // Handle cart (deferred)
         if (cartData && user) {
-          handleCart(cartData.data.items, user.shopingCart.documentId);
+          getCartFn.mutateAsync(user.shopingCart.documentId);
+          // handleCart(cartData.data.items, user.shopingCart.documentId);
         }
-
-        // Redirect to home page
-        router.push('/');
       } catch (error) {
         console.error('Error during login process:', error);
       } finally {
         setLoginProcces(false);
       }
-    };
+    },
+  });
 
-    if (!user && loginProcces) loginFn();
+  useEffect(() => {
+    if (!user && loginProcces) {
+      loginFn.mutateAsync();
+      if (path.startsWith('login')) router.push('/');
+    }
   }, [loginProcces, user, jwt, router]);
 
   useEffect(() => {

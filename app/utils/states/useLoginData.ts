@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 export interface LoginDataProps {
-  identifier: string;
   username: string;
   email: string;
   password: string;
@@ -19,7 +18,6 @@ export interface LoginDataProps {
     server: string[];
   };
   setErrors: (errors: LoginDataProps['errors']) => void;
-  setIdentifier: (identifier: string) => void;
   setUsername: (username: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
@@ -30,9 +28,7 @@ export interface LoginDataProps {
   ) => void;
   resetForm: () => void;
 }
-
 export const useLoginData = create<LoginDataProps>((set) => ({
-  identifier: '',
   username: '',
   email: '',
   password: '',
@@ -53,7 +49,6 @@ export const useLoginData = create<LoginDataProps>((set) => ({
     set((state) => ({
       errors: { ...state.errors, ...errors },
     })),
-  setIdentifier: (identifier) => set(() => ({ identifier })),
   setUsername: (username) => set(() => ({ username })),
   setEmail: (email) => set(() => ({ email })),
   setPassword: (password) => set(() => ({ password })),

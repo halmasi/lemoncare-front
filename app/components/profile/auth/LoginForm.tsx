@@ -6,18 +6,31 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import { checkUserExists } from '@/app/utils/data/getUserInfo';
+import { cleanPhone, isEmail, isPhone } from '@/app/utils/miniFunctions';
 
 export default function LoginForm() {
   const identifierRef = useRef<HTMLInputElement>(null);
-  const { setStep, setIdentifier, setErrors, errors } = useLoginData();
+  const { setStep, setEmail, setUsername, setErrors, errors } = useLoginData();
 
   const loginCheckMutation = useMutation({
     mutationFn: async (identifier: string) => {
       const result = await checkUserExists(identifier);
-      return { result };
+      return { userExists: result.success, identifier };
     },
-    onSuccess: (userExists) => {
-      setStep(userExists ? 'register' : 'login');
+    onSuccess: ({ userExists, identifier }) => {
+      if (isPhone(identifier)) {
+        setUsername(cleanPhone(identifier));
+        setEmail('');
+      } else if (isEmail(identifier)) {
+        setEmail(identifier);
+        setUsername('');
+      } else {
+        setEmail('');
+        setUsername('');
+      }
+
+      if (userExists) setStep('login');
+      else setStep('register');
     },
     onError: (error: Error) => {
       setErrors({
@@ -33,8 +46,6 @@ export default function LoginForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const enteredIdentifier = identifierRef.current?.value || '';
-    console.log('Entered Identifier:', enteredIdentifier);
-    setIdentifier(enteredIdentifier);
     loginCheckMutation.mutate(enteredIdentifier);
   };
 
@@ -50,7 +61,7 @@ export default function LoginForm() {
         <p className="text-red-500 text-sm">{errors.identifier.join('\n')}</p>
       )}
       <SubmitButton isPending={loginCheckMutation.status === 'pending'}>
-        {loginCheckMutation.status === 'pending' ? 'در حال بررسی...' : 'ادامه'}
+        {loginCheckMutation.status == 'pending' ? 'در حال بررسی...' : 'ادامه'}
       </SubmitButton>
     </form>
   );

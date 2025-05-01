@@ -11,6 +11,12 @@ export const isPhone = (username: string) => {
   }
   return false;
 };
+export const isEmail = (username: string) => {
+  if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(username)) {
+    return true;
+  }
+  return false;
+};
 
 export const logs = {
   error: async (log: string) => {

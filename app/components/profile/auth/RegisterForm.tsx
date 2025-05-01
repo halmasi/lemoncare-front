@@ -1,19 +1,25 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import InputBox from '@/app/components/formElements/InputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import { registerAction } from '@/app/utils/actions/actionMethods';
+import { registerSchema } from '@/app/utils/schema/formValidation';
+import { isPhone } from '@/app/utils/miniFunctions';
 
 export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { setStep, setErrors, setUsername, setEmail, setPassword, errors } =
-    useLoginData();
+  const { setStep, setErrors, email, username, errors } = useLoginData();
+
+  useEffect(() => {
+    usernameRef.current!.value = username;
+    emailRef.current!.value = email;
+  }, [email, username]);
 
   const registerMutation = useMutation({
     mutationFn: async ({
@@ -50,12 +56,34 @@ export default function RegisterForm() {
     const enteredUsername = usernameRef.current?.value || '';
     const enteredEmail = emailRef.current?.value || '';
     const enteredPassword = passwordRef.current?.value || '';
-    setUsername(enteredUsername);
-    setEmail(enteredEmail);
-    setPassword(enteredPassword);
+
+    // Determine if the identifier is a phone number or email
+    const isPhoneNumber = isPhone(enteredUsername);
+    const username = isPhoneNumber ? enteredUsername : '';
+    const email = isPhoneNumber ? enteredEmail : enteredUsername;
+
+    // Validate the form using the schema
+    const validationResult = registerSchema.safeParse({
+      username,
+      email,
+      password: enteredPassword,
+    });
+
+    if (!validationResult.success) {
+      const validationErrors = validationResult.error.flatten().fieldErrors;
+      setErrors({
+        username: validationErrors.username || [],
+        email: validationErrors.email || [],
+        password: validationErrors.password || [],
+        identifier: [],
+        server: [],
+      });
+      return;
+    }
+
     registerMutation.mutate({
-      username: enteredUsername,
-      email: enteredEmail,
+      username,
+      email,
       password: enteredPassword,
     });
   };
@@ -65,10 +93,15 @@ export default function RegisterForm() {
       <PhoneInputBox
         ref={usernameRef}
         name="username"
-        placeholder="شماره تلفن"
+        placeholder="شماره تلفن یا ایمیل"
         required
       />
-      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required />
+      <InputBox
+        ref={emailRef}
+        name="email"
+        placeholder="ایمیل (در صورت وارد کردن شماره تلفن در بالا)"
+        required
+      />
       <InputBox
         ref={passwordRef}
         name="password"
@@ -79,7 +112,13 @@ export default function RegisterForm() {
       {errors.username && (
         <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
       )}
-      <SubmitButton isPending={registerMutation.status == 'pending'}>
+      {errors.email && (
+        <p className="text-red-500 text-sm">{errors.email.join('\n')}</p>
+      )}
+      {errors.password && (
+        <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
+      )}
+      <SubmitButton isPending={registerMutation.status === 'pending'}>
         {registerMutation.status ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
       </SubmitButton>
     </form>

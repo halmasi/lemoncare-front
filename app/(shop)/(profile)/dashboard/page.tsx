@@ -28,9 +28,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) {
-      getUserDataFn.mutate();
+      getUserDataFn.mutateAsync();
     }
-  }, []); // Removed `user` dependency to prevent infinite loop
+  }, [user]); // Removed `user` dependency to prevent infinite loop
 
   if (!user) {
     return (
