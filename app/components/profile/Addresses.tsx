@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
+import RadioButton from '../formElements/RadioButton';
 
 export default function Addresses() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function Addresses() {
     },
     onSuccess: (data) => {
       setAddresses(data.information);
+      console.log(data.information);
     },
   });
 
@@ -143,29 +145,25 @@ export default function Addresses() {
                 <div>
                   <div className="flex w-full justify-between gap-3">
                     <div>
-                      <button
-                        onClick={() => {
+                      <RadioButton
+                        id={item.id.toString()}
+                        isSelected={selectedAddress === item.id}
+                        onClick={(id) => {
                           setSelectedAddress(0);
-                          setSelectedAddress(item.id);
+                          setSelectedAddress(parseInt(id));
                         }}
-                        className="flex items-center p-1 bg-white border rounded-lg h-fit text-foreground hover:text-foreground/80"
                       >
-                        <div className="text-2xl px-2">
-                          {selectedAddress == item.id ? (
-                            <IoRadioButtonOnOutline className="fill-accent-pink" />
-                          ) : (
-                            <IoRadioButtonOffOutline />
-                          )}
-                        </div>
-                        {'استان ' +
-                          item.province +
-                          ' شهر ' +
-                          item.city +
-                          ' آدرس ' +
-                          item.address +
-                          ' کد پستی ' +
-                          item.postCode}
-                      </button>
+                        <p>
+                          {'استان ' +
+                            item.province +
+                            ' شهر ' +
+                            item.city +
+                            ' آدرس ' +
+                            item.address +
+                            ' کد پستی ' +
+                            item.postCode}
+                        </p>
+                      </RadioButton>
                     </div>
                     {(!editAddress || editAddress != item) && (
                       <button

@@ -29,7 +29,7 @@ export default function RadioButton({
         onClick={() => {
           onClick(id);
         }}
-        className={`flex w-full h-fit rounded-lg p-2 border items-center justify-between ${className} ${isSelectedClass}`}
+        className={`flex w-full h-fit rounded-lg p-2 border items-center justify-between cursor-pointer ${className} ${isSelectedClass}`}
       >
         <div>{children}</div>
         {showRadioIcon && (

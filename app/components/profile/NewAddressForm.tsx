@@ -42,7 +42,7 @@ export default function NewAddressForm({
   const [city, setCity] = useState('');
   const [cityId, setCityId] = useState(0);
   const [errors, setErrors] = useState<ErrorState>({});
-  const [defaultAddress, setDefaultAddress] = useState(false);
+  const [defaultAddress, setDefaultAddress] = useState<boolean>(false);
 
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
@@ -77,6 +77,7 @@ export default function NewAddressForm({
         phoneRef.current.value = editModeAddress.phoneNumber!.toString();
       if (mobileRef.current)
         mobileRef.current.value = editModeAddress.mobileNumber.toString();
+      setDefaultAddress(editModeAddress.isDefault);
     }
   }, [editModeAddress]);
   useEffect(() => {
@@ -148,7 +149,10 @@ export default function NewAddressForm({
           mobileNumber: mobile,
           firstName,
           lastName,
-          isDefault: existingAddresses?.length ? defaultAddress : true,
+          isDefault:
+            existingAddresses && existingAddresses.length
+              ? defaultAddress
+              : true,
         },
       ];
       setCheckoutAddress({
@@ -383,6 +387,7 @@ export default function NewAddressForm({
       )}
       {editModeAddress && (
         <BooleanSwitch
+          isToggledOn={editModeAddress.isDefault}
           toggle={(b: boolean) => {
             setDefaultAddress(b);
           }}
