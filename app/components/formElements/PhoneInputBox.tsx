@@ -1,5 +1,4 @@
-'use client';
-import { forwardRef, ReactNode, useEffect, useState } from 'react';
+import { forwardRef, ReactNode } from 'react';
 
 interface PhoneInputProps {
   placeholder: string;
@@ -35,5 +34,6 @@ const PhoneInputBox = forwardRef<HTMLInputElement, PhoneInputProps>(
     );
   }
 );
+PhoneInputBox.displayName = 'InputBox';
 
 export default PhoneInputBox;

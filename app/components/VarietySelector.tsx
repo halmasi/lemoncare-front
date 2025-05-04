@@ -175,7 +175,7 @@ export default function VarietySelector({
         uniqueSub: lessPrice.usub,
       });
     } else setAvailable(false);
-  }, []);
+  }, [product]);
 
   useEffect(() => {
     const price = varietyFinder(
@@ -194,7 +194,7 @@ export default function VarietySelector({
       price: price.mainPrice,
       inventory: price.inventory,
     });
-  }, [selected]);
+  }, [selected, product]);
 
   const handleAddToCart = (newItem: NewItemProps) => {
     cartProductSetter(newItem.id, cartProducts).then((list) =>

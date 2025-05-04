@@ -41,7 +41,7 @@ export default function Cart({
       getCart(user.shopingCart.documentId).then((data) => {
         setCart(data.data.items);
       });
-  }, []);
+  }, [jwt, user, setCart]);
 
   useEffect(() => {
     if (user && user.cart && cart.length != user.cart.length) {
@@ -168,11 +168,20 @@ export default function Cart({
         }
       });
     }
-  }, [cart, setCart, cartProducts, route, totalPrice]);
+  }, [
+    cart,
+    setCart,
+    cartProducts,
+    setCartProducts,
+    user,
+    setUser,
+    route,
+    totalPrice,
+  ]);
 
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
-  }, [totalBeforePrice, totalPrice]);
+  }, [totalBeforePrice, totalPrice, priceAmount]);
 
   return (
     <div className="w-full">

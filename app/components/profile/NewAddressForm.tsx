@@ -221,7 +221,7 @@ export default function NewAddressForm({
       };
       submitFn.mutate(formValues);
     },
-    [user, submitFn]
+    [submitFn, defaultAddress]
   );
 
   return (

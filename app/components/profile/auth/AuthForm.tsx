@@ -8,8 +8,7 @@ import PasswordForm from './PasswordForm';
 import RegisterForm from './RegisterForm';
 
 export default function AuthForm() {
-  const { step, setStep, resetForm, setErrors, completedSteps } =
-    useLoginData();
+  const { step, setStep, resetForm, completedSteps } = useLoginData();
 
   const stepTitles = {
     identifier: 'ورود یا ثبت‌نام',

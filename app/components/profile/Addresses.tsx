@@ -3,10 +3,6 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { getPostalInformation } from '@/app/utils/data/getUserInfo';
-import {
-  IoRadioButtonOffOutline,
-  IoRadioButtonOnOutline,
-} from 'react-icons/io5';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
@@ -70,7 +66,7 @@ export default function Addresses() {
           }
         }
       });
-  }, [addresses]);
+  }, [addresses, setCheckoutAddress]);
 
   useEffect(() => {
     const defaultAddress = addresses.find((item) => item.isDefault);
@@ -99,7 +95,7 @@ export default function Addresses() {
         setCheckoutAddress(newCheckoutAddress);
       }
     }
-  }, [addresses]);
+  }, [addresses, checkoutAddress, setCheckoutAddress]);
 
   useEffect(() => {
     const selectedAddressData = addresses.find(
@@ -121,7 +117,7 @@ export default function Addresses() {
         setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
       }
     }
-  }, [selectedAddress]);
+  }, [selectedAddress, addresses, setCheckoutAddress]);
 
   useEffect(() => {
     if (user && user.postal_information) {
@@ -133,7 +129,7 @@ export default function Addresses() {
     } else {
       setShowTextBox(true);
     }
-  }, [user]);
+  }, [user, checkoutAddress]);
 
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>

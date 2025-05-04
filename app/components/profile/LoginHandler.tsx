@@ -20,13 +20,9 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function LoginHandler() {
-  const router = useRouter();
-  const path = usePathname();
-
   const {
     setUser,
     jwt,
@@ -104,10 +100,6 @@ export default function LoginHandler() {
 
       setUser(userData.body);
 
-      if (userData.body && (path === '/login' || path === '/register')) {
-        router.push('/');
-      }
-
       if (cartData && userData.body) {
         await handleCartFn.mutateAsync({
           fetchedCart: cartData.data.items,
@@ -157,13 +149,12 @@ export default function LoginHandler() {
     },
     onError: (error: { message: string[] }) => {
       logs.error('Login error: ' + error.message);
-      router.push('/login');
     },
   });
 
   useEffect(() => {
     if (!user && loginProcces) loginFn.mutateAsync();
-  }, [loginProcces, user, jwt, router]);
+  }, [loginProcces, user, jwt, loginFn]);
 
   useEffect(() => {
     const checkJwtCookie = async () => {
@@ -179,7 +170,7 @@ export default function LoginHandler() {
       }
     };
     checkJwtCookie();
-  }, [jwt, user, resetUser, resetCart]);
+  }, [jwt, user, resetUser, resetCart, setJwt, setUser]);
 
   return <></>;
 }

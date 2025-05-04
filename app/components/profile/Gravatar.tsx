@@ -35,7 +35,7 @@ export default function Gravatar({ className }: { className?: string }) {
     if (user && user.email) {
       getGravatarFn.mutate(user.email);
     }
-  }, [user]);
+  }, [user, getGravatarFn]);
   return (
     <div
       className={`flex rounded-full overflow-hidden w-10 h-10 items-center justify-center bg-slate-300 ${className}`}

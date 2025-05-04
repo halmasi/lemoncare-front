@@ -89,7 +89,7 @@ export default function Count({
         }
       }
     },
-    [cart, setCart, jwt, user, updateCartFn]
+    [cart, setCart, cartItem, jwt, user, updateCartFn]
   );
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function Count({
       setNumber(inventory);
       handleCartUpdate(inventory);
     }
-  }, [cartItem.count, inventory]);
+  }, [cartItem.count, inventory, handleCartUpdate]);
 
   return (
     <>
