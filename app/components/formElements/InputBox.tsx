@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode } from 'react';
 import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { forwardRef } from 'react';
 
@@ -77,5 +77,4 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
 );
 
 InputBox.displayName = 'InputBox';
-
 export default InputBox;

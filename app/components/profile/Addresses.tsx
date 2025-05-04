@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
+import RadioButton from '../formElements/RadioButton';
 
 export default function Addresses() {
   const router = useRouter();
@@ -39,13 +40,8 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
-      data.information.map((item) => {
-        setAddresses((prev) => {
-          const pre = prev;
-          pre.push(item);
-          return pre;
-        });
-      });
+      setAddresses(data.information);
+      console.log(data.information);
     },
   });
 
@@ -58,7 +54,6 @@ export default function Addresses() {
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
-          //find cityCode in states
           const province = states.find((state) => {
             return state.name == item.province;
           });
@@ -78,25 +73,54 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    addresses.find((item) => {
-      if (item.id == selectedAddress) {
-        const province = states.find((state) => {
-          return state.name == item.province;
-        });
-        const city = province?.cities.find((city) => {
-          return city.name == item.city;
-        });
-        if (city) {
-          setCheckoutAddress({
-            ...item,
-            cityCode: city.id,
-          });
-        } else {
-          setCheckoutAddress({ ...item, cityCode: 0 });
+    const defaultAddress = addresses.find((item) => item.isDefault);
+    if (defaultAddress) {
+      setSelectedAddress((prevSelectedAddress) => {
+        if (prevSelectedAddress !== defaultAddress.id) {
+          return defaultAddress.id;
         }
-        return item;
+        return prevSelectedAddress;
+      });
+
+      const province = states.find(
+        (state) => state.name === defaultAddress.province
+      );
+      const city = province?.cities.find(
+        (city) => city.name === defaultAddress.city
+      );
+
+      const newCheckoutAddress = city
+        ? { ...defaultAddress, cityCode: city.id }
+        : { ...defaultAddress, cityCode: 0 };
+
+      if (
+        JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
+      ) {
+        setCheckoutAddress(newCheckoutAddress);
       }
-    });
+    }
+  }, [addresses]);
+
+  useEffect(() => {
+    const selectedAddressData = addresses.find(
+      (item) => item.id == selectedAddress
+    );
+    if (selectedAddressData) {
+      const province = states.find((state) => {
+        return state.name == selectedAddressData.province;
+      });
+      const city = province?.cities.find((city) => {
+        return city.name == selectedAddressData.city;
+      });
+      if (city) {
+        setCheckoutAddress({
+          ...selectedAddressData,
+          cityCode: city.id,
+        });
+      } else {
+        setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+      }
+    }
   }, [selectedAddress]);
 
   useEffect(() => {
@@ -109,10 +133,10 @@ export default function Addresses() {
     } else {
       setShowTextBox(true);
     }
-  }, [user, checkoutAddress]);
+  }, [user]);
 
   return (
-    <div className="w-full flex flex-col gap-2" key={checkoutAddress?.address}>
+    <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
       {addresses && (
         <div className="flex flex-col gap-2 w-fit">
           {addresses.map((item, index) => {
@@ -121,29 +145,25 @@ export default function Addresses() {
                 <div>
                   <div className="flex w-full justify-between gap-3">
                     <div>
-                      <button
-                        onClick={() => {
+                      <RadioButton
+                        id={item.id.toString()}
+                        isSelected={selectedAddress === item.id}
+                        onClick={(id) => {
                           setSelectedAddress(0);
-                          setSelectedAddress(item.id);
+                          setSelectedAddress(parseInt(id));
                         }}
-                        className="flex items-center p-1 bg-white border rounded-lg h-fit text-foreground hover:text-foreground/80"
                       >
-                        <div className="text-2xl px-2">
-                          {selectedAddress == item.id ? (
-                            <IoRadioButtonOnOutline className="fill-accent-pink" />
-                          ) : (
-                            <IoRadioButtonOffOutline />
-                          )}
-                        </div>
-                        {'استان ' +
-                          item.province +
-                          ' شهر ' +
-                          item.city +
-                          ' آدرس ' +
-                          item.address +
-                          ' کد پستی ' +
-                          item.postCode}
-                      </button>
+                        <p>
+                          {'استان ' +
+                            item.province +
+                            ' شهر ' +
+                            item.city +
+                            ' آدرس ' +
+                            item.address +
+                            ' کد پستی ' +
+                            item.postCode}
+                        </p>
+                      </RadioButton>
                     </div>
                     {(!editAddress || editAddress != item) && (
                       <button

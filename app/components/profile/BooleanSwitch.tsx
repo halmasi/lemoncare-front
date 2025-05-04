@@ -3,10 +3,12 @@ import { useState } from 'react';
 
 export default function BooleanSwitch({
   toggle,
+  isToggledOn = false,
 }: {
   toggle: (b: boolean) => void;
+  isToggledOn?: boolean;
 }) {
-  const [isOn, setIsOn] = useState(false);
+  const [isOn, setIsOn] = useState(isToggledOn);
 
   return (
     <div className="flex gap-2">

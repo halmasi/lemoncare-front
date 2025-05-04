@@ -35,7 +35,7 @@ export interface ProductProps {
   updatedAt: string;
   publishedAt: string;
   basicInfo: {
-    slug: any;
+    slug: string;
     id: number;
     title: string;
     mainImage: ImageProps;
