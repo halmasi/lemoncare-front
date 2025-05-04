@@ -30,7 +30,7 @@ export default function Dashboard() {
     if (!user) {
       getUserDataFn.mutateAsync();
     }
-  }, [user, getUserDataFn]);
+  }, [user]);
 
   if (!user) {
     return (

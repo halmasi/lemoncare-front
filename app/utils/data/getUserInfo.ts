@@ -138,3 +138,33 @@ export const checkUserExists = async (identifier: string) => {
     error: [],
   };
 };
+
+export const checkUserExists = async (identifier: string) => {
+  identifier = cleanPhone(identifier);
+  const validationResult = loginSchema
+    .pick({ identifier: true })
+    .safeParse({ identifier });
+  if (!validationResult.success) {
+    return {
+      isPhone: false,
+      success: false,
+      error: validationResult.error.flatten().fieldErrors.identifier || [
+        'ایمیل یا شماره تلفن نامعتبر است',
+      ],
+    };
+  }
+
+  const query = qs.stringify({
+    filters: {
+      $or: [{ email: identifier }, { username: '98' + identifier }],
+    },
+  });
+
+  const response = await requestData(`/users?${query}`, 'GET', {});
+
+  return {
+    isPhone: isPhone(response.data.username),
+    success: response.data.length > 0,
+    error: [],
+  };
+};
