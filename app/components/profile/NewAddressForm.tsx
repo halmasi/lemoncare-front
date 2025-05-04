@@ -42,7 +42,9 @@ export default function NewAddressForm({
   const [city, setCity] = useState('');
   const [cityId, setCityId] = useState(0);
   const [errors, setErrors] = useState<ErrorState>({});
-  const [defaultAddress, setDefaultAddress] = useState<boolean>(false);
+  const [defaultAddress, setDefaultAddress] = useState<boolean>(
+    editModeAddress?.isDefault || false
+  );
 
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
