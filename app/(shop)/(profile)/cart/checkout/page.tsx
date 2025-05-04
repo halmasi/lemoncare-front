@@ -48,12 +48,12 @@ export default function CheckoutPage() {
   if (!totalPrice) return <div>loading</div>;
   return (
     <>
-      <div className="w-full flex flex-col gap-2 md:flex-row justify-between">
-        <div className="w-full md:w-4/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border">
+      <div className="w-full flex flex-col lg:flex-row gap-2  justify-between">
+        <div className="w-full lg:w-4/12  p-2 lg:p-5 rounded-lg bg-gray-50/50 border">
           <h6>انتخاب آدرس:</h6>
           <Addresses />
         </div>
-        <div className="w-full md:w-5/12 p-2 md:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+        <div className="w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
           <h6>روش ارسال:</h6>
           <DeliveryMethods
             onChangeFn={(isSelected: boolean) => {
@@ -61,7 +61,7 @@ export default function CheckoutPage() {
             }}
           />
         </div>
-        <div className="flex flex-col h-fit w-full md:w-3/12 md:sticky md:top-5">
+        <div className="flex flex-col h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
           {!user && (
             <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
               <AuthForm />

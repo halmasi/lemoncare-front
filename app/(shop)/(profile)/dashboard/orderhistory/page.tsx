@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { getOrderHistory } from '@/app/utils/data/getUserInfo';
 import { logs } from '@/app/utils/miniFunctions';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import type { OrderDetailsModalProps } from '@/app/components/profile/OrderDetailsModal';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import {
@@ -23,9 +22,7 @@ import Toman from '@/app/components/Toman';
 export default function OrderHistory() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<
-    OrderDetailsModalProps['order'] | null
-  >(null);
+  // const [selectedOrder, setSelectedOrder] = (null);
   const [productDetails, setProductDetails] = useState<
     {
       variety: {
@@ -40,8 +37,6 @@ export default function OrderHistory() {
       name: string;
     }[]
   >();
-  const [loadingDetails, setLoadingDetails] = useState(false);
-
   const { user, setUser } = useDataStore();
   const { cartProducts, setCartProducts } = useCartStore();
   const getUserDataFn = useMutation({
@@ -69,8 +64,6 @@ export default function OrderHistory() {
   }, [user]); // Added `user` as a dependency
 
   const handleOrderClick = async (order: OrderHistoryProps) => {
-    setLoadingDetails(true);
-
     order.items.forEach(async (item) => {
       const productsList = await cartProductSetter(
         item.product.documentId,
@@ -249,7 +242,7 @@ export default function OrderHistory() {
                 })}
 
                 <div className="border-t pt-4 mt-6">
-                  <div className="flex items-center justify-between text-sm mb-2">
+                  {/* <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-600 font-medium">
                       💳 وضعیت پرداخت:
                     </span>
@@ -260,7 +253,7 @@ export default function OrderHistory() {
                     >
                       {selectedOrder?.pay ? 'پرداخت شده' : 'در انتظار پرداخت'}
                     </span>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-center justify-between text-sm mt-2">
                     <span className="text-gray-700 font-semibold">
