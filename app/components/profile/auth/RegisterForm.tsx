@@ -93,15 +93,10 @@ export default function RegisterForm() {
       <PhoneInputBox
         ref={usernameRef}
         name="username"
-        placeholder="شماره تلفن یا ایمیل"
+        placeholder="شماره تلفن "
         required
       />
-      <InputBox
-        ref={emailRef}
-        name="email"
-        placeholder="ایمیل (در صورت وارد کردن شماره تلفن در بالا)"
-        required
-      />
+      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required />
       <InputBox
         ref={passwordRef}
         name="password"
