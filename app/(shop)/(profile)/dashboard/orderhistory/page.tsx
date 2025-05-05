@@ -61,7 +61,7 @@ export default function OrderHistory() {
     if (!user) {
       getUserDataFn.mutate();
     }
-  }, [user, getUserDataFn]); // Added `user` as a dependency
+  }, [user]); // Added `user` as a dependency
 
   const handleOrderClick = async (order: OrderHistoryProps) => {
     order.items.forEach(async (item) => {

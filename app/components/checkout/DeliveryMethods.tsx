@@ -104,14 +104,7 @@ export default function DeliveryMethods({
       setShippingPrice(0);
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
     }
-  }, [
-    selected,
-    checkoutAddress,
-    checkoutAddress?.cityCode,
-    getPrice,
-    setShippingOption,
-    setShippingPrice,
-  ]);
+  }, [selected, checkoutAddress, checkoutAddress?.cityCode]);
 
   return (
     <div key={courier.length}>
@@ -119,8 +112,8 @@ export default function DeliveryMethods({
       <div className="flex flex-wrap items-center justify-center gap-2">
         {courier.map((item, index) => (
           <RadioButton
-            id={item.courierCode}
             key={index}
+            id={item.courierCode}
             onClick={() => {
               setSelected(item);
             }}

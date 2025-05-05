@@ -40,11 +40,11 @@ export default function CheckoutPage() {
         setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
       }
     });
-  }, [cart, cartProducts]);
+  }, [cart]);
   useEffect(() => {
     setPrice(totalPrice);
     setBeforePrice(totalBeforePrice);
-  }, [totalPrice, setBeforePrice, setPrice, totalBeforePrice]);
+  }, [totalPrice]);
   if (!totalPrice) return <div>loading</div>;
   return (
     <>

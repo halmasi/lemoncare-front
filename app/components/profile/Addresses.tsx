@@ -6,7 +6,6 @@ import { getPostalInformation } from '@/app/utils/data/getUserInfo';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
-
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
@@ -37,6 +36,7 @@ export default function Addresses() {
     },
     onSuccess: (data) => {
       setAddresses(data.information);
+      console.log(data.information);
     },
   });
 
@@ -65,7 +65,7 @@ export default function Addresses() {
           }
         }
       });
-  }, [addresses, setCheckoutAddress]);
+  }, [addresses]);
 
   useEffect(() => {
     const defaultAddress = addresses.find((item) => item.isDefault);
@@ -94,7 +94,7 @@ export default function Addresses() {
         setCheckoutAddress(newCheckoutAddress);
       }
     }
-  }, [addresses, checkoutAddress, setCheckoutAddress]);
+  }, [addresses]);
 
   useEffect(() => {
     const selectedAddressData = addresses.find(
@@ -116,7 +116,7 @@ export default function Addresses() {
         setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
       }
     }
-  }, [selectedAddress, addresses, setCheckoutAddress]);
+  }, [selectedAddress]);
 
   useEffect(() => {
     if (user && user.postal_information) {
@@ -128,7 +128,7 @@ export default function Addresses() {
     } else {
       setShowTextBox(true);
     }
-  }, [user, checkoutAddress]);
+  }, [user]);
 
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
