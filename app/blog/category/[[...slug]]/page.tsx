@@ -58,16 +58,6 @@ export default async function Category({
           post.categoryUrl = await getCategoriesUrl(post.category, [
             'category',
           ]);
-          const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify({ email: post.author.email }),
-          });
-
-          const gravatarJson = await get.json();
-          const gravatar = JSON.parse(gravatarJson).data;
           return (
             <PostCard
               key={post.documentId}
@@ -75,7 +65,7 @@ export default async function Category({
               category={post.category}
               seo={post.seo}
               categoryUrl={post.categoryUrl}
-              gravatar={gravatar}
+              authorEmail={post.author.email}
               authorName={post.author.name}
               authorSlug={post.author.username}
             />

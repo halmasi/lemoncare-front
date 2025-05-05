@@ -4,6 +4,7 @@ import {
   getAuthorInformation,
   getPostsByAuthor,
 } from '@/app/utils/data/getPosts';
+import { getGravatar } from '@/app/utils/data/getUserInfo';
 import { PostsProps } from '@/app/utils/schema/blogProps';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -17,24 +18,14 @@ export default async function AuthorsPage({
   try {
     const getPosts = await getPostsByAuthor(slug);
     const getAuthor = await getAuthorInformation(getPosts[0].author.documentId);
-
-    const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify({ email: getAuthor.email }),
-    });
-
-    const gravatarJson = await get.json();
-    const gravatar = JSON.parse(gravatarJson).data;
+    const gravatar = await getGravatar(getAuthor.email);
 
     return (
       <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
         <div className="w-full flex flex-col md:flex-row gap-5 items-center border-2 rounded-2xl bg-white p-2">
           <Image
-            src={`https://0.gravatar.com/avatar/${gravatar.hash}?size=512`}
-            alt=""
+            src={`${gravatar}?size=512`}
+            alt="gravatar"
             width={500}
             height={500}
             priority
@@ -57,9 +48,9 @@ export default async function AuthorsPage({
                 category={post.category}
                 seo={post.seo}
                 categoryUrl={post.categoryUrl}
-                gravatar={gravatar}
                 authorName={post.author.name}
                 authorSlug={post.author.username}
+                authorEmail={post.author.email}
               />
             );
           })}

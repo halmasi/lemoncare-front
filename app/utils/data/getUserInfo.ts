@@ -24,7 +24,6 @@ export const updateUserInformation = async (
     userData,
     `Bearer ${token}`
   );
-  // console.log(response);
   return response.data;
 };
 export const getPostalInformation = async (documentId: string) => {
@@ -99,11 +98,15 @@ export const getOrderHistory = async (documentId: string) => {
 
 export const getGravatar = async (email: string) => {
   const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
     method: 'POST',
     body: JSON.stringify({ email: email }),
   });
-  const result = await get.json();
-  return { result, status: get.status };
+
+  const gravatarJson = await get.json();
+  return JSON.parse(gravatarJson).url;
 };
 
 export const checkUserExists = async (identifier: string) => {

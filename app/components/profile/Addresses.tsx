@@ -37,7 +37,6 @@ export default function Addresses() {
     },
     onSuccess: (data) => {
       setAddresses(data.information);
-      console.log(data.information);
     },
   });
 
