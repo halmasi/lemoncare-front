@@ -11,6 +11,7 @@ interface InputProps {
   className?: string;
   labelClassName?: string;
   flex?: 'row' | 'col';
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const InputBox = forwardRef<HTMLInputElement, InputProps>(
@@ -24,6 +25,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
       className,
       labelClassName,
       flex,
+      onChange,
     }: InputProps,
     ref
   ) => {
@@ -50,6 +52,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             `w-full p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ` +
             className
           }
+          onChange={onChange}
           type={
             type == 'password'
               ? showPassword
