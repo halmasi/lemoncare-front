@@ -8,6 +8,7 @@ import { BiSearchAlt2 } from 'react-icons/bi';
 
 export function Search() {
   const inputRef = useRef<HTMLInputElement>(null);
+
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -15,6 +16,20 @@ export function Search() {
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.value = searchParams.get('s-query') || '';
+    }
+    if (searchParams.get('s-query')) {
+      const handleSearchFn = async () => {
+        const res = await fetch(`/api/search`, {
+          method: 'POST',
+          body: JSON.stringify({
+            param: searchParams.get('s-query'),
+            page: searchParams.get('s-page'),
+          }),
+        });
+        const data = await res.json();
+        console.log(data);
+      };
+      handleSearchFn();
     }
   }, [searchParams]);
 
