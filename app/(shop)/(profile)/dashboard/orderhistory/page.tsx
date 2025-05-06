@@ -22,7 +22,6 @@ import Toman from '@/app/components/Toman';
 export default function OrderHistory() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
   const [showModal, setShowModal] = useState(false);
-  // const [selectedOrder, setSelectedOrder] = (null);
   const [productDetails, setProductDetails] = useState<
     {
       variety: {
@@ -37,31 +36,22 @@ export default function OrderHistory() {
       name: string;
     }[]
   >();
-  const { user, setUser } = useDataStore();
+  const { user } = useDataStore();
   const { cartProducts, setCartProducts } = useCartStore();
-  const getUserDataFn = useMutation({
-    mutationFn: async () => {
-      const res = await getFullUserData();
-      return res.body;
-    },
-    onSuccess: async (data) => {
-      const orderHistoryData = await getOrderHistory(
-        data.order_history.documentId
-      );
+
+  const getOrderHistoryFn = useMutation({
+    mutationFn: async (id: string) => {
+      const orderHistoryData = await getOrderHistory(id);
       setOrderHistory(orderHistoryData.data.order || []);
-      console.log('Order History Information:', orderHistoryData);
-      setUser(data);
-    },
-    onError: (error: { message: string[] }) => {
-      logs.error('Error: ' + error.message);
+      return orderHistory;
     },
   });
 
   useEffect(() => {
-    if (!user) {
-      getUserDataFn.mutate();
+    if (user && user.order_history) {
+      getOrderHistoryFn.mutateAsync(user.order_history.documentId);
     }
-  }, [user]); // Added `user` as a dependency
+  }, [user, setOrderHistory]);
 
   const handleOrderClick = async (order: OrderHistoryProps) => {
     order.items.forEach(async (item) => {
@@ -101,7 +91,7 @@ export default function OrderHistory() {
         🛒 آخرین سفارشات
       </h2>
 
-      {getUserDataFn.isPending ? (
+      {getOrderHistoryFn.isPending ? (
         <div className="w-full h-52 bg-gray-500 animate-pulse p-2">
           <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
         </div>
@@ -242,19 +232,6 @@ export default function OrderHistory() {
                 })}
 
                 <div className="border-t pt-4 mt-6">
-                  {/* <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-600 font-medium">
-                      💳 وضعیت پرداخت:
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-white text-xs ${
-                        selectedOrder?.pay ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                    >
-                      {selectedOrder?.pay ? 'پرداخت شده' : 'در انتظار پرداخت'}
-                    </span>
-                  </div> */}
-
                   <div className="flex items-center justify-between text-sm mt-2">
                     <span className="text-gray-700 font-semibold">
                       💰 مجموع کل:
