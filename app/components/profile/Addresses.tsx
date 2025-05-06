@@ -3,14 +3,9 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { getPostalInformation } from '@/app/utils/data/getUserInfo';
-import {
-  IoRadioButtonOffOutline,
-  IoRadioButtonOnOutline,
-} from 'react-icons/io5';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
-
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';

@@ -3,7 +3,7 @@
 import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Addresses from '@/app/components/profile/Addresses';
-import AuthForm from '@/app/components/profile/AuthForm';
+import AuthForm from '@/app/components/profile/auth/AuthForm';
 import Toman from '@/app/components/Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';

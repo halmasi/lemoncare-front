@@ -20,13 +20,10 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import { use, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function LoginHandler() {
-  const router = useRouter();
-  const path = usePathname();
-
   const {
     setUser,
     jwt,
@@ -38,6 +35,8 @@ export default function LoginHandler() {
   } = useDataStore();
   const { cart, setCart, resetCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
+
+  const router = useRouter();
 
   const handleCartFn = useMutation({
     mutationFn: async ({
@@ -54,11 +53,11 @@ export default function LoginHandler() {
           cartMap.set(key, item);
         });
         const deduplicatedCart = Array.from(cartMap.values());
-        updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
+        await updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
       } else if (fetchedCart && !cart) {
         setCart(fetchedCart);
       } else if (!fetchedCart && cart) {
-        updateCartFn.mutateAsync({ newCart: cart, id });
+        await updateCartFn.mutateAsync({ newCart: cart, id });
       }
     },
     onSuccess: async () => {},
@@ -100,13 +99,9 @@ export default function LoginHandler() {
       await setCookie('jwt', `Bearer ${jwt}`);
 
       const userData = await getFullUserData();
-      const cartData = await getCart(userData.body.shopingCart.documentId);
-
       setUser(userData.body);
 
-      if (userData.body && (path === '/login' || path === '/register')) {
-        router.push('/');
-      }
+      const cartData = await getCart(userData.body.shopingCart.documentId);
 
       if (cartData && userData.body) {
         await handleCartFn.mutateAsync({
@@ -153,17 +148,19 @@ export default function LoginHandler() {
       }
     },
     onSuccess: () => {
+      router.refresh();
       setLoginProcces(false);
     },
     onError: (error: { message: string[] }) => {
       logs.error('Login error: ' + error.message);
-      router.push('/login');
     },
   });
 
   useEffect(() => {
-    if (!user && loginProcces) loginFn.mutateAsync();
-  }, [loginProcces, user, jwt, router]);
+    if (!user && loginProcces) {
+      loginFn.mutate();
+    }
+  }, [loginProcces, user, jwt]);
 
   useEffect(() => {
     const checkJwtCookie = async () => {
@@ -181,5 +178,5 @@ export default function LoginHandler() {
     checkJwtCookie();
   }, [jwt, user, resetUser, resetCart]);
 
-  return <></>;
+  return null;
 }

@@ -3,10 +3,9 @@ import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { forwardRef } from 'react';
 
 interface InputProps {
-  format?: string;
+  type?: string;
   placeholder: string;
   name: string;
-  value?: string | number;
   required?: boolean;
   children?: ReactNode;
   className?: string;
@@ -17,7 +16,7 @@ interface InputProps {
 const InputBox = forwardRef<HTMLInputElement, InputProps>(
   (
     {
-      format,
+      type,
       placeholder,
       name,
       required,
@@ -52,18 +51,18 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             className
           }
           type={
-            format == 'password'
+            type == 'password'
               ? showPassword
                 ? 'text'
                 : 'password'
-              : format || 'text'
+              : type || 'text'
           }
           placeholder={placeholder}
           name={name}
           id={name}
           ref={ref}
         />
-        {format == 'password' && (
+        {type == 'password' && (
           <button
             type="button"
             onClick={togglePassword}

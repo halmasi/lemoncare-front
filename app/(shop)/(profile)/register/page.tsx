@@ -84,7 +84,7 @@ export default function RegisterPage() {
           </p>
         )}
 
-        <InputBox name="passwordS" format="password" placeholder="رمزعبور">
+        <InputBox name="passwordS" type="password" placeholder="رمزعبور">
           رمز عبور
         </InputBox>
         {errors?.password && (

@@ -1,28 +1,29 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
-import { GravatarProps } from '@/app/utils/schema/otherProps';
 import { CategoriesProps } from '@/app/utils/schema/blogProps';
 import { ImageProps } from '@/app/utils/schema/mediaProps';
+import Gravatar from './profile/Gravatar';
 
 export default function PostCard({
   category,
   categoryUrl,
   basicInfo,
   seo,
-  gravatar,
   authorName,
   authorSlug,
+  authorEmail,
   isSlide,
 }: {
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
   seo: { seoDescription: string };
-  gravatar?: GravatarProps;
   categoryUrl?: string;
   authorName?: string;
   authorSlug?: string;
+  authorEmail?: string;
   isSlide?: boolean;
 }) {
   return (
@@ -67,18 +68,12 @@ export default function PostCard({
         {!isSlide && (
           <div className="p-2">
             <p>{seo.seoDescription}</p>
-            {gravatar && authorName && authorSlug && (
+            {authorName && authorSlug && (
               <Link
-                className="flex items-center text-gray-600"
+                className="flex items-center text-gray-600 gap-1"
                 href={`/blog/author/${authorSlug}`}
               >
-                <Image
-                  src={gravatar.avatar_url}
-                  alt=""
-                  width={100}
-                  height={100}
-                  className="w-10 aspect-square rounded-full ml-3"
-                />
+                <Gravatar emailAddress={authorEmail} />
                 <p>{authorName}</p>
               </Link>
             )}

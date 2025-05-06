@@ -112,6 +112,7 @@ export default function DeliveryMethods({
       <div className="flex flex-wrap items-center justify-center gap-2">
         {courier.map((item, index) => (
           <RadioButton
+            key={index}
             id={item.courierCode}
             onClick={() => {
               setSelected(item);

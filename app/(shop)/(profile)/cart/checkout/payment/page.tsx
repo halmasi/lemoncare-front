@@ -6,12 +6,12 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 export default function Payment() {
   const {
     beforePrice,
-    cartId,
-    checkoutAddress,
+    // cartId,
+    // checkoutAddress,
     price,
-    paymentOption,
-    setPaymentOption,
-    shippingOption,
+    // paymentOption,
+    // setPaymentOption,
+    // shippingOption,
   } = useCheckoutStore();
   return (
     <>
