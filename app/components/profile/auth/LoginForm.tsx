@@ -53,7 +53,7 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <InputBox
         ref={identifierRef}
-        name="identifier"
+        name="username"
         placeholder="ایمیل یا شماره تلفن"
         required
       />

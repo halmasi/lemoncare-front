@@ -41,6 +41,13 @@ export default function Cart({
       getCart(user.shopingCart.documentId).then((data) => {
         setCart(data.data.items);
       });
+    else if (jwt)
+      getFullUserData().then((fetchUser) => {
+        setUser(fetchUser.body);
+        getCart(fetchUser.body.shopingCart.documentId).then((data) => {
+          setCart(data.data.items);
+        });
+      });
   }, []);
 
   useEffect(() => {

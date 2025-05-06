@@ -6,15 +6,41 @@ import { AiOutlineArrowRight } from 'react-icons/ai';
 import LoginForm from './LoginForm';
 import PasswordForm from './PasswordForm';
 import RegisterForm from './RegisterForm';
+import { useDataStore } from '@/app/utils/states/useUserdata';
+import LoadingAnimation from '../../LoadingAnimation';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function AuthForm() {
+  const router = useRouter();
+  const path = usePathname();
   const { step, setStep, resetForm, completedSteps } = useLoginData();
+  const { loginProcces } = useDataStore();
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (loginProcces) {
+      setLoading(true);
+    }
+  }, [loginProcces]);
 
   const stepTitles = {
     identifier: 'ورود یا ثبت‌نام',
     login: 'ورود به حساب',
     register: 'ثبت‌نام',
   };
+
+  if (loading) {
+    if (path.startsWith('/login')) router.push('/');
+    return (
+      <div className="flex flex-col gap-1 items-center">
+        <h6>در حال بارگذاری ...</h6>
+        <h6>لطفا صبور باشید</h6>
+        <LoadingAnimation />
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full justify-center items-center">

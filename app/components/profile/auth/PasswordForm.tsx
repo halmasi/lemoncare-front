@@ -7,12 +7,8 @@ import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import { signinAction } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { usePathname, useRouter } from 'next/navigation';
 
 export default function PasswordForm() {
-  const router = useRouter();
-  const path = usePathname();
-
   const { email, username, setErrors } = useLoginData();
   const { setLoginProcces, setJwt } = useDataStore();
 
@@ -28,13 +24,8 @@ export default function PasswordForm() {
       return response;
     },
     onSuccess: (data) => {
-      // setCookie('jwt', 'Bearer ' + data.jwt);
       setJwt(data.jwt);
       setLoginProcces(true);
-      if (path === '/login') {
-        router.push('/');
-      }
-      // if (path.startsWith('login')) router.push('/');
     },
     onError: (error: Error) => {
       setErrors({
@@ -52,7 +43,6 @@ export default function PasswordForm() {
     const password = passwordRef.current?.value || '';
     loginMutation.mutateAsync(password);
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <InputBox

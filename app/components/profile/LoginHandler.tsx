@@ -20,6 +20,7 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function LoginHandler() {
@@ -34,6 +35,8 @@ export default function LoginHandler() {
   } = useDataStore();
   const { cart, setCart, resetCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
+
+  const router = useRouter();
 
   const handleCartFn = useMutation({
     mutationFn: async ({
@@ -50,11 +53,11 @@ export default function LoginHandler() {
           cartMap.set(key, item);
         });
         const deduplicatedCart = Array.from(cartMap.values());
-        updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
+        await updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
       } else if (fetchedCart && !cart) {
         setCart(fetchedCart);
       } else if (!fetchedCart && cart) {
-        updateCartFn.mutateAsync({ newCart: cart, id });
+        await updateCartFn.mutateAsync({ newCart: cart, id });
       }
     },
     onSuccess: async () => {},
@@ -96,9 +99,9 @@ export default function LoginHandler() {
       await setCookie('jwt', `Bearer ${jwt}`);
 
       const userData = await getFullUserData();
-      const cartData = await getCart(userData.body.shopingCart.documentId);
-
       setUser(userData.body);
+
+      const cartData = await getCart(userData.body.shopingCart.documentId);
 
       if (cartData && userData.body) {
         await handleCartFn.mutateAsync({
@@ -145,6 +148,7 @@ export default function LoginHandler() {
       }
     },
     onSuccess: () => {
+      router.refresh();
       setLoginProcces(false);
     },
     onError: (error: { message: string[] }) => {
@@ -153,7 +157,9 @@ export default function LoginHandler() {
   });
 
   useEffect(() => {
-    if (!user && loginProcces) loginFn.mutateAsync();
+    if (!user && loginProcces) {
+      loginFn.mutate();
+    }
   }, [loginProcces, user, jwt]);
 
   useEffect(() => {
@@ -172,5 +178,5 @@ export default function LoginHandler() {
     checkJwtCookie();
   }, [jwt, user, resetUser, resetCart]);
 
-  return <></>;
+  return null;
 }
