@@ -9,6 +9,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { PostsProps } from '../utils/schema/blogProps';
 import { ProductProps } from '../utils/schema/shopProps';
 import LoadingAnimation from './LoadingAnimation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export function Search() {
   const [param, setParam] = useState<string>('');
@@ -17,6 +20,8 @@ export function Search() {
   const [productData, setProductData] = useState<ProductProps[]>();
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { push } = useRouter();
 
   const searchFn = useMutation({
     mutationFn: async () => {
@@ -34,22 +39,23 @@ export function Search() {
         return data[0];
       }
     },
-    onSuccess: (data: { posts: PostsProps[]; Products: ProductProps[] }) => {
+    onSuccess: (data: { posts: PostsProps[]; products: ProductProps[] }) => {
       if (!data) return;
-      console.log(data);
       setPostData(data.posts);
-      setProductData(data.Products);
+      setProductData(data.products);
     },
   });
 
   useEffect(() => {
-    searchFn.mutateAsync();
+    if (param) {
+      searchFn.mutateAsync();
+    }
   }, [param]);
 
   const handleSearch = useDebouncedCallback((term: string) => {
     if (term) {
       setParam(term);
-    }
+    } else setParam('');
   }, 500);
 
   return (
@@ -80,12 +86,23 @@ export function Search() {
             onChange={(e) => handleSearch(e.target.value)}
             ref={inputRef}
             name={'search'}
-            className="rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
+            className="hidden md:flex rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
+          />
+          <InputBox
+            type="text"
+            placeholder="جستجو مقاله و محصول"
+            ref={inputRef}
+            name={'search'}
+            className="flex md:hidden rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
           />
         </div>
+
         <SubmitButton
           className="w-fit bg-white hover:bg-gray-50 border rounded-r-none border-r-0 drop-shadow-none text-foreground/80 hover:text-foreground"
-          onClick={() => handleSearch(inputRef.current?.value || '')}
+          onClick={() => {
+            // redirect
+            push(`/search/?s-query=${inputRef.current?.value}&s-page=1`);
+          }}
         >
           <BiSearchAlt2 />
         </SubmitButton>
@@ -104,22 +121,56 @@ export function Search() {
             duration: 0.3,
             ease: 'easeOut',
           }}
-          className="absolute left-0 top-full min-w-[30rem] w-full  bg-white rounded-b-lg shadow-lg"
+          className="hidden md:flex absolute left-0 top-full min-w-[30rem] w-full  bg-white rounded-b-lg shadow-lg"
         >
           <div className="w-full min-h-[16rem] max-h-[50svh]">
-            {postData?.length || productData?.length ? (
-              <div>
-                {postData?.map((item) => (
-                  <p key={item.id}>{item.basicInfo.title}</p>
-                ))}
-                {productData?.map((item) => (
-                  <p key={item.id}>{item.basicInfo.title}</p>
-                ))}
-              </div>
-            ) : searchFn.isPending ? (
-              <div>
+            {searchFn.isPending ? (
+              <div className="flex flex-col items-center justify-center w-full h-full">
                 <h6>درحال جستجو...</h6>
                 <LoadingAnimation />
+              </div>
+            ) : postData?.length || productData?.length ? (
+              <div>
+                <div>
+                  {postData?.map((item) => (
+                    <Link
+                      href={`/blog/posts/${item.basicInfo.contentCode}`}
+                      key={item.id}
+                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                    >
+                      <p>{item.basicInfo.title}</p>
+                      <Image
+                        src={item.basicInfo.mainImage.formats.thumbnail.url}
+                        alt={item.basicInfo.title}
+                        width={item.basicInfo.mainImage.formats.thumbnail.width}
+                        height={
+                          item.basicInfo.mainImage.formats.thumbnail.height
+                        }
+                        className="w-32 object-contain rounded-lg"
+                      ></Image>
+                    </Link>
+                  ))}
+                </div>
+                <div>
+                  {productData?.map((item) => (
+                    <Link
+                      href={`/shop/product/${item.basicInfo.contentCode}`}
+                      key={item.id}
+                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                    >
+                      <p>{item.basicInfo.title}</p>
+                      <Image
+                        src={item.basicInfo.mainImage.formats.thumbnail.url}
+                        alt={item.basicInfo.title}
+                        width={item.basicInfo.mainImage.formats.thumbnail.width}
+                        height={
+                          item.basicInfo.mainImage.formats.thumbnail.height
+                        }
+                        className="w-32 object-contain rounded-lg"
+                      ></Image>
+                    </Link>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="p-5 text-center text-gray-500">

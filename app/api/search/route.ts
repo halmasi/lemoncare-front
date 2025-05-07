@@ -15,7 +15,10 @@ export async function POST(req: Request) {
         { category: { description: { $containsi: body.param } } },
       ],
     },
-    populate: '*',
+    populate: {
+      basicInfo: { populate: ['mainImage'] },
+      seo: { populate: '*' },
+    },
   });
 
   const queryProducts = qs.stringify({
@@ -31,7 +34,10 @@ export async function POST(req: Request) {
         { category: { description: { $containsi: body.param } } },
       ],
     },
-    populate: '*',
+    populate: {
+      basicInfo: { populate: ['mainImage'] },
+      seo: { populate: '*' },
+    },
   });
 
   const result1 = await dataFetch(`/posts?${queryPost}`);
