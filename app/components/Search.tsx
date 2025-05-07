@@ -1,67 +1,134 @@
 'use client';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import InputBox from './formElements/InputBox';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SubmitButton from './formElements/SubmitButton';
 import { BiSearchAlt2 } from 'react-icons/bi';
+import { useMutation } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { PostsProps } from '../utils/schema/blogProps';
+import { ProductProps } from '../utils/schema/shopProps';
+import LoadingAnimation from './LoadingAnimation';
 
 export function Search() {
+  const [param, setParam] = useState<string>('');
+  const [showDropDown, setShowDropDown] = useState(false);
+  const [postData, setPostData] = useState<PostsProps[]>();
+  const [productData, setProductData] = useState<ProductProps[]>();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const searchParams = useSearchParams();
-  const { replace } = useRouter();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.value = searchParams.get('s-query') || '';
-    }
-    if (searchParams.get('s-query')) {
-      const handleSearchFn = async () => {
+  const searchFn = useMutation({
+    mutationFn: async () => {
+      if (inputRef.current) {
+        inputRef.current.value = param;
+      }
+      if (param) {
         const res = await fetch(`/api/search`, {
           method: 'POST',
           body: JSON.stringify({
-            param: searchParams.get('s-query'),
-            page: searchParams.get('s-page'),
+            param: param,
           }),
         });
         const data = await res.json();
-        console.log(data);
-      };
-      handleSearchFn();
-    }
-  }, [searchParams]);
+        return data[0];
+      }
+    },
+    onSuccess: (data: { posts: PostsProps[]; Products: ProductProps[] }) => {
+      if (!data) return;
+      console.log(data);
+      setPostData(data.posts);
+      setProductData(data.Products);
+    },
+  });
+
+  useEffect(() => {
+    searchFn.mutateAsync();
+  }, [param]);
 
   const handleSearch = useDebouncedCallback((term: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('s-page', '1');
     if (term) {
-      params.set('s-query', term);
-      if (inputRef.current) inputRef.current.value = term;
+      setParam(term);
     }
-
-    replace(`${pathname}?${params.toString()}`);
-  }, 300);
+  }, 500);
 
   return (
-    <div className="flex flex-row justify-stretch w-full">
-      <div className="w-full">
-        <InputBox
-          type="text"
-          placeholder="جستجو مقاله و محصول"
-          onChange={(e) => handleSearch(e.target.value)}
-          ref={inputRef}
-          name={'search'}
-          className="rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
-        />
+    <div
+      className="flex flex-col relative items-center justify-center w-full"
+      onClick={() => {
+        if (inputRef.current?.value) setShowDropDown(true);
+        const handleClickOutside = (event: MouseEvent) => {
+          if (
+            inputRef.current &&
+            !inputRef.current.contains(event.target as Node)
+          ) {
+            setShowDropDown(false);
+          }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+          document.removeEventListener('mousedown', handleClickOutside);
+        };
+      }}
+    >
+      <div className="flex flex-row justify-stretch w-full">
+        <div className="w-full">
+          <InputBox
+            type="text"
+            placeholder="جستجو مقاله و محصول"
+            onChange={(e) => handleSearch(e.target.value)}
+            ref={inputRef}
+            name={'search'}
+            className="rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
+          />
+        </div>
+        <SubmitButton
+          className="w-fit bg-white hover:bg-gray-50 border rounded-r-none border-r-0 drop-shadow-none text-foreground/80 hover:text-foreground"
+          onClick={() => handleSearch(inputRef.current?.value || '')}
+        >
+          <BiSearchAlt2 />
+        </SubmitButton>
       </div>
-      <SubmitButton
-        className="w-fit bg-white hover:bg-gray-50 border rounded-r-none border-r-0 drop-shadow-none text-foreground/80 hover:text-foreground"
-        onClick={() => handleSearch(inputRef.current?.value || '')}
-      >
-        <BiSearchAlt2 />
-      </SubmitButton>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            showDropDown
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 20, visibility: 'hidden' }
+          }
+          exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
+          style={showDropDown ? {} : {}}
+          transition={{
+            duration: 0.3,
+            ease: 'easeOut',
+          }}
+          className="absolute left-0 top-full min-w-[30rem] w-full  bg-white rounded-b-lg shadow-lg"
+        >
+          <div className="w-full min-h-[16rem] max-h-[50svh]">
+            {postData?.length || productData?.length ? (
+              <div>
+                {postData?.map((item) => (
+                  <p key={item.id}>{item.basicInfo.title}</p>
+                ))}
+                {productData?.map((item) => (
+                  <p key={item.id}>{item.basicInfo.title}</p>
+                ))}
+              </div>
+            ) : searchFn.isPending ? (
+              <div>
+                <h6>درحال جستجو...</h6>
+                <LoadingAnimation />
+              </div>
+            ) : (
+              <div className="p-5 text-center text-gray-500">
+                هیچ نتیجه ای پیدا نشد
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

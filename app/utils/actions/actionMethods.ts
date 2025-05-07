@@ -210,6 +210,9 @@ export const setCookie = async (name: string, cookie: string) => {
 export const getCookie = async (key: string) => {
   return cookies().get(key)?.value;
 };
+export const deleteCookie = async (key: string) => {
+  cookies().delete(key);
+};
 
 export const logoutAction = async () => {
   cookies().delete('jwt');
