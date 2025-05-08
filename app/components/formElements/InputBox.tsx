@@ -1,6 +1,7 @@
 import { useState, ReactNode } from 'react';
 import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { forwardRef } from 'react';
+import { convertPersianAndArabicToEnglish } from '@/app/utils/miniFunctions';
 
 interface InputProps {
   type?: string;
@@ -11,6 +12,8 @@ interface InputProps {
   className?: string;
   labelClassName?: string;
   flex?: 'row' | 'col';
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const InputBox = forwardRef<HTMLInputElement, InputProps>(
@@ -24,6 +27,8 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
       className,
       labelClassName,
       flex,
+      onChange,
+      onFocus,
     }: InputProps,
     ref
   ) => {
@@ -50,6 +55,17 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             `w-full p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ` +
             className
           }
+          onFocus={onFocus}
+          onChange={(e) => {
+            e.preventDefault();
+            if (type != 'password') {
+              const englishNumbers = convertPersianAndArabicToEnglish(
+                e.target.value
+              );
+              e.target.value = englishNumbers;
+            }
+            if (onChange) onChange(e);
+          }}
           type={
             type == 'password'
               ? showPassword
