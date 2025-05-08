@@ -1,5 +1,4 @@
 import PostCard from '@/app/components/PostCard';
-import { getCategoriesUrl } from '@/app/utils/data/getCategories';
 import {
   getAuthorInformation,
   getPostsByAuthor,
@@ -37,17 +36,13 @@ export default async function AuthorsPage({
           </div>
         </div>
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-          {getPosts.map(async (post: PostsProps) => {
-            post.categoryUrl = await getCategoriesUrl(post.category, [
-              'category',
-            ]);
+          {getPosts.map((post: PostsProps) => {
             return (
               <PostCard
                 key={post.documentId}
                 basicInfo={post.basicInfo}
                 category={post.category}
                 seo={post.seo}
-                categoryUrl={post.categoryUrl}
                 authorName={post.author.name}
                 authorSlug={post.author.username}
                 authorEmail={post.author.email}

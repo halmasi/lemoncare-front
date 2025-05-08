@@ -12,6 +12,7 @@ import LoadingAnimation from './LoadingAnimation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import page from '../(shop)/(single-pages)/page';
 
 export function Search() {
   const [param, setParam] = useState<string>('');
@@ -33,6 +34,8 @@ export function Search() {
           method: 'POST',
           body: JSON.stringify({
             param: param,
+            page: 1,
+            pageSize: 3,
           }),
         });
         const data = await res.json();

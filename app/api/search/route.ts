@@ -16,9 +16,16 @@ export async function POST(req: Request) {
       ],
     },
     populate: {
-      basicInfo: { populate: ['mainImage'] },
       seo: { populate: '*' },
+      author: { populate: 1 },
+      basicInfo: { populate: ['mainImage'] },
+      category: { populate: '*' },
     },
+    pagination: {
+      page: body.page || 1,
+      pageSize: body.pageSize || 10,
+    },
+    sort: { createdAt: 'desc' },
   });
 
   const queryProducts = qs.stringify({
@@ -37,7 +44,16 @@ export async function POST(req: Request) {
     populate: {
       basicInfo: { populate: ['mainImage'] },
       seo: { populate: '*' },
+      category: { populate: '*' },
+      tags: { populate: '*' },
+      media: { populate: 1 },
+      variety: { populate: '*' },
     },
+    pagination: {
+      page: body.page || 1,
+      pageSize: body.pageSize || 10,
+    },
+    sort: { createdAt: 'desc' },
   });
 
   const result1 = await dataFetch(`/posts?${queryPost}`);

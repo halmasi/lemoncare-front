@@ -3,11 +3,11 @@
 import { PostsProps } from '@/app/utils/schema/blogProps';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { useMutation } from '@tanstack/react-query';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import LoadingAnimation from '@/app/components/LoadingAnimation';
+import ProductCart from '@/app/components/ProductCart';
+import PostCard from '@/app/components/PostCard';
 
 export default function page() {
   const searchParams = useSearchParams();
@@ -43,7 +43,7 @@ export default function page() {
   }, [query]);
 
   return (
-    <div className="w-full flex flex-col items-center ">
+    <main className="w-full flex flex-col items-center ">
       <div className="w-full flex flex-row items-center justify-center">
         <div className="w-full border-b flex flex-row gap-2 pt-2">
           <div
@@ -91,31 +91,14 @@ export default function page() {
                     محصولات
                   </h2>
                   {products.length > 0 && (
-                    <div className="flex flex-col w-full">
-                      {products.map((item) => (
-                        <Link
-                          href={`/shop/product/${item.basicInfo.contentCode}`}
-                          key={item.id}
-                          className="w-full flex flex-col md:flex-row items-center justify-start gap-3 p-2 border-y border-gray-200"
-                        >
-                          <Image
-                            src={item.basicInfo.mainImage.formats.thumbnail.url}
-                            alt={item.basicInfo.title}
-                            width={
-                              item.basicInfo.mainImage.formats.thumbnail.width
-                            }
-                            height={
-                              item.basicInfo.mainImage.formats.thumbnail.height
-                            }
-                            className="w-32 object-contain rounded-lg"
-                          />
-                          <h5>{item.basicInfo.title}</h5>
-                          <p>{item.seo.seoDescription}</p>
-                        </Link>
-                      ))}
+                    <div className="flex flex-col container py-5 px-2 md:px-10">
+                      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
+                        {products.map((item) => (
+                          <ProductCart product={item} key={item.id} />
+                        ))}
+                      </div>
                     </div>
                   )}
-                  {/* Render product search results here */}
                 </div>
               ) : (
                 <div className="w-full" id="posts-tab">
@@ -124,28 +107,22 @@ export default function page() {
                     مقالات
                   </h2>
                   {posts.length > 0 && (
-                    <div className="flex flex-col w-full">
-                      {posts.map((item) => (
-                        <Link
-                          href={`/shop/product/${item.basicInfo.contentCode}`}
-                          key={item.id}
-                          className="w-full flex flex-col md:flex-row items-center justify-start p-2 gap-3 border-y border-gray-200"
-                        >
-                          <Image
-                            src={item.basicInfo.mainImage.formats.thumbnail.url}
-                            alt={item.basicInfo.title}
-                            width={
-                              item.basicInfo.mainImage.formats.thumbnail.width
-                            }
-                            height={
-                              item.basicInfo.mainImage.formats.thumbnail.height
-                            }
-                            className="w-32 object-contain rounded-lg"
-                          />
-                          <h5>{item.basicInfo.title}</h5>
-                          <p>{item.seo.seoDescription}</p>
-                        </Link>
-                      ))}
+                    <div className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+                      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
+                        {posts.map((post) => {
+                          return (
+                            <PostCard
+                              key={post.documentId + 'post'}
+                              basicInfo={post.basicInfo}
+                              category={post.category}
+                              seo={post.seo}
+                              authorEmail={post.author.email}
+                              authorName={post.author.name}
+                              authorSlug={post.author.username}
+                            />
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                   {/* Render post search results here */}
@@ -159,6 +136,6 @@ export default function page() {
           )}
         </div>
       )}
-    </div>
+    </main>
   );
 }
