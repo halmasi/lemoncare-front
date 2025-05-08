@@ -61,7 +61,12 @@ export default function ProfileMenu({
       key: 'addresses',
       url: '/dashboard/addresses',
     },
-    { name: <p>علاقه‌مندی‌ها</p>, icon: <FaRegHeart />, key: 'favorites' },
+    {
+      name: <p>علاقه‌مندی‌ها</p>,
+      icon: <FaRegHeart />,
+      key: 'favorites',
+      url: '/dashboard/favorites',
+    },
     {
       name: <p>اطلاعات حساب کاربری</p>,
       icon: <FaUser />,
