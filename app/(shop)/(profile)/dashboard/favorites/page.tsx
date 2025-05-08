@@ -1,19 +1,20 @@
 'use client';
 
 import { getFavorites } from '@/app/utils/data/getUserInfo';
+import { FavoriteListProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export default function Favorites() {
   const { user } = useDataStore();
-  const [favoritesData, setFavoritesData] = useState([]);
+  const [favoritesData, setFavoritesData] = useState<FavoriteListProps>();
 
   const getFavoritesFn = useMutation({
     mutationFn: async (documentId: string) => {
       const res = await getFavorites(documentId);
-      // console.log('response Fav : ', res);
-      // console.log('response DocumentID : ', documentId);
+      console.log('response Fav : ', res);
+      console.log('response DocumentID : ', documentId);
       return res.data || [];
     },
     onSuccess: (data) => {
@@ -37,19 +38,29 @@ export default function Favorites() {
       );
     }
   }, [user]);
-  // console.log('user favorites : ', favoritesData);
+  console.log('user favorites : ', favoritesData);
   return (
-    <div>
-      <h1>Favorites</h1>
-      {favoritesData.length > 0 ? (
-        <ul>
-          {favoritesData.map((favorite, index) => (
-            <li key={index}>{favorite}</li>
-          ))}
-        </ul>
+    <>
+      {favoritesData ? (
+        <div>
+          <h1>Favorite products</h1>
+          <ul>
+            {favoritesData.products.map((product) => (
+              <li key={product.id}>
+                <h2>{product.basicInfo.title}</h2>
+                <img
+                  src={product.basicInfo.mainImage.url}
+                  alt={product.basicInfo.title}
+                  width={100}
+                  height={100}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
-        <p>No favorites found.</p>
+        <></>
       )}
-    </div>
+    </>
   );
 }
