@@ -1,11 +1,13 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
 import { CategoriesProps } from '@/app/utils/schema/blogProps';
 import { ImageProps } from '@/app/utils/schema/mediaProps';
 import Gravatar from './profile/Gravatar';
+import { useMutation } from '@tanstack/react-query';
+import { getCategoriesUrl } from '../utils/data/getCategories';
 
 export default function PostCard({
   category,
@@ -26,12 +28,33 @@ export default function PostCard({
   authorEmail?: string;
   isSlide?: boolean;
 }) {
+  const [categoryFetchUrl, setCategoryFetchUrl] = useState<string>();
+  const getCategoryFn = useMutation({
+    mutationFn: async (categoryId: number) => {
+      const url = await getCategoriesUrl(category, ['category']);
+      return url;
+    },
+    onSuccess: (data) => {
+      setCategoryFetchUrl(data);
+    },
+  });
+
+  useEffect(() => {
+    if (categoryUrl) {
+      setCategoryFetchUrl(categoryUrl);
+    } else {
+      getCategoryFn.mutateAsync(category.id);
+    }
+  }, [categoryUrl, category]);
+
   return (
     <article>
-      {categoryUrl && (
+      {categoryFetchUrl && (
         <div className="flex items-center text-gray-600 text-sm">
           <p>دسته بندی</p> <IoMdArrowDropleft />
-          <Link href={'/blog/category/' + categoryUrl}>{category.title}</Link>
+          <Link href={'/blog/category/' + categoryFetchUrl}>
+            {category.title}
+          </Link>
         </div>
       )}
       <div className="flex flex-col bg-white shadow-lg rounded-lg">

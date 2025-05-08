@@ -13,6 +13,7 @@ import Cart from './CartButton';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import ProfileDropDown from '../profile/ProfileDropDown';
 import { MenuProps } from '@/app/utils/schema/menuProps';
+import { Search } from '../Search';
 
 export default function Navbar({
   menuItems,
@@ -121,7 +122,7 @@ export default function Navbar({
                 ease: 'easeInOut',
               }}
             >
-              <SearchInput />
+              <Search />
               <div className="flex flex-col w-full h-[80svh] space-y-5 overflow-scroll">
                 {menuItems &&
                   menuItems.map((item) => {
@@ -295,7 +296,7 @@ export default function Navbar({
           </div>
           <div className="w-full max-w-screen-xl px-20 hidden md:flex items-center justify-between gap-2">
             <div className="w-9/12 px-10">
-              <SearchInput />
+              <Search />
             </div>
             <div className="flex w-3/12 items-center gap-3">
               <div className="">
