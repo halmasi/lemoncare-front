@@ -5,6 +5,7 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 import { cleanPhone, isPhone } from '../miniFunctions';
 import { loginSchema } from '../schema/formValidation';
+import { b } from 'framer-motion/client';
 
 export const updateUserInformation = async (
   id: string,
@@ -93,6 +94,24 @@ export const getOrderHistory = async (documentId: string) => {
     {},
     check.jwt
   );
+  return response.data;
+};
+
+export const getFavorites = async (documentId: string) => {
+  const check = await loginCheck();
+  const query = qs.stringify({
+    populate: {
+      posts: { populate: { basicInfo: { populate: ['mainImage'] } } },
+      products: { populate: { basicInfo: { populate: ['mainImage'] } } },
+    },
+  });
+  const response = await requestData(
+    `/favorites/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  console.log('response Favorite : ', response, '\n', documentId);
   return response.data;
 };
 
