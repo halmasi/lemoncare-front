@@ -6,33 +6,6 @@ import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
 
-export const checkUserExists = async (identifier: string) => {
-  identifier = cleanPhone(identifier);
-  const validationResult = loginSchema
-    .pick({ identifier: true })
-    .safeParse({ identifier });
-  if (!validationResult.success) {
-    return {
-      success: false,
-      error: validationResult.error.flatten().fieldErrors.identifier || [
-        'ایمیل یا شماره تلفن نامعتبر است',
-      ],
-    };
-  }
-
-  const query = qs.stringify({
-    filters: {
-      $or: [{ email: identifier }, { username: '98' + identifier }],
-    },
-  });
-
-  const response = await requestData(`/users?${query}`, 'GET', {});
-  console.log(response.data);
-  return {
-    success: response.data.length > 0,
-  };
-};
-
 export const registerAction = async (
   username: string,
   email: string,
@@ -206,6 +179,7 @@ export const getFullUserData = async (
     order_history: { populate: '*' },
     shopingCart: { populate: '1' },
     postal_information: { populate: '1' },
+    favorites: { populate: '1' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
@@ -236,6 +210,9 @@ export const setCookie = async (name: string, cookie: string) => {
 
 export const getCookie = async (key: string) => {
   return cookies().get(key)?.value;
+};
+export const deleteCookie = async (key: string) => {
+  cookies().delete(key);
 };
 
 export const logoutAction = async () => {

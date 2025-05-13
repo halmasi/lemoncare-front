@@ -1,3 +1,4 @@
+import { PostsProps } from './blogProps';
 import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
@@ -78,8 +79,15 @@ export interface FetchUserProps {
     documentId: string;
     id: number;
   };
+  favorites: FavoriteListProps[];
 }
 
+export interface FavoriteListProps {
+  documentId: string;
+  id: number;
+  posts: PostsProps[];
+  products: ProductProps[];
+}
 export interface OrderHistoryProps {
   id: number;
   orderDate: string;

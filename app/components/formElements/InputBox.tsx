@@ -1,23 +1,25 @@
 import { useState, ReactNode } from 'react';
 import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { forwardRef } from 'react';
+import { convertPersianAndArabicToEnglish } from '@/app/utils/miniFunctions';
 
 interface InputProps {
-  format?: string;
+  type?: string;
   placeholder: string;
   name: string;
-  value?: string | number;
   required?: boolean;
   children?: ReactNode;
   className?: string;
   labelClassName?: string;
   flex?: 'row' | 'col';
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const InputBox = forwardRef<HTMLInputElement, InputProps>(
   (
     {
-      format,
+      type,
       placeholder,
       name,
       required,
@@ -25,6 +27,8 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
       className,
       labelClassName,
       flex,
+      onChange,
+      onFocus,
     }: InputProps,
     ref
   ) => {
@@ -51,19 +55,30 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             `w-full p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ` +
             className
           }
+          onFocus={onFocus}
+          onChange={(e) => {
+            e.preventDefault();
+            if (type != 'password') {
+              const englishNumbers = convertPersianAndArabicToEnglish(
+                e.target.value
+              );
+              e.target.value = englishNumbers;
+            }
+            if (onChange) onChange(e);
+          }}
           type={
-            format == 'password'
+            type == 'password'
               ? showPassword
                 ? 'text'
                 : 'password'
-              : format || 'text'
+              : type || 'text'
           }
           placeholder={placeholder}
           name={name}
           id={name}
           ref={ref}
         />
-        {format == 'password' && (
+        {type == 'password' && (
           <button
             type="button"
             onClick={togglePassword}

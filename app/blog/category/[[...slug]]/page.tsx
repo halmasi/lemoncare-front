@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
-import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
+import { getCategory } from '@/app/utils/data/getCategories';
 import { getPostsByCategory } from '@/app/utils/data/getPosts';
 import { PostsProps } from '@/app/utils/schema/blogProps';
 const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
@@ -54,28 +54,14 @@ export default async function Category({
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-        {posts.map(async (post: PostsProps) => {
-          post.categoryUrl = await getCategoriesUrl(post.category, [
-            'category',
-          ]);
-          const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify({ email: post.author.email }),
-          });
-
-          const gravatarJson = await get.json();
-          const gravatar = JSON.parse(gravatarJson).data;
+        {posts.map((post: PostsProps) => {
           return (
             <PostCard
               key={post.documentId}
               basicInfo={post.basicInfo}
               category={post.category}
               seo={post.seo}
-              categoryUrl={post.categoryUrl}
-              gravatar={gravatar}
+              authorEmail={post.author.email}
               authorName={post.author.name}
               authorSlug={post.author.username}
             />

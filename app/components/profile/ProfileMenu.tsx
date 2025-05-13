@@ -7,7 +7,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { Fragment, ReactNode } from 'react';
 import {
   FaShoppingCart,
   FaRegHeart,
@@ -61,7 +61,12 @@ export default function ProfileMenu({
       key: 'addresses',
       url: '/dashboard/addresses',
     },
-    { name: <p>علاقه‌مندی‌ها</p>, icon: <FaRegHeart />, key: 'favorites' },
+    {
+      name: <p>علاقه‌مندی‌ها</p>,
+      icon: <FaRegHeart />,
+      key: 'favorites',
+      url: '/dashboard/favorites',
+    },
     {
       name: <p>اطلاعات حساب کاربری</p>,
       icon: <FaUser />,
@@ -73,15 +78,15 @@ export default function ProfileMenu({
   let menuItems: MenuItemsProps[] = [];
 
   if (extraItems) {
-    extraItems.map((item) => {
+    extraItems.forEach((item) => {
       if (item.position == 'top') {
         menuItems = [...menuItems, ...item.items];
       }
     });
-    defaultItems.map((item) => {
+    defaultItems.forEach((item) => {
       menuItems.push(item);
     });
-    extraItems.map((item) => {
+    extraItems.forEach((item) => {
       if (item.position == 'bottom') {
         item.items.map((singleItem) => menuItems.push(singleItem));
       }
@@ -91,17 +96,18 @@ export default function ProfileMenu({
   return (
     <>
       <nav className="mt-6">
-        {menuItems.map((item) => (
-          <motion.div
-            key={item.key}
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-200 rounded-lg"
-          >
-            {item.icon}
-            <Link className="w-full" href={item.url || '/dashboard'}>
-              {item.name}
-            </Link>
-          </motion.div>
+        {menuItems.map((item, index) => (
+          <Fragment key={item.key + index}>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-200 rounded-lg"
+            >
+              {item.icon}
+              <Link className="w-full" href={item.url || '/dashboard'}>
+                {item.name}
+              </Link>
+            </motion.div>
+          </Fragment>
         ))}
       </nav>
       <form

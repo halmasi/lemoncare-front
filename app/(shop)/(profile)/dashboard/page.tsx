@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]); // Initialize as an empty array
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
 
   const { user, setUser } = useDataStore();
 
@@ -18,7 +18,7 @@ export default function Dashboard() {
       return res.body;
     },
     onSuccess: async (data) => {
-      setOrderHistory(data.orderHistory || []); // Ensure fallback to an empty array
+      setOrderHistory(data.orderHistory || []);
       setUser(data);
     },
     onError: (error: { message: string[] }) => {
@@ -28,9 +28,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) {
-      getUserDataFn.mutate();
+      getUserDataFn.mutateAsync();
     }
-  }, []); // Removed `user` dependency to prevent infinite loop
+  }, [user]);
 
   if (!user) {
     return (

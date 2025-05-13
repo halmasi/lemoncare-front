@@ -14,6 +14,7 @@ import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
 import { cartProductSetter } from '../utils/shopUtils';
+import AddToFavorites from './AddToFavorites';
 
 interface NewItemProps {
   count: number;
@@ -274,9 +275,13 @@ export default function VarietySelector({
   ) : (
     <>
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
+        <div className="self-start flex gap-2 items-center">
+          <AddToFavorites product={product} />
+        </div>
+
         {price.price && price.inventory ? (
           <>
-            <h5>{product.off}</h5>
+            {/* <h5>{product.off}</h5> */}
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
               {price.before && (

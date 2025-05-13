@@ -2,9 +2,8 @@ import {
   CourierProps,
   PostMethodsProps,
 } from '@/app/components/checkout/DeliveryMethods';
-import { logs } from './miniFunctions';
 
-export const paymentMethod = async (amount: number) => {};
+// export const paymentMethod = async (amount: number) => {};
 
 export const shippingPrice = async (
   cityCode: number,
