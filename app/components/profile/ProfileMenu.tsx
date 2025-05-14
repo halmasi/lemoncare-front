@@ -16,6 +16,9 @@ import {
   FaSignOutAlt,
   FaReceipt,
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import SubmitButton from '../formElements/SubmitButton';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface MenuItemsProps {
   name: string | ReactNode;
@@ -32,6 +35,8 @@ export default function ProfileMenu({
   const { resetUser } = useDataStore();
   const { resetCart } = useCartStore();
   const { resetCheckout } = useCheckoutStore();
+  const { push } = useRouter();
+  const path = usePathname();
 
   const logoutFn = useMutation({
     mutationFn: async () => {
@@ -39,6 +44,12 @@ export default function ProfileMenu({
       resetCart();
       resetCheckout();
       await logoutAction();
+      if (path.startsWith('/dashboard') || path.startsWith('/cart')) {
+        push('/login');
+      }
+    },
+    onError: () => {
+      toast.error('خطا در خروج از حساب کاربری');
     },
   });
   const defaultItems: MenuItemsProps[] = [
@@ -110,19 +121,15 @@ export default function ProfileMenu({
           </Fragment>
         ))}
       </nav>
-      <form
-        action={() => {
-          logoutFn.mutate();
+
+      <SubmitButton
+        onClick={() => {
+          logoutFn.mutateAsync();
         }}
-        className="mt-6"
+        className="mt-6 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
       >
-        <button
-          type="submit"
-          className="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg"
-        >
-          <FaSignOutAlt /> خروج از حساب کاربری
-        </button>
-      </form>
+        <FaSignOutAlt /> خروج از حساب کاربری
+      </SubmitButton>
     </>
   );
 }
