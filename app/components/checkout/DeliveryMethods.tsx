@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import PostLogo from '@/public/Iran-Post-Logo.svg';
 import ChaparLogo from '@/public/chaparLogo.png';
-import { shippingPrice } from '@/app/utils/paymentUtils';
+import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';
 
 export interface CourierProps {
@@ -74,7 +74,12 @@ export default function DeliveryMethods({
 
   const getPrice = useMutation({
     mutationFn: async (cityCode: number) => {
-      const data = await shippingPrice(cityCode, selected, beforePrice, 200);
+      const data = await calcShippingPrice(
+        cityCode,
+        selected,
+        beforePrice,
+        200
+      );
       return data;
     },
     onSuccess: (data) => {

@@ -4,6 +4,7 @@ import './globals.css';
 import FooterNavbar from './components/FooterNavbar';
 import LoginHandler from './components/profile/LoginHandler';
 import ClientProvider from './components/ClientProvider';
+import { ToastContainer, Slide } from 'react-toastify';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
@@ -34,6 +35,19 @@ export default async function RootLayout({
           <LoginHandler />
           {children}
           <FooterNavbar />
+          <ToastContainer
+            position="bottom-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+            transition={Slide}
+          />
         </ClientProvider>
       </body>
     </html>
