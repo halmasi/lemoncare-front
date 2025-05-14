@@ -56,7 +56,9 @@ export default function LoginForm() {
         name="username"
         placeholder="ایمیل یا شماره تلفن"
         required
+        ltr
       />
+
       {errors.identifier && (
         <p className="text-red-500 text-sm">{errors.identifier.join('\n')}</p>
       )}

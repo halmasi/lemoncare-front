@@ -5,13 +5,14 @@ import { convertPersianAndArabicToEnglish } from '@/app/utils/miniFunctions';
 
 interface InputProps {
   type?: string;
-  placeholder: string;
+  placeholder?: string;
   name: string;
   required?: boolean;
   children?: ReactNode;
   className?: string;
   labelClassName?: string;
   flex?: 'row' | 'col';
+  ltr?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
@@ -27,6 +28,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
       className,
       labelClassName,
       flex,
+      ltr,
       onChange,
       onFocus,
     }: InputProps,
@@ -51,10 +53,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
         <input
-          className={
-            `w-full p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ` +
-            className
-          }
+          className={`w-full  p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ${className} ${ltr && 'ltr'}`}
           onFocus={onFocus}
           onChange={(e) => {
             e.preventDefault();
@@ -77,6 +76,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
           name={name}
           id={name}
           ref={ref}
+          dir={ltr ? 'ltr' : 'rtl'}
         />
         {type == 'password' && (
           <button

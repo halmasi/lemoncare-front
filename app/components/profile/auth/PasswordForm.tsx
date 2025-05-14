@@ -51,6 +51,7 @@ export default function PasswordForm() {
         type="password"
         placeholder="رمزعبور"
         required
+        ltr
       />
       {loginMutation.isError && (
         <p className="text-red-500 text-sm">{loginMutation.error?.message}</p>

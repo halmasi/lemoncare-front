@@ -96,11 +96,12 @@ export default function RegisterForm() {
         placeholder="شماره تلفن "
         required
       />
-      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required />
+      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required ltr />
       <InputBox
         ref={passwordRef}
         name="password"
         type="password"
+        ltr
         placeholder="رمزعبور"
         required
       />

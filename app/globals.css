@@ -95,3 +95,7 @@ p {
   /* box-shadow: 4px 5px 20px 1px #000; */
   background-size: 10px 10px;
 }
+
+.ltr {
+  direction: ltr;
+}

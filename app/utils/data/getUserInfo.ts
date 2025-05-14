@@ -5,7 +5,7 @@ import { AddressProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 import { cleanPhone, isPhone } from '../miniFunctions';
 import { loginSchema } from '../schema/formValidation';
-import { b } from 'framer-motion/client';
+import { cache } from 'react';
 
 export const updateUserInformation = async (
   id: string,
@@ -97,12 +97,22 @@ export const getOrderHistory = async (documentId: string) => {
   return response.data;
 };
 
-export const getFavorites = async (documentId: string) => {
+export const getFavorites = cache(async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({
     populate: {
-      posts: { populate: { basicInfo: { populate: ['mainImage'] } } },
-      products: { populate: { basicInfo: { populate: ['mainImage'] } } },
+      posts: {
+        populate: {
+          basicInfo: { populate: ['mainImage'] },
+          seo: { populate: '1' },
+        },
+      },
+      products: {
+        populate: {
+          basicInfo: { populate: ['mainImage'] },
+          seo: { populate: '1' },
+        },
+      },
     },
   });
   const response = await requestData(
@@ -113,7 +123,7 @@ export const getFavorites = async (documentId: string) => {
   );
   console.log('response Favorite : ', response, '\n', documentId);
   return response.data;
-};
+});
 
 export const getGravatar = async (email: string) => {
   const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
