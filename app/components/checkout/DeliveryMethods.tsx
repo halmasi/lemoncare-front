@@ -3,10 +3,13 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
-import PostLogo from '@/public/Iran-Post-Logo.svg';
-import ChaparLogo from '@/public/chaparLogo.png';
+import PostLogo from '@/public/iranPost.svg';
+import ChaparLogo from '@/public/chapar.svg';
+import TipaxLogo from '@/public/tipax.svg';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';
+import { toast } from 'react-toastify';
+import LoadingAnimation from '../LoadingAnimation';
 
 export interface CourierProps {
   courierCode: string;
@@ -52,54 +55,15 @@ export default function DeliveryMethods({
     useCheckoutStore();
 
   useEffect(() => {
-    (async () => {
-      const res = await fetch('/api/checkout');
-      const data: GetMethodsProps = await res.json();
-      if (data.isSuccess && data.data[0].courierCode) {
-        data.data.map((item) => {
-          if (
-            (item.courierCode == 'IR_POST' || item.courierCode == 'CHAPAR') &&
-            item.courierServiceCode != 'CERTIFIED'
-          ) {
-            setCourier((prev) => {
-              const copy = prev;
-              copy.push(item);
-              return copy;
-            });
-          }
-        });
-      }
-    })();
+    getMethodsFn.mutateAsync();
   }, []);
-
-  const getPrice = useMutation({
-    mutationFn: async (cityCode: number) => {
-      const data = await calcShippingPrice(
-        cityCode,
-        selected,
-        beforePrice,
-        200
-      );
-      return data;
-    },
-    onSuccess: (data) => {
-      const neededData = data.data.servicePrices[0];
-      setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
-
-      onChangeFn(true);
-    },
-    onError: () => {
-      onChangeFn(false);
-      setShippingPrice(0);
-    },
-  });
 
   useEffect(() => {
     setShippingPrice(0);
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
       setShippingPrice(0);
-      getPrice.mutate(checkoutAddress.cityCode);
+      getPriceFn.mutateAsync(checkoutAddress.cityCode);
       setShippingOption({
         courier_code: selected.courierCode,
         service_type: selected.courierServiceCode,
@@ -110,6 +74,69 @@ export default function DeliveryMethods({
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
     }
   }, [selected, checkoutAddress, checkoutAddress?.cityCode]);
+
+  const getMethodsFn = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/checkout');
+      const data: GetMethodsProps = await res.json();
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess && data.data[0].courierCode) {
+        data.data.map((item) => {
+          if (
+            (item.courierCode == 'IR_POST' ||
+              item.courierCode == 'CHAPAR' ||
+              item.courierCode == 'TIPAX') &&
+            item.courierServiceCode != 'CERTIFIED'
+          ) {
+            setCourier((prev) => {
+              const copy = prev;
+              copy.push(item);
+              return copy;
+            });
+          }
+        });
+      } else throw Error();
+    },
+    onError: () => {
+      toast.warn('خطا در دریافت روش های ارسال');
+    },
+  });
+  const getPriceFn = useMutation({
+    mutationFn: async (cityCode: number) => {
+      const data = await calcShippingPrice(
+        cityCode,
+        selected,
+        beforePrice,
+        200
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      if (
+        !data.isSuccess ||
+        !data.data.servicePrices[0] ||
+        !data.data.servicePrices[0].totalPrice
+      )
+        throw Error();
+      const neededData = data.data.servicePrices[0];
+      setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
+      onChangeFn(true);
+    },
+    onError: () => {
+      onChangeFn(false);
+      setShippingPrice(0);
+      toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
+    },
+  });
+
+  if (getMethodsFn.isPending)
+    return (
+      <div>
+        <LoadingAnimation />
+      </div>
+    );
 
   return (
     <div key={courier.length}>
@@ -123,17 +150,24 @@ export default function DeliveryMethods({
               setSelected(item);
             }}
             isSelected={selected == item}
-            className="flex flex-col items-center justify-center w-52 aspect-square"
+            className="flex-col items-center h-52 w-52 aspect-square gap-2 rounded-2xl"
           >
-            <div className="flex flex-col text-center gap-2">
+            <div className="flex flex-col w-full justify-between items-center h-[80%]">
               <Image
-                src={item.courierCode == 'IR_POST' ? PostLogo : ChaparLogo.src}
+                src={
+                  item.courierCode == 'IR_POST'
+                    ? PostLogo
+                    : item.courierCode == 'CHAPAR'
+                      ? ChaparLogo.src
+                      : TipaxLogo.src
+                }
                 alt={item.courierName}
-                width={100}
-                height={100}
+                width={50}
+                height={50}
+                className={`w-[65%] h-[65%]`}
               />
-              <div>
-                <p className="text-xs">{item.courierName}</p>
+              <div className="flex flex-col h-fit text-center rounded-xl bg-foreground/10 w-full text-foreground font-bold">
+                <p className="text-xs text-accent-green">{item.courierName}</p>
                 <p>{item.courierServiceName}</p>
               </div>
             </div>

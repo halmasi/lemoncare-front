@@ -38,10 +38,12 @@ export default function Payment() {
                   </p>
                 </Toman>
                 <Toman className="fill-accent-green text-accent-green">
-                  {(price / 10).toLocaleString('fa-IR', {
-                    style: 'decimal',
-                    maximumFractionDigits: 0,
-                  })}{' '}
+                  <p>
+                    {(price / 10).toLocaleString('fa-IR', {
+                      style: 'decimal',
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>{' '}
                 </Toman>
               </div>
             </div>
@@ -56,17 +58,19 @@ export default function Payment() {
                 %
               </p>
             </div>
-            <div className="border  w-full my-2" />
+            <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">
               <h6 className="w-fit self-start">هزینه ارسال:</h6>
               <Toman className="fill-accent-green text-accent-green">
-                {(shippingPrice / 10).toLocaleString('fa-IR', {
-                  style: 'decimal',
-                  maximumFractionDigits: 0,
-                })}
+                <p>
+                  {(shippingPrice / 10).toLocaleString('fa-IR', {
+                    style: 'decimal',
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
               </Toman>
             </div>
-            <div className="border  w-full my-2" />
+            <hr className="w-full my-2" />
             <div className="flex flex-wrap gap-2 p-1 md:pr-10">
               <h5 className="w-fit self-center">مبلغ نهایی:</h5>
               <Toman className="fill-accent-green text-accent-green">
@@ -81,9 +85,9 @@ export default function Payment() {
           </div>
           <div className="items-center justify-center flex flex-col gap-2 pt-5">
             {paymentOption == 'online' ? (
-              <SubmitButton>پرداخت آنلاین</SubmitButton>
+              <SubmitButton onClick={() => {}}>پرداخت آنلاین</SubmitButton>
             ) : (
-              <SubmitButton>ثبت سفارش</SubmitButton>
+              <SubmitButton link="/cart/checkout/gate">ثبت سفارش</SubmitButton>
             )}
           </div>
         </div>
