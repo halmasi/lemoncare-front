@@ -33,6 +33,11 @@ export default function page() {
   const router = useRouter();
 
   useEffect(() => {
+    if (shippingPrice < 0) {
+      router.push('/cart/checkout');
+    }
+  }, [shippingPrice]);
+  useEffect(() => {
     if (cart && cart.length > 0 && !finalPrice) {
       let cartPrice = 0;
       cart.map((item) => {
@@ -89,7 +94,7 @@ export default function page() {
         !data.data.servicePrices[0] ||
         !data.data.servicePrices[0].totalPrice
       ) {
-        toast('error ' + JSON.stringify(data?.data.servicePrices[0]));
+        toast('خطا! یک روش ارسال دیگر انتخاب کنید');
         return;
       }
       setShippingPrice(

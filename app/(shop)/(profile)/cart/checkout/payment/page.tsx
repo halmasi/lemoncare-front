@@ -2,19 +2,123 @@
 import PaymentSelector from '@/app/components/checkout/PaymentSelector';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Toman from '@/app/components/Toman';
+import { calcShippingPrice } from '@/app/utils/paymentUtils';
+import { varietyFinder } from '@/app/utils/shopUtils';
+import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function Payment() {
   const {
     beforePrice,
-    // cartId,
-    // checkoutAddress,
     price,
+    setPrice,
     paymentOption,
     setPaymentOption,
-    // shippingOption,
     shippingPrice,
+    shippingOption,
+    checkoutAddress,
+    setShippingPrice,
   } = useCheckoutStore();
+
+  const [finalPrice, setFinalPrice] = useState<number>(0);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+
+  const { cart, cartProducts } = useCartStore();
+  //   const { user, jwt } = useDataStore();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (shippingPrice < 0) {
+      router.push('/cart/checkout');
+    }
+  }, [shippingPrice]);
+
+  useEffect(() => {
+    if (cart && cart.length > 0 && !finalPrice) {
+      let cartPrice = 0;
+      cart.map((item) => {
+        const product = cartProducts.find(
+          (i) => i.documentId == item.product.documentId
+        );
+        if (product) {
+          const info = varietyFinder(item.variety, product);
+          const total = info.mainPrice * item.count;
+          cartPrice += total;
+        }
+      });
+      setPrice(cartPrice);
+    }
+  }, [
+    cart,
+    paymentOption,
+    shippingOption,
+    checkoutAddress,
+    setFinalPrice,
+    setPrice,
+    price,
+  ]);
+
+  const getShippingPriceFn = useMutation({
+    mutationFn: async () => {
+      if (checkoutAddress && checkoutAddress.cityCode) {
+        const res = await calcShippingPrice(
+          checkoutAddress?.cityCode,
+          {
+            courierCode: shippingOption.courier_code,
+            courierServiceCode: shippingOption.service_type,
+          },
+          price,
+          200
+        );
+        return res;
+      }
+    },
+    onSuccess: (data) => {
+      if (
+        !data ||
+        !data.data.servicePrices[0] ||
+        !data.data.servicePrices[0].totalPrice
+      ) {
+        toast('خطا! یک روش ارسال دیگر انتخاب کنید');
+        return;
+      }
+      setShippingPrice(
+        Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
+      );
+      // console.log(shippingOption);
+      setTotalPrice(shippingPrice + price);
+      makeOrderHistoryFn.mutateAsync({ postMethod: shippingOption });
+    },
+  });
+
+  const makeOrderHistoryFn = useMutation({
+    mutationFn: async ({
+      postMethod,
+    }: {
+      postMethod: { courier_code: string; service_type: string };
+    }) => {
+      const res = await fetch('/api/checkout/submit-order', {
+        method: 'POST',
+        body: JSON.stringify({
+          cart,
+          courierCode: postMethod.courier_code,
+          courierServiceCode: postMethod.service_type,
+        }),
+      });
+      const result = await res.json();
+      return result;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      // router.push('/cart/checkout/gate');
+    },
+  });
+
   return (
     <>
       <div className="flex flex-col lg:flex-row w-full gap-2">
@@ -84,11 +188,14 @@ export default function Payment() {
             </div>
           </div>
           <div className="items-center justify-center flex flex-col gap-2 pt-5">
-            {paymentOption == 'online' ? (
-              <SubmitButton onClick={() => {}}>پرداخت آنلاین</SubmitButton>
-            ) : (
-              <SubmitButton link="/cart/checkout/gate">ثبت سفارش</SubmitButton>
-            )}
+            <SubmitButton
+              onClick={() => {
+                getShippingPriceFn.mutateAsync();
+              }}
+              // link="/cart/checkout/gate"
+            >
+              {paymentOption == 'online' ? 'پرداخت آنلاین' : 'ثبت سفارش'}
+            </SubmitButton>
           </div>
         </div>
       </div>
