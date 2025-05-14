@@ -40,10 +40,10 @@ export default function ProfileMenu({
 
   const logoutFn = useMutation({
     mutationFn: async () => {
+      await logoutAction();
       resetUser();
       resetCart();
       resetCheckout();
-      await logoutAction();
       if (path.startsWith('/dashboard') || path.startsWith('/cart')) {
         push('/login');
       }
