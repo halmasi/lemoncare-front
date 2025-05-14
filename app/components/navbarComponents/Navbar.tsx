@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -100,8 +99,8 @@ export default function Navbar({
               />
               <Link onClick={() => setMenuState(false)} href="/">
                 <Image
-                  width={Logo.width}
-                  height={Logo.height}
+                  width={100}
+                  height={100}
                   src={Logo.src}
                   alt="LemonCare Logo"
                   className="h-10 w-auto drop-shadow-lg"
@@ -201,8 +200,8 @@ export default function Navbar({
             <div className="w-2/12">
               <Link className="w-fit inline-block" href="/">
                 <Image
-                  width={Logo.width}
-                  height={Logo.height}
+                  width={100}
+                  height={100}
                   src={Logo.src}
                   alt="LemonCare Logo"
                   className="h-10 w-auto drop-shadow-lg"

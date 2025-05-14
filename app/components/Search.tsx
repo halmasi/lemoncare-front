@@ -12,7 +12,6 @@ import LoadingAnimation from './LoadingAnimation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import page from '../(shop)/(single-pages)/page';
 
 export function Search() {
   const [param, setParam] = useState<string>('');

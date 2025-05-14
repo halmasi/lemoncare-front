@@ -10,6 +10,7 @@ import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
 import RadioButton from '../formElements/RadioButton';
+import LoadingAnimation from '../LoadingAnimation';
 
 export default function Addresses() {
   const router = useRouter();
@@ -129,6 +130,12 @@ export default function Addresses() {
     }
   }, [user]);
 
+  if (getAddressFn.isPending)
+    return (
+      <div>
+        <LoadingAnimation />
+      </div>
+    );
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
       {addresses && (
