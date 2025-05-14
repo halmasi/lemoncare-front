@@ -1,9 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RadioButton from '../formElements/RadioButton';
 
-export default function PaymentSelector() {
+export default function PaymentSelector({
+  onPaymentMethodChange,
+}: {
+  onPaymentMethodChange: (method: string) => void;
+}) {
   const [selectedmethod, setSelectedmethod] = useState<string>('online');
+
+  useEffect(() => {
+    onPaymentMethodChange(selectedmethod);
+  }, [selectedmethod]);
+
   return (
     <div className="flex flex-col w-full p-2 gap-2">
       <RadioButton
@@ -11,6 +20,7 @@ export default function PaymentSelector() {
         isSelected={selectedmethod == 'online'}
         onClick={(id: string) => {
           setSelectedmethod(id);
+          onPaymentMethodChange(id);
         }}
       >
         <p>پرداخت آنلاین توسط کارت های عضو شتاب</p>
@@ -20,6 +30,7 @@ export default function PaymentSelector() {
         isSelected={selectedmethod == 'offline'}
         onClick={(id: string) => {
           setSelectedmethod(id);
+          onPaymentMethodChange(id);
         }}
       >
         <p>پرداخت به صورت کارت به کارت</p>
@@ -33,7 +44,6 @@ export default function PaymentSelector() {
       >
         <p>پرداخت توسط اسنپ پی</p>
       </RadioButton> */}
-      {selectedmethod}
     </div>
   );
 }

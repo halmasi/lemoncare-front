@@ -84,3 +84,14 @@ p {
 .thumbs .swiper-slide-thumb-active {
   opacity: 1;
 }
+
+.zigzag {
+  background:
+    linear-gradient(-135deg, #fff 5px, transparent 0) 0 30px,
+    linear-gradient(135deg, #fff 5px, rgb(229 231 235) 0) 0 30px;
+  background-color: #fff;
+  background-position: left bottom;
+  background-repeat: repeat-x;
+  /* box-shadow: 4px 5px 20px 1px #000; */
+  background-size: 10px 10px;
+}

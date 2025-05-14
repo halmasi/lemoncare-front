@@ -1,13 +1,10 @@
-import {
-  CourierProps,
-  PostMethodsProps,
-} from '@/app/components/checkout/DeliveryMethods';
+import { PostMethodsProps } from '@/app/components/checkout/DeliveryMethods';
 
 // export const paymentMethod = async (amount: number) => {};
 
-export const shippingPrice = async (
+export const calcShippingPrice = async (
   cityCode: number,
-  selected: CourierProps,
+  selected: { courierCode: string; courierServiceCode: string },
   price: number,
   weight: number
 ) => {

@@ -29,11 +29,11 @@ export default function RadioButton({
         onClick={() => {
           onClick(id);
         }}
-        className={`flex w-full h-fit rounded-lg p-2 border items-center justify-between cursor-pointer ${className} ${isSelectedClass}`}
+        className={`flex w-full h-fit justify-between rounded-lg p-2 border cursor-pointer ${className} ${isSelectedClass}`}
       >
-        <div>{children}</div>
+        {children}
         {showRadioIcon && (
-          <div>
+          <div className="self-center h-fit w-fit">
             {isSelected ? (
               <IoRadioButtonOnOutline className="fill-accent-pink text-gray-400 text-xl" />
             ) : (
