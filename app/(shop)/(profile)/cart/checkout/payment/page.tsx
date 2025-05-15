@@ -24,6 +24,7 @@ export default function Payment() {
     checkoutAddress,
     setShippingPrice,
     coupon,
+    setOrderCode,
   } = useCheckoutStore();
 
   const [finalPrice, setFinalPrice] = useState<number>(0);
@@ -92,7 +93,6 @@ export default function Payment() {
       setShippingPrice(
         Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
       );
-      // console.log(shippingOption);
       setTotalPrice(shippingPrice + price);
       makeOrderHistoryFn.mutateAsync({ postMethod: shippingOption });
     },
@@ -119,13 +119,7 @@ export default function Payment() {
               };
             }),
             orderDate: date.toISOString(),
-            address: `استان: ${checkoutAddress?.province},
-شهر: ${checkoutAddress?.city},
-آدرس: ${checkoutAddress?.address},
-نام: ${checkoutAddress?.firstName},
-نام خانوادگی: ${checkoutAddress?.lastName},
-موبابل: ${checkoutAddress?.mobileNumber},
-تلفن: ${checkoutAddress?.phoneNumber}`,
+            address: `استان: ${checkoutAddress?.province},\nشهر: ${checkoutAddress?.city},\nآدرس: ${checkoutAddress?.address},\nنام: ${checkoutAddress?.firstName},\nنام خانوادگی: ${checkoutAddress?.lastName},\nموبابل: ${checkoutAddress?.mobileNumber},\nتلفن: ${checkoutAddress?.phoneNumber}`,
             postCode: checkoutAddress?.postCode,
             paymentStatus: 'pending',
             payMethod: paymentOption,
@@ -142,8 +136,9 @@ export default function Payment() {
       return result;
     },
     onSuccess: (data) => {
+      setOrderCode(data.data.orderCode);
       // console.log(data);
-      // router.push('/cart/checkout/gate');
+      router.push('/cart/checkout/gate');
     },
   });
 
@@ -217,6 +212,7 @@ export default function Payment() {
           </div>
           <div className="items-center justify-center flex flex-col gap-2 pt-5">
             <SubmitButton
+              isPending={makeOrderHistoryFn.isPending}
               onClick={() => {
                 getShippingPriceFn.mutateAsync();
               }}

@@ -11,6 +11,7 @@ export interface checkoutStoreState {
   shippingPrice: number;
   paymentOption: string;
   coupon: string | null;
+  orderCode: number;
   setPrice: (price: number) => void;
   setShippingPrice: (shippingPrice: number) => void;
   setBeforePrice: (beforePrice: number) => void;
@@ -22,6 +23,7 @@ export interface checkoutStoreState {
   }) => void;
   setPaymentOption: (option: string) => void;
   setCoupon: (coupon: string) => void;
+  setOrderCode: (orderCode: number) => void;
   resetCheckout: () => void;
 }
 
@@ -36,6 +38,7 @@ export const useCheckoutStore = create(
       shippingPrice: 0,
       shippingOption: { courier_code: '', service_type: '' },
       paymentOption: '',
+      orderCode: 0,
       setPrice: (price) => set(() => ({ price })),
       setShippingPrice: (shippingPrice) => set(() => ({ shippingPrice })),
       setBeforePrice: (beforePrice) => set(() => ({ beforePrice })),
@@ -45,6 +48,7 @@ export const useCheckoutStore = create(
       setShippingOption: (option) => set(() => ({ shippingOption: option })),
       setPaymentOption: (option) => set(() => ({ paymentOption: option })),
       setCoupon: (coupon) => set(() => ({ coupon })),
+      setOrderCode: (orderCode) => set(() => ({ orderCode })),
       resetCheckout: () => {
         set(() => ({
           price: 0,
@@ -54,6 +58,7 @@ export const useCheckoutStore = create(
           paymentOption: '',
           checkoutAddress: null,
           coupon: null,
+          orderCode: 0,
         }));
         localStorage.removeItem('checkout-store');
       },

@@ -8,6 +8,7 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 // import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BiCopy } from 'react-icons/bi';
@@ -26,8 +27,9 @@ export default function page() {
     shippingPrice,
     price,
     setPrice,
+    orderCode,
   } = useCheckoutStore();
-  const { cart, cartProducts } = useCartStore();
+  const { cart, cartProducts, resetCart } = useCartStore();
   //   const { user, jwt } = useDataStore();
 
   const router = useRouter();
@@ -66,11 +68,11 @@ export default function page() {
     if (price) getShippingPriceFn.mutateAsync();
   }, [price]);
 
-  useEffect(() => {
-    if (totalPrice && paymentOption == 'online') {
-      router.push('https://digikala.com');
-    }
-  }, [totalPrice, paymentOption]);
+  // useEffect(() => {
+  //   if (totalPrice && paymentOption == 'online') {
+  //     router.push('https://digikala.com');
+  //   }
+  // }, [totalPrice, paymentOption]);
 
   ///mutation
   const getShippingPriceFn = useMutation({
@@ -101,6 +103,7 @@ export default function page() {
         Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
       );
       setTotalPrice(shippingPrice + price);
+      resetCart();
     },
   });
 
@@ -151,7 +154,14 @@ export default function page() {
           </div>
         </div>
         <p>
-          سپس فیش واریزی را به شماره{' '}
+          سپس فیش واریزی را همراه کد سفارش{' '}
+          <Link
+            href={'#'}
+            className="text-accent-pink underline bg-accent-green/20"
+          >
+            {orderCode}
+          </Link>{' '}
+          به شماره{' '}
           <a className="text-accent-pink" href="tel:09025548887">
             09025548887
           </a>{' '}
