@@ -1,5 +1,7 @@
 import { cartProductsProps, ProductProps } from './schema/shopProps';
 import { getProduct } from './data/getProducts';
+import qs from 'qs';
+import { dataFetch } from './data/dataFetch';
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
   product: ProductProps | cartProductsProps
@@ -130,4 +132,30 @@ export const cartProductSelector = async (
     return product[0];
   }
   return findProduct;
+};
+
+export const orderHistoryIdMaker = async (): Promise<number> => {
+  const orderId: number = parseInt((Math.random() * 10000000000).toFixed(0));
+
+  const queryPost = qs.stringify({
+    filters: {
+      order: {
+        orderCode: { $eq: orderId },
+      },
+    },
+    populate: {
+      order: {
+        populate: {
+          items: {
+            populate: {
+              product: { populate: { basicInfo: { populate: ['mainImage'] } } },
+            },
+          },
+        },
+      },
+    },
+  });
+  const res = await dataFetch(`/order-histories?${queryPost}`, 'GET');
+  if (res.length) await orderHistoryIdMaker();
+  return orderId;
 };

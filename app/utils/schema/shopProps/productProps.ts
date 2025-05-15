@@ -41,6 +41,10 @@ export interface ProductProps {
     mainImage: ImageProps;
     contentCode: number;
   };
+  product_view: {
+    view: number;
+    product: { documentId: string };
+  };
   media: MediaProps[];
   category: ShopCategoryProps;
   seo: { id: number; seoTitle: string; seoDescription: string };

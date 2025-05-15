@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { getOrderHistory } from '@/app/utils/data/getUserInfo';
-import { logs } from '@/app/utils/miniFunctions';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { motion } from 'framer-motion';
@@ -97,63 +95,71 @@ export default function OrderHistory() {
         </div>
       ) : orderHistory.length > 0 ? (
         <div>
-          {orderHistory.map((order) => (
-            <motion.div
-              key={order.id}
-              className="p-4 bg-white shadow-md hover:shadow-lg rounded-2xl border border-gray-100 transition-all duration-200 cursor-pointer space-y-2"
-              whileHover={{ scale: 1.02 }}
-              onClick={() => handleOrderClick(order)}
-            >
-              {order.items && order.items.length > 0 ? (
-                <div className="flex flex-col">
-                  <p className="text-sm text-gray-500">
-                    📅 تاریخ:{' '}
-                    {new Date(order.orderDate).toLocaleDateString('fa-IR')}
-                  </p>
-                  <div className="flex flex-row mt-1 gap-3">
-                    {order.items.map((product) => (
-                      <div key={product.id}>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <Image
-                            src={
-                              product?.product?.basicInfo?.mainImage?.formats
-                                ?.thumbnail?.url || '/placeholder.png'
-                            }
-                            alt={
-                              product?.product?.basicInfo?.title || 'بدون نام'
-                            }
-                            width={100}
-                            height={100}
-                            className="rounded-md"
-                          />
+          {orderHistory.map((order) => {
+            return (
+              <motion.div
+                key={order.id}
+                className="p-4 bg-white shadow-md hover:shadow-lg rounded-2xl border border-gray-100 transition-all duration-200 cursor-pointer space-y-2"
+                whileHover={{ scale: 1.02 }}
+                onClick={() => handleOrderClick(order)}
+              >
+                {order.items && order.items.length > 0 ? (
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500">
+                      📅 تاریخ:{' '}
+                      {new Date(order.orderDate).toLocaleDateString('fa-IR')}
+                    </p>
+                    <div className="flex flex-row mt-1 gap-3">
+                      {order.items.map((product) => (
+                        <div key={product.id}>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <Image
+                              src={
+                                product?.product?.basicInfo?.mainImage?.formats
+                                  ?.thumbnail?.url || '/placeholder.png'
+                              }
+                              alt={
+                                product?.product?.basicInfo?.title || 'بدون نام'
+                              }
+                              width={100}
+                              height={100}
+                              className="rounded-md"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">
+                              {product?.product?.basicInfo?.title || 'بدون نام'}
+                            </p>
+                            <p className="text-gray-500">
+                              🛍️ تعداد: {product.count}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-700">
-                            {product?.product?.basicInfo?.title || 'بدون نام'}
-                          </p>
-                          <p className="text-gray-500">
-                            🛍️ تعداد: {product.count}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <p
+                      className={`text-sm font-semibold ${
+                        order.paymentStatus == 'completed'
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      }`}
+                    >
+                      💳 وضعیت پرداخت:{' '}
+                      {order.paymentStatus == 'completed'
+                        ? 'پرداخت شده'
+                        : order.paymentStatus == 'pending'
+                          ? 'در انتظار پرداخت'
+                          : 'لغو شده'}
+                    </p>
                   </div>
-                  <p
-                    className={`text-sm font-semibold ${
-                      order.pay ? 'text-green-600' : 'text-red-500'
-                    }`}
-                  >
-                    💳 وضعیت پرداخت:{' '}
-                    {order.pay ? 'پرداخت شده' : 'در انتظار پرداخت'}
+                ) : (
+                  <p className="text-gray-500 mt-2 text-sm">
+                    هیچ محصولی در این سفارش یافت نشد.
                   </p>
-                </div>
-              ) : (
-                <p className="text-gray-500 mt-2 text-sm">
-                  هیچ محصولی در این سفارش یافت نشد.
-                </p>
-              )}
-            </motion.div>
-          ))}
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       ) : (
         <p className="text-gray-500 text-center mt-6">هیچ سفارشی یافت نشد.</p>

@@ -91,7 +91,14 @@ export interface FavoriteListProps {
 export interface OrderHistoryProps {
   id: number;
   orderDate: string;
-  pay: boolean;
+  paymentStatus: 'pending' | 'completed' | 'canceled';
+  payMethod: 'online' | 'offline' | 'snapp';
+  shippingMethod: string;
+  shippingPrice: number;
+  orderPrice: number;
+  coupon: string | null;
+  totalPrice: number;
+  orderCode: number;
   address: string;
   postCode: number;
   items: {

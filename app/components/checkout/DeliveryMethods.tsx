@@ -59,10 +59,10 @@ export default function DeliveryMethods({
   }, []);
 
   useEffect(() => {
-    setShippingPrice(0);
+    setShippingPrice(-1);
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
-      setShippingPrice(0);
+      setShippingPrice(-1);
       getPriceFn.mutateAsync(checkoutAddress.cityCode);
       setShippingOption({
         courier_code: selected.courierCode,
@@ -70,7 +70,7 @@ export default function DeliveryMethods({
       });
     }
     if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
-      setShippingPrice(0);
+      setShippingPrice(-1);
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
     }
   }, [selected, checkoutAddress, checkoutAddress?.cityCode]);
@@ -97,7 +97,7 @@ export default function DeliveryMethods({
             });
           }
         });
-      } else throw Error();
+      } else toast.warn('خطا در دریافت روش های ارسال');
     },
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');
@@ -107,7 +107,10 @@ export default function DeliveryMethods({
     mutationFn: async (cityCode: number) => {
       const data = await calcShippingPrice(
         cityCode,
-        selected,
+        {
+          courierCode: selected.courierCode,
+          courierServiceCode: selected.courierServiceCode,
+        },
         beforePrice,
         200
       );
@@ -118,8 +121,12 @@ export default function DeliveryMethods({
         !data.isSuccess ||
         !data.data.servicePrices[0] ||
         !data.data.servicePrices[0].totalPrice
-      )
-        throw Error();
+      ) {
+        toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
+        onChangeFn(false);
+        setShippingPrice(-1);
+        return;
+      }
       const neededData = data.data.servicePrices[0];
       setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
       onChangeFn(true);
