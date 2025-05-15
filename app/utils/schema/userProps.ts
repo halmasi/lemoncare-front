@@ -96,7 +96,7 @@ export interface OrderHistoryProps {
   shippingMethod: string;
   shippingPrice: number;
   orderPrice: number;
-  token: string;
+  coupon: string | null;
   totalPrice: number;
   orderCode: number;
   address: string;

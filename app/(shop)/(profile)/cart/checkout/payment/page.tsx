@@ -6,6 +6,7 @@ import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -22,13 +23,14 @@ export default function Payment() {
     shippingOption,
     checkoutAddress,
     setShippingPrice,
+    coupon,
   } = useCheckoutStore();
 
   const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const { cart, cartProducts } = useCartStore();
-  //   const { user, jwt } = useDataStore();
+  const { user, jwt } = useDataStore();
 
   const router = useRouter();
 
@@ -102,19 +104,45 @@ export default function Payment() {
     }: {
       postMethod: { courier_code: string; service_type: string };
     }) => {
+      const date = new Date();
       const res = await fetch('/api/checkout/submit-order', {
         method: 'POST',
         body: JSON.stringify({
-          cart,
-          courierCode: postMethod.courier_code,
-          courierServiceCode: postMethod.service_type,
+          id: user?.order_history.documentId,
+          jwt: `Bearer ${jwt}`,
+          order: {
+            items: cart.map((item) => {
+              return {
+                count: item.count,
+                product: item.product.documentId,
+                variety: item.variety,
+              };
+            }),
+            orderDate: date.toISOString(),
+            address: `استان: ${checkoutAddress?.province},
+شهر: ${checkoutAddress?.city},
+آدرس: ${checkoutAddress?.address},
+نام: ${checkoutAddress?.firstName},
+نام خانوادگی: ${checkoutAddress?.lastName},
+موبابل: ${checkoutAddress?.mobileNumber},
+تلفن: ${checkoutAddress?.phoneNumber}`,
+            postCode: checkoutAddress?.postCode,
+            paymentStatus: 'pending',
+            payMethod: paymentOption,
+            shippingMethod:
+              postMethod.courier_code + ' | ' + postMethod.service_type,
+            shippingPrice,
+            orderPrice: price,
+            totalPrice,
+            coupon,
+          },
         }),
       });
       const result = await res.json();
       return result;
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       // router.push('/cart/checkout/gate');
     },
   });

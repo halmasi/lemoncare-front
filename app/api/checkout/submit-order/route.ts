@@ -1,22 +1,82 @@
-import { dataFetch } from '@/app/utils/data/dataFetch';
-import { orderHistoryIdMaker } from '@/app/utils/shopUtils';
 import qs from 'qs';
 
+import { requestData } from '@/app/utils/data/dataFetch';
+import { orderHistoryIdMaker } from '@/app/utils/shopUtils';
+
+import { OrderHistoryProps } from '@/app/utils/schema/userProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
+
 export async function POST(req: Request) {
-  const code = await orderHistoryIdMaker();
+  try {
+    const orderCode = await orderHistoryIdMaker();
+    const requestBody = await req.json();
 
-  const requestBody = await req.json();
-  console.log(requestBody);
+    const query = qs.stringify({
+      populate: {
+        user: { populate: '*' },
+        order: {
+          populate: {
+            items: {
+              populate: '*',
+            },
+            coupon: { populate: '*' },
+          },
+        },
+      },
+    });
 
-  // const request = await req.json();
-  //   const sending = await fetch('https://api.postex.ir/api/v1/shipping-price', {
-  //     method: 'POST',
-  //     body: JSON.stringify(request),
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'x-api-key': '' + process.env.POSTEX_API_TOKEN,
-  //     },
-  //   });
-  //   const result = await sending.json();
-  return Response.json({ asdasd: 'asdasd' }, { status: 200 });
+    const res = await requestData(
+      `/order-histories/${requestBody.id}?${query}`,
+      'GET',
+      {},
+      requestBody.jwt
+    );
+    const prevOrders = res.data.data.order;
+
+    const newOrderList = prevOrders.map((order: OrderHistoryProps) => {
+      return {
+        orderDate: order.orderDate,
+        paymentStatus: order.paymentStatus,
+        payMethod: order.payMethod,
+        shippingMethod: order.shippingMethod,
+        shippingPrice: order.shippingPrice,
+        orderPrice: order.orderPrice,
+        coupon: order.coupon,
+        totalPrice: order.totalPrice,
+        orderCode: order.orderCode,
+        address: order.address,
+        postCode: order.postCode,
+        items: order.items.map((item: CartProps) => ({
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        })),
+      };
+    });
+    newOrderList.push({ ...requestBody.order, orderCode });
+
+    const request = {
+      data: {
+        order: newOrderList,
+      },
+    };
+    const resQuery = qs.stringify({
+      populate: '*',
+    });
+
+    const result = await requestData(
+      `/order-histories/${requestBody.id}?${resQuery}`,
+      'PUT',
+      request,
+      requestBody.jwt
+    );
+
+    const finalResponse = result.data.data.order.find(
+      (item: OrderHistoryProps) => item.orderCode == orderCode
+    );
+
+    return Response.json({ data: finalResponse }, { status: 200 });
+  } catch (error) {
+    return Response.json({ error: error }, { status: 500 });
+  }
 }

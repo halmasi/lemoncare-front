@@ -140,7 +140,7 @@ export const orderHistoryIdMaker = async (): Promise<number> => {
   const queryPost = qs.stringify({
     filters: {
       order: {
-        orderCode: { $eq: 12312312 },
+        orderCode: { $eq: orderId },
       },
     },
     populate: {
