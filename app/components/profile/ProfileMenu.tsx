@@ -7,7 +7,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Fragment, ReactNode } from 'react';
+import { Fragment, ReactNode, useState } from 'react';
 import {
   FaShoppingCart,
   FaRegHeart,
@@ -15,6 +15,8 @@ import {
   FaUser,
   FaSignOutAlt,
   FaReceipt,
+  FaChevronDown,
+  FaChevronUp,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import SubmitButton from '../formElements/SubmitButton';
@@ -73,10 +75,16 @@ export default function ProfileMenu({
       url: '/dashboard/addresses',
     },
     {
-      name: <p>علاقه‌مندی‌ها</p>,
+      name: <p>محصولات نشان شده </p>,
       icon: <FaRegHeart />,
       key: 'favorites',
       url: '/dashboard/favorites',
+    },
+    {
+      name: <p>مقالات نشان شده</p>,
+      icon: <FaRegHeart />,
+      key: 'bookmarks',
+      url: '/dashboard/bookmarks',
     },
     {
       name: <p>اطلاعات حساب کاربری</p>,
