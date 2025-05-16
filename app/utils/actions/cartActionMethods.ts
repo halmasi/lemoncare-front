@@ -78,6 +78,22 @@ export const updateCart = async (cart: CartProps[], id: string) => {
   return data;
 };
 
+export const emptyCart = async (id: string) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/carts/${id}`,
+    'PUT',
+    {
+      data: {
+        items: [],
+      },
+    },
+    check.jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
 export const addToCart = async (
   cart: CartProps[],
   newItem: {

@@ -2,11 +2,12 @@
 
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Toman from '@/app/components/Toman';
+import { emptyCart } from '@/app/utils/actions/cartActionMethods';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
-// import { useDataStore } from '@/app/utils/states/useUserdata';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,7 +31,7 @@ export default function page() {
     orderCode,
   } = useCheckoutStore();
   const { cart, cartProducts, resetCart } = useCartStore();
-  //   const { user, jwt } = useDataStore();
+  const { user } = useDataStore();
 
   const router = useRouter();
 
@@ -90,7 +91,7 @@ export default function page() {
         return res;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (
         !data ||
         !data.data.servicePrices[0] ||
@@ -104,6 +105,8 @@ export default function page() {
       );
       setTotalPrice(shippingPrice + price);
       resetCart();
+
+      if (user) await emptyCart(user.shopingCart.documentId);
     },
   });
 
@@ -125,14 +128,13 @@ export default function page() {
           {getShippingPriceFn.isPending || totalPrice == 0 ? (
             <VscLoading className="animate-spin text-accent-green" />
           ) : (
-            <Toman className="fill-accent-green text-accent-green">
-              <p>
-                {(totalPrice / 10).toLocaleString('fa-IR', {
-                  style: 'decimal',
-                  maximumFractionDigits: 0,
-                })}
-              </p>
-            </Toman>
+            <p className="text-accent-green">
+              {totalPrice.toLocaleString('fa-IR', {
+                style: 'decimal',
+                maximumFractionDigits: 0,
+              })}{' '}
+              ریال
+            </p>
           )}{' '}
           <p>را به شماره کارت زیر واریز کنید:</p>
         </div>

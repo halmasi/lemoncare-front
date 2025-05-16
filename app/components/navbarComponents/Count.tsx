@@ -63,7 +63,7 @@ export default function Count({
         updateCart.splice(updateCart.indexOf(cartItem), 1);
         setCart(updateCart);
         if (user && jwt) {
-          updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
         }
       } else {
         updateCart[updateCart.indexOf(cartItem)].count = newCount;
@@ -84,7 +84,7 @@ export default function Count({
           );
 
           if (shouldUpdate) {
-            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
           }
         }
       }
