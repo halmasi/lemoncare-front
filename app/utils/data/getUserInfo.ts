@@ -136,33 +136,29 @@ export const getSingleOrderHistory = async (
   return null;
 };
 
-export const getFavorites = cache(async (documentId: string) => {
-  const check = await loginCheck();
-  const query = qs.stringify({
-    populate: {
-      posts: {
-        populate: {
-          basicInfo: { populate: ['mainImage'] },
-          seo: { populate: '1' },
+export const getFavorites = cache(
+  async (documentId: string, whichOne: 'posts' | 'products') => {
+    const check = await loginCheck();
+    const query = qs.stringify({
+      populate: {
+        [whichOne]: {
+          populate: {
+            basicInfo: { populate: ['mainImage'] },
+            seo: { populate: '1' },
+          },
         },
       },
-      products: {
-        populate: {
-          basicInfo: { populate: ['mainImage'] },
-          seo: { populate: '1' },
-        },
-      },
-    },
-  });
-  const response = await requestData(
-    `/favorites/${documentId}?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
-  console.log('response Favorite : ', response, '\n', documentId);
-  return response.data;
-});
+    });
+    const response = await requestData(
+      `/favorites/${documentId}?${query}`,
+      'GET',
+      {},
+      check.jwt
+    );
+    console.log('response Favorite : ', response, '\n', documentId);
+    return response.data;
+  }
+);
 
 export const getGravatar = async (email: string) => {
   const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
