@@ -99,6 +99,12 @@ export interface OrderHistoryProps {
   coupon: string | null;
   totalPrice: number;
   orderCode: number;
+  province: string;
+  city: string;
+  firstName: string;
+  lastName: string;
+  mobileNumber: number | string;
+  phoneNumber: number | string;
   address: string;
   postCode: number;
   items: {

@@ -13,6 +13,10 @@ import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { cartProductSetter } from '@/app/utils/shopUtils';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { CartProps } from '@/app/utils/schema/shopProps';
+import LoadingAnimation from '../LoadingAnimation';
 
 export default function Cart({
   priceAmount,
@@ -30,6 +34,40 @@ export default function Cart({
   const [showCart, setShowCart] = useState<boolean>(true);
   const [count, setCount] = useState(0);
 
+  const getCartFn = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const cart = await getCart(id);
+      return cart;
+    },
+    onSuccess: (data) => {
+      setCart(data.data.items);
+    },
+    onError: () => {
+      toast.error('خطا در بارگذاری سبد خرید');
+    },
+  });
+
+  const updateCartFn = useMutation({
+    mutationFn: async ({
+      cart,
+      cartId,
+    }: {
+      cart: CartProps[];
+      cartId: string;
+    }) => {
+      await updateCart(cart, cartId);
+      const userData = await getFullUserData();
+      return userData;
+    },
+    onSuccess: async (data) => {
+      setUser(data.body);
+      route.refresh();
+    },
+    onError: () => {
+      toast.error('خطا در بارگذاری سبد خرید');
+    },
+  });
+
   useEffect(() => {
     if (cart && cart.length) {
       setCount(cart.length);
@@ -38,27 +76,13 @@ export default function Cart({
 
   useEffect(() => {
     if (user && jwt && user.shopingCart)
-      getCart(user.shopingCart.documentId).then((data) => {
-        setCart(data.data.items);
-      });
-    else if (jwt)
-      getFullUserData().then((fetchUser) => {
-        setUser(fetchUser.body);
-        getCart(fetchUser.body.shopingCart.documentId).then((data) => {
-          setCart(data.data.items);
-        });
-      });
+      getCartFn.mutateAsync({ id: user.shopingCart.documentId });
   }, []);
 
   useEffect(() => {
-    if (user && user.cart && cart.length != user.cart.length) {
-      updateCart(cart, user.shopingCart.documentId).then(() => {
-        getFullUserData().then((data) => {
-          setUser(data.body);
-          route.refresh();
-        });
-      });
-    }
+    if (user && user.cart && cart.length != user.cart.length)
+      updateCartFn.mutateAsync({ cart, cartId: user.shopingCart.documentId });
+
     if (!cart || !cart.length) {
       setShowCart(false);
     } else {
@@ -87,6 +111,7 @@ export default function Cart({
           });
         });
       }
+
       setTableRow([]);
       setTotalBeforePrice(0);
       setTotalPrice(0);
@@ -180,6 +205,14 @@ export default function Cart({
   useEffect(() => {
     if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
   }, [totalBeforePrice, totalPrice]);
+
+  if (getCartFn.status == 'pending' || updateCartFn.status == 'pending')
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <LoadingAnimation />
+        <p>در حال بارگذاری سبد خرید</p>
+      </div>
+    );
 
   return (
     <div className="w-full">

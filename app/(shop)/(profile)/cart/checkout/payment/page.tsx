@@ -24,6 +24,7 @@ export default function Payment() {
     checkoutAddress,
     setShippingPrice,
     coupon,
+    setOrderCode,
   } = useCheckoutStore();
 
   const [finalPrice, setFinalPrice] = useState<number>(0);
@@ -92,7 +93,6 @@ export default function Payment() {
       setShippingPrice(
         Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
       );
-      // console.log(shippingOption);
       setTotalPrice(shippingPrice + price);
       makeOrderHistoryFn.mutateAsync({ postMethod: shippingOption });
     },
@@ -119,18 +119,27 @@ export default function Payment() {
               };
             }),
             orderDate: date.toISOString(),
-            address: `استان: ${checkoutAddress?.province},
-شهر: ${checkoutAddress?.city},
-آدرس: ${checkoutAddress?.address},
-نام: ${checkoutAddress?.firstName},
-نام خانوادگی: ${checkoutAddress?.lastName},
-موبابل: ${checkoutAddress?.mobileNumber},
-تلفن: ${checkoutAddress?.phoneNumber}`,
+            address: checkoutAddress?.address,
+            province: checkoutAddress?.province,
+            city: checkoutAddress?.city,
+            firstName: checkoutAddress?.firstName,
+            lastName: checkoutAddress?.lastName,
+            mobileNumber: checkoutAddress?.mobileNumber,
+            phoneNumber: checkoutAddress?.phoneNumber,
             postCode: checkoutAddress?.postCode,
             paymentStatus: 'pending',
             payMethod: paymentOption,
-            shippingMethod:
-              postMethod.courier_code + ' | ' + postMethod.service_type,
+            shippingMethod: `${
+              postMethod.courier_code == 'IR_POST'
+                ? 'شرکت ملی پست'
+                : postMethod.courier_code == 'CHAPAR'
+                  ? 'چاپار'
+                  : postMethod.courier_code == 'TIPAX'
+                    ? 'تیپاکس'
+                    : postMethod.courier_code
+            }
+              | 
+              ${postMethod.service_type == 'CHAPAR' ? 'چاپار' : postMethod.service_type == 'EXPRESS' ? 'پیشتاز' : postMethod.service_type == 'PRIORITY' ? 'ویژه' : postMethod.service_type == 'CHAPAREXPRESS' ? 'چاپار اکسپرس' : postMethod.service_type == 'TIPAX' ? 'تیپاکس' : postMethod.service_type}`,
             shippingPrice,
             orderPrice: price,
             totalPrice,
@@ -142,8 +151,9 @@ export default function Payment() {
       return result;
     },
     onSuccess: (data) => {
+      setOrderCode(data.data.orderCode);
       // console.log(data);
-      // router.push('/cart/checkout/gate');
+      router.push('/cart/checkout/gate');
     },
   });
 
@@ -217,6 +227,7 @@ export default function Payment() {
           </div>
           <div className="items-center justify-center flex flex-col gap-2 pt-5">
             <SubmitButton
+              isPending={makeOrderHistoryFn.isPending}
               onClick={() => {
                 getShippingPriceFn.mutateAsync();
               }}

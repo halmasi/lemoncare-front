@@ -114,13 +114,13 @@ export default function VarietySelector({
     mutationFn: async (newItem: NewItemProps) => {
       if (user && user.id && cart) {
         const res = await addToCart(cart, newItem, user.shopingCart.documentId);
-        return res;
+        const getCartData = await getCart(user.shopingCart.documentId);
+        return { res, getCartData };
       }
     },
     onSuccess: async (data) => {
-      if (!data || !user) return;
-      const getCartData = await getCart(user.shopingCart.documentId);
-      setCart(getCartData.data.items);
+      if (!data || !data.res || !user) return;
+      setCart(data.getCartData.data.items);
     },
     onError: async (error) => {
       logs.error(error.message + ' ' + error.cause);

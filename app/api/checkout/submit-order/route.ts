@@ -45,6 +45,12 @@ export async function POST(req: Request) {
         totalPrice: order.totalPrice,
         orderCode: order.orderCode,
         address: order.address,
+        firstName: order.firstName,
+        lastName: order.lastName,
+        province: order.province,
+        city: order.city,
+        phoneNumber: order.phoneNumber,
+        mobileNumber: order.mobileNumber,
         postCode: order.postCode,
         items: order.items.map((item: CartProps) => ({
           count: item.count,

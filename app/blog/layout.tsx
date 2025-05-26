@@ -1,13 +1,7 @@
 import '../globals.css';
 import Navbar from '@/app/components/navbarComponents/Navbar';
-import Footer from '@/app/components/BlogFooter';
 import { getMenuItems } from '@/app/utils/data/getMenu';
-import { getFooterItems, getSocialLinksItems } from '@/app/utils/data/getMenu';
 import { Metadata } from 'next';
-import {
-  FooteritemsProps,
-  SocialLinksProps,
-} from '@/app/utils/schema/menuProps';
 
 export const metadata: Metadata = {
   title: 'LemonCare - لمن کر',
@@ -21,15 +15,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const menuItems = await getMenuItems();
-  const FooterMenu: FooteritemsProps[] = await getFooterItems();
-  const SocialLinks: SocialLinksProps[] = await getSocialLinksItems();
+
   return (
     <>
       <Navbar menuItems={menuItems} />
       <div className="flex bg-gray-50 relative z-10 justify-center">
         <div className="flex min-h-svh w-full justify-center">{children}</div>
       </div>
-      <Footer FooterMenu={FooterMenu} SocialLinks={SocialLinks} />
     </>
   );
 }

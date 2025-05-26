@@ -1,7 +1,7 @@
 'use server';
 import qs from 'qs';
 import { requestData } from './dataFetch';
-import { AddressProps } from '@/app/utils/schema/userProps';
+import { AddressProps, OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 import { cleanPhone, isPhone } from '../miniFunctions';
 import { loginSchema } from '../schema/formValidation';
@@ -95,6 +95,45 @@ export const getOrderHistory = async (documentId: string) => {
     check.jwt
   );
   return response.data;
+};
+
+export const getSingleOrderHistory = async (
+  documentId: string,
+  orderCode: number
+) => {
+  const check = await loginCheck();
+
+  const query = qs.stringify({
+    filters: {
+      order: {
+        orderCode: {
+          $eq: orderCode,
+        },
+      },
+    },
+    populate: {
+      order: {
+        populate: {
+          items: {
+            populate: '*',
+          },
+          coupon: { populate: '*' },
+        },
+      },
+    },
+  });
+
+  const res = await requestData(
+    `/order-histories/${documentId}?${query}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  const order = res.data.data.order.find(
+    (item: OrderHistoryProps) => item.orderCode == orderCode
+  );
+  if (order) return order;
+  return null;
 };
 
 export const getFavorites = cache(
