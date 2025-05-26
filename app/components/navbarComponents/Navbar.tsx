@@ -29,7 +29,6 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
-  const [usersName, setUsersName] = useState('ورود / ثبت نام');
 
   const path = usePathname();
   const { user } = useDataStore();
@@ -54,20 +53,6 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
-
-  useEffect(() => {
-    if (user && user.fullName) {
-      setUsersName(user.fullName);
-    } else {
-      const storedUser = localStorage.getItem('user-store');
-      const parsedUser = storedUser && JSON.parse(storedUser).state;
-      setUsersName(() => {
-        if (parsedUser && parsedUser.user && parsedUser.jwt)
-          return parsedUser.user.fullName;
-        return 'ورود / ثبت نام';
-      });
-    }
-  }, [user]);
 
   return (
     <>
@@ -299,7 +284,7 @@ export default function Navbar({
             </div>
             <div className="flex w-3/12 items-center gap-3">
               <div className="">
-                <ProfileDropDown usersName={usersName} />
+                <ProfileDropDown />
               </div>
               <p>|</p>
               <Cart />

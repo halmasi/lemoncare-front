@@ -84,7 +84,7 @@ export default function CheckoutPage() {
 
             <div className="flex flex-wrap gap-2 text-sm">
               <p>هزینه ارسال:</p>
-              {shippingPrice != 0 ? (
+              {shippingPrice > 0 ? (
                 <Toman className="fill-accent-green text-accent-green">
                   <p>{(shippingPrice / 10).toLocaleString('fa-IR')}</p>
                 </Toman>
@@ -97,7 +97,10 @@ export default function CheckoutPage() {
 
               <Toman className="fill-accent-green text-accent-green">
                 <p>
-                  {(shippingPrice / 10 + price / 10).toLocaleString('fa-IR')}
+                  {(
+                    (shippingPrice > 0 ? shippingPrice : 0) / 10 +
+                    price / 10
+                  ).toLocaleString('fa-IR')}
                 </p>
               </Toman>
             </div>

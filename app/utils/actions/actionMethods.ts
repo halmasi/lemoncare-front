@@ -205,16 +205,16 @@ export const setCookie = async (name: string, cookie: string) => {
     // secure: process.env.NODE_ENV === 'production',
   };
 
-  cookies().set(name, cookie, config);
+  (await cookies()).set(name, cookie, config);
 };
 
 export const getCookie = async (key: string) => {
-  return cookies().get(key)?.value;
+  return (await cookies()).get(key)?.value;
 };
 export const deleteCookie = async (key: string) => {
-  cookies().delete(key);
+  (await cookies()).delete(key);
 };
 
 export const logoutAction = async () => {
-  cookies().delete('jwt');
+  (await cookies()).delete('jwt');
 };

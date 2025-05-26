@@ -2,7 +2,8 @@ import { getProductsByTag } from '@/app/utils/data/getProducts';
 import { notFound } from 'next/navigation';
 import ProductCart from '@/app/components/ProductCart';
 
-export default async function tags({ params }: { params: { slug: string } }) {
+export default async function tags(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const products = await getProductsByTag(params.slug);
   if (!products.length) return notFound();
   return (

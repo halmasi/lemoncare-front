@@ -8,11 +8,12 @@ import { PostsProps } from '@/app/utils/schema/blogProps';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
-export default async function AuthorsPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function AuthorsPage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+) {
+  const params = await props.params;
   const { slug } = params;
   try {
     const getPosts = await getPostsByAuthor(slug);

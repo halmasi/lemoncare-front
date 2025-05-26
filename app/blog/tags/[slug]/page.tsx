@@ -2,7 +2,8 @@ import PostCard from '@/app/components/PostCard';
 import { getPostsByTag } from '@/app/utils/data/getPosts';
 import { PostsProps } from '@/app/utils/schema/blogProps';
 
-export default async function page({ params }: { params: { slug: string } }) {
+export default async function page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const { slug } = params;
   const posts: PostsProps[] = await getPostsByTag(slug);
 
