@@ -85,8 +85,8 @@ export interface FetchUserProps {
 export interface FavoriteListProps {
   documentId: string;
   id: number;
-  posts: PostsProps[];
-  products: ProductProps[];
+  posts?: PostsProps[];
+  products?: ProductProps[];
 }
 export interface OrderHistoryProps {
   id: number;
