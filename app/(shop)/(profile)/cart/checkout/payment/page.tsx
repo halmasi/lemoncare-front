@@ -129,8 +129,17 @@ export default function Payment() {
             postCode: checkoutAddress?.postCode,
             paymentStatus: 'pending',
             payMethod: paymentOption,
-            shippingMethod:
-              postMethod.courier_code + ' | ' + postMethod.service_type,
+            shippingMethod: `${
+              postMethod.courier_code == 'IR_POST'
+                ? 'شرکت ملی پست'
+                : postMethod.courier_code == 'CHAPAR'
+                  ? 'چاپار'
+                  : postMethod.courier_code == 'TIPAX'
+                    ? 'تیپاکس'
+                    : postMethod.courier_code
+            }
+              | 
+              ${postMethod.service_type == 'CHAPAR' ? 'چاپار' : postMethod.service_type == 'EXPRESS' ? 'پیشتاز' : postMethod.service_type == 'PRIORITY' ? 'ویژه' : postMethod.service_type == 'CHAPAREXPRESS' ? 'چاپار اکسپرس' : postMethod.service_type == 'TIPAX' ? 'تیپاکس' : postMethod.service_type}`,
             shippingPrice,
             orderPrice: price,
             totalPrice,

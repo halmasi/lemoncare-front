@@ -9,10 +9,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } },
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
@@ -39,7 +37,8 @@ export async function generateMetadata(
   };
 }
 
-export default async function page({ params }: { params: { slug: string } }) {
+export default async function page(props0: { params: Promise<{ slug: string }> }) {
+  const params = await props0.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();

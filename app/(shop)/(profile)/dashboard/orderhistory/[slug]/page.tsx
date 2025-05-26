@@ -13,7 +13,7 @@ import {
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { CiMoneyBill } from 'react-icons/ci';
 import {
   FaMoneyCheck,
@@ -27,7 +27,8 @@ import { LiaShippingFastSolid } from 'react-icons/lia';
 import { LuCalendarClock } from 'react-icons/lu';
 import { toast } from 'react-toastify';
 
-export default function page({ params }: { params: { slug: string } }) {
+export default function page(props: { params: Promise<{ slug: string }> }) {
+  const params = use(props.params);
   const { slug } = params;
 
   const { user } = useDataStore();
@@ -213,9 +214,13 @@ export default function page({ params }: { params: { slug: string } }) {
                       : 'لغو شده'}
                 </span>
               </p>
+              <p className="flex items-center gap-2">
+                <LiaShippingFastSolid className="text-foreground/75" />
+                <span className="text-foreground/75">روش ارسال: </span>
+                <span>{orderData.shippingMethod}</span>
+              </p>
             </div>
           </div>
-          <LiaShippingFastSolid className="text-foreground/75" />
           {/* <p>{JSON.stringify(details)}</p> */}
           {/* Add more order details as needed */}
         </div>
