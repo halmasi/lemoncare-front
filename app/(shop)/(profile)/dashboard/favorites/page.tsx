@@ -25,8 +25,8 @@ export default function Favorites() {
   });
 
   useEffect(() => {
-    if (user&&user.favorites) 
-             getFavoritesFn.mutateAsync(user.favorites.documentId)
+    if (user&&user.favorite) 
+             getFavoritesFn.mutateAsync(user.favorite.documentId)
     
   }, [user]);  
   return (
