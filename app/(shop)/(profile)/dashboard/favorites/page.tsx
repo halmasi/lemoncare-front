@@ -17,7 +17,7 @@ export default function Favorites() {
       return res.data || [];
     },
     onSuccess: (data) => {
-      setFavoritesData(data);
+      setFavoritesData(data.products);
     },
     onError: (error: { message: string[] }) => {
       console.error('Error fetching favorites:', error.message);
@@ -25,17 +25,10 @@ export default function Favorites() {
   });
 
   useEffect(() => {
-    if (user?.favorites) {
-      Promise.all(
-        user.favorites.map((favorite) =>
-          favorite.documentId
-            ? getFavoritesFn.mutateAsync(favorite.documentId)
-            : Promise.resolve()
-        )
-      );
-    }
-  }, [user]);
-
+    if (user&&user.favorites) 
+             getFavoritesFn.mutateAsync(user.favorites.documentId)
+    
+  }, [user]);  
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex justify-center gap-4 mb-8"></div>

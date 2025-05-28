@@ -79,7 +79,7 @@ export interface FetchUserProps {
     documentId: string;
     id: number;
   };
-  favorites: FavoriteListProps[];
+  favorite: FavoriteListProps;
 }
 
 export interface FavoriteListProps {
