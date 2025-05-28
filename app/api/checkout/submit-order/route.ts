@@ -5,6 +5,7 @@ import { orderHistoryIdMaker } from '@/app/utils/shopUtils';
 
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { CartProps } from '@/app/utils/schema/shopProps';
+import { before } from 'node:test';
 
 export async function POST(req: Request) {
   try {
@@ -56,6 +57,8 @@ export async function POST(req: Request) {
           count: item.count,
           product: item.product.documentId,
           variety: item.variety,
+          mainPrice: item.mainPrice,
+          beforePrice: item.beforePrice,
         })),
       };
     });

@@ -202,7 +202,7 @@ export default function VarietySelector({
       setCartProducts(list)
     );
 
-    const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
+    const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
 
     if (jwt && user && cart) {
       const newCart = cart;
