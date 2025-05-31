@@ -180,7 +180,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
             </div>
 
             <div className="flex flex-col lg:flex-row justify-between">
-              <div className="flex flex-col p-2 border-b lg:border-b-0 lg:border-l w-full h-full">
+              <div className="flex flex-col p-2 border-b lg:border-b-0 lg:border-l w-full h-full overflow-x-hidden">
                 <p className="flex items-center gap-2">
                   <FaBuildingUser className="text-foreground/75" />
                   <span className="text-foreground/75">
@@ -207,7 +207,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                     <span>{orderData.phoneNumber}</span>
                   </p>
                 </div>
-                <p>
+                <p className="overflow-clip whitespace-pre-wrap max-w-md">
                   <span className="text-foreground/75">نشانی: </span>{' '}
                   <span>{orderData.address}</span>
                 </p>
