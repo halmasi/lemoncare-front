@@ -158,13 +158,19 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                   <p className="text-foreground/75">مبلغ: </p>
                   <p>{(orderData.orderPrice / 10).toLocaleString('fa-IR')}</p>
                 </Toman>
-                <Toman>
+                <div className="flex items-center gap-1">
                   <FaShippingFast className="text-foreground/75" />
                   <p className="text-foreground/75">هزینه ارسال: </p>
-                  <p>
-                    {(orderData.shippingPrice / 10).toLocaleString('fa-IR')}
-                  </p>
-                </Toman>
+                  {orderData.shippingMethod == 'تیپاکس | تیپاکس' ? (
+                    <p>پس کرایه</p>
+                  ) : (
+                    <Toman>
+                      <p>
+                        {(orderData.shippingPrice / 10).toLocaleString('fa-IR')}
+                      </p>
+                    </Toman>
+                  )}
+                </div>
                 <Toman>
                   <FaRegMoneyBillAlt className="text-foreground/75" />
                   <p className="text-foreground/75">مجموع: </p>

@@ -67,8 +67,11 @@ export default function DeliveryMethods({
       setShippingOption({
         courier_code: selected.courierCode,
         service_type: selected.courierServiceCode,
+        service_name:
+          selected.courierName + ' | ' + selected.courierServiceName,
       });
     }
+    // toast.info(selected.courierName + ' | ' + selected.courierServiceName);
     if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
       setShippingPrice(-1);
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
@@ -120,9 +123,9 @@ export default function DeliveryMethods({
       if (
         !data.isSuccess ||
         !data.data.servicePrices[0] ||
-        data.data.servicePrices[0].totalPrice > -1
+        data.data.servicePrices[0].totalPrice < 0
       ) {
-        toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
+        toast.warn('خطا در دریافت هزینه ارسال، روش دیگری را انتخاب کنید');
         onChangeFn(false);
         setShippingPrice(-1);
         return;
@@ -165,9 +168,9 @@ export default function DeliveryMethods({
                 src={
                   item.courierCode == 'IR_POST'
                     ? PostLogo
-                    : item.courierCode == 'CHAPAR'
-                      ? ChaparLogo.src
-                      : TipaxLogo.src
+                    : // : item.courierCode == 'CHAPAR'
+                      //   ? ChaparLogo.src
+                      TipaxLogo.src
                 }
                 alt={item.courierName}
                 width={50}

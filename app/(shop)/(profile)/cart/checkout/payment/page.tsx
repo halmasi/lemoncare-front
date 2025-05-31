@@ -87,7 +87,7 @@ export default function Payment() {
       if (
         !data ||
         !data.data.servicePrices[0] ||
-        !data.data.servicePrices[0].totalPrice
+        data.data.servicePrices[0].totalPrice < 0
       ) {
         toast('خطا! یک روش ارسال دیگر انتخاب کنید');
         return;
@@ -152,17 +152,7 @@ export default function Payment() {
             postCode: checkoutAddress?.postCode,
             paymentStatus: 'pending',
             payMethod: paymentOption,
-            shippingMethod: `${
-              postMethod.courier_code == 'IR_POST'
-                ? 'شرکت ملی پست'
-                : postMethod.courier_code == 'CHAPAR'
-                  ? 'چاپار'
-                  : postMethod.courier_code == 'TIPAX'
-                    ? 'تیپاکس'
-                    : postMethod.courier_code
-            }
-              | 
-              ${postMethod.service_type == 'CHAPAR' ? 'چاپار' : postMethod.service_type == 'EXPRESS' ? 'پیشتاز' : postMethod.service_type == 'PRIORITY' ? 'ویژه' : postMethod.service_type == 'CHAPAREXPRESS' ? 'چاپار اکسپرس' : postMethod.service_type == 'TIPAX' ? 'تیپاکس' : postMethod.service_type}`,
+            shippingMethod: shippingOption.service_name,
             shippingPrice,
             orderPrice: price,
             totalPrice,
@@ -228,14 +218,18 @@ export default function Payment() {
             <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">
               <h6 className="w-fit self-start">هزینه ارسال:</h6>
-              <Toman className="fill-accent-green text-accent-green">
-                <p>
-                  {(shippingPrice / 10).toLocaleString('fa-IR', {
-                    style: 'decimal',
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </Toman>
+              {shippingOption.courier_code == 'TIPAX' ? (
+                <p className="text-accent-green">تیپاکس | پس کرایه</p>
+              ) : (
+                <Toman className="fill-accent-green text-accent-green">
+                  <p>
+                    {(shippingPrice / 10).toLocaleString('fa-IR', {
+                      style: 'decimal',
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                </Toman>
+              )}
             </div>
             <hr className="w-full my-2" />
             <div className="flex flex-wrap gap-2 p-1 md:pr-10">
