@@ -86,7 +86,7 @@ export default function DeliveryMethods({
         data.data.map((item) => {
           if (
             (item.courierCode == 'IR_POST' ||
-              item.courierCode == 'CHAPAR' ||
+              // item.courierCode == 'CHAPAR' ||
               item.courierCode == 'TIPAX') &&
             item.courierServiceCode != 'CERTIFIED'
           ) {
@@ -120,7 +120,7 @@ export default function DeliveryMethods({
       if (
         !data.isSuccess ||
         !data.data.servicePrices[0] ||
-        !data.data.servicePrices[0].totalPrice
+        data.data.servicePrices[0].totalPrice > -1
       ) {
         toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
         onChangeFn(false);
@@ -128,12 +128,13 @@ export default function DeliveryMethods({
         return;
       }
       const neededData = data.data.servicePrices[0];
-      setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
+      if (neededData.totalPrice == 0) setShippingPrice(0);
+      else setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
       onChangeFn(true);
     },
     onError: () => {
       onChangeFn(false);
-      setShippingPrice(0);
+      setShippingPrice(-1);
       toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
     },
   });

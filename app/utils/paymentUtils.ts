@@ -8,6 +8,28 @@ export const calcShippingPrice = async (
   price: number,
   weight: number
 ) => {
+  if (selected.courierCode == 'TIPAX') {
+    return {
+      isSuccess: true,
+      data: {
+        optionalServices: {},
+        servicePrices: [
+          {
+            courierName: 'TIPAX',
+            courierCode: 'TIPAX',
+            serviceType: 'TIPAX',
+            serviceName: 'TIPAX',
+            slaDays: 'none',
+            slaHours: 0,
+            vat: 0,
+            discountAmount: 0,
+            totalPrice: 0,
+            initPrice: 0,
+          },
+        ],
+      },
+    };
+  }
   const body = {
     courier: {
       courier_code: selected.courierCode,

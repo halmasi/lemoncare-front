@@ -14,7 +14,6 @@ import {
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { color } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, use } from 'react';
@@ -113,7 +112,12 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
       </div>
     );
   if (loading) {
-    return <LoadingAnimation />;
+    return (
+      <div>
+        <LoadingAnimation />
+        <h6>در حال بارگذاری...</h6>
+      </div>
+    );
   }
 
   return (
