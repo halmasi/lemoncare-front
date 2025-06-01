@@ -74,9 +74,8 @@ export const updatePostalInformation = async (
 
 export const getOrderHistory = async (
   page: number = 1,
-  pageSize: number = 1
+  pageSize: number = 10
 ) => {
-  console.log(page);
   const check = await loginCheck();
   const query = qs.stringify({
     filter: { user: { $eq: check.body.username } },
