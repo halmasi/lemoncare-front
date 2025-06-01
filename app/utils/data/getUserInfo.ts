@@ -139,23 +139,33 @@ export const getSingleOrderHistory = async (
 export const getFavorites = cache(
   async (documentId: string, whichOne: 'posts' | 'products') => {
     const check = await loginCheck();
+    const populateSelector = {
+      posts: {
+          basicInfo: { populate: ['mainImage'] },
+          seo: { populate: '1' },
+        },
+        products: {
+          basicInfo: { populate: ['mainImage'] },
+          seo: { populate: '1' },
+          variety:{populate:'*'}
+      }
+    };
+
+
     const query = qs.stringify({
       populate: {
         [whichOne]: {
-          populate: {
-            basicInfo: { populate: ['mainImage'] },
-            seo: { populate: '1' },
-          },
+          populate: populateSelector[whichOne],
         },
       },
     });
     const response = await requestData(
-      `/favorites/${documentId}?${query}`,
+      `/favorite/${documentId}?${query}`,
       'GET',
       {},
       check.jwt
     );
-    console.log('response Favorite : ', response, '\n', documentId);
+
     return response.data;
   }
 );

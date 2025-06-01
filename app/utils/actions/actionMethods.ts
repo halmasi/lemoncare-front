@@ -179,7 +179,7 @@ export const getFullUserData = async (
     order_history: { populate: '*' },
     shopingCart: { populate: '1' },
     postal_information: { populate: '1' },
-    favorites: { populate: '1' },
+    favorite: { populate: '*' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
