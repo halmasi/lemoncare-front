@@ -59,7 +59,7 @@ function AddButton({
               variety: { id: selected.uniqueId, sub: selected.uniqueSub },
             });
           }}
-          disabled={!price.price || isPending}
+          isPending={!price.price || isPending}
         >
           <span>افزودن به سبد خرید</span> <BiShoppingBag />
         </SubmitButton>
@@ -92,7 +92,7 @@ function AddButton({
             },
           });
         }}
-        disabled={!price.price || isPending}
+        isPending={!price.price || isPending}
       >
         <span>افزودن به سبد خرید</span> <BiShoppingBag />
       </SubmitButton>
@@ -202,7 +202,7 @@ export default function VarietySelector({
       setCartProducts(list)
     );
 
-    const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
+    const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
 
     if (jwt && user && cart) {
       const newCart = cart;

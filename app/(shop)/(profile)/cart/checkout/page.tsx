@@ -13,7 +13,8 @@ import { useEffect, useState } from 'react';
 
 export default function CheckoutPage() {
   const { cart, cartProducts } = useCartStore();
-  const { setPrice, price, setBeforePrice, shippingPrice } = useCheckoutStore();
+  const { setPrice, price, setBeforePrice, shippingPrice, shippingOption } =
+    useCheckoutStore();
   const { user } = useDataStore();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
@@ -84,10 +85,14 @@ export default function CheckoutPage() {
 
             <div className="flex flex-wrap gap-2 text-sm">
               <p>هزینه ارسال:</p>
-              {shippingPrice > 0 ? (
-                <Toman className="fill-accent-green text-accent-green">
-                  <p>{(shippingPrice / 10).toLocaleString('fa-IR')}</p>
-                </Toman>
+              {shippingPrice > -1 ? (
+                shippingOption.courier_code == 'TIPAX' ? (
+                  <p className="text-accent-green">پس کرایه</p>
+                ) : (
+                  <Toman className="fill-accent-green text-accent-green">
+                    <p>{(shippingPrice / 10).toLocaleString('fa-IR')}</p>
+                  </Toman>
+                )
               ) : (
                 <p className="text-gray-500">آدرس یا نحوه ارسال تعیین نشده</p>
               )}

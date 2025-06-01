@@ -7,7 +7,11 @@ export interface checkoutStoreState {
   beforePrice: number;
   cartId: string;
   checkoutAddress: AddressProps | null;
-  shippingOption: { courier_code: string; service_type: string };
+  shippingOption: {
+    courier_code: string;
+    service_type: string;
+    service_name: string;
+  };
   shippingPrice: number;
   paymentOption: string;
   coupon: string | null;
@@ -20,6 +24,7 @@ export interface checkoutStoreState {
   setShippingOption: (option: {
     courier_code: string;
     service_type: string;
+    service_name: string;
   }) => void;
   setPaymentOption: (option: string) => void;
   setCoupon: (coupon: string) => void;
@@ -36,7 +41,7 @@ export const useCheckoutStore = create(
       coupon: null,
       checkoutAddress: null,
       shippingPrice: 0,
-      shippingOption: { courier_code: '', service_type: '' },
+      shippingOption: { courier_code: '', service_type: '', service_name: '' },
       paymentOption: '',
       orderCode: 0,
       setPrice: (price) => set(() => ({ price })),
@@ -54,7 +59,11 @@ export const useCheckoutStore = create(
           price: 0,
           shippingPrice: 0,
           cartId: '',
-          shippingOption: { courier_code: '', service_type: '' },
+          shippingOption: {
+            courier_code: '',
+            service_type: '',
+            service_name: '',
+          },
           paymentOption: '',
           checkoutAddress: null,
           coupon: null,
