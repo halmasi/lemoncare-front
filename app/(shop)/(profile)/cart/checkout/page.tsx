@@ -46,7 +46,7 @@ export default function CheckoutPage() {
     setPrice(totalPrice);
     setBeforePrice(totalBeforePrice);
   }, [totalPrice]);
-  if (!totalPrice) return <div>loading</div>;
+  if (!totalPrice) return <div>درحال بارگذاری</div>;
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-2  justify-between">

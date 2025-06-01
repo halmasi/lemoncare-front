@@ -24,9 +24,12 @@ export default function page() {
     paymentOption,
     shippingOption,
     checkoutAddress,
-    setShippingPrice,
     shippingPrice,
     price,
+    setShippingPrice,
+    setShippingOption,
+    setBeforePrice,
+    setPaymentOption,
     setPrice,
     orderCode,
   } = useCheckoutStore();
@@ -105,6 +108,15 @@ export default function page() {
       );
       setTotalPrice(shippingPrice + price);
       resetCart();
+      setShippingPrice(-1);
+      setShippingOption({
+        courier_code: '',
+        service_name: '',
+        service_type: '',
+      }),
+        setBeforePrice(0);
+      setPaymentOption('');
+      setPrice(0);
 
       if (user) await emptyCart(user.shopingCart.documentId);
     },
