@@ -67,8 +67,11 @@ export default function DeliveryMethods({
       setShippingOption({
         courier_code: selected.courierCode,
         service_type: selected.courierServiceCode,
+        service_name:
+          selected.courierName + ' | ' + selected.courierServiceName,
       });
     }
+    // toast.info(selected.courierName + ' | ' + selected.courierServiceName);
     if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
       setShippingPrice(-1);
       setError('لطفا ابتدا آدرس خود را وارد کنید.');
@@ -86,7 +89,7 @@ export default function DeliveryMethods({
         data.data.map((item) => {
           if (
             (item.courierCode == 'IR_POST' ||
-              item.courierCode == 'CHAPAR' ||
+              // item.courierCode == 'CHAPAR' ||
               item.courierCode == 'TIPAX') &&
             item.courierServiceCode != 'CERTIFIED'
           ) {
@@ -120,20 +123,21 @@ export default function DeliveryMethods({
       if (
         !data.isSuccess ||
         !data.data.servicePrices[0] ||
-        !data.data.servicePrices[0].totalPrice
+        data.data.servicePrices[0].totalPrice < 0
       ) {
-        toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
+        toast.warn('خطا در دریافت هزینه ارسال، روش دیگری را انتخاب کنید');
         onChangeFn(false);
         setShippingPrice(-1);
         return;
       }
       const neededData = data.data.servicePrices[0];
-      setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
+      if (neededData.totalPrice == 0) setShippingPrice(0);
+      else setShippingPrice(Math.ceil(neededData.totalPrice / 10000) * 10000);
       onChangeFn(true);
     },
     onError: () => {
       onChangeFn(false);
-      setShippingPrice(0);
+      setShippingPrice(-1);
       toast.warn('خطا در دریافت قیمت ارسال، روش دیگری را انتخاب کنید');
     },
   });
@@ -164,9 +168,9 @@ export default function DeliveryMethods({
                 src={
                   item.courierCode == 'IR_POST'
                     ? PostLogo
-                    : item.courierCode == 'CHAPAR'
-                      ? ChaparLogo.src
-                      : TipaxLogo.src
+                    : // : item.courierCode == 'CHAPAR'
+                      //   ? ChaparLogo.src
+                      TipaxLogo.src
                 }
                 alt={item.courierName}
                 width={50}

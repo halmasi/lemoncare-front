@@ -6,6 +6,8 @@ import { getOrderHistory } from '@/app/utils/data/getUserInfo';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import Image from 'next/image';
+import Link from 'next/link';
+import SubmitButton from '@/app/components/formElements/SubmitButton';
 
 function LoadingSkeleton() {
   return (
@@ -92,7 +94,7 @@ export default function OrderHistory() {
 
   return (
     <div className="p-6 w-full max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">لیست سفارشات</h2>
+      <h4 className=" mb-6 text-accent-green">لیست سفارشات</h4>
 
       {showLoading ? (
         <div className="w-full overflow-hidden">
@@ -102,10 +104,10 @@ export default function OrderHistory() {
         <div className="flex flex-col gap-5">
           {orderHistory.map((order) => {
             return (
-              <div
+              <Link
+                href={`/dashboard/orderhistory/${order.orderCode}`}
                 key={order.id}
                 className="gap-2 p-4 bg-white shadow-md hover:shadow-lg rounded-lg border transition-all duration-200 cursor-pointer space-y-2"
-                // onClick={() => handleOrderClick(order)}
               >
                 {order.items && order.items.length > 0 ? (
                   <div className="flex flex-col">
@@ -141,27 +143,36 @@ export default function OrderHistory() {
                         </div>
                       ))}
                     </div>
-                    <p
-                      className={`text-sm font-semibold ${
-                        order.paymentStatus == 'completed'
-                          ? 'text-green-600'
-                          : 'text-red-500'
-                      }`}
+                    <div
+                      className={`text-sm w-full flex flex-wrap justify-between items-center gap-2`}
                     >
-                      وضعیت پرداخت:{' '}
-                      {order.paymentStatus == 'completed'
-                        ? 'پرداخت شده'
-                        : order.paymentStatus == 'pending'
-                          ? 'در انتظار پرداخت'
-                          : 'لغو شده'}
-                    </p>
+                      <p>
+                        <span className="text-gray-500">وضعیت پرداخت: </span>
+                        <span
+                          className={`font-semibold ${
+                            order.paymentStatus == 'completed'
+                              ? 'text-accent-green/75'
+                              : 'text-accent-pink/75'
+                          }`}
+                        >
+                          {order.paymentStatus == 'completed'
+                            ? 'پرداخت شده'
+                            : order.paymentStatus == 'pending'
+                              ? 'در انتظار پرداخت'
+                              : 'لغو شده'}
+                        </span>
+                      </p>
+                      <div className="self-end w-fit">
+                        <SubmitButton>مشاهده سفارش</SubmitButton>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-gray-500 mt-2 text-sm">
                     هیچ محصولی در این سفارش یافت نشد.
                   </p>
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>

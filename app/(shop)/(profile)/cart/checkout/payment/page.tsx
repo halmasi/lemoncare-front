@@ -3,13 +3,15 @@ import PaymentSelector from '@/app/components/checkout/PaymentSelector';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Toman from '@/app/components/Toman';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
-import { varietyFinder } from '@/app/utils/shopUtils';
+import { CartProps } from '@/app/utils/schema/shopProps';
+import { cartProductSelector, varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ImInsertTemplate } from 'react-icons/im';
 import { toast } from 'react-toastify';
 
 export default function Payment() {
@@ -85,7 +87,7 @@ export default function Payment() {
       if (
         !data ||
         !data.data.servicePrices[0] ||
-        !data.data.servicePrices[0].totalPrice
+        data.data.servicePrices[0].totalPrice < 0
       ) {
         toast('خطا! یک روش ارسال دیگر انتخاب کنید');
         return;
@@ -105,17 +107,38 @@ export default function Payment() {
       postMethod: { courier_code: string; service_type: string };
     }) => {
       const date = new Date();
+      const items: CartProps[] = await Promise.all(
+        cart.map(async (item) => {
+          const product = await cartProductSelector(
+            item.product.documentId,
+            cartProducts
+          );
+          if (product) {
+            const variety = varietyFinder(item.variety, product);
+            return {
+              count: item.count,
+              product: item.product,
+              variety: item.variety,
+              beforePrice: variety.priceBefforDiscount,
+              mainPrice: variety.mainPrice,
+            };
+          }
+          return null;
+        })
+      ).then((results) => results.filter((item) => item !== null));
       const res = await fetch('/api/checkout/submit-order', {
         method: 'POST',
         body: JSON.stringify({
           id: user?.order_history.documentId,
           jwt: `Bearer ${jwt}`,
           order: {
-            items: cart.map((item) => {
+            items: items.map((i: CartProps) => {
               return {
-                count: item.count,
-                product: item.product.documentId,
-                variety: item.variety,
+                count: i.count,
+                product: i.product.documentId,
+                variety: i.variety,
+                beforePrice: i.beforePrice || 0,
+                mainPrice: i.mainPrice || 0,
               };
             }),
             orderDate: date.toISOString(),
@@ -129,17 +152,7 @@ export default function Payment() {
             postCode: checkoutAddress?.postCode,
             paymentStatus: 'pending',
             payMethod: paymentOption,
-            shippingMethod: `${
-              postMethod.courier_code == 'IR_POST'
-                ? 'شرکت ملی پست'
-                : postMethod.courier_code == 'CHAPAR'
-                  ? 'چاپار'
-                  : postMethod.courier_code == 'TIPAX'
-                    ? 'تیپاکس'
-                    : postMethod.courier_code
-            }
-              | 
-              ${postMethod.service_type == 'CHAPAR' ? 'چاپار' : postMethod.service_type == 'EXPRESS' ? 'پیشتاز' : postMethod.service_type == 'PRIORITY' ? 'ویژه' : postMethod.service_type == 'CHAPAREXPRESS' ? 'چاپار اکسپرس' : postMethod.service_type == 'TIPAX' ? 'تیپاکس' : postMethod.service_type}`,
+            shippingMethod: shippingOption.service_name,
             shippingPrice,
             orderPrice: price,
             totalPrice,
@@ -148,12 +161,14 @@ export default function Payment() {
         }),
       });
       const result = await res.json();
-      return result;
+      return result.data;
     },
     onSuccess: (data) => {
-      setOrderCode(data.data.orderCode);
-      // console.log(data);
+      setOrderCode(data.orderCode);
       router.push('/cart/checkout/gate');
+    },
+    onError: () => {
+      toast.warn('خطایی رخ داده است');
     },
   });
 
@@ -203,14 +218,18 @@ export default function Payment() {
             <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">
               <h6 className="w-fit self-start">هزینه ارسال:</h6>
-              <Toman className="fill-accent-green text-accent-green">
-                <p>
-                  {(shippingPrice / 10).toLocaleString('fa-IR', {
-                    style: 'decimal',
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </Toman>
+              {shippingOption.courier_code == 'TIPAX' ? (
+                <p className="text-accent-green">تیپاکس | پس کرایه</p>
+              ) : (
+                <Toman className="fill-accent-green text-accent-green">
+                  <p>
+                    {(shippingPrice / 10).toLocaleString('fa-IR', {
+                      style: 'decimal',
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                </Toman>
+              )}
             </div>
             <hr className="w-full my-2" />
             <div className="flex flex-wrap gap-2 p-1 md:pr-10">

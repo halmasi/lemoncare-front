@@ -95,9 +95,9 @@ export default function page() {
       if (
         !data ||
         !data.data.servicePrices[0] ||
-        !data.data.servicePrices[0].totalPrice
+        data.data.servicePrices[0].totalPrice < 0
       ) {
-        toast('خطا! یک روش ارسال دیگر انتخاب کنید');
+        toast.warn('خطا! یک روش ارسال دیگر انتخاب کنید');
         return;
       }
       setShippingPrice(
@@ -158,7 +158,7 @@ export default function page() {
         <p>
           سپس فیش واریزی را همراه کد سفارش{' '}
           <Link
-            href={'#'}
+            href={'/dashboard/orderhistory/' + orderCode}
             className="text-accent-pink underline bg-accent-green/20"
           >
             {orderCode}
