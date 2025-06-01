@@ -53,7 +53,7 @@ export default function Dashboard() {
           <div>
             {orderHistory.map((item, index) => (
               <div key={index}>
-                {item.items.map((product, index) => (
+                {item.order.items.map((product, index) => (
                   <div key={index}>
                     <p>{product.product.documentId}</p>
                   </div>
