@@ -3,88 +3,32 @@ import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { orderHistoryIdMaker } from '@/app/utils/shopUtils';
 
-import { OrderHistoryProps } from '@/app/utils/schema/userProps';
-import { CartProps } from '@/app/utils/schema/shopProps';
-import { before } from 'node:test';
-
 export async function POST(req: Request) {
   try {
     const orderCode = await orderHistoryIdMaker();
     const requestBody = await req.json();
 
-    const query = qs.stringify({
-      populate: {
-        user: { populate: '*' },
-        order: {
-          populate: {
-            items: {
-              populate: '*',
-            },
-            coupon: { populate: '*' },
-          },
-        },
-      },
-    });
-
-    const res = await requestData(
-      `/order-histories/${requestBody.id}?${query}`,
-      'GET',
-      {},
-      requestBody.jwt
-    );
-    const prevOrders = res.data.data.order;
-
-    const newOrderList = prevOrders.map((order: OrderHistoryProps) => {
-      return {
-        orderDate: order.orderDate,
-        paymentStatus: order.paymentStatus,
-        payMethod: order.payMethod,
-        shippingMethod: order.shippingMethod,
-        shippingPrice: order.shippingPrice,
-        orderPrice: order.orderPrice,
-        coupon: order.coupon,
-        totalPrice: order.totalPrice,
-        orderCode: order.orderCode,
-        address: order.address,
-        firstName: order.firstName,
-        lastName: order.lastName,
-        province: order.province,
-        city: order.city,
-        phoneNumber: order.phoneNumber,
-        mobileNumber: order.mobileNumber,
-        postCode: order.postCode,
-        items: order.items.map((item: CartProps) => ({
-          count: item.count,
-          product: item.product.documentId,
-          variety: item.variety,
-          mainPrice: item.mainPrice,
-          beforePrice: item.beforePrice,
-        })),
-      };
-    });
-    newOrderList.push({ ...requestBody.order, orderCode });
-
     const request = {
       data: {
-        order: newOrderList,
+        user: requestBody.user,
+        order: { ...requestBody.order, orderCode },
       },
     };
-    const resQuery = qs.stringify({
+    console.log(request);
+    const query = qs.stringify({
       populate: '*',
     });
 
     const result = await requestData(
-      `/order-histories/${requestBody.id}?${resQuery}`,
-      'PUT',
+      `/order-histories?${query}`,
+      'POST',
       request,
       requestBody.jwt
     );
 
-    const finalResponse = result.data.data.order.find(
-      (item: OrderHistoryProps) => item.orderCode == orderCode
-    );
+    console.log(result.data.data.order.orderCode);
 
-    return Response.json({ data: finalResponse }, { status: 200 });
+    return Response.json({ data: result.data.data.order }, { status: 200 });
   } catch (error) {
     return Response.json({ error: error }, { status: 500 });
   }

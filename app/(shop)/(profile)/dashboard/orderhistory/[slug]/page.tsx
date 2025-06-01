@@ -54,10 +54,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
   const getOrderHistoryFn = useMutation({
     mutationFn: async () => {
       if (user) {
-        const res = await getSingleOrderHistory(
-          user.order_history.documentId,
-          parseInt(slug)
-        );
+        const res = await getSingleOrderHistory(parseInt(slug));
         return res;
       }
     },
@@ -65,7 +62,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
       if (!data) return;
       setOrderData(data);
       await Promise.all(
-        data.items.map(async (item) => {
+        data.order.items.map(async (item) => {
           const productsList = await cartProductSetter(
             item.product.documentId,
             cartProducts
@@ -103,7 +100,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
   });
   useEffect(() => {
     getOrderHistoryFn.mutateAsync();
-  }, [user, user?.order_history.documentId]);
+  }, [user, user?.order_history]);
 
   if (error)
     return (
@@ -131,24 +128,27 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 <p className="flex items-center gap-2">
                   <IoQrCode className="text-foreground/75" />
                   <span className="text-foreground/75">کد سفارش: </span>
-                  <span>{orderData.orderCode}</span>
+                  <span>{orderData.order.orderCode}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <LuCalendarClock className="text-foreground/75" />
                   <span className="text-foreground/75">تاریخ سفارش:</span>
                   <span>
-                    {new Date(orderData.orderDate).toLocaleDateString('fa-IR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {new Date(orderData.order.orderDate).toLocaleDateString(
+                      'fa-IR',
+                      {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }
+                    )}
                   </span>
                 </p>
                 <p className="flex items-center gap-2">
                   <FaUserTag className="text-foreground/75" />
                   <span className="text-foreground/75">نام گیرنده: </span>
                   <span>
-                    {orderData.firstName} {orderData.lastName}
+                    {orderData.order.firstName} {orderData.order.lastName}
                   </span>
                 </p>
               </div>
@@ -156,17 +156,21 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 <Toman>
                   <CiMoneyBill className="text-foreground/75" />
                   <p className="text-foreground/75">مبلغ: </p>
-                  <p>{(orderData.orderPrice / 10).toLocaleString('fa-IR')}</p>
+                  <p>
+                    {(orderData.order.orderPrice / 10).toLocaleString('fa-IR')}
+                  </p>
                 </Toman>
                 <div className="flex items-center gap-1">
                   <FaShippingFast className="text-foreground/75" />
                   <p className="text-foreground/75">هزینه ارسال: </p>
-                  {orderData.shippingMethod == 'تیپاکس | تیپاکس' ? (
+                  {orderData.order.shippingMethod == 'تیپاکس | تیپاکس' ? (
                     <p>پس کرایه</p>
                   ) : (
                     <Toman>
                       <p>
-                        {(orderData.shippingPrice / 10).toLocaleString('fa-IR')}
+                        {(orderData.order.shippingPrice / 10).toLocaleString(
+                          'fa-IR'
+                        )}
                       </p>
                     </Toman>
                   )}
@@ -174,7 +178,9 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 <Toman>
                   <FaRegMoneyBillAlt className="text-foreground/75" />
                   <p className="text-foreground/75">مجموع: </p>
-                  <p>{(orderData.totalPrice / 10).toLocaleString('fa-IR')}</p>
+                  <p>
+                    {(orderData.order.totalPrice / 10).toLocaleString('fa-IR')}
+                  </p>
                 </Toman>
               </div>
             </div>
@@ -190,30 +196,30 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 <div className="flex flex-wrap gap-2">
                   <p>
                     <span className="text-foreground/75">استان: </span>{' '}
-                    <span>{orderData.province}</span>
+                    <span>{orderData.order.province}</span>
                   </p>
                   <p>
                     <span className="text-foreground/75">شهرستان: </span>{' '}
-                    <span>{orderData.city}</span>
+                    <span>{orderData.order.city}</span>
                   </p>{' '}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <p>
                     <span className="text-foreground/75">تلفن همراه: </span>{' '}
-                    <span>{orderData.mobileNumber}</span>
+                    <span>{orderData.order.mobileNumber}</span>
                   </p>
                   <p>
                     <span className="text-foreground/75">تلفن: </span>{' '}
-                    <span>{orderData.phoneNumber}</span>
+                    <span>{orderData.order.phoneNumber}</span>
                   </p>
                 </div>
                 <p className="overflow-clip whitespace-pre-wrap max-w-md">
                   <span className="text-foreground/75">نشانی: </span>{' '}
-                  <span>{orderData.address}</span>
+                  <span>{orderData.order.address}</span>
                 </p>
                 <p>
                   <span className="text-foreground/75">کدپستی: </span>{' '}
-                  <span>{orderData.postCode}</span>
+                  <span>{orderData.order.postCode}</span>
                 </p>
               </div>
               <div className="flex flex-col w-full h-full p-2">
@@ -221,9 +227,9 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                   <FaMoneyCheck className="text-foreground/75" />
                   <span className="text-foreground/75">روش پرداخت: </span>{' '}
                   <span>
-                    {orderData.payMethod == 'online'
+                    {orderData.order.payMethod == 'online'
                       ? 'درگاه پرداخت'
-                      : orderData.payMethod == 'offline'
+                      : orderData.order.payMethod == 'offline'
                         ? 'کارت به کارت'
                         : 'اسنپ پی'}
                   </span>
@@ -232,9 +238,9 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                   <GrStatusGood className="text-foreground/75" />
                   <span className="text-foreground/75">وضعیت پرداخت: </span>
                   <span>
-                    {orderData.paymentStatus == 'completed'
+                    {orderData.order.paymentStatus == 'completed'
                       ? 'پرداخت شده'
-                      : orderData.paymentStatus == 'pending'
+                      : orderData.order.paymentStatus == 'pending'
                         ? 'در انتظار پرداخت'
                         : 'لغو شده'}
                   </span>
@@ -242,7 +248,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 <p className="flex items-center gap-2">
                   <LiaShippingFastSolid className="text-foreground/75" />
                   <span className="text-foreground/75">روش ارسال: </span>
-                  <span>{orderData.shippingMethod}</span>
+                  <span>{orderData.order.shippingMethod}</span>
                 </p>
               </div>
             </div>

@@ -44,9 +44,9 @@ export default function OrderHistory() {
   // const { cartProducts, setCartProducts } = useCartStore();
 
   const getOrderHistoryFn = useMutation({
-    mutationFn: async (id: string) => {
-      const orderHistoryData = await getOrderHistory(id);
-      setOrderHistory(orderHistoryData.data.order || []);
+    mutationFn: async () => {
+      const orderHistoryData = await getOrderHistory();
+      setOrderHistory(orderHistoryData.data);
       return orderHistory;
     },
     onSettled: () => {
@@ -56,7 +56,7 @@ export default function OrderHistory() {
 
   useEffect(() => {
     if (user && user.order_history) {
-      getOrderHistoryFn.mutateAsync(user.order_history.documentId);
+      getOrderHistoryFn.mutateAsync();
     }
   }, [user, setOrderHistory]);
 
@@ -102,7 +102,8 @@ export default function OrderHistory() {
         </div>
       ) : orderHistory.length > 0 ? (
         <div className="flex flex-col gap-5">
-          {orderHistory.map((order) => {
+          {orderHistory.map((item) => {
+            const order = item.order;
             return (
               <Link
                 href={`/dashboard/orderhistory/${order.orderCode}`}

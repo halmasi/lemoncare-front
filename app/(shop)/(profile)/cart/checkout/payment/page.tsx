@@ -129,7 +129,7 @@ export default function Payment() {
       const res = await fetch('/api/checkout/submit-order', {
         method: 'POST',
         body: JSON.stringify({
-          id: user?.order_history.documentId,
+          user: user?.documentId,
           jwt: `Bearer ${jwt}`,
           order: {
             items: items.map((i: CartProps) => {
@@ -164,7 +164,7 @@ export default function Payment() {
       return result.data;
     },
     onSuccess: (data) => {
-      setOrderCode(data.orderCode);
+      setOrderCode(parseInt(data.orderCode));
       router.push('/cart/checkout/gate');
     },
     onError: () => {

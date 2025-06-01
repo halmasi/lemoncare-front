@@ -72,9 +72,13 @@ export const updatePostalInformation = async (
   return data;
 };
 
-export const getOrderHistory = async (documentId: string) => {
+export const getOrderHistory = async (
+  page: number = 1,
+  pageSize: number = 10
+) => {
   const check = await loginCheck();
   const query = qs.stringify({
+    filter: { user: { $eq: check.body.username } },
     populate: {
       order: {
         populate: {
@@ -86,10 +90,13 @@ export const getOrderHistory = async (documentId: string) => {
         },
       },
     },
+    pagination: {
+      page,
+      pageSize,
+    },
   });
-
   const response = await requestData(
-    `/order-histories/${documentId}?${query}`,
+    `/order-histories?${query}`,
     'GET',
     {},
     check.jwt
@@ -97,10 +104,7 @@ export const getOrderHistory = async (documentId: string) => {
   return response.data;
 };
 
-export const getSingleOrderHistory = async (
-  documentId: string,
-  orderCode: number
-) => {
+export const getSingleOrderHistory = async (orderCode: number) => {
   const check = await loginCheck();
 
   const query = qs.stringify({
@@ -112,6 +116,9 @@ export const getSingleOrderHistory = async (
       },
     },
     populate: {
+      user: {
+        populate: '1',
+      },
       order: {
         populate: {
           items: {
@@ -124,15 +131,14 @@ export const getSingleOrderHistory = async (
   });
 
   const res = await requestData(
-    `/order-histories/${documentId}?${query}`,
+    `/order-histories?${query}`,
     'GET',
     {},
     check.jwt
   );
-  const order = res.data.data.order.find(
-    (item: OrderHistoryProps) => item.orderCode == orderCode
-  );
-  if (order) return order;
+  if (res.data.data[0].user.username == check.body.username) {
+    return res.data.data[0];
+  }
   return null;
 };
 
@@ -141,16 +147,15 @@ export const getFavorites = cache(
     const check = await loginCheck();
     const populateSelector = {
       posts: {
-          basicInfo: { populate: ['mainImage'] },
-          seo: { populate: '1' },
-        },
-        products: {
-          basicInfo: { populate: ['mainImage'] },
-          seo: { populate: '1' },
-          variety:{populate:'*'}
-      }
+        basicInfo: { populate: ['mainImage'] },
+        seo: { populate: '1' },
+      },
+      products: {
+        basicInfo: { populate: ['mainImage'] },
+        seo: { populate: '1' },
+        variety: { populate: '*' },
+      },
     };
-
 
     const query = qs.stringify({
       populate: {

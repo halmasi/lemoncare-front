@@ -78,7 +78,7 @@ export interface FetchUserProps {
   order_history: {
     documentId: string;
     id: number;
-  };
+  }[];
   favorite: FavoriteListProps;
 }
 
@@ -89,28 +89,32 @@ export interface FavoriteListProps {
   products?: ProductProps[];
 }
 export interface OrderHistoryProps {
-  id: number;
-  orderDate: string;
-  paymentStatus: 'pending' | 'completed' | 'canceled';
-  payMethod: 'online' | 'offline' | 'snapp';
-  shippingMethod: string;
-  shippingPrice: number;
-  orderPrice: number;
-  coupon: string | null;
-  totalPrice: number;
-  orderCode: number;
-  province: string;
-  city: string;
-  firstName: string;
-  lastName: string;
-  mobileNumber: number | string;
-  phoneNumber: number | string;
-  address: string;
-  postCode: number;
-  items: {
+  user: number;
+  documentId: string;
+  order: {
     id: number;
-    count: number;
-    variety: { id: number; sub: number | null };
-    product: ProductProps;
-  }[];
+    orderDate: string;
+    paymentStatus: 'pending' | 'completed' | 'canceled';
+    payMethod: 'online' | 'offline' | 'snapp';
+    shippingMethod: string;
+    shippingPrice: number;
+    orderPrice: number;
+    coupon: string | null;
+    totalPrice: number;
+    orderCode: number;
+    province: string;
+    city: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: number | string;
+    phoneNumber: number | string;
+    address: string;
+    postCode: number;
+    items: {
+      id: number;
+      count: number;
+      variety: { id: number; sub: number | null };
+      product: ProductProps;
+    }[];
+  };
 }
