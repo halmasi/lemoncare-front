@@ -31,15 +31,15 @@ export default function AuthForm() {
     register: 'ثبت‌نام',
   };
 
-  if (loading) {
-    if (path.startsWith('/login')) router.push('/');
-    return (
-      <div className="flex flex-col gap-1 items-center">
-        <h6>در حال بارگذاری ...</h6>
-        <h6>لطفا صبور باشید</h6>
-        <LoadingAnimation />
-      </div>
-    );
+  if (loading && path.startsWith('/login')) {
+    router.push('/');
+    // return (
+    //   <div className="flex flex-col gap-1 items-center">
+    //     <h6>در حال بارگذاری ...</h6>
+    //     <h6>لطفا صبور باشید</h6>
+    //     <LoadingAnimation />
+    //   </div>
+    // );
   }
 
   return (
