@@ -78,7 +78,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.username } },
+    filter: { user: { $eq: check.body.documentId } },
     populate: {
       order: {
         populate: {
