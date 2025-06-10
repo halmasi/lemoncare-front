@@ -72,19 +72,19 @@ export interface FetchUserProps {
   };
   postal_information: {
     documentId: string;
-    id: number;
+    id?: number;
     information: AddressProps[];
   };
   order_history: {
     documentId: string;
-    id: number;
+    id?: number;
   }[];
   favorite: FavoriteListProps;
 }
 
 export interface FavoriteListProps {
   documentId: string;
-  id: number;
+  id?: number;
   posts?: PostsProps[];
   products?: ProductProps[];
 }
@@ -92,7 +92,7 @@ export interface OrderHistoryProps {
   user: number;
   documentId: string;
   order: {
-    id: number;
+    id?: number;
     orderDate: string;
     paymentStatus: 'pending' | 'completed' | 'canceled';
     payMethod: 'online' | 'offline' | 'snapp';
@@ -111,7 +111,7 @@ export interface OrderHistoryProps {
     address: string;
     postCode: number;
     items: {
-      id: number;
+      id?: number;
       count: number;
       variety: { id: number; sub: number | null };
       product: ProductProps;

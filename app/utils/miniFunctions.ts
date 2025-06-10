@@ -49,6 +49,23 @@ export const convertPersianAndArabicToEnglish = (input: string): string => {
   });
 };
 
+export const deleteKeysFromObject = (
+  data: Record<string, any>,
+  deleteKeys: string[]
+) => {
+  if (typeof data != 'object') return {};
+  if (!data) return {};
+  const res = data;
+  for (const key in res) {
+    if (deleteKeys.includes(key)) {
+      delete res[key];
+    } else {
+      deleteKeysFromObject(res[key], deleteKeys);
+    }
+  }
+  return res;
+};
+
 export const logs = {
   error: async (log: string) => {
     console.trace();

@@ -32,6 +32,8 @@ export default function page() {
     setPaymentOption,
     setPrice,
     orderCode,
+    orderHistoryCheckout,
+    setOrderHistoryCheckout,
   } = useCheckoutStore();
   const { cart, cartProducts, resetCart } = useCartStore();
   const { user } = useDataStore();
@@ -43,8 +45,29 @@ export default function page() {
       router.push('/cart/checkout');
     }
   }, [shippingPrice]);
+
   useEffect(() => {
-    if (cart && cart.length > 0 && !finalPrice) {
+    if (orderHistoryCheckout) {
+      setTotalPrice(price);
+      setFinalPrice(price);
+
+      resetCart();
+      setShippingPrice(-1);
+      setShippingOption({
+        courier_code: '',
+        service_name: '',
+        service_type: '',
+      }),
+        setBeforePrice(0);
+      setPaymentOption('');
+      setPrice(0);
+      setOrderHistoryCheckout(false);
+
+      if (user)
+        (async () => {
+          await emptyCart(user.shopingCart.documentId);
+        })();
+    } else if (cart && cart.length > 0 && !finalPrice) {
       let cartPrice = 0;
       cart.map((item) => {
         const product = cartProducts.find(
@@ -69,7 +92,7 @@ export default function page() {
   ]);
 
   useEffect(() => {
-    if (price) getShippingPriceFn.mutateAsync();
+    if (price && !orderHistoryCheckout) getShippingPriceFn.mutateAsync();
   }, [price]);
 
   // useEffect(() => {

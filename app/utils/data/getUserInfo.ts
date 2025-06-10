@@ -142,6 +142,17 @@ export const getSingleOrderHistory = async (orderCode: number) => {
   return null;
 };
 
+export const updateOrderHistory = async (documentId: string, data: object) => {
+  const check = await loginCheck();
+  const res = await requestData(
+    `/order-histories/${documentId}`,
+    'PUT',
+    { data },
+    check.jwt
+  );
+  return res.data;
+};
+
 export const getFavorites = cache(
   async (documentId: string, whichOne: 'posts' | 'products') => {
     const check = await loginCheck();
