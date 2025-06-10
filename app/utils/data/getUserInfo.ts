@@ -176,7 +176,7 @@ export const getFavorites = cache(
       },
     });
     const response = await requestData(
-      `/favorite/${documentId}?${query}`,
+      `/favorites/${documentId}?${query}`,
       'GET',
       {},
       check.jwt
@@ -185,6 +185,31 @@ export const getFavorites = cache(
     return response.data;
   }
 );
+
+export const updateFavorite = async (
+  userFavoriteDocumentId: string,
+  propertyDocumentId: string,
+  whichOne: 'posts' | 'products'
+) => {
+  const check = await loginCheck();
+  // const key = wichContent.find((item) => request.hasOwnProperty(item));
+  const foundItemRes = await requestData(
+    `/${whichOne}?filters[documentId][$eq]=${propertyDocumentId}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  // const response = await requestData(
+  // `/favorites/${userFavoriteDocumentId}`,
+  // 'PUT',
+  // {
+  // data: { [whichOne]: { documentId: propertyDocumentId } },
+  // },
+  // check.jwt
+  // );
+  // console.log('updateFavorite response: ', response);
+  // return response.data;
+};
 
 export const getGravatar = async (email: string) => {
   const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
