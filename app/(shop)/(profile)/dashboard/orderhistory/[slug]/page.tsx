@@ -3,7 +3,11 @@
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Toman from '@/app/components/Toman';
-import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
+import {
+  getSingleOrderHistory,
+  updateOrderHistory,
+} from '@/app/utils/data/getUserInfo';
+import { deleteKeysFromObject } from '@/app/utils/miniFunctions';
 import { cartProductsProps } from '@/app/utils/schema/shopProps';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import {
@@ -12,10 +16,12 @@ import {
   varietyFinder,
 } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState, use } from 'react';
 import { CiMoneyBill } from 'react-icons/ci';
 import {
@@ -23,7 +29,7 @@ import {
   FaRegMoneyBillAlt,
   FaShippingFast,
 } from 'react-icons/fa';
-import { FaBuildingUser, FaUserTag } from 'react-icons/fa6';
+import { FaArrowRightLong, FaBuildingUser, FaUserTag } from 'react-icons/fa6';
 import { GrStatusGood } from 'react-icons/gr';
 import { IoQrCode } from 'react-icons/io5';
 import { LiaShippingFastSolid } from 'react-icons/lia';
@@ -31,11 +37,19 @@ import { LuCalendarClock } from 'react-icons/lu';
 import { toast } from 'react-toastify';
 
 export default function page(props: { params: Promise<{ slug: string }> }) {
+  const router = useRouter();
   const params = use(props.params);
   const { slug } = params;
 
   const { user } = useDataStore();
   const { setCartProducts, cartProducts } = useCartStore();
+  const {
+    setPaymentOption,
+    setPrice,
+    setOrderCode,
+    setOrderHistoryCheckout,
+    setShippingPrice,
+  } = useCheckoutStore();
 
   const [orderData, setOrderData] = useState<OrderHistoryProps>();
   const [error, setError] = useState<string>();
@@ -61,19 +75,23 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
     onSuccess: async (data: OrderHistoryProps) => {
       if (!data) return;
       setOrderData(data);
+      const items = data.order.items.map((item) => {
+        return {
+          count: item.count,
+          variety: item.variety,
+          product: item.product.documentId,
+        };
+      });
       await Promise.all(
-        data.order.items.map(async (item) => {
+        items.map(async (item) => {
           const productsList = await cartProductSetter(
-            item.product.documentId,
+            item.product,
             cartProducts
           );
 
           setCartProducts(productsList);
 
-          const product = await cartProductSelector(
-            item.product.documentId,
-            cartProducts
-          );
+          const product = await cartProductSelector(item.product, cartProducts);
           const { color, priceBefforDiscount, mainPrice, specification } =
             varietyFinder(item.variety, product);
           setDetails((prev) => {
@@ -90,6 +108,25 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
           });
         })
       );
+
+      const orderDate = data.order.orderDate
+        ? new Date(data.order.orderDate).getTime()
+        : 0;
+      if (
+        data.order.paymentStatus == 'pending' &&
+        Math.floor(Math.abs(orderDate - Date.now()) / (1000 * 60 * 60 * 24)) > 0
+      ) {
+        const order = deleteKeysFromObject(data.order, ['id', 'documentId']);
+        await updateOrderHistory(data.documentId, {
+          order: {
+            ...order,
+            items,
+            paymentStatus: 'canceled',
+          },
+        });
+        data.order.paymentStatus = 'canceled';
+        setOrderData(data);
+      }
       setLoading(false);
     },
     onError: () => {
@@ -121,14 +158,24 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
     <div className="flex flex-col w-full">
       {orderData ? (
         <div className="flex flex-col w-full">
-          <h2 className="self-center">جزئیات سفارش</h2>
+          <div className="flex flex-col md:flex-row w-full">
+            <Link
+              href={'/dashboard/orderhistory'}
+              className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+            >
+              <FaArrowRightLong />
+            </Link>
+            <h2 className="w-full text-center">جزئیات سفارش</h2>
+          </div>
           <div className="border">
             <div className="flex flex-col border-b lg:flex-row justify-between">
               <div className="flex flex-col p-2 border-b lg:border-b-0 lg:border-l w-full h-full">
                 <p className="flex items-center gap-2">
                   <IoQrCode className="text-foreground/75" />
                   <span className="text-foreground/75">کد سفارش: </span>
-                  <span>{orderData.order.orderCode}</span>
+                  <span className="text-accent-pink">
+                    {orderData.order.orderCode}
+                  </span>
                 </p>
                 <p className="flex items-center gap-2">
                   <LuCalendarClock className="text-foreground/75" />
@@ -245,11 +292,33 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                         : 'لغو شده'}
                   </span>
                 </p>
+                {orderData.order.paymentStatus == 'pending' && (
+                  <p className="text-foreground/75 text-sm">
+                    در صورت عدم پرداخت تا ۲۴ ساعت بعد از ثبت سفارش وضعیت پرداخت
+                    به "لغو شده" تغییر خواهد کرد.
+                  </p>
+                )}
                 <p className="flex items-center gap-2">
                   <LiaShippingFastSolid className="text-foreground/75" />
                   <span className="text-foreground/75">روش ارسال: </span>
                   <span>{orderData.order.shippingMethod}</span>
                 </p>
+                {orderData.order.paymentStatus == 'pending' && (
+                  <div>
+                    <SubmitButton
+                      onClick={() => {
+                        setPaymentOption('online');
+                        setPrice(orderData.order.totalPrice);
+                        setOrderCode(orderData.order.orderCode);
+                        setOrderHistoryCheckout(true);
+                        setShippingPrice(0);
+                        router.push('/cart/checkout/gate');
+                      }}
+                    >
+                      پرداخت آنلاین
+                    </SubmitButton>
+                  </div>
+                )}
               </div>
             </div>
           </div>

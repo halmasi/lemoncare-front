@@ -160,7 +160,11 @@ export default function LoginHandler() {
     if (!user && loginProcces) {
       loginFn.mutate();
     }
-  }, [loginProcces, user, jwt]);
+  }, [loginProcces, user, jwt, setLoginProcces]);
+
+  useEffect(() => {
+    router.refresh();
+  }, [loginProcces, setLoginProcces]);
 
   useEffect(() => {
     const checkJwtCookie = async () => {
@@ -176,7 +180,7 @@ export default function LoginHandler() {
       }
     };
     checkJwtCookie();
-  }, [jwt, user, resetUser, resetCart]);
+  }, [jwt, user, resetUser, resetCart, loginProcces]);
 
   return null;
 }
