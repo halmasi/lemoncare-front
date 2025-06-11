@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
 
     case 'order-history':
       (async () => {
-        console.log('new order');
+        // console.log('new order');
       })();
       break;
 

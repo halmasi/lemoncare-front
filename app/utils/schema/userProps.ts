@@ -110,11 +110,6 @@ export interface OrderHistoryProps {
     phoneNumber: number | string;
     address: string;
     postCode: number;
-    items: {
-      id?: number;
-      count: number;
-      variety: { id: number; sub: number | null };
-      product: ProductProps;
-    }[];
+    items: CartProps[];
   };
 }
