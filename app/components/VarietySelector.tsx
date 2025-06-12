@@ -15,6 +15,8 @@ import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
 import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 interface NewItemProps {
   count: number;
@@ -42,6 +44,10 @@ function AddButton({
 }) {
   const { cart } = useCartStore();
 
+  const router = useRouter();
+
+  const [count, setCount] = useState(1);
+
   if (cart) {
     const findCart = cart.find(
       (item) =>
@@ -49,10 +55,12 @@ function AddButton({
         item.variety.id == selected.uniqueId &&
         item.variety.sub == selected.uniqueSub
     );
-    if (!findCart || findCart.count < 1 || isPending) {
+    if (!findCart || findCart.count < 1 || isPending || count <= 0) {
       return (
         <SubmitButton
+          key={count}
           onClick={() => {
+            setCount(1);
             handleAddToCart({
               count: 1,
               id: product.documentId,
@@ -72,9 +80,13 @@ function AddButton({
       const inventory = variety.inventory;
       return (
         <Count
-          key={selected.sub || selected.id}
+          key={selected.sub || selected.id || count}
           cartItem={findCart}
           inventory={inventory}
+          refreshFunction={(c: number) => {
+            setCount(c);
+            router.refresh();
+          }}
           isProductPage
         />
       );
@@ -109,23 +121,6 @@ export default function VarietySelector({
 }) {
   const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
-
-  const addToCartFn = useMutation({
-    mutationFn: async (newItem: NewItemProps) => {
-      if (user && user.id && cart) {
-        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
-        const getCartData = await getCart(user.shopingCart.documentId);
-        return { res, getCartData };
-      }
-    },
-    onSuccess: async (data) => {
-      if (!data || !data.res || !user) return;
-      setCart(data.getCartData.data.items);
-    },
-    onError: async (error) => {
-      logs.error(error.message + ' ' + error.cause);
-    },
-  });
 
   const [selected, setSelected] = useState<{
     id: number;
@@ -197,33 +192,70 @@ export default function VarietySelector({
     });
   }, [selected]);
 
-  const handleAddToCart = (newItem: NewItemProps) => {
-    cartProductSetter(newItem.id, cartProducts).then((list) =>
-      setCartProducts(list)
-    );
+  const getCartFn = useMutation({
+    mutationFn: async () => {
+      if (user) {
+        const getCartData = await getCart(user.shopingCart.documentId);
+        return getCartData;
+      }
+    },
+    onSuccess: (data) => {
+      if (!data) setCart(data.data.items);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
 
-    const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
+  const addToCartFn = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      if (user && user.id && cart) {
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
+        return res;
+      }
+    },
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+      getCartFn.mutateAsync();
+    },
+    onError: async (error) => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+      logs.error(error.message + ' ' + error.cause);
+    },
+  });
 
-    if (jwt && user && cart) {
-      const newCart = cart;
-      newCart.push({ ...newItem, product, id });
-      setCart(newCart);
-      addToCartFn.mutate(newItem);
-    } else if (cart) {
-      const found = cart.find((item) => {
-        return (
-          item.product.documentId == newItem.id &&
-          item.variety == newItem.variety
-        );
-      });
-      if (found) return;
-      const newCart = cart;
-      newCart.push({ ...newItem, product, id });
-      setCart(newCart);
-    } else {
-      setCart([{ ...newItem, product, id }]);
-    }
-  };
+  const addToCartHandler = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      const list = await cartProductSetter(newItem.id, cartProducts);
+      let newCart = cart;
+      const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
+      if (!cart) newCart = [{ ...newItem, product, id }];
+      else {
+        if (jwt && user) {
+          newCart = [...cart, { ...newItem, product, id }];
+          addToCartFn.mutate(newItem);
+        } else {
+          const found = cart.find((item) => {
+            return (
+              item.product.documentId == newItem.id &&
+              item.variety == newItem.variety
+            );
+          });
+          if (found) return;
+          newCart.push({ ...newItem, product, id });
+        }
+      }
+      return { list, cart: newCart };
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      setCartProducts(data.list);
+      setCart(data.cart);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
 
   return list ? (
     <>
@@ -259,8 +291,12 @@ export default function VarietySelector({
           <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
-              handleAddToCart={handleAddToCart}
-              isPending={addToCartFn.isPending}
+              handleAddToCart={addToCartHandler.mutateAsync}
+              isPending={
+                addToCartFn.isPending ||
+                addToCartHandler.isPending ||
+                getCartFn.isPending
+              }
               price={price}
               product={product}
               selected={selected}
@@ -373,8 +409,13 @@ export default function VarietySelector({
       </div>
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
-        handleAddToCart={handleAddToCart}
-        isPending={addToCartFn.isPending || price.inventory < 1}
+        handleAddToCart={addToCartHandler.mutateAsync}
+        isPending={
+          addToCartFn.isPending ||
+          price.inventory < 1 ||
+          addToCartHandler.isPending ||
+          getCartFn.isPending
+        }
         price={price}
         product={product}
         selected={selected}
