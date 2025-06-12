@@ -8,8 +8,12 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
+import AddToFavorites from '@/app/components/AddToFavorites';
 
-export async function generateMetadata(props: { params: Promise<{ slug: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
@@ -37,7 +41,9 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   };
 }
 
-export default async function page(props0: { params: Promise<{ slug: string }> }) {
+export default async function page(props0: {
+  params: Promise<{ slug: string }>;
+}) {
   const params = await props0.params;
   const { slug } = params;
   const data = await getPost(slug);
@@ -60,7 +66,9 @@ export default async function page(props0: { params: Promise<{ slug: string }> }
           })}
         </p>
       </div>
+
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
+      <AddToFavorites post={post} />
       <Image
         className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
         src={post.basicInfo.mainImage.url}

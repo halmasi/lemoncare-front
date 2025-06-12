@@ -6,6 +6,10 @@ import { loginCheck } from '../actions/actionMethods';
 import { cleanPhone, isPhone } from '../miniFunctions';
 import { loginSchema } from '../schema/formValidation';
 import { cache } from 'react';
+import { getPost } from './getPosts';
+import { getProduct } from './getProducts';
+import { PostsProps } from '../schema/blogProps';
+import { ProductProps } from '../schema/shopProps';
 
 export const updateUserInformation = async (
   id: string,
@@ -192,23 +196,40 @@ export const updateFavorite = async (
   whichOne: 'posts' | 'products'
 ) => {
   const check = await loginCheck();
-  // const key = wichContent.find((item) => request.hasOwnProperty(item));
-  const foundItemRes = await requestData(
-    `/${whichOne}?filters[documentId][$eq]=${propertyDocumentId}`,
-    'GET',
-    {},
+  const favoriteResponse = await getFavorites(userFavoriteDocumentId, whichOne);
+  const currentFavorites = favoriteResponse.data[whichOne];
+
+  const checkExists = favoriteResponse.data[whichOne].some(
+    (item: any) => item.documentId === propertyDocumentId
+  );
+
+  let updatedFavorites;
+
+  if (checkExists) {
+    updatedFavorites = currentFavorites.filter((item: any) => {
+      const keep = item.documentId !== propertyDocumentId;
+      return keep;
+    });
+  } else if (!checkExists) {
+    const which = {
+      posts: await getPost(propertyDocumentId),
+      products: await getProduct(propertyDocumentId),
+    };
+    const newInfo: PostsProps[] | ProductProps[] = which[whichOne];
+
+    updatedFavorites = [...currentFavorites, newInfo[0]];
+  }
+  const response = await requestData(
+    `/favorites/${userFavoriteDocumentId}`,
+    'PUT',
+    {
+      data: {
+        [whichOne]: updatedFavorites.map((item: any) => item.id),
+      },
+    },
     check.jwt
   );
-  // const response = await requestData(
-  // `/favorites/${userFavoriteDocumentId}`,
-  // 'PUT',
-  // {
-  // data: { [whichOne]: { documentId: propertyDocumentId } },
-  // },
-  // check.jwt
-  // );
-  // console.log('updateFavorite response: ', response);
-  // return response.data;
+  return response.data;
 };
 
 export const getGravatar = async (email: string) => {
