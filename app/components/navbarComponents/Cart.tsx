@@ -56,13 +56,8 @@ export default function Cart({
       cartId: string;
     }) => {
       await updateCart(cart, cartId);
-      const userData = await getFullUserData();
-      return userData;
     },
-    onSuccess: async (data) => {
-      setUser(data.body);
-      route.refresh();
-    },
+    onSuccess: async (data) => {},
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
     },
@@ -170,6 +165,18 @@ export default function Cart({
               >
                 <div className="w-full h-full">
                   <Count
+                    refreshFunction={(newCount) => {
+                      if (user && user.shopingCart.documentId)
+                        if (newCount <= 0)
+                          getCartFn.mutateAsync({
+                            id: user.shopingCart.documentId,
+                          });
+                        else
+                          updateCartFn.mutateAsync({
+                            cart,
+                            cartId: user.shopingCart.documentId,
+                          });
+                    }}
                     key={index}
                     cartItem={cartItem}
                     inventory={inventory}
