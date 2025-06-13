@@ -8,6 +8,11 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import Image from 'next/image';
 import Link from 'next/link';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { useSearchParams } from 'next/navigation';
+import Pagination from '@/app/components/Pagination';
+import { toast } from 'react-toastify';
+import { RiArrowLeftSLine } from 'react-icons/ri';
+import Toman from '@/app/components/Toman';
 
 function LoadingSkeleton() {
   return (
@@ -22,75 +27,37 @@ function LoadingSkeleton() {
 }
 
 export default function OrderHistory() {
+  const searchParams = useSearchParams();
+  const page = parseInt(searchParams.get('p') || '1');
+
   const [showLoading, setShowLoading] = useState<boolean>(true);
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
-  // const [showModal, setShowModal] = useState(false);
-  // const [productDetails, setProductDetails] = useState<
-  //   {
-  //     variety: {
-  //       id: number;
-  //       sub: number | null;
-  //     };
-  //     product: cartProductsProps;
-  //     count: number;
-  //     color: string;
-  //     priceBefore: number;
-  //     priceAfter: number;
-  //     name: string;
-  //   }[]
-  // >();
-
+  const [pageCount, setPageCount] = useState<number>(1);
   const { user } = useDataStore();
-  // const { cartProducts, setCartProducts } = useCartStore();
 
   const getOrderHistoryFn = useMutation({
     mutationFn: async () => {
-      const orderHistoryData = await getOrderHistory();
-      setOrderHistory(orderHistoryData.data);
+      setShowLoading(true);
+
+      const orderHistory = await getOrderHistory(page, 10);
       return orderHistory;
     },
-    onSettled: () => {
+    onSuccess: (data) => {
+      setOrderHistory(data.data);
+      setPageCount(parseInt(data.meta.pagination.pageCount));
+      setShowLoading(false);
+    },
+    onError: () => {
+      toast.warn('خطایی رخ داده');
       setShowLoading(false);
     },
   });
 
   useEffect(() => {
-    if (user && user.order_history) {
+    if (user) {
       getOrderHistoryFn.mutateAsync();
     }
-  }, [user, setOrderHistory]);
-
-  // const handleOrderClick = async (order: OrderHistoryProps) => {
-  // order.items.forEach(async (item) => {
-  //   const productsList = await cartProductSetter(
-  //     item.product.documentId,
-  //     cartProducts
-  //   );
-  //   setCartProducts(productsList);
-  // });
-
-  // const details = Promise.all(
-  //   order.items.map(async (item) => {
-  //     const product = await cartProductSelector(
-  //       item.product.documentId,
-  //       cartProducts
-  //     );
-  //     const { color, priceBefforDiscount, mainPrice, specification } =
-  //       varietyFinder(item.variety, product);
-  //     return {
-  //       variety: item.variety,
-  //       product,
-  //       count: item.count,
-  //       color,
-  //       priceBefore: priceBefforDiscount,
-  //       priceAfter: mainPrice,
-  //       name: specification,
-  //     };
-  //   })
-  // );
-  // setProductDetails(await details);
-  // setShowModal(true);
-  // };
+  }, [user, page]);
 
   return (
     <div className="p-6 w-full max-w-4xl mx-auto">
@@ -108,64 +75,109 @@ export default function OrderHistory() {
               <Link
                 href={`/dashboard/orderhistory/${order.orderCode}`}
                 key={order.id}
-                className="gap-2 p-4 bg-white shadow-md hover:shadow-lg rounded-lg border transition-all duration-200 cursor-pointer space-y-2"
+                className="w-full gap-2 p-4 bg-white shadow-md hover:shadow-lg rounded-lg border transition-all duration-200 cursor-pointer space-y-2"
               >
                 {order.items && order.items.length > 0 ? (
-                  <div className="flex flex-col">
-                    <p className="text-sm text-gray-500">
-                      تاریخ:{' '}
-                      {new Date(order.orderDate).toLocaleDateString('fa-IR')}
-                    </p>
-                    <div className="flex flex-row mt-1 gap-3">
-                      {order.items.map((product) => (
-                        <div key={product.id}>
-                          <div className="flex flex-col sm:flex-row gap-3">
-                            <Image
-                              src={
-                                product?.product?.basicInfo?.mainImage?.formats
-                                  ?.thumbnail?.url || '/placeholder.png'
-                              }
-                              alt={
-                                product?.product?.basicInfo?.title || 'بدون نام'
-                              }
-                              width={100}
-                              height={100}
-                              className="rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-700">
-                              {product?.product?.basicInfo?.title || 'بدون نام'}
-                            </p>
+                  <div className="w-full flex flex-col">
+                    <div className="w-full flex justify-between border-b">
+                      <div>
+                        <div
+                          className={`text-sm w-full flex flex-wrap items-center gap-1 p-1`}
+                        >
+                          <div className="flex flex-wrap p-2 gap-2 text-sm">
                             <p className="text-gray-500">
-                              تعداد: {product.count}
+                              {new Date(order.orderDate).toLocaleDateString(
+                                'fa-IR'
+                              )}
                             </p>
+                          </div>
+                          <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                            <p className="text-gray-500">وضعیت پرداخت: </p>
+                            <p
+                              className={`font-semibold ${
+                                order.paymentStatus == 'completed'
+                                  ? 'text-accent-green/75'
+                                  : 'text-accent-pink/75'
+                              }`}
+                            >
+                              {order.paymentStatus == 'completed'
+                                ? 'پرداخت شده'
+                                : order.paymentStatus == 'pending'
+                                  ? 'در انتظار پرداخت'
+                                  : 'لغو شده'}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                            <p className="text-gray-500">شناسه سفارش: </p>
+                            <p>{order.orderCode}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    <div
-                      className={`text-sm w-full flex flex-wrap justify-between items-center gap-2`}
-                    >
-                      <p>
-                        <span className="text-gray-500">وضعیت پرداخت: </span>
-                        <span
-                          className={`font-semibold ${
-                            order.paymentStatus == 'completed'
-                              ? 'text-accent-green/75'
-                              : 'text-accent-pink/75'
-                          }`}
+                        <div
+                          className={`text-sm w-full flex flex-wrap items-center gap-1 p-1`}
                         >
-                          {order.paymentStatus == 'completed'
-                            ? 'پرداخت شده'
-                            : order.paymentStatus == 'pending'
-                              ? 'در انتظار پرداخت'
-                              : 'لغو شده'}
-                        </span>
-                      </p>
-                      <div className="self-end w-fit">
-                        <SubmitButton>مشاهده سفارش</SubmitButton>
+                          <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                            <p className="text-gray-500">مبلغ: </p>
+                            <Toman className="fill-accent-green text-accent-green">
+                              <p>
+                                {(order.totalPrice / 10).toLocaleString(
+                                  'fa-IR'
+                                )}
+                              </p>
+                            </Toman>
+                          </div>
+                          <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                            <p className="text-gray-500">تخفیف: </p>
+                            <Toman className="fill-accent-green text-accent-green">
+                              <p>
+                                {(() => {
+                                  let offer = 0;
+                                  order.items.forEach((item) => {
+                                    if (item.beforePrice && item.mainPrice)
+                                      offer +=
+                                        item.beforePrice - item.mainPrice;
+                                  });
+                                  return (
+                                    <span>
+                                      {(
+                                        (order.orderPrice - offer) /
+                                        10
+                                      ).toLocaleString('fa-IR')}
+                                    </span>
+                                  );
+                                })()}
+                              </p>
+                            </Toman>
+                          </div>
+                        </div>
                       </div>
+                      <p className="self-center p-2 w-fit hover:text-accent-pink transition-colors">
+                        <RiArrowLeftSLine />
+                      </p>
+                    </div>
+                    <div className="w-full flex flex-row mt-1 gap-3 p-1">
+                      {(() => {
+                        const i = order.items.slice(0, 4);
+                        return i.map((product, index) => (
+                          <Image
+                            key={product.id}
+                            src={
+                              product?.product?.basicInfo?.mainImage?.formats
+                                ?.thumbnail?.url || '/placeholder.png'
+                            }
+                            alt={
+                              product?.product?.basicInfo?.title || 'بدون نام'
+                            }
+                            width={100}
+                            height={100}
+                            className={`w-16 h-26 rounded-full aspect-square object-cover border-background border-2 ${index > 0 && '-mr-8'}`}
+                          />
+                        ));
+                      })()}
+                      {order.items.length > 4 && (
+                        <div className="flex items-center justify-center w-16 h-16 rounded-full aspect-square object-cover border-2 bg-background/85 -mr-8">
+                          <p>{order.items.length - 4}+</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -176,109 +188,20 @@ export default function OrderHistory() {
               </Link>
             );
           })}
+          {pageCount > 1 && (
+            <Pagination
+              currentPage={page}
+              pageCount={pageCount}
+              key={pageCount}
+              query={'p'}
+            />
+          )}
         </div>
       ) : (
         <p className="text-gray-500 text-center mt-6">هیچ سفارشی یافت نشد.</p>
       )}
-      {/* <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        className="overflow-y-scroll  max-h-[90vh]"
-      >
-        {productDetails && productDetails.length > 0 ? (
-          (() => {
-            const totalPrice = productDetails.reduce(
-              (sum, item) => sum + item.count * item.priceAfter,
-              0
-            );
-            const totalDiscount = productDetails.reduce(
-              (sum, item) =>
-                sum + (item.priceBefore - item.priceAfter) * item.count,
-              0
-            );
 
-            return (
-              <div className="p-4">
-                {productDetails.map((item, index) => {
-                  const itemTotal = item.count * item.priceAfter;
-                  const itemDiscount =
-                    (item.priceBefore - item.priceAfter) * item.count;
-                  const itemDiscountPercent = Math.round(
-                    (itemDiscount / item.priceBefore) * 100
-                  );
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 border-b pb-3 mb-4"
-                    >
-                      <Image
-                        src={
-                          item.product.basicInfo.mainImage?.formats?.thumbnail
-                            ?.url || '/placeholder.png'
-                        }
-                        alt={item.product.basicInfo.title || 'بدون نام'}
-                        width={50}
-                        height={50}
-                        className="rounded-md"
-                      />
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {item.product.basicInfo.title || 'بدون نام'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          🎨 رنگ: {item.name || 'نامشخص'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          🛍️ تعداد: {item.count}
-                        </p>
-                        <Toman className="text-sm text-gray-500 fill-gray-500">
-                          <p>
-                            💰 قیمت واحد: {item.priceAfter.toLocaleString()}
-                          </p>
-                        </Toman>
-                        <p
-                          className="text-sm text-red-500"
-                          title={`تخفیف: ${itemDiscount.toLocaleString()} تومان`}
-                        >
-                          🔻 درصد تخفیف:{' '}
-                          {item.priceBefore > 0
-                            ? itemDiscountPercent + '%'
-                            : '0%'}
-                        </p>
-                        <Toman className="text-sm font-semibold text-gray-800 fill-gray-800">
-                          <p>💵 مجموع: {itemTotal.toLocaleString()}</p>
-                        </Toman>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                <div className="border-t pt-4 mt-6">
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-gray-700 font-semibold">
-                      💰 مجموع کل:
-                    </span>
-                    <Toman className="text-base font-bold text-gray-900 fill-gray-900">
-                      <p>{totalPrice.toLocaleString()}</p>
-                    </Toman>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-gray-700 font-semibold">
-                      💸 مجموع تخفیف:
-                    </span>
-                    <Toman className="text-base font-bold text-red-500 fill-red-500">
-                      <p>{totalDiscount.toLocaleString()}</p>
-                    </Toman>
-                  </div>
-                </div>
-              </div>
-            );
-          })()
-        ) : (
-          <p className="text-gray-500 p-4">هیچ محصولی یافت نشد.</p>
-        )}
-      </Modal> */}
+      <div className="flex flex-row">{}</div>
     </div>
   );
 }

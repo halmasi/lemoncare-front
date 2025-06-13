@@ -1,126 +1,67 @@
 'use client';
 
 import LoadingAnimation from '@/app/components/LoadingAnimation';
-import Toman from '@/app/components/Toman';
 import { emptyCart } from '@/app/utils/actions/cartActionMethods';
-import { calcShippingPrice } from '@/app/utils/paymentUtils';
-import { varietyFinder } from '@/app/utils/shopUtils';
+import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BiCopy } from 'react-icons/bi';
 import { VscLoading } from 'react-icons/vsc';
 import { toast } from 'react-toastify';
 
 export default function page() {
-  const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const {
     paymentOption,
-    shippingOption,
-    checkoutAddress,
-    shippingPrice,
-    price,
     setShippingPrice,
     setShippingOption,
     setBeforePrice,
-    setPaymentOption,
     setPrice,
     orderCode,
+    orderHistoryCheckout,
+    setOrderHistoryCheckout,
   } = useCheckoutStore();
-  const { cart, cartProducts, resetCart } = useCartStore();
+  const { resetCart } = useCartStore();
   const { user } = useDataStore();
 
-  const router = useRouter();
-
-  useEffect(() => {
-    if (shippingPrice < 0) {
-      router.push('/cart/checkout');
-    }
-  }, [shippingPrice]);
-  useEffect(() => {
-    if (cart && cart.length > 0 && !finalPrice) {
-      let cartPrice = 0;
-      cart.map((item) => {
-        const product = cartProducts.find(
-          (i) => i.documentId == item.product.documentId
-        );
-        if (product) {
-          const info = varietyFinder(item.variety, product);
-          const total = info.mainPrice * item.count;
-          cartPrice += total;
-        }
-      });
-      setPrice(cartPrice);
-    }
-  }, [
-    cart,
-    paymentOption,
-    shippingOption,
-    checkoutAddress,
-    setFinalPrice,
-    setPrice,
-    price,
-  ]);
-
-  useEffect(() => {
-    if (price) getShippingPriceFn.mutateAsync();
-  }, [price]);
-
-  // useEffect(() => {
-  //   if (totalPrice && paymentOption == 'online') {
-  //     router.push('https://digikala.com');
-  //   }
-  // }, [totalPrice, paymentOption]);
-
-  ///mutation
-  const getShippingPriceFn = useMutation({
+  const getPriceFn = useMutation({
     mutationFn: async () => {
-      if (checkoutAddress && checkoutAddress.cityCode) {
-        const res = await calcShippingPrice(
-          checkoutAddress?.cityCode,
-          {
-            courierCode: shippingOption.courier_code,
-            courierServiceCode: shippingOption.service_type,
-          },
-          price,
-          200
-        );
-        return res;
+      const order = await getSingleOrderHistory(orderCode);
+      if (order) {
+        return order.order;
       }
     },
     onSuccess: async (data) => {
-      if (
-        !data ||
-        !data.data.servicePrices[0] ||
-        data.data.servicePrices[0].totalPrice < 0
-      ) {
-        toast.warn('خطا! یک روش ارسال دیگر انتخاب کنید');
-        return;
-      }
-      setShippingPrice(
-        Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
-      );
-      setTotalPrice(shippingPrice + price);
-      resetCart();
-      setShippingPrice(-1);
-      setShippingOption({
-        courier_code: '',
-        service_name: '',
-        service_type: '',
-      }),
-        setBeforePrice(0);
-      setPaymentOption('');
-      setPrice(0);
+      if (!data) return;
+      setTotalPrice(parseInt(data.totalPrice.toString()));
 
-      if (user) await emptyCart(user.shopingCart.documentId);
+      if (user && !orderHistoryCheckout) {
+        resetCart();
+        setShippingPrice(-1);
+        setShippingOption({
+          courier_code: '',
+          service_name: '',
+          service_type: '',
+        }),
+          setBeforePrice(0);
+        setPrice(0);
+        setOrderHistoryCheckout(false);
+        await emptyCart(user.shopingCart.documentId);
+      }
     },
+    onError: () => {},
   });
+
+  useEffect(() => {
+    if (orderCode) {
+      getPriceFn.mutateAsync();
+    }
+  }, [orderCode]);
 
   if (paymentOption == 'online')
     return (
@@ -137,14 +78,16 @@ export default function page() {
         <br />
         <div className="flex flex-wrap items-center justify-center gap-2">
           <p>لطفا مبلغ</p>{' '}
-          {getShippingPriceFn.isPending || totalPrice == 0 ? (
+          {getPriceFn.isPending || totalPrice == 0 ? (
             <VscLoading className="animate-spin text-accent-green" />
           ) : (
             <p className="text-accent-green">
-              {totalPrice.toLocaleString('fa-IR', {
-                style: 'decimal',
-                maximumFractionDigits: 0,
-              })}{' '}
+              <span>
+                {totalPrice.toLocaleString('fa-IR', {
+                  style: 'decimal',
+                  maximumFractionDigits: 0,
+                })}{' '}
+              </span>
               ریال
             </p>
           )}{' '}

@@ -11,7 +11,6 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ImInsertTemplate } from 'react-icons/im';
 import { toast } from 'react-toastify';
 
 export default function Payment() {
@@ -77,7 +76,7 @@ export default function Payment() {
             courierCode: shippingOption.courier_code,
             courierServiceCode: shippingOption.service_type,
           },
-          price,
+          beforePrice,
           200
         );
         return res;
@@ -96,16 +95,12 @@ export default function Payment() {
         Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
       );
       setTotalPrice(shippingPrice + price);
-      makeOrderHistoryFn.mutateAsync({ postMethod: shippingOption });
+      makeOrderHistoryFn.mutateAsync();
     },
   });
 
   const makeOrderHistoryFn = useMutation({
-    mutationFn: async ({
-      postMethod,
-    }: {
-      postMethod: { courier_code: string; service_type: string };
-    }) => {
+    mutationFn: async () => {
       const date = new Date();
       const items: CartProps[] = await Promise.all(
         cart.map(async (item) => {

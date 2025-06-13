@@ -14,7 +14,6 @@ export async function POST(req: Request) {
         order: { ...requestBody.order, orderCode },
       },
     };
-    console.log(request);
     const query = qs.stringify({
       populate: '*',
     });
@@ -25,8 +24,6 @@ export async function POST(req: Request) {
       request,
       requestBody.jwt
     );
-
-    console.log(result.data.data.order.orderCode);
 
     return Response.json({ data: result.data.data.order }, { status: 200 });
   } catch (error) {

@@ -16,6 +16,8 @@ export interface checkoutStoreState {
   paymentOption: string;
   coupon: string | null;
   orderCode: number;
+  orderHistoryCheckout: boolean;
+  setOrderHistoryCheckout: (orderHistoryCheckout: boolean) => void;
   setPrice: (price: number) => void;
   setShippingPrice: (shippingPrice: number) => void;
   setBeforePrice: (beforePrice: number) => void;
@@ -44,6 +46,9 @@ export const useCheckoutStore = create(
       shippingOption: { courier_code: '', service_type: '', service_name: '' },
       paymentOption: '',
       orderCode: 0,
+      orderHistoryCheckout: false,
+      setOrderHistoryCheckout: (orderHistoryCheckout) =>
+        set(() => ({ orderHistoryCheckout })),
       setPrice: (price) => set(() => ({ price })),
       setShippingPrice: (shippingPrice) => set(() => ({ shippingPrice })),
       setBeforePrice: (beforePrice) => set(() => ({ beforePrice })),

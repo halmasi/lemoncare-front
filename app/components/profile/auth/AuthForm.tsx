@@ -7,7 +7,6 @@ import LoginForm from './LoginForm';
 import PasswordForm from './PasswordForm';
 import RegisterForm from './RegisterForm';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import LoadingAnimation from '../../LoadingAnimation';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -31,15 +30,8 @@ export default function AuthForm() {
     register: 'ثبت‌نام',
   };
 
-  if (loading) {
-    if (path.startsWith('/login')) router.push('/');
-    return (
-      <div className="flex flex-col gap-1 items-center">
-        <h6>در حال بارگذاری ...</h6>
-        <h6>لطفا صبور باشید</h6>
-        <LoadingAnimation />
-      </div>
-    );
+  if (loading && path.startsWith('/login')) {
+    router.push('/');
   }
 
   return (

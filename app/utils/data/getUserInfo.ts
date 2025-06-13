@@ -78,7 +78,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.username } },
+    filter: { user: { $eq: check.body.documentId } },
     populate: {
       order: {
         populate: {
@@ -137,9 +137,21 @@ export const getSingleOrderHistory = async (orderCode: number) => {
     check.jwt
   );
   if (res.data.data[0].user.username == check.body.username) {
-    return res.data.data[0];
+    const finalRes: OrderHistoryProps = res.data.data[0];
+    return finalRes;
   }
   return null;
+};
+
+export const updateOrderHistory = async (documentId: string, data: object) => {
+  const check = await loginCheck();
+  const res = await requestData(
+    `/order-histories/${documentId}`,
+    'PUT',
+    { data },
+    check.jwt
+  );
+  return res.data;
 };
 
 export const getFavorites = cache(
@@ -165,7 +177,7 @@ export const getFavorites = cache(
       },
     });
     const response = await requestData(
-      `/favorite/${documentId}?${query}`,
+      `/favorites/${documentId}?${query}`,
       'GET',
       {},
       check.jwt
@@ -174,6 +186,31 @@ export const getFavorites = cache(
     return response.data;
   }
 );
+
+export const updateFavorite = async (
+  userFavoriteDocumentId: string,
+  propertyDocumentId: string,
+  whichOne: 'posts' | 'products'
+) => {
+  const check = await loginCheck();
+  // const key = wichContent.find((item) => request.hasOwnProperty(item));
+  const foundItemRes = await requestData(
+    `/${whichOne}?filters[documentId][$eq]=${propertyDocumentId}`,
+    'GET',
+    {},
+    check.jwt
+  );
+  // const response = await requestData(
+  // `/favorites/${userFavoriteDocumentId}`,
+  // 'PUT',
+  // {
+  // data: { [whichOne]: { documentId: propertyDocumentId } },
+  // },
+  // check.jwt
+  // );
+  // console.log('updateFavorite response: ', response);
+  // return response.data;
+};
 
 export const getGravatar = async (email: string) => {
   const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {

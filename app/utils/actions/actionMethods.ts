@@ -176,10 +176,10 @@ export const getFullUserData = async (
   populateOptions?: object[]
 ) => {
   const defaultOptions = {
-    order_history: { populate: '*' },
+    // order_history: { populate: '*' },
     shopingCart: { populate: '1' },
     postal_information: { populate: '1' },
-    favorite: { populate: '*' },
+    favorite: { populate: '1' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
