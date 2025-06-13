@@ -23,6 +23,7 @@ export default function Addresses() {
 
   const [showTextBox, setShowTextBox] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [addresses, setAddresses] = useState<AddressProps[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
   const [editAddress, setEditAddress] = useState<AddressProps | null>(null);
@@ -175,7 +176,8 @@ export default function Addresses() {
   if (
     getAddressFn.isPending ||
     updateAddressesFn.isPending ||
-    deleteAddressFn.isPending
+    deleteAddressFn.isPending ||
+    loading
   )
     return (
       <div>
@@ -237,13 +239,20 @@ export default function Addresses() {
                   </div>
                   {editAddress == item && (
                     <NewAddressForm
-                      isDone={(bool) => {
+                      isPending={(bool) => {
                         if (bool) {
-                          router.refresh();
                           setShowTextBox(false);
+                          setLoading(true);
                         }
                       }}
-                      onSuccessFn={() => {
+                      onSuccessFn={(checkout: AddressProps[]) => {
+                        setShowTextBox(false);
+                        setLoading(false);
+                        setAddresses(checkout);
+                        if (user)
+                          getAddressFn.mutateAsync(
+                            user.postal_information.documentId
+                          );
                         router.refresh();
                       }}
                       existingAddresses={addresses}
@@ -258,15 +267,17 @@ export default function Addresses() {
           {showTextBox && (
             <NewAddressForm
               isPending={(bool) => {
-                if (bool) setShowTextBox(false);
-              }}
-              isDone={(bool) => {
                 if (bool) {
-                  router.refresh();
                   setShowTextBox(false);
+                  setLoading(true);
                 }
               }}
-              onSuccessFn={() => {
+              onSuccessFn={(checkout: AddressProps[]) => {
+                setShowTextBox(false);
+                setLoading(false);
+                setAddresses(checkout);
+                if (user)
+                  getAddressFn.mutateAsync(user.postal_information.documentId);
                 router.refresh();
               }}
               existingAddresses={addresses}

@@ -19,14 +19,12 @@ export default function NewAddressForm({
   editModeAddress,
   onCancel,
   isPending,
-  isDone,
 }: {
   existingAddresses?: AddressProps[];
-  onSuccessFn?: (data: object) => void;
+  onSuccessFn?: (data: AddressProps[]) => void;
   editModeAddress?: AddressProps;
   onCancel?: () => void;
   isPending?: (bool: boolean) => void;
-  isDone?: (bool: boolean) => void;
 }) {
   type ErrorState = {
     province?: string[];
@@ -95,6 +93,8 @@ export default function NewAddressForm({
         lastName,
       });
       setErrors({});
+      if (onCancel) onCancel();
+      if (isPending) isPending(true);
       if (!isValid.success) {
         const errorMessages = isValid.error.flatten().fieldErrors;
         setErrors({
@@ -133,12 +133,7 @@ export default function NewAddressForm({
         cityCode: cityId,
         provinceCode: provinceId,
       });
-      if (editModeAddress) {
-        const address = addressesArray.find((item) => item == editModeAddress);
-        if (address) {
-          addressesArray.splice(addressesArray.indexOf(address), 1);
-        }
-      }
+
       let editedAddresses = [...addressesArray];
       if (existingAddresses) {
         editedAddresses.push(...existingAddresses);
@@ -152,19 +147,25 @@ export default function NewAddressForm({
           editedAddresses = [...addresses];
         }
       }
+      if (editModeAddress) {
+        const address = editedAddresses.find((item) => {
+          const check = item.id == editModeAddress.id;
+          return check;
+        });
+        if (address) {
+          editedAddresses.splice(editedAddresses.indexOf(address), 1);
+        }
+      }
       if (user && user.postal_information) {
-        const postalInfo = await updatePostalInformation(
+        await updatePostalInformation(
           editedAddresses,
           user.postal_information.documentId
         );
-        return postalInfo;
-      } else {
-        return checkoutAddress;
+        return editedAddresses;
       }
     },
-    onSuccess: () => {
-      if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
-      if (isDone) isDone(true);
+    onSuccess: (editedAddresses) => {
+      if (onSuccessFn && editedAddresses) onSuccessFn(editedAddresses);
       router.refresh();
     },
     onError: (error: { message: string[] }) => {
@@ -213,7 +214,7 @@ export default function NewAddressForm({
 
   useEffect(() => {
     if (isPending) isPending(submitFn.isPending);
-  }, [isPending, submitFn.isPending]);
+  }, [isPending, submitFn, submitFn.isPending]);
 
   const submitFunction = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -407,7 +408,11 @@ export default function NewAddressForm({
         />
       )}
       <div className="flex w-full gap-2">
-        <SubmitButton className="w-full">
+        <SubmitButton
+          type="submit"
+          isPending={submitFn.isPending}
+          className="w-full"
+        >
           {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
         </SubmitButton>
         {onCancel && (
