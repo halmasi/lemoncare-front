@@ -18,11 +18,13 @@ export default function NewAddressForm({
   onSuccessFn,
   editModeAddress,
   onCancel,
+  isPending,
 }: {
   existingAddresses?: AddressProps[];
-  onSuccessFn?: (data: object) => void;
+  onSuccessFn?: (data: AddressProps[]) => void;
   editModeAddress?: AddressProps;
   onCancel?: () => void;
+  isPending?: (bool: boolean) => void;
 }) {
   type ErrorState = {
     province?: string[];
@@ -58,39 +60,6 @@ export default function NewAddressForm({
   const router = useRouter();
   const { user } = useDataStore();
   const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
-  useEffect(() => {
-    if (editModeAddress) {
-      setProvince(editModeAddress.province);
-      setCity(editModeAddress.city);
-      setCityId(editModeAddress.cityCode!);
-      setProvinceId(editModeAddress.provinceCode!);
-
-      if (provinceRef.current)
-        provinceRef.current.value = editModeAddress.province;
-      if (cityRef.current) cityRef.current.value = editModeAddress.city;
-      if (addressReff.current)
-        addressReff.current.value = editModeAddress.address;
-      if (postCodeRef.current)
-        postCodeRef.current.value = editModeAddress.postCode.toString();
-      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
-      if (lastNameRef.current)
-        lastNameRef.current.value = editModeAddress.lastName;
-      if (phoneRef.current)
-        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
-      if (mobileRef.current)
-        mobileRef.current.value = editModeAddress.mobileNumber.toString();
-      setDefaultAddress(editModeAddress.isDefault);
-    }
-  }, [editModeAddress]);
-  useEffect(() => {
-    const state = states.find((item) => item.name == province);
-    const statesCity = state?.cities.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }));
-    setCities([]);
-    if (statesCity) setCities(statesCity);
-  }, [province]);
 
   const submitFn = useMutation({
     mutationFn: async ({
@@ -124,6 +93,8 @@ export default function NewAddressForm({
         lastName,
       });
       setErrors({});
+      if (onCancel) onCancel();
+      if (isPending) isPending(true);
       if (!isValid.success) {
         const errorMessages = isValid.error.flatten().fieldErrors;
         setErrors({
@@ -162,12 +133,7 @@ export default function NewAddressForm({
         cityCode: cityId,
         provinceCode: provinceId,
       });
-      if (editModeAddress) {
-        const address = addressesArray.find((item) => item == editModeAddress);
-        if (address) {
-          addressesArray.splice(addressesArray.indexOf(address), 1);
-        }
-      }
+
       let editedAddresses = [...addressesArray];
       if (existingAddresses) {
         editedAddresses.push(...existingAddresses);
@@ -181,18 +147,25 @@ export default function NewAddressForm({
           editedAddresses = [...addresses];
         }
       }
+      if (editModeAddress) {
+        const address = editedAddresses.find((item) => {
+          const check = item.id == editModeAddress.id;
+          return check;
+        });
+        if (address) {
+          editedAddresses.splice(editedAddresses.indexOf(address), 1);
+        }
+      }
       if (user && user.postal_information) {
-        const postalInfo = await updatePostalInformation(
+        await updatePostalInformation(
           editedAddresses,
           user.postal_information.documentId
         );
-        return postalInfo;
-      } else {
-        return checkoutAddress;
+        return editedAddresses;
       }
     },
-    onSuccess: () => {
-      if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
+    onSuccess: (editedAddresses) => {
+      if (onSuccessFn && editedAddresses) onSuccessFn(editedAddresses);
       router.refresh();
     },
     onError: (error: { message: string[] }) => {
@@ -203,6 +176,45 @@ export default function NewAddressForm({
       });
     },
   });
+
+  useEffect(() => {
+    if (editModeAddress) {
+      setProvince(editModeAddress.province);
+      setCity(editModeAddress.city);
+      setCityId(editModeAddress.cityCode!);
+      setProvinceId(editModeAddress.provinceCode!);
+
+      if (provinceRef.current)
+        provinceRef.current.value = editModeAddress.province;
+      if (cityRef.current) cityRef.current.value = editModeAddress.city;
+      if (addressReff.current)
+        addressReff.current.value = editModeAddress.address;
+      if (postCodeRef.current)
+        postCodeRef.current.value = editModeAddress.postCode.toString();
+      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
+      if (lastNameRef.current)
+        lastNameRef.current.value = editModeAddress.lastName;
+      if (phoneRef.current)
+        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
+      if (mobileRef.current)
+        mobileRef.current.value = editModeAddress.mobileNumber.toString();
+      setDefaultAddress(editModeAddress.isDefault);
+    }
+  }, [editModeAddress]);
+
+  useEffect(() => {
+    const state = states.find((item) => item.name == province);
+    const statesCity = state?.cities.map((item) => ({
+      id: item.id,
+      name: item.name,
+    }));
+    setCities([]);
+    if (statesCity) setCities(statesCity);
+  }, [province]);
+
+  useEffect(() => {
+    if (isPending) isPending(submitFn.isPending);
+  }, [isPending, submitFn, submitFn.isPending]);
 
   const submitFunction = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -219,7 +231,7 @@ export default function NewAddressForm({
         mobile: data.get('mobile')?.toString() || '',
         isDefault: defaultAddress,
       };
-      submitFn.mutate(formValues);
+      submitFn.mutateAsync(formValues);
     },
     [submitFn, defaultAddress]
   );
@@ -396,7 +408,11 @@ export default function NewAddressForm({
         />
       )}
       <div className="flex w-full gap-2">
-        <SubmitButton className="w-full">
+        <SubmitButton
+          type="submit"
+          isPending={submitFn.isPending}
+          className="w-full"
+        >
           {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
         </SubmitButton>
         {onCancel && (
