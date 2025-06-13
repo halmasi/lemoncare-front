@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { getPostalInformation } from '@/app/utils/data/getUserInfo';
+import {
+  getPostalInformation,
+  updatePostalInformation,
+} from '@/app/utils/data/getUserInfo';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
@@ -11,12 +14,15 @@ import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
 import RadioButton from '../formElements/RadioButton';
 import LoadingAnimation from '../LoadingAnimation';
+import { MdCancel, MdDeleteOutline } from 'react-icons/md';
+import Modal from '../Modal';
+import { toast } from 'react-toastify';
 
 export default function Addresses() {
   const router = useRouter();
 
   const [showTextBox, setShowTextBox] = useState<boolean>(false);
-
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [addresses, setAddresses] = useState<AddressProps[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number>(0);
   const [editAddress, setEditAddress] = useState<AddressProps | null>(null);
@@ -37,6 +43,42 @@ export default function Addresses() {
     },
     onSuccess: (data) => {
       setAddresses(data.information);
+    },
+  });
+
+  const deleteAddressFn = useMutation({
+    mutationFn: async ({ address }: { address: number }) => {
+      const newAddresses = addresses;
+      const found = newAddresses.find((item) => item.id == address);
+      if (found) {
+        const index = newAddresses.findIndex((item) => item == found);
+        if (index >= 0) {
+          newAddresses.splice(index, 1);
+          return newAddresses;
+        }
+      }
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      updateAddressesFn.mutateAsync({ data });
+    },
+  });
+
+  const updateAddressesFn = useMutation({
+    mutationFn: async ({ data }: { data: AddressProps[] }) => {
+      if (!user) return;
+      const res = await updatePostalInformation(
+        data,
+        user.postal_information.documentId
+      );
+      return res;
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      router.refresh();
+    },
+    onError: () => {
+      toast.error('خطا در بروزرسانی آدرس ها');
     },
   });
 
@@ -130,7 +172,11 @@ export default function Addresses() {
     }
   }, [user]);
 
-  if (getAddressFn.isPending)
+  if (
+    getAddressFn.isPending ||
+    updateAddressesFn.isPending ||
+    deleteAddressFn.isPending
+  )
     return (
       <div>
         <LoadingAnimation />
@@ -167,18 +213,36 @@ export default function Addresses() {
                       </RadioButton>
                     </div>
                     {(!editAddress || editAddress != item) && (
-                      <button
-                        onClick={() => {
-                          setEditAddress(item);
-                        }}
-                        className="ml-2 text-sm text-accent-pink hover:text-accent-pink/50"
-                      >
-                        <BiEdit className="text-lg" />
-                      </button>
+                      <div className="flex">
+                        <button
+                          onClick={() => {
+                            setEditAddress(item);
+                          }}
+                          className="ml-2 text-sm text-accent-pink hover:text-accent-pink/50"
+                        >
+                          <BiEdit className="text-lg" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedAddress(0);
+                            setSelectedAddress(parseInt(item.id.toString()));
+                            setShowDeleteModal(true);
+                          }}
+                          className="ml-2 text-sm text-accent-pink hover:text-accent-pink/50"
+                        >
+                          <MdDeleteOutline className="text-lg" />
+                        </button>
+                      </div>
                     )}
                   </div>
                   {editAddress == item && (
                     <NewAddressForm
+                      isDone={(bool) => {
+                        if (bool) {
+                          router.refresh();
+                          setShowTextBox(false);
+                        }
+                      }}
                       onSuccessFn={() => {
                         router.refresh();
                       }}
@@ -188,20 +252,84 @@ export default function Addresses() {
                     />
                   )}
                 </div>
-                {showTextBox && (
-                  <NewAddressForm
-                    onSuccessFn={() => {
-                      router.refresh();
-                    }}
-                    existingAddresses={addresses}
-                    onCancel={() => setEditAddress(null)}
-                  />
-                )}
               </div>
             );
           })}
+          {showTextBox && (
+            <NewAddressForm
+              isPending={(bool) => {
+                if (bool) setShowTextBox(false);
+              }}
+              isDone={(bool) => {
+                if (bool) {
+                  router.refresh();
+                  setShowTextBox(false);
+                }
+              }}
+              onSuccessFn={() => {
+                router.refresh();
+              }}
+              existingAddresses={addresses}
+              onCancel={() => {
+                setEditAddress(null);
+                setShowTextBox(false);
+              }}
+            />
+          )}
         </div>
       )}
+      <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+        {(() => {
+          const selected = addresses.find((item) => item.id == selectedAddress);
+          return (
+            <div>
+              <div>
+                آیا از پاک کردن آدرس زیر اطمینان دارید؟
+                <div>
+                  <p>
+                    <span>استان: </span>
+                    {selected?.province}
+                  </p>
+                  <p>
+                    <span>شهر: </span>
+                    {selected?.city}
+                  </p>
+                  <p>
+                    <span>آدرس: </span>
+                    {selected?.address}
+                  </p>
+                  <p>
+                    <span>کدپستی: </span>
+                    {selected?.postCode}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 p-1">
+                <SubmitButton
+                  type="button"
+                  className="bg-accent-yellow hover:bg-accent-yellow/50 text-foreground hover:text-foreground/80"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  لغو
+                  <MdCancel />
+                </SubmitButton>
+                <SubmitButton
+                  type="button"
+                  className="bg-accent-pink hover:bg-accent-pink/50 "
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    deleteAddressFn.mutateAsync({ address: selectedAddress });
+                  }}
+                >
+                  پاک کردن
+                  <MdDeleteOutline className="text-lg" />
+                </SubmitButton>
+              </div>
+            </div>
+          );
+        })()}
+      </Modal>
+
       <SubmitButton
         onClick={() => {
           setShowTextBox(true);

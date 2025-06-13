@@ -18,11 +18,15 @@ export default function NewAddressForm({
   onSuccessFn,
   editModeAddress,
   onCancel,
+  isPending,
+  isDone,
 }: {
   existingAddresses?: AddressProps[];
   onSuccessFn?: (data: object) => void;
   editModeAddress?: AddressProps;
   onCancel?: () => void;
+  isPending?: (bool: boolean) => void;
+  isDone?: (bool: boolean) => void;
 }) {
   type ErrorState = {
     province?: string[];
@@ -58,39 +62,6 @@ export default function NewAddressForm({
   const router = useRouter();
   const { user } = useDataStore();
   const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
-  useEffect(() => {
-    if (editModeAddress) {
-      setProvince(editModeAddress.province);
-      setCity(editModeAddress.city);
-      setCityId(editModeAddress.cityCode!);
-      setProvinceId(editModeAddress.provinceCode!);
-
-      if (provinceRef.current)
-        provinceRef.current.value = editModeAddress.province;
-      if (cityRef.current) cityRef.current.value = editModeAddress.city;
-      if (addressReff.current)
-        addressReff.current.value = editModeAddress.address;
-      if (postCodeRef.current)
-        postCodeRef.current.value = editModeAddress.postCode.toString();
-      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
-      if (lastNameRef.current)
-        lastNameRef.current.value = editModeAddress.lastName;
-      if (phoneRef.current)
-        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
-      if (mobileRef.current)
-        mobileRef.current.value = editModeAddress.mobileNumber.toString();
-      setDefaultAddress(editModeAddress.isDefault);
-    }
-  }, [editModeAddress]);
-  useEffect(() => {
-    const state = states.find((item) => item.name == province);
-    const statesCity = state?.cities.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }));
-    setCities([]);
-    if (statesCity) setCities(statesCity);
-  }, [province]);
 
   const submitFn = useMutation({
     mutationFn: async ({
@@ -193,6 +164,7 @@ export default function NewAddressForm({
     },
     onSuccess: () => {
       if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
+      if (isDone) isDone(true);
       router.refresh();
     },
     onError: (error: { message: string[] }) => {
@@ -203,6 +175,45 @@ export default function NewAddressForm({
       });
     },
   });
+
+  useEffect(() => {
+    if (editModeAddress) {
+      setProvince(editModeAddress.province);
+      setCity(editModeAddress.city);
+      setCityId(editModeAddress.cityCode!);
+      setProvinceId(editModeAddress.provinceCode!);
+
+      if (provinceRef.current)
+        provinceRef.current.value = editModeAddress.province;
+      if (cityRef.current) cityRef.current.value = editModeAddress.city;
+      if (addressReff.current)
+        addressReff.current.value = editModeAddress.address;
+      if (postCodeRef.current)
+        postCodeRef.current.value = editModeAddress.postCode.toString();
+      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
+      if (lastNameRef.current)
+        lastNameRef.current.value = editModeAddress.lastName;
+      if (phoneRef.current)
+        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
+      if (mobileRef.current)
+        mobileRef.current.value = editModeAddress.mobileNumber.toString();
+      setDefaultAddress(editModeAddress.isDefault);
+    }
+  }, [editModeAddress]);
+
+  useEffect(() => {
+    const state = states.find((item) => item.name == province);
+    const statesCity = state?.cities.map((item) => ({
+      id: item.id,
+      name: item.name,
+    }));
+    setCities([]);
+    if (statesCity) setCities(statesCity);
+  }, [province]);
+
+  useEffect(() => {
+    if (isPending) isPending(submitFn.isPending);
+  }, [isPending, submitFn.isPending]);
 
   const submitFunction = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -219,7 +230,7 @@ export default function NewAddressForm({
         mobile: data.get('mobile')?.toString() || '',
         isDefault: defaultAddress,
       };
-      submitFn.mutate(formValues);
+      submitFn.mutateAsync(formValues);
     },
     [submitFn, defaultAddress]
   );
