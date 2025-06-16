@@ -72,7 +72,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
         return res;
       }
     },
-    onSuccess: async (data: OrderHistoryProps) => {
+    onSuccess: async (data) => {
       if (!data) return;
       setOrderData(data);
       const items = data.order.items.map((item) => {
@@ -80,6 +80,8 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
           count: item.count,
           variety: item.variety,
           product: item.product.documentId,
+          mainPrice: item.mainPrice,
+          beforePrice: item.beforePrice,
         };
       });
       await Promise.all(
@@ -88,7 +90,6 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
             item.product,
             cartProducts
           );
-
           setCartProducts(productsList);
 
           const product = await cartProductSelector(item.product, cartProducts);
@@ -116,7 +117,11 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
         data.order.paymentStatus == 'pending' &&
         Math.floor(Math.abs(orderDate - Date.now()) / (1000 * 60 * 60 * 24)) > 0
       ) {
-        const order = deleteKeysFromObject(data.order, ['id', 'documentId']);
+        const order = deleteKeysFromObject(data.order, [
+          'id',
+          'documentId',
+          'items',
+        ]);
         await updateOrderHistory(data.documentId, {
           order: {
             ...order,

@@ -141,7 +141,8 @@ export const getSingleOrderHistory = async (orderCode: number) => {
     check.jwt
   );
   if (res.data.data[0].user.username == check.body.username) {
-    return res.data.data[0];
+    const finalRes: OrderHistoryProps = res.data.data[0];
+    return finalRes;
   }
   return null;
 };
