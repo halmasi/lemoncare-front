@@ -102,7 +102,7 @@ export default function AddToFavorites({
         <VscLoading className="text-accent-pink animate-spin" />
       ) : product ? (
         <button {...commonProps}>
-          {isFavorite ? (
+          {!isFavorite ? (
             <BsHeartFill className="text-accent-pink/80 hover:text-accent-pink transition-colors duration-200" />
           ) : (
             <BsHeart className="hover:text-red-600 transition-colors duration-200" />
@@ -110,7 +110,7 @@ export default function AddToFavorites({
         </button>
       ) : (
         <button {...commonProps}>
-          {isFavorite ? (
+          {!isFavorite ? (
             <BsBookmarkFill className="text-accent-pink/80 hover:text-accent-pink transition-colors duration-200" />
           ) : (
             <BsBookmark className="hover:text-red-600 transition-colors duration-200" />
