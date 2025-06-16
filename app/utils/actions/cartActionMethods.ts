@@ -117,28 +117,13 @@ export const addToCart = async (
     product: newItem.id,
     variety: newItem.variety,
   });
-  newCart.map((item) => {
-    let found = -1;
-    newCart.forEach((check) => {
-      if (check.product == item.product && check.variety == item.variety) {
-        found++;
-      }
-    });
-    if (found) {
-      newCart.splice(newCart.indexOf(item), 1);
-    }
-  });
   const check = await loginCheck();
   const response = await requestData(
     `/carts/${id}`,
     'PUT',
     {
       data: {
-        items: newCart.map((item) => ({
-          count: item.count,
-          product: item.product,
-          variety: item.variety,
-        })),
+        items: newCart,
       },
     },
     check.jwt

@@ -231,9 +231,9 @@ export default function VarietySelector({
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
       if (!cart) newCart = [{ ...newItem, product, id }];
       else {
-        if (jwt && user) {
+        if (user) {
           newCart = [...cart, { ...newItem, product, id }];
-          addToCartFn.mutate(newItem);
+          addToCartFn.mutateAsync(newItem);
         } else {
           const found = cart.find((item) => {
             return (
@@ -293,9 +293,9 @@ export default function VarietySelector({
               key={selected.uniqueSub || selected.uniqueId}
               handleAddToCart={addToCartHandler.mutateAsync}
               isPending={
-                addToCartFn.isPending ||
-                addToCartHandler.isPending ||
-                getCartFn.isPending
+                addToCartFn.isPending || addToCartHandler.isPending
+                // ||
+                // getCartFn.isPending
               }
               price={price}
               product={product}
@@ -413,8 +413,9 @@ export default function VarietySelector({
         isPending={
           addToCartFn.isPending ||
           price.inventory < 1 ||
-          addToCartHandler.isPending ||
-          getCartFn.isPending
+          addToCartHandler.isPending
+          // ||
+          // getCartFn.isPending
         }
         price={price}
         product={product}
