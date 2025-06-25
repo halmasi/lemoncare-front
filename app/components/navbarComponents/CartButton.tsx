@@ -8,10 +8,13 @@ import { usePathname } from 'next/navigation';
 import SubmitButton from '../formElements/SubmitButton';
 import Link from 'next/link';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useDataStore } from '@/app/utils/states/useUserdata';
+import LoadingAnimation from '../LoadingAnimation';
 
 export default function CartButton() {
   const path = usePathname();
   const { cart } = useCartStore();
+  const { loginProcces } = useDataStore();
 
   const [showItems, setShowItems] = useState(false);
   const [price, setPrice] = useState({ before: 0, main: 0 });
@@ -66,39 +69,48 @@ export default function CartButton() {
                   }}
                   className="absolute left-0 top-full min-w-[30rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
                 >
-                  <div className="w-full min-h-[16rem] max-h-[50svh] overflow-y-scroll">
-                    <div className="p-5 ">
-                      <Cart
-                        key={count}
-                        priceAmount={(main, before) => {
-                          setPrice({
-                            before,
-                            main,
-                          });
-                        }}
-                      />
+                  {loginProcces ? (
+                    <div>
+                      <LoadingAnimation />
                     </div>
-                    {price.main >= 1 && (
-                      <div className="-bottom-1 z-20 sticky h-20 justify-center">
-                        <div className="w-full h-full bg-background flex items-center justify-between p-5">
-                          <div className="w-full md:w-fit mb-3">
-                            <SubmitButton link="/cart">ثبت سفارش</SubmitButton>
-                          </div>
-                          <div className="flex gap-2 items-center">
-                            <h6>مبلغ کل:</h6>
-                            {price.before != 0 && (
-                              <p className="line-through text-gray-500/50">
-                                {(price.before / 10).toLocaleString('fa-IR')}
+                  ) : (
+                    <div className="w-full min-h-[16rem] max-h-[50svh] overflow-y-scroll">
+                      <div className="p-5 ">
+                        <Cart
+                          key={count}
+                          priceAmount={(main, before) => {
+                            setPrice({
+                              before,
+                              main,
+                            });
+                          }}
+                        />
+                      </div>
+                      {price.main >= 1 && (
+                        <div className="-bottom-1 z-20 sticky h-20 justify-center">
+                          <div className="w-full h-full bg-background flex items-center justify-between p-5">
+                            <div className="w-full md:w-fit mb-3">
+                              <SubmitButton link="/cart">
+                                ثبت سفارش
+                              </SubmitButton>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <h6>مبلغ کل:</h6>
+                              {price.before != 0 && (
+                                <p className="line-through text-gray-500/50">
+                                  {(price.before / 10).toLocaleString('fa-IR')}
+                                </p>
+                              )}
+                              <p className="text-accent-green text-lg">
+                                {(price.main / 10).toLocaleString('fa-IR')}{' '}
+                                تومان
                               </p>
-                            )}
-                            <p className="text-accent-green text-lg">
-                              {(price.main / 10).toLocaleString('fa-IR')} تومان
-                            </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               }
             </AnimatePresence>

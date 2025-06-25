@@ -18,7 +18,10 @@ export interface PostsProps {
     mainImage: ImageProps;
     contentCode: number;
   };
-  view: number | null;
+  post_view: {
+    view: number | null;
+    post: { documentId: string };
+  };
   gravatar?: GravatarProps;
   categoryUrl?: string;
   author: AuthorProps;

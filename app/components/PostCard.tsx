@@ -1,36 +1,60 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { IoMdArrowDropleft } from 'react-icons/io';
-import { GravatarProps } from '../utils/schema/otherProps';
-import { CategoriesProps } from '../utils/schema/blogProps/tagsAndCategoryProps';
-import { ImageProps } from '../utils/schema/mediaProps';
+import { CategoriesProps } from '@/app/utils/schema/blogProps';
+import { ImageProps } from '@/app/utils/schema/mediaProps';
+import Gravatar from './profile/Gravatar';
+import { useMutation } from '@tanstack/react-query';
+import { getCategoriesUrl } from '../utils/data/getCategories';
 
 export default function PostCard({
   category,
   categoryUrl,
   basicInfo,
   seo,
-  gravatar,
   authorName,
   authorSlug,
+  authorEmail,
   isSlide,
 }: {
   category: CategoriesProps;
   basicInfo: { title: string; mainImage: ImageProps; contentCode: number };
   seo: { seoDescription: string };
-  gravatar?: GravatarProps;
   categoryUrl?: string;
   authorName?: string;
   authorSlug?: string;
+  authorEmail?: string;
   isSlide?: boolean;
 }) {
+  const [categoryFetchUrl, setCategoryFetchUrl] = useState<string>();
+  const getCategoryFn = useMutation({
+    mutationFn: async (categoryId: number) => {
+      const url = await getCategoriesUrl(category, ['category']);
+      return url;
+    },
+    onSuccess: (data) => {
+      setCategoryFetchUrl(data);
+    },
+  });
+
+  useEffect(() => {
+    if (categoryUrl) {
+      setCategoryFetchUrl(categoryUrl);
+    } else {
+      getCategoryFn.mutateAsync(category.id);
+    }
+  }, [categoryUrl, category]);
+
   return (
     <article>
-      {categoryUrl && (
+      {categoryFetchUrl && (
         <div className="flex items-center text-gray-600 text-sm">
           <p>دسته بندی</p> <IoMdArrowDropleft />
-          <Link href={'/blog/category/' + categoryUrl}>{category.title}</Link>
+          <Link href={'/blog/category/' + categoryFetchUrl}>
+            {category.title}
+          </Link>
         </div>
       )}
       <div className="flex flex-col bg-white shadow-lg rounded-lg">
@@ -67,18 +91,12 @@ export default function PostCard({
         {!isSlide && (
           <div className="p-2">
             <p>{seo.seoDescription}</p>
-            {gravatar && authorName && authorSlug && (
+            {authorName && authorSlug && (
               <Link
-                className="flex items-center text-gray-600"
+                className="flex items-center text-gray-600 gap-1"
                 href={`/blog/author/${authorSlug}`}
               >
-                <Image
-                  src={gravatar.avatar_url}
-                  alt=""
-                  width={100}
-                  height={100}
-                  className="w-10 aspect-square rounded-full ml-3"
-                />
+                <Gravatar emailAddress={authorEmail} />
                 <p>{authorName}</p>
               </Link>
             )}

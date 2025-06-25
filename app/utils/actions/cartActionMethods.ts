@@ -1,5 +1,5 @@
 import { requestData } from '../data/dataFetch';
-import { CartProps } from '../schema/shopProps/cartProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { loginCheck } from './actionMethods';
 import qs from 'qs';
 
@@ -70,6 +70,22 @@ export const updateCart = async (cart: CartProps[], id: string) => {
           product: item.product.documentId,
           variety: item.variety,
         })),
+      },
+    },
+    check.jwt
+  );
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const emptyCart = async (id: string) => {
+  const check = await loginCheck();
+  const response = await requestData(
+    `/carts/${id}`,
+    'PUT',
+    {
+      data: {
+        items: [],
       },
     },
     check.jwt

@@ -4,7 +4,7 @@ import {
   FooteritemsProps,
   MenuProps,
   SocialLinksProps,
-} from '../schema/menuProps';
+} from '@/app/utils/schema/menuProps';
 
 export const getMenuItems = cache(async function () {
   const parsedData = await dataFetch(

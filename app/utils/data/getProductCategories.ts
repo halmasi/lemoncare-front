@@ -4,7 +4,7 @@ import qs from 'qs';
 import {
   ShopCategoryProps,
   ShopSubCategoiesProps,
-} from '../schema/shopProps/categoryProps';
+} from '@/app/utils/schema/shopProps';
 
 export const getShopCategory = cache(async function (
   slug: string,

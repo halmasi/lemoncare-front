@@ -3,60 +3,103 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { updateUserInformation } from '@/app/utils/data/getUserInfo';
+import { logs } from '@/app/utils/miniFunctions';
+import { cleanPhone } from '@/app/utils/miniFunctions';
+import { updateUserInformationSchema } from '@/app/utils/schema/formValidation';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 export default function Information() {
   const { user, jwt } = useDataStore();
   const queryClient = useQueryClient();
+
   const router = useRouter();
 
-  const mutation = useMutation({
-    mutationFn: async ({ input }: { input: string }) => {
-      const response = '';
-      if (!response) {
-        console.log('not response');
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      if (user.fullName) {
+        fullNameRef.current!.value = user.fullName;
       }
-      return response;
+      if (user.username?.length) {
+        usernameRef.current!.value = user.username.slice(2);
+      }
+      if (user.email) {
+        emailRef.current!.value = user.email;
+      }
+    }
+  }, [user]);
+
+  const editUserInformaion = useMutation({
+    mutationFn: async (inputUserData: {
+      fullName?: string;
+      username?: string;
+      email?: string;
+    }) => {
+      if (user && user.id && jwt) {
+        const response = await updateUserInformation(
+          user.id,
+          jwt,
+          inputUserData
+        );
+        if (!response) {
+          throw new Error('پاسخی از سرور دریافت نشد');
+        }
+        return response;
+      } else {
+        logs.error('error document id ');
+        return;
+      }
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async () => {
       //   const userData = await getFullUserData(data.jwt);
-      queryClient.setQueryData(['user'], user?.data);
+      //queryClient.invalidateQueries(['user']);
+      if (user) queryClient.setQueryData(['user'], user.data);
       router.push('/dashboard/information');
     },
-    onError: (error: any) => {
-      console.log('onError');
+    onError: (error: string) => {
+      logs.error('onError: ' + error);
     },
   });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const input = '';
-    mutation.mutate({ input });
+    const formData = new FormData(event.currentTarget);
+    const inputUserData = {
+      fullName: formData.get('fullName')?.toString() || '',
+      username: cleanPhone(formData.get('username')?.toString() || ''),
+      email: formData.get('email')?.toString() || '',
+    };
+    const validation = updateUserInformationSchema.safeParse(inputUserData);
+    if (!validation.success) {
+      console.error(validation.error.format());
+      return;
+    }
+    editUserInformaion.mutate(inputUserData);
   };
   return (
     <>
-      <div className="flex ">information page</div>;
       <form className="flex flex-col w-5/12" onSubmit={handleSubmit}>
         <PhoneInputBox
           name="username"
           placeholder="شماره تلفن"
-          value={user?.username?.slice(2)}
+          ref={usernameRef}
         >
           شماره تلفن
         </PhoneInputBox>
-        <InputBox
-          name="fullName"
-          placeholder="نام و نام خانوادگی"
-          value={user?.fullName}
-        >
-          نام و نام خانوادگی
+        <InputBox name="fullName" placeholder="نام کامل" ref={fullNameRef}>
+          نام کامل
         </InputBox>
-        <InputBox name="email" placeholder="آدرس ایمیل" value={user?.email}>
+        <InputBox name="email" placeholder="آدرس ایمیل" ref={emailRef}>
           آدرس ایمیل
         </InputBox>
-        <SubmitButton disabled={mutation.isPending}>
-          {mutation.isPending ? 'در حال ذخیره...' : 'ثبت'}
+        <SubmitButton disabled={editUserInformaion.isPending}>
+          {editUserInformaion.isPending ? 'در حال ذخیره...' : 'ثبت'}
         </SubmitButton>
       </form>
     </>

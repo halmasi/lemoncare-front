@@ -244,6 +244,14 @@ export async function POST(request: NextRequest) {
       })();
       break;
 
+    case 'order-history':
+      (async () => {})();
+      break;
+
+    case 'postal-information':
+      (async () => {})();
+      break;
+
     default:
       (async function () {
         console.log(body);

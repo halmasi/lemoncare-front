@@ -4,16 +4,17 @@ import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct } from '@/app/utils/data/getProducts';
-import { ProductProps } from '@/app/utils/schema/shopProps/productProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
 
-export default async function product({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function product(
+  props0: {
+    params: Promise<{ slug: string }>;
+  }
+) {
+  const params = await props0.params;
   const { slug } = params;
   const productArray: ProductProps[] = await getProduct(slug);
   if (!productArray || !productArray.length) return notFound();
