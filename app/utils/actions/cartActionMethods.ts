@@ -22,12 +22,11 @@ export const getCart = async (documentId: string) => {
     },
   });
 
-  const response = await requestData(
-    `/carts/${documentId}?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/carts/${documentId}?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -40,10 +39,10 @@ export const updateCartOnLogin = async (
   id: string
 ) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: newCart.map((item) => ({
           count: item.count,
@@ -52,18 +51,18 @@ export const updateCartOnLogin = async (
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data: UpdateCartResultProps = response.data;
   return data;
 };
 
 export const updateCart = async (cart: CartProps[], id: string) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: cart.map((item) => ({
           count: item.count,
@@ -72,24 +71,24 @@ export const updateCart = async (cart: CartProps[], id: string) => {
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data: UpdateCartResultProps = response.data;
   return data;
 };
 
 export const emptyCart = async (id: string) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: [],
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data: UpdateCartResultProps = response.data;
   return data;
 };
@@ -129,10 +128,10 @@ export const addToCart = async (
     }
   });
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: newCart.map((item) => ({
           count: item.count,
@@ -141,8 +140,8 @@ export const addToCart = async (
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
 
   const data = response.data;
   return data;

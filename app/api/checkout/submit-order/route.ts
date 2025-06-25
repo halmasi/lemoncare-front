@@ -18,12 +18,12 @@ export async function POST(req: Request) {
       populate: '*',
     });
 
-    const result = await requestData(
-      `/order-histories?${query}`,
-      'POST',
-      request,
-      requestBody.jwt
-    );
+    const result = await requestData({
+      qs: `/order-histories?${query}`,
+      method: 'POST',
+      body: request,
+      token: requestBody.jwt,
+    });
 
     return Response.json({ data: result.data.data.order }, { status: 200 });
   } catch (error) {

@@ -22,7 +22,12 @@ export const getPosts = cache(async function (count?: number, tag?: string[]) {
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: PostsProps[] = await dataFetch(link, 'GET', tag);
+  const result: PostsProps[] = await dataFetch({
+    qs: link,
+    method: 'GET',
+    tag,
+    cache: 'force-cache',
+  });
 
   return result;
 });
@@ -43,7 +48,10 @@ export const getPost = cache(async function (slug: string | number) {
       sources: { populate: '*' },
     },
   });
-  const result: PostsProps[] = await dataFetch(`/posts?${query}`);
+  const result: PostsProps[] = await dataFetch({
+    qs: `/posts?${query}`,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -106,11 +114,11 @@ export const getPostsByCategory = cache(async function (
       category: { populate: '*' },
     },
   });
-  const result: PostsProps[] = await dataFetch(
-    `/posts?${query}&sort[0]=createdAt:desc`,
-    'GET',
-    tag
-  );
+  const result: PostsProps[] = await dataFetch({
+    qs: `/posts?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -131,11 +139,11 @@ export const getPostsByTag = cache(async function (
       category: { populate: '*' },
     },
   });
-  const result: PostsProps[] = await dataFetch(
-    `/posts?${query}&sort[0]=createdAt:desc`,
-    'GET',
-    tag
-  );
+  const result: PostsProps[] = await dataFetch({
+    qs: `/posts?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -156,11 +164,11 @@ export const getPostsByAuthor = cache(async function (
       category: { populate: '*' },
     },
   });
-  const result: PostsProps[] = await dataFetch(
-    `/posts?${query}&sort[0]=createdAt:desc`,
-    'GET',
-    tag
-  );
+  const result: PostsProps[] = await dataFetch({
+    qs: `/posts?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -168,6 +176,10 @@ export const getAuthorInformation = cache(async function (
   id: string,
   tag?: string[]
 ) {
-  const result: AuthorProps = await dataFetch(`/authors/${id}`, 'GET', tag);
+  const result: AuthorProps = await dataFetch({
+    qs: `/authors/${id}`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });

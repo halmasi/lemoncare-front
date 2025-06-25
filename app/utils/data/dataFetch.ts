@@ -1,10 +1,16 @@
 'use server';
 
-export async function dataFetch(
-  qs: string,
-  method: string = 'GET',
-  tag?: string[]
-) {
+export async function dataFetch({
+  qs,
+  method = 'GET',
+  tag,
+  cache = 'no-store',
+}: {
+  qs: string;
+  method?: string;
+  tag?: string[];
+  cache?: 'no-store' | 'force-cache';
+}) {
   const options = {
     method,
     headers: {
@@ -12,6 +18,7 @@ export async function dataFetch(
       Accept: 'application/json',
       Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
     },
+    cache,
   };
   if (tag) Object.assign(options, { next: { tags: tag } });
 
@@ -24,13 +31,21 @@ export async function dataFetch(
   }
 }
 
-export async function requestData(
-  qs: string,
-  method: string,
-  body: object,
-  token?: string,
-  tag?: string[]
-) {
+export async function requestData({
+  qs,
+  method,
+  body = {},
+  token,
+  tag,
+  cache = 'no-store',
+}: {
+  qs: string;
+  method: string;
+  body?: object;
+  token?: string;
+  tag?: string[];
+  cache?: 'no-store' | 'force-cache';
+}) {
   const options = {
     method: method,
     headers: {
@@ -38,6 +53,7 @@ export async function requestData(
       Accept: 'application/json',
       Authorization: token || `Bearer ${process.env.STRAPI_TOKEN}`,
     },
+    cache,
   };
   if (Object.keys(body).length)
     Object.assign(options, { body: JSON.stringify(body) });

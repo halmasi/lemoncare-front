@@ -7,11 +7,11 @@ import {
 } from '@/app/utils/schema/menuProps';
 
 export const getMenuItems = cache(async function () {
-  const parsedData = await dataFetch(
-    '/main-menu?populate[items][populate]=*',
-    'GET',
-    ['main-menu']
-  );
+  const parsedData = await dataFetch({
+    qs: '/main-menu?populate[items][populate]=*',
+    tag: ['main-menu'],
+    cache: 'force-cache',
+  });
   const menuItems: MenuProps[] = parsedData.items;
   return menuItems;
 });
@@ -19,9 +19,11 @@ export const getMenuItems = cache(async function () {
 export const getFooterItems = cache(async function (): Promise<
   FooteritemsProps[]
 > {
-  const parsedData = await dataFetch('/footer-menu?populate=*', 'GET', [
-    'footer-menu',
-  ]);
+  const parsedData = await dataFetch({
+    qs: '/footer-menu?populate=*',
+    tag: ['footer-menu'],
+    cache: 'force-cache',
+  });
   const footerItems: FooteritemsProps[] = parsedData.item;
   return footerItems;
 });
@@ -29,9 +31,11 @@ export const getFooterItems = cache(async function (): Promise<
 export const getSocialLinksItems = cache(async function (): Promise<
   SocialLinksProps[]
 > {
-  const parsedData = await dataFetch('/social-link-menu?populate=*', 'GET', [
-    'social-links',
-  ]);
+  const parsedData = await dataFetch({
+    qs: '/social-link-menu?populate=*',
+    tag: ['social-links'],
+    cache: 'force-cache',
+  });
   const socialLinksItems: SocialLinksProps[] = parsedData.item;
   return socialLinksItems;
 });
@@ -40,9 +44,11 @@ export const getShopMenuItems = cache(async function () {
   // const parsedData = await dataFetch('/shop-menu?populate[items][populate]=*', [
   //   'shop-menu',
   // ]);
-  const parsedData = await dataFetch('/shop-menu?populate=*', 'GET', [
-    'shop-menu',
-  ]);
+  const parsedData = await dataFetch({
+    qs: '/shop-menu?populate=*',
+    tag: ['shop-menu'],
+    cache: 'force-cache',
+  });
   const menuItems: MenuProps[] = parsedData.menuItems;
   return menuItems;
 });

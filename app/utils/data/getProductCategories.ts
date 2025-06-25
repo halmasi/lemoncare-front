@@ -17,7 +17,11 @@ export const getShopCategory = cache(async function (
       shopSubCategories: { populate: '*' },
     },
   });
-  const result = await dataFetch(`/shop-categories?${query}`, 'GET', tag);
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -35,11 +39,11 @@ export const getShopCategoriesUrl = cache(async function (
       shopParentCategory: { populate: '*' },
     },
   });
-  const data: ShopCategoryProps[] = await dataFetch(
-    `/shop-categories?${query}`,
-    'GET',
-    tag
-  );
+  const data: ShopCategoryProps[] = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
   const result = data[0];
   const res: string = result.slug;
   if (result.shopParentCategory)

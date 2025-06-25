@@ -23,12 +23,12 @@ export const updateUserInformation = async (
   if (userData.username) {
     userData.username = '98' + userData.username;
   }
-  const response = await requestData(
-    `/users/${id}`,
-    'PUT',
-    userData,
-    `Bearer ${token}`
-  );
+  const response = await requestData({
+    qs: `/users/${id}`,
+    method: 'PUT',
+    body: userData,
+    token: `Bearer ${token}`,
+  });
   return response.data;
 };
 export const getPostalInformation = async (documentId: string) => {
@@ -39,12 +39,11 @@ export const getPostalInformation = async (documentId: string) => {
     },
   });
 
-  const response = await requestData(
-    `/postal-informations/${documentId}?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/postal-informations/${documentId}?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -53,10 +52,10 @@ export const updatePostalInformation = async (
   id: string
 ) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/postal-informations/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/postal-informations/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         information: newAddressList.map((item) => ({
           address: item.address,
@@ -70,8 +69,8 @@ export const updatePostalInformation = async (
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data = response.data;
   return data;
 };
@@ -99,12 +98,11 @@ export const getOrderHistory = async (
       pageSize,
     },
   });
-  const response = await requestData(
-    `/order-histories?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/order-histories?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -134,12 +132,11 @@ export const getSingleOrderHistory = async (orderCode: number) => {
     },
   });
 
-  const res = await requestData(
-    `/order-histories?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const res = await requestData({
+    qs: `/order-histories?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   if (res.data.data[0].user.username == check.body.username) {
     const finalRes: OrderHistoryProps = res.data.data[0];
     return finalRes;
@@ -149,12 +146,12 @@ export const getSingleOrderHistory = async (orderCode: number) => {
 
 export const updateOrderHistory = async (documentId: string, data: object) => {
   const check = await loginCheck();
-  const res = await requestData(
-    `/order-histories/${documentId}`,
-    'PUT',
-    { data },
-    check.jwt
-  );
+  const res = await requestData({
+    qs: `/order-histories/${documentId}`,
+    method: 'PUT',
+    body: { data },
+    token: check.jwt,
+  });
   return res.data;
 };
 
@@ -180,12 +177,11 @@ export const getFavorites = cache(
         },
       },
     });
-    const response = await requestData(
-      `/favorites/${documentId}?${query}`,
-      'GET',
-      {},
-      check.jwt
-    );
+    const response = await requestData({
+      qs: `/favorites/${documentId}?${query}`,
+      method: 'GET',
+      token: check.jwt,
+    });
 
     return response.data;
   }
@@ -220,16 +216,16 @@ export const updateFavorite = async (
 
     updatedFavorites = [...currentFavorites, newInfo[0]];
   }
-  const response = await requestData(
-    `/favorites/${userFavoriteDocumentId}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/favorites/${userFavoriteDocumentId}`,
+    method: 'PUT',
+    body: {
       data: {
         [whichOne]: updatedFavorites.map((item: any) => item.id),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -267,7 +263,7 @@ export const checkUserExists = async (identifier: string) => {
     },
   });
 
-  const response = await requestData(`/users?${query}`, 'GET', {});
+  const response = await requestData({ qs: `/users?${query}`, method: 'GET' });
 
   return {
     isPhone: isPhone(response.data.username),

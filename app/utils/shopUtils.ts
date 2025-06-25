@@ -155,7 +155,7 @@ export const orderHistoryIdMaker = async (): Promise<number> => {
       },
     },
   });
-  const res = await dataFetch(`/order-histories?${queryPost}`, 'GET');
+  const res = await dataFetch({ qs: `/order-histories?${queryPost}` });
   if (res.length) await orderHistoryIdMaker();
   return orderId;
 };

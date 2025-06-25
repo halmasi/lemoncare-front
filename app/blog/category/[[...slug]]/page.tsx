@@ -1,15 +1,13 @@
-import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
 import { getCategory } from '@/app/utils/data/getCategories';
 import { getPostsByCategory } from '@/app/utils/data/getPosts';
 import { PostsProps } from '@/app/utils/schema/blogProps';
-const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
-const PostCard = dynamic(() => import('@/app/components/PostCard'), {
-  ssr: false,
-  loading: () => <PostsSkeleton />,
-});
+import PostCard from '@/app/components/PostCard';
+import { Suspense } from 'react';
+
+// export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
@@ -52,21 +50,28 @@ export default async function Category({
   if (!posts || category.length < 1 || posts.length < 1) return notFound();
 
   return (
-    <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+    <main
+      className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2"
+      key={Math.random()}
+    >
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-        {posts.map((post: PostsProps) => {
-          return (
-            <PostCard
-              key={post.documentId}
-              basicInfo={post.basicInfo}
-              category={post.category}
-              seo={post.seo}
-              authorEmail={post.author.email}
-              authorName={post.author.name}
-              authorSlug={post.author.username}
-            />
-          );
-        })}
+        <Suspense
+          fallback={<div className="w-10 h-10 bg-gray-900 animate-pulse" />}
+        >
+          {posts.map((post: PostsProps) => {
+            return (
+              <PostCard
+                key={post.documentId}
+                basicInfo={post.basicInfo}
+                category={post.category}
+                seo={post.seo}
+                authorEmail={post.author.email}
+                authorName={post.author.name}
+                authorSlug={post.author.username}
+              />
+            );
+          })}
+        </Suspense>
       </div>
     </main>
   );

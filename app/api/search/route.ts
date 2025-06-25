@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     sort: { createdAt: 'desc' },
   });
 
-  const result1 = await dataFetch(`/posts?${queryPost}`);
-  const result2 = await dataFetch(`/products?${queryProducts}`);
+  const result1 = await dataFetch({ qs: `/posts?${queryPost}` });
+  const result2 = await dataFetch({ qs: `/products?${queryProducts}` });
   return Response.json([{ posts: result1, products: result2 }]);
 }

@@ -35,7 +35,11 @@ export const getProduct = cache(async function (
     filters: filter,
     populate,
   });
-  const result = await dataFetch(`/products?${query}`, 'GET', tag);
+  const result = await dataFetch({
+    qs: `/products?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -55,7 +59,11 @@ export const getProducts = cache(async function (
   if (count) {
     link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
   }
-  const result: ProductProps[] = await dataFetch(link, 'GET', tag);
+  const result: ProductProps[] = await dataFetch({
+    qs: link,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -87,11 +95,11 @@ export const getProductsByCategory = cache(async function (
     },
   });
 
-  const result: ProductProps[] = await dataFetch(
-    `/products?${query}&sort[0]=createdAt:desc`,
-    'GET',
-    tag
-  );
+  const result: ProductProps[] = await dataFetch({
+    qs: `/products?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });
 
@@ -112,10 +120,10 @@ export const getProductsByTag = cache(async function (
       variety: { populate: '*' },
     },
   });
-  const result: ProductProps[] = await dataFetch(
-    `/products?${query}&sort[0]=createdAt:desc`,
-    'GET',
-    tag
-  );
+  const result: ProductProps[] = await dataFetch({
+    qs: `/products?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
   return result;
 });

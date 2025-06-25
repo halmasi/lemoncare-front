@@ -237,9 +237,12 @@ export async function POST(request: NextRequest) {
           createdAt: string;
           updatedAt: string;
           publishedAt: string;
-        }[] = await dataFetch(`/carts?${query}`, 'GET');
+        }[] = await dataFetch({ qs: `/carts?${query}` });
         carts.map(async (item) => {
-          await dataFetch(`/carts/${item.documentId}`, 'DELETE');
+          await dataFetch({
+            qs: `/carts/${item.documentId}`,
+            method: 'DELETE',
+          });
         });
       })();
       break;

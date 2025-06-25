@@ -16,9 +16,11 @@ export const getArticleSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggested-articles?${query}`, 'GET', [
-      `suggested-article-${slug}`,
-    ]);
+    const data = await dataFetch({
+      qs: `/suggested-articles?${query}`,
+      tag: [`suggested-article-${slug}`],
+      cache: 'force-cache',
+    });
     return data[0];
   }
 );
@@ -31,9 +33,11 @@ export const getProductSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggestion-lists?${query}`, 'GET', [
-      `suggestion-list-${slug}`,
-    ]);
+    const data = await dataFetch({
+      qs: `/suggestion-lists?${query}`,
+      tag: [`suggestion-list-${slug}`],
+      cache: 'force-cache',
+    });
     return data[0];
   }
 );
@@ -51,8 +55,10 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, 'GET', [
-    `slide-${location}`,
-  ]);
+  const data: SlideProps[] = await dataFetch({
+    qs: `/slideshows?${query}`,
+    tag: [`slide-${location}`],
+    cache: 'force-cache',
+  });
   return data[0];
 });
