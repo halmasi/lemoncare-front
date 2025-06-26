@@ -1,5 +1,7 @@
 'use server';
 
+import { MetaProps } from '../schema/metaProps';
+
 export async function dataFetch({
   qs,
   method = 'GET',
@@ -25,7 +27,8 @@ export async function dataFetch({
   try {
     const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
     const data = await apiData.json();
-    return data.data;
+    const meta: MetaProps = data.meta;
+    return { data: data.data, meta, fullData: data };
   } catch (error) {
     throw new Error('خطای ارتباط با سرور\n' + error);
   }

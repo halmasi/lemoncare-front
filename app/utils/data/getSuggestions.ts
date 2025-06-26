@@ -21,7 +21,7 @@ export const getArticleSuggestions = cache(
       tag: [`suggested-article-${slug}`],
       cache: 'force-cache',
     });
-    return data[0];
+    return data.data[0];
   }
 );
 
@@ -38,7 +38,7 @@ export const getProductSuggestions = cache(
       tag: [`suggestion-list-${slug}`],
       cache: 'force-cache',
     });
-    return data[0];
+    return data.data[0];
   }
 );
 
@@ -55,10 +55,11 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/slideshows?${query}`,
     tag: [`slide-${location}`],
     cache: 'force-cache',
   });
-  return data[0];
+  const data: SlideProps = fetchData.data[0];
+  return data;
 });
