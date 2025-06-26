@@ -47,10 +47,14 @@ export const registerAction = async (
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
-    const response = await requestData('/auth/local/register', 'POST', {
-      username: '98' + validationResult.data.username,
-      email: validationResult.data.email,
-      password: validationResult.data.password,
+    const response = await requestData({
+      qs: '/auth/local/register',
+      method: 'POST',
+      body: {
+        username: '98' + validationResult.data.username,
+        email: validationResult.data.email,
+        password: validationResult.data.password,
+      },
     });
 
     if (response.data.error) {
@@ -71,7 +75,12 @@ export const registerAction = async (
 
       await Promise.all(
         requests.map(({ url, data }) =>
-          requestData(url, 'POST', { data }, `Bearer ${response.data.jwt}`)
+          requestData({
+            qs: url,
+            method: 'POST',
+            body: { data },
+            token: `Bearer ${response.data.jwt}`,
+          })
         )
       );
     }
@@ -129,9 +138,13 @@ export const signinAction = async (identifier: string, password: string) => {
       validationResult.data.identifier =
         '98' + validationResult.data.identifier;
     }
-    response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.identifier,
-      password: validationResult.data.pass,
+    response = await requestData({
+      qs: '/auth/local',
+      method: 'POST',
+      body: {
+        identifier: validationResult.data.identifier,
+        password: validationResult.data.pass,
+      },
     });
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
@@ -149,7 +162,7 @@ export const signinAction = async (identifier: string, password: string) => {
 
 export const loginCheck = async () => {
   const token = await getCookie('jwt');
-  const response = await requestData('/users/me', 'GET', {}, token);
+  const response = await requestData({ qs: '/users/me', method: 'GET', token });
   const data: {
     id: number;
     documentId: string;
@@ -189,12 +202,11 @@ export const getFullUserData = async (
   });
   const token = await getCookie('jwt');
 
-  const response = await requestData(
-    `/users/me?${isDeep ? 'pLevel' : query}`,
-    'GET',
-    {},
-    `${token}`
-  );
+  const response = await requestData({
+    qs: `/users/me?${isDeep ? 'pLevel' : query}`,
+    method: 'GET',
+    token,
+  });
   return { status: response.status, body: response.data };
 };
 

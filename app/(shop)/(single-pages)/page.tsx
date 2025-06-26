@@ -21,7 +21,7 @@ export default async function page() {
   const products = Promise.all(
     suggestedProducts.products.map(async (product) => {
       const singleProduct = await getProduct(product.documentId);
-      return singleProduct[0];
+      return singleProduct.res[0];
     })
   );
 
