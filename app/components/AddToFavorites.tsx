@@ -70,12 +70,7 @@ export default function AddToFavorites({
         );
     },
     onSuccess: () => {
-      if (isFavorite) {
-        setIsFavorite(false);
-        onUnfavorite?.(); // remove from parent list if needed
-      } else {
-        setIsFavorite(true);
-      }
+      setIsFavorite(!isFavorite);
     },
     onError: (err) => {
       toast.error('Favorite update failed:' + err);

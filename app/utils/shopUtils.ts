@@ -108,7 +108,8 @@ export const cartProductSetter = async (
   );
 
   if (!findProduct) {
-    const product = await getProduct(documentId);
+    const getData = await getProduct(documentId);
+    const product = getData.res;
     newArray.push({
       basicInfo: product[0].basicInfo,
       documentId: product[0].documentId,
@@ -129,7 +130,7 @@ export const cartProductSelector = async (
 
   if (!findProduct) {
     const product = await getProduct(documentId);
-    return product[0];
+    return product.res[0];
   }
   return findProduct;
 };
@@ -155,7 +156,7 @@ export const orderHistoryIdMaker = async (): Promise<number> => {
       },
     },
   });
-  const res = await dataFetch(`/order-histories?${queryPost}`, 'GET');
-  if (res.length) await orderHistoryIdMaker();
+  const res = await dataFetch({ qs: `/order-histories?${queryPost}` });
+  if (res.data.length) await orderHistoryIdMaker();
   return orderId;
 };
