@@ -40,16 +40,19 @@ export default function ProductsAndBlogPage({
   const [posts, setPosts] = useState<PostsProps[]>([]);
   const [pageCount, setPageCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [title, setTitle] = useState<string>('');
 
   const getProductsFn = useMutation({
     mutationFn: async () => {
       let productsList: ProductProps[] = [];
       if (resultBy == 'full') {
+        setTitle('');
         const getFn = await getProducts({ page, pageSize });
         setPageCount(getFn.meta.pagination.pageCount);
         productsList = getFn.res;
       } else if (resultBy == 'category') {
         const category = await getShopCategory(slug[slug.length - 1]);
+        setTitle('دسته بندی: ' + category[0].title);
         const getFn = await getProductsByCategory({
           category: category[0],
           page,
@@ -64,6 +67,11 @@ export default function ProductsAndBlogPage({
           pageSize,
         });
         productsList = getFn.res;
+        const tagTitle =
+          productsList[0].tags[
+            productsList[0].tags.findIndex((item) => item.slug == slug[0])
+          ].title;
+        setTitle('برچسب: ' + tagTitle || '');
         setPageCount(getFn.meta.pagination.pageCount);
       }
       return productsList;
@@ -84,9 +92,11 @@ export default function ProductsAndBlogPage({
       if (resultBy == 'author') {
         const res = await getPostsByAuthor({ slug: slug[0], page, pageSize });
         postsList = res.posts;
+        setTitle('');
         setPageCount(res.meta.pagination.pageCount);
       } else if (resultBy == 'category') {
         const category = await getCategory(slug[0]);
+        setTitle('دسته بندی: ' + category[0].title);
         const posts = await getPostsByCategory({
           category: category[0],
           page,
@@ -98,6 +108,13 @@ export default function ProductsAndBlogPage({
         }
       } else if (resultBy == 'tag') {
         const posts = await getPostsByTag({ slug: slug[0], page, pageSize });
+        if (posts.result[0].tags.length)
+          setTitle(
+            'برچسب: ' +
+              posts.result[0].tags[
+                posts.result[0].tags.findIndex((item) => item.slug == slug[0])
+              ].title
+          );
         postsList = posts.result;
         setPageCount(posts.meta.pagination.pageCount);
       } else {
@@ -120,9 +137,10 @@ export default function ProductsAndBlogPage({
     }
   }, []);
 
-  if (type == 'post')
-    return (
-      <div className="flex flex-col gap-24">
+  return (
+    <div className="flex flex-col gap-2">
+      <h4 className="text-accent-pink">{title}</h4>
+      {type == 'post' ? (
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
           {isLoading ? (
             <ProductAndBlogSkeleton count={10} />
@@ -142,20 +160,21 @@ export default function ProductsAndBlogPage({
             })
           )}
         </div>
-        <Pagination currentPage={page} pageCount={pageCount} query="p" />
-      </div>
-    );
-
-  return (
-    <div className="flex flex-col gap-24">
-      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
-        {isLoading ? (
-          <ProductAndBlogSkeleton count={10} />
-        ) : (
-          products.map((item) => <ProductCart product={item} key={item.id} />)
-        )}
-      </div>
-      <Pagination currentPage={page} pageCount={pageCount} query="p" />
+      ) : (
+        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
+          {isLoading ? (
+            <ProductAndBlogSkeleton count={10} />
+          ) : (
+            products.map((item) => <ProductCart product={item} key={item.id} />)
+          )}
+        </div>
+      )}
+      <Pagination
+        className="mt-24"
+        currentPage={page}
+        pageCount={pageCount}
+        query="p"
+      />
     </div>
   );
 }

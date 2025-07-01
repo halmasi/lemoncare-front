@@ -164,6 +164,7 @@ export const getPostsByTag = cache(async function ({
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      tags: { populate: '*' },
     },
     pagination: {
       page,
