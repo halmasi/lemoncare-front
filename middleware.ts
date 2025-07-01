@@ -24,6 +24,10 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.redirect(loginUrl);
   }
+  const loginStatus = await loginCheck();
+  if (!loginStatus.isAuthenticated) {
+    return NextResponse.redirect(loginUrl);
+  }
   return NextResponse.next();
 }
 

@@ -1,124 +1,141 @@
 'use client';
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { CartProps, useCartStore } from '@/app/utils/states/useCartData';
-import { useCallback, useEffect, useState } from 'react';
+import { useCartStore } from '@/app/utils/states/useCartData';
+import { useEffect, useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
-import { updateCart } from '@/app/utils/actions/cartActionMethods';
-import { getFullUserData } from '@/app/utils/actions/actionMethods';
-
+import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
+import { logs } from '@/app/utils/miniFunctions';
+import { CartProps, ProductProps } from '@/app/utils/schema/shopProps';
+import { useRouter } from 'next/navigation';
 export default function Count({
   inventory,
   cartItem,
-  deleteFunction,
+  refreshFunction,
+  isProductPage,
 }: {
   inventory: number;
   cartItem: CartProps;
-  deleteFunction: () => void;
+  isProductPage?: boolean;
+  refreshFunction: (count: number) => void;
 }) {
-  const { jwt, user, setUser } = useDataStore();
+  const router = useRouter();
+  const { jwt, user } = useDataStore();
   const { cart, setCart } = useCartStore();
 
   const [number, setNumber] = useState(cartItem.count);
 
-  const updateCartFn = useMutation({
-    mutationFn: async (cart: CartProps[]) => {
-      if (user && user.id && cart.length) {
-        const res = await updateCart(cart, user.id);
-        return res;
-      }
-    },
-    onSuccess: async (data) => {
-      if (!data || !user) return;
+  const itemIndex = cart
+    ? cart.findIndex((item) => {
+        const bool =
+          item.product.documentId == cartItem.product.documentId &&
+          item.variety == cartItem.variety;
+        return bool;
+      })
+    : -1;
 
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
+  const itemCount = itemIndex != -1 ? cart[itemIndex].count : 0;
+
+  const getCartFn = useMutation({
+    mutationFn: async () => {
+      if (!user) return;
+      const getCartData = await getCart(user.shopingCart.documentId);
+      return getCartData;
     },
-    onError: async (error) => {
-      console.log(error.cause);
+    onSuccess: (data) => {
+      if (!data.body || !data.body.items) return;
+      setCart(data.body.items);
+      router.refresh();
     },
   });
 
-  const itemIndex = cart.findIndex(
-    (item: { id: number }) => item.id === cartItem.id
-  );
-  const itemCount = itemIndex !== -1 ? cart[itemIndex].count : 0;
-
-  const handleCartUpdate = useCallback(
-    (newCount: number) => {
-      if (newCount <= 0) {
-        const updateCart = cart;
-        updateCart.splice(updateCart.indexOf(cartItem), 1);
-        setCart(updateCart);
-        updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
-        deleteFunction();
-      } else {
-        const updateCart = cart;
-        updateCart[updateCart.indexOf(cartItem)].count = newCount;
-
-        if (jwt && user) {
-          const safeUser = JSON.parse(JSON.stringify(user));
-          const safeUserCart = Array.isArray(safeUser.cart)
-            ? safeUser.cart
-            : [];
-
-          const shouldUpdate = updateCart.some(
-            (item: { id: number; count: number }) => {
-              const foundItem = safeUserCart.find(
-                (cartItem: { id: number }) => cartItem.id == item.id
-              );
-              return foundItem?.count !== item.count;
-            }
-          );
-
-          if (shouldUpdate) {
-            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
-          }
-        }
-        setCart(updateCart);
+  const updateCartFn = useMutation({
+    mutationFn: async (newCart: CartProps[]) => {
+      if (user && user.id) {
+        const res = await updateCart(newCart, user.shopingCart.documentId);
+        return { result: res, prev: cart };
       }
     },
-    [cart, setCart, jwt, user, updateCartFn]
-  );
+    onSuccess: async (data) => {
+      if (!data || !data.result) return;
+      getCartFn.mutateAsync();
+    },
+    onError: async (error) => {
+      logs.error(error.cause + ' ' + error.message);
+    },
+  });
 
-  useEffect(() => {
-    if (cartItem.count > inventory) {
-      setNumber(inventory);
-      handleCartUpdate(inventory);
-    }
-  }, [cartItem.count, inventory]);
+  const changeNumberfn = useMutation({
+    mutationFn: async (newNumber: number) => {
+      const updateCart = cart;
+      if (newNumber <= 0) {
+        updateCart.splice(updateCart.indexOf(cartItem), 1);
+        if (user && jwt) {
+          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+        }
+        refreshFunction(0);
+      } else {
+        if (newNumber > inventory) newNumber = inventory;
+        updateCart[updateCart.indexOf(cartItem)].count = newNumber;
+        setCart(updateCart);
+
+        if (jwt && user) {
+          getCartFn.mutateAsync();
+          const cartMap = new Map(
+            cart.map((cartItem) => [
+              `${cartItem.product.documentId}-${cartItem.variety.id}-${cartItem.variety.sub}`,
+              cartItem,
+            ])
+          );
+
+          const shouldUpdate = updateCart.some((item) => {
+            const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
+            const foundItem = cartMap.get(key);
+            return foundItem?.count !== item.count;
+          });
+
+          if (shouldUpdate) {
+            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+          }
+        }
+      }
+      refreshFunction(newNumber);
+    },
+  });
 
   return (
     <>
       {cart.length > 0 && (
-        <div className="flex h-7 bg-white border w-fit rounded-lg overflow-hidden items-center">
+        <div
+          className={`flex ${isProductPage ? 'h-14' : 'h-7'} bg-white border w-fit rounded-lg overflow-hidden items-center`}
+        >
           <button
             onClick={() => {
               if (cart[itemIndex].count < inventory) {
                 setNumber((prev) => prev + 1);
-                handleCartUpdate(number + 1);
+                changeNumberfn.mutateAsync(number + 1);
               }
             }}
             disabled={
               itemIndex === -1 ||
               cart[itemIndex].count >= inventory ||
-              updateCartFn.isPending
+              updateCartFn.isPending ||
+              changeNumberfn.isPending
             }
             className={`p-1 border-l ${itemIndex === -1 || cart[itemIndex].count < inventory ? 'hover:bg-gray-50' : ''}`}
           >
             <BiPlus
-              className={`text-lg ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
+              className={`${isProductPage ? 'text-2xl' : 'text-lg'} ${itemIndex === -1 || cart[itemIndex].count >= inventory ? 'text-gray-300' : 'text-accent-green'}`}
             />
           </button>
 
-          <p className="flex w-8 items-center justify-center">
-            {updateCartFn.isPending ? (
+          <p
+            className={`flex ${isProductPage ? 'w-12 text-xl' : 'w-8'} items-center justify-center`}
+          >
+            {updateCartFn.isPending || changeNumberfn.isPending ? (
               <VscLoading className="animate-spin" />
             ) : (
               itemCount
@@ -128,14 +145,15 @@ export default function Count({
           <button
             onClick={() => {
               setNumber((prev) => prev - 1);
-              handleCartUpdate(number - 1);
+              changeNumberfn.mutateAsync(number - 1);
             }}
             disabled={
               itemIndex === -1 ||
               cart[itemIndex].count <= 0 ||
-              updateCartFn.isPending
+              updateCartFn.isPending ||
+              changeNumberfn.isPending
             }
-            className={`p-1 text-lg hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
+            className={`p-1 ${isProductPage ? 'text-2xl' : 'text-lg'} hover:bg-gray-50 border-r ${updateCartFn.isPending ? 'text-gray-300' : 'text-accent-pink'}`}
           >
             {itemIndex !== -1 && cart[itemIndex].count <= 1 ? (
               <RiDeleteBin2Fill />

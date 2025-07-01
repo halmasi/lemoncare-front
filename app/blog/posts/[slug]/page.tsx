@@ -1,17 +1,20 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
-import { ContentProps, getPost } from '@/app/utils/data/getPosts';
+import { getPost } from '@/app/utils/data/getPosts';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import Image from 'next/image';
 import { LuCalendarClock } from 'react-icons/lu';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ContentProps } from '@/app/utils/schema/otherProps';
+import AddToFavorites from '@/app/components/AddToFavorites';
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
@@ -38,7 +41,10 @@ export async function generateMetadata(
   };
 }
 
-export default async function page({ params }: { params: { slug: string } }) {
+export default async function page(props0: {
+  params: Promise<{ slug: string }>;
+}) {
+  const params = await props0.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
@@ -60,7 +66,9 @@ export default async function page({ params }: { params: { slug: string } }) {
           })}
         </p>
       </div>
+
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
+      <AddToFavorites post={post} />
       <Image
         className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
         src={post.basicInfo.mainImage.url}
