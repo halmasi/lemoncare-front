@@ -46,7 +46,7 @@ export const getSlides = cache(async function (
   location: string
 ): Promise<SlideProps> {
   const query = qs.stringify({
-    filter: {
+    filters: {
       location: { $eq: location },
     },
     populate: {

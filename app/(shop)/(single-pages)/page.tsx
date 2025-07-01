@@ -1,10 +1,13 @@
+import Slide from '@/app/components/Slide';
 import Suggestions from '@/app/components/Suggestions';
 import { getPost } from '@/app/utils/data/getPosts';
 import { getProduct } from '@/app/utils/data/getProducts';
 import {
   getArticleSuggestions,
   getProductSuggestions,
+  getSlides,
 } from '@/app/utils/data/getSuggestions';
+import { SlideProps } from '@/app/utils/schema/otherProps';
 import { GrArticle } from 'react-icons/gr';
 
 export default async function page() {
@@ -27,6 +30,7 @@ export default async function page() {
 
   return (
     <div className="flex flex-col container max-w-screen-xl py-5 px-2 md:px-10">
+      <Slide slug="homepage" />
       <div className="flex flex-col w-full ovrflow-hidden gap-10 justify-center">
         <Suggestions posts={await posts} title={suggestedArticles.title} id={0}>
           <GrArticle />
