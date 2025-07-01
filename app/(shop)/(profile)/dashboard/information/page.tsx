@@ -11,6 +11,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { toast } from 'react-toastify';
 
 export default function Information() {
   const { user, jwt } = useDataStore();
@@ -49,7 +50,7 @@ export default function Information() {
           inputUserData
         );
         if (!response) {
-          throw new Error('پاسخی از سرور دریافت نشد');
+          toast.error('پاسخی از سرور دریافت نشد');
         }
         return response;
       } else {
@@ -58,8 +59,6 @@ export default function Information() {
       }
     },
     onSuccess: async () => {
-      //   const userData = await getFullUserData(data.jwt);
-      //queryClient.invalidateQueries(['user']);
       if (user) queryClient.setQueryData(['user'], user.data);
       router.push('/dashboard/information');
     },
