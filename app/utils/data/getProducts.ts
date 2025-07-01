@@ -146,6 +146,7 @@ export const getProductsByTag = cache(async function ({
       basicInfo: { populate: '*' },
       category: { populate: '*' },
       variety: { populate: '*' },
+      tags: { populate: '*' },
     },
     pagination: {
       page,
