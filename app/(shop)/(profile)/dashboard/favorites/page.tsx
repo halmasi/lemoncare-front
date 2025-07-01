@@ -25,10 +25,9 @@ export default function Favorites() {
   });
 
   useEffect(() => {
-    if (user&&user.favorite) 
-             getFavoritesFn.mutateAsync(user.favorite.documentId)
-    
-  }, [user]);  
+    if (user && user.favorite)
+      getFavoritesFn.mutateAsync(user.favorite.documentId);
+  }, [user]);
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex justify-center gap-4 mb-8"></div>

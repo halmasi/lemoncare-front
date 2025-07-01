@@ -19,11 +19,9 @@ import { VscLoading } from 'react-icons/vsc';
 export default function AddToFavorites({
   product,
   post,
-  onUnfavorite,
 }: {
   product?: ProductProps;
   post?: PostsProps;
-  onUnfavorite?: () => void;
 }) {
   const { user } = useDataStore();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
