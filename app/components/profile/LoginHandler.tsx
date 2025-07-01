@@ -14,17 +14,16 @@ import {
   updatePostalInformation,
   updateUserInformation,
 } from '@/app/utils/data/getUserInfo';
+import { logs } from '@/app/utils/miniFunctions';
 import { CartProps } from '@/app/utils/schema/shopProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function LoginHandler() {
-  const queryClient = useQueryClient();
-  const router = useRouter();
   const {
     setUser,
     jwt,
@@ -37,30 +36,33 @@ export default function LoginHandler() {
   const { cart, setCart, resetCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
 
-  const handleCart = (fetchedCart: CartProps[], id: string) => {
-    if (fetchedCart && cart) {
-      // Use a Map to deduplicate items
-      const cartMap = new Map<string, CartProps>();
-      [...fetchedCart, ...cart].forEach((item) => {
-        const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
-        cartMap.set(key, item);
-      });
-      const deduplicatedCart = Array.from(cartMap.values());
-      updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
-    } else if (fetchedCart && !cart) {
-      setCart(fetchedCart);
-    } else if (!fetchedCart && cart) {
-      updateCartFn.mutateAsync({ newCart: cart, id });
-    }
-  };
+  const router = useRouter();
 
-  const getCartFn = useMutation({
-    mutationFn: async (documentId: string) => {
-      const res = await getCart(documentId);
-      return { result: res, documentId };
+  const handleCartFn = useMutation({
+    mutationFn: async ({
+      fetchedCart,
+      id,
+    }: {
+      fetchedCart: CartProps[];
+      id: string;
+    }) => {
+      if (fetchedCart && cart) {
+        const cartMap = new Map<string, CartProps>();
+        [...fetchedCart, ...cart].forEach((item) => {
+          const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
+          cartMap.set(key, item);
+        });
+        const deduplicatedCart = Array.from(cartMap.values());
+        await updateCartFn.mutateAsync({ newCart: deduplicatedCart, id });
+      } else if (fetchedCart && !cart) {
+        setCart(fetchedCart);
+      } else if (!fetchedCart && cart) {
+        await updateCartFn.mutateAsync({ newCart: cart, id });
+      }
     },
-    onSuccess: (data) => {
-      handleCart(data.result.data.items, data.documentId);
+    onSuccess: async () => {},
+    onError: (error: { message: string[] }) => {
+      throw new Error('خطا : ' + error.message);
     },
   });
 
@@ -92,79 +94,77 @@ export default function LoginHandler() {
     },
   });
 
-  useEffect(() => {
-    const loginFn = async () => {
-      try {
-        setLoginProcces(true);
+  const loginFn = useMutation({
+    mutationFn: async () => {
+      await setCookie('jwt', `Bearer ${jwt}`);
 
-        // Set JWT cookie
-        await setCookie('jwt', `Bearer ${jwt}`);
+      const userData = await getFullUserData();
+      setUser(userData.body);
 
-        // Fetch user data and cart in parallel
-        const [userData, cartData] = await Promise.all([
-          getFullUserData(),
-          user?.shopingCart ? getCart(user.shopingCart.documentId) : null,
-        ]);
+      const cartData = await getCart(userData.body.shopingCart.documentId);
 
-        // Update user information if necessary
-        if (
-          !userData.body.fullName &&
-          checkoutAddress?.firstName &&
-          checkoutAddress?.lastName
-        ) {
-          userData.body.fullName =
-            checkoutAddress.firstName + ' ' + checkoutAddress.lastName;
-          await updateUserInformation(userData.body.id, `Bearer ${jwt}`, {
-            fullName: userData.body.fullName,
-          });
-        }
+      if (cartData && userData.body) {
+        await handleCartFn.mutateAsync({
+          fetchedCart: cartData.data.items,
+          id: userData.body.shopingCart.documentId,
+        });
+      }
 
-        // Set user data
-        setUser(userData.body);
-        queryClient.setQueryData(['user'], userData.body);
+      if (
+        !userData.body.fullName &&
+        checkoutAddress?.firstName &&
+        checkoutAddress?.lastName
+      ) {
+        userData.body.fullName =
+          checkoutAddress.firstName + ' ' + checkoutAddress.lastName;
+        await updateUserInformation(userData.body.id, `Bearer ${jwt}`, {
+          fullName: userData.body.fullName,
+        });
+      }
 
-        // Handle postal information (deferred)
-        if (userData.body.postal_information) {
-          const userPostalInformation = await getPostalInformation(
+      if (userData.body.postal_information) {
+        const userPostalInformation = await getPostalInformation(
+          userData.body.postal_information.documentId
+        );
+        if (checkoutAddress?.address && !userPostalInformation.length) {
+          await updatePostalInformation(
+            [
+              {
+                address: checkoutAddress.address,
+                province: checkoutAddress.province,
+                city: checkoutAddress.city,
+                firstName: checkoutAddress.firstName,
+                lastName: checkoutAddress.lastName,
+                mobileNumber: checkoutAddress.mobileNumber,
+                phoneNumber: checkoutAddress.phoneNumber,
+                postCode: checkoutAddress.postCode,
+                id: 0,
+                isDefault: true,
+              },
+            ],
             userData.body.postal_information.documentId
           );
-          if (checkoutAddress?.address && !userPostalInformation.length) {
-            updatePostalInformation(
-              [
-                {
-                  address: checkoutAddress.address,
-                  province: checkoutAddress.province,
-                  city: checkoutAddress.city,
-                  firstName: checkoutAddress.firstName,
-                  lastName: checkoutAddress.lastName,
-                  mobileNumber: checkoutAddress.mobileNumber,
-                  phoneNumber: checkoutAddress.phoneNumber,
-                  postCode: checkoutAddress.postCode,
-                  id: 0,
-                  isDefault: true,
-                },
-              ],
-              userData.body.postal_information.documentId
-            );
-          }
         }
-
-        // Handle cart (deferred)
-        if (cartData && user) {
-          handleCart(cartData.data.items, user.shopingCart.documentId);
-        }
-
-        // Redirect to home page
-        router.push('/');
-      } catch (error) {
-        console.error('Error during login process:', error);
-      } finally {
-        setLoginProcces(false);
       }
-    };
+    },
+    onSuccess: () => {
+      router.refresh();
+      setLoginProcces(false);
+    },
+    onError: (error: { message: string[] }) => {
+      logs.error('Login error: ' + error.message);
+    },
+  });
 
-    if (!user && loginProcces) loginFn();
-  }, [loginProcces, user, jwt, router]);
+  useEffect(() => {
+    if (!user && loginProcces) {
+      loginFn.mutate();
+    }
+  }, [loginProcces, user, jwt, setLoginProcces]);
+
+  useEffect(() => {
+    router.refresh();
+  }, [loginProcces, setLoginProcces]);
 
   useEffect(() => {
     const checkJwtCookie = async () => {
@@ -180,7 +180,7 @@ export default function LoginHandler() {
       }
     };
     checkJwtCookie();
-  }, [jwt, user, resetUser, resetCart]);
+  }, [jwt, user, resetUser, resetCart, loginProcces]);
 
-  return <></>;
+  return null;
 }

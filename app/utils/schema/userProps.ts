@@ -1,3 +1,4 @@
+import { PostsProps } from './blogProps';
 import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
@@ -71,25 +72,44 @@ export interface FetchUserProps {
   };
   postal_information: {
     documentId: string;
-    id: number;
+    id?: number;
     information: AddressProps[];
   };
   order_history: {
     documentId: string;
-    id: number;
-  };
+    id?: number;
+  }[];
+  favorite: FavoriteListProps;
 }
 
+export interface FavoriteListProps {
+  documentId: string;
+  id?: number;
+  posts?: PostsProps[];
+  products?: ProductProps[];
+}
 export interface OrderHistoryProps {
-  id: number;
-  orderDate: string;
-  pay: object | null;
-  address: string;
-  postCode: number;
-  items: {
-    id: number;
-    count: number;
-    variety: { id: number; sub: number | null };
-    product: ProductProps;
-  }[];
+  user: number;
+  documentId: string;
+  order: {
+    id?: number;
+    orderDate: string;
+    paymentStatus: 'pending' | 'completed' | 'canceled';
+    payMethod: 'online' | 'offline' | 'snapp';
+    shippingMethod: string;
+    shippingPrice: number;
+    orderPrice: number;
+    coupon: string | null;
+    totalPrice: number;
+    orderCode: number;
+    province: string;
+    city: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: number | string;
+    phoneNumber: number | string;
+    address: string;
+    postCode: number;
+    items: CartProps[];
+  };
 }

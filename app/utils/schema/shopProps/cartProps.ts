@@ -1,10 +1,12 @@
 import { ImageProps } from '../mediaProps';
 
 export interface CartProps {
-  id: number;
+  id?: number;
   count: number;
   product: cartProductsProps;
   variety: { id: number; sub: number | null };
+  mainPrice?: number;
+  beforePrice?: number;
 }
 export interface cartProductsProps {
   documentId: string;

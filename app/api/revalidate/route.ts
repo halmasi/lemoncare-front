@@ -231,17 +231,29 @@ export async function POST(request: NextRequest) {
             user: { $null: true },
           },
         });
+        const res = await dataFetch({ qs: `/carts?${query}` });
         const carts: {
           id: number;
           documentId: string;
           createdAt: string;
           updatedAt: string;
           publishedAt: string;
-        }[] = await dataFetch(`/carts?${query}`, 'GET');
+        }[] = res.data;
         carts.map(async (item) => {
-          await dataFetch(`/carts/${item.documentId}`, 'DELETE');
+          await dataFetch({
+            qs: `/carts/${item.documentId}`,
+            method: 'DELETE',
+          });
         });
       })();
+      break;
+
+    case 'order-history':
+      (async () => {})();
+      break;
+
+    case 'postal-information':
+      (async () => {})();
       break;
 
     default:

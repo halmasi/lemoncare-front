@@ -1,5 +1,5 @@
 import ColoredButton from '@/app/components/ColoredButton';
-import NotFoundImage from '/public/notfound.svg';
+import NotFoundImage from '@/public/notfound.svg';
 import './globals.css';
 
 import Image from 'next/image';

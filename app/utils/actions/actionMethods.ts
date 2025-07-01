@@ -6,33 +6,6 @@ import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
 
-export const checkUserExists = async (identifier: string) => {
-  identifier = cleanPhone(identifier);
-  const validationResult = loginSchema
-    .pick({ identifier: true })
-    .safeParse({ identifier });
-  if (!validationResult.success) {
-    return {
-      success: false,
-      error: validationResult.error.flatten().fieldErrors.identifier || [
-        'ایمیل یا شماره تلفن نامعتبر است',
-      ],
-    };
-  }
-
-  const query = qs.stringify({
-    filters: {
-      $or: [{ email: identifier }, { username: '98' + identifier }],
-    },
-  });
-
-  const response = await requestData(`/users?${query}`, 'GET', {});
-  console.log(response.data);
-  return {
-    success: response.data.length > 0,
-  };
-};
-
 export const registerAction = async (
   username: string,
   email: string,
@@ -74,10 +47,14 @@ export const registerAction = async (
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
-    const response = await requestData('/auth/local/register', 'POST', {
-      username: '98' + validationResult.data.username,
-      email: validationResult.data.email,
-      password: validationResult.data.password,
+    const response = await requestData({
+      qs: '/auth/local/register',
+      method: 'POST',
+      body: {
+        username: '98' + validationResult.data.username,
+        email: validationResult.data.email,
+        password: validationResult.data.password,
+      },
     });
 
     if (response.data.error) {
@@ -88,7 +65,7 @@ export const registerAction = async (
 
       const requests = [
         { url: '/carts', data: { user: userId, items: [] } },
-        { url: '/order-histories', data: { user: userId, order: [] } },
+        // { url: '/order-histories', data: { user: userId, order: [] } },
         {
           url: '/postal-informations',
           data: { user: userId, information: [] },
@@ -98,7 +75,12 @@ export const registerAction = async (
 
       await Promise.all(
         requests.map(({ url, data }) =>
-          requestData(url, 'POST', { data }, `Bearer ${response.data.jwt}`)
+          requestData({
+            qs: url,
+            method: 'POST',
+            body: { data },
+            token: `Bearer ${response.data.jwt}`,
+          })
         )
       );
     }
@@ -156,9 +138,13 @@ export const signinAction = async (identifier: string, password: string) => {
       validationResult.data.identifier =
         '98' + validationResult.data.identifier;
     }
-    response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.identifier,
-      password: validationResult.data.pass,
+    response = await requestData({
+      qs: '/auth/local',
+      method: 'POST',
+      body: {
+        identifier: validationResult.data.identifier,
+        password: validationResult.data.pass,
+      },
     });
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
@@ -176,7 +162,7 @@ export const signinAction = async (identifier: string, password: string) => {
 
 export const loginCheck = async () => {
   const token = await getCookie('jwt');
-  const response = await requestData('/users/me', 'GET', {}, token);
+  const response = await requestData({ qs: '/users/me', method: 'GET', token });
   const data: {
     id: number;
     documentId: string;
@@ -203,9 +189,10 @@ export const getFullUserData = async (
   populateOptions?: object[]
 ) => {
   const defaultOptions = {
-    order_history: { populate: '*' },
+    // order_history: { populate: '*' },
     shopingCart: { populate: '1' },
     postal_information: { populate: '1' },
+    favorite: { populate: '1' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
@@ -215,12 +202,11 @@ export const getFullUserData = async (
   });
   const token = await getCookie('jwt');
 
-  const response = await requestData(
-    `/users/me?${isDeep ? 'pLevel' : query}`,
-    'GET',
-    {},
-    `${token}`
-  );
+  const response = await requestData({
+    qs: `/users/me?${isDeep ? 'pLevel' : query}`,
+    method: 'GET',
+    token,
+  });
   return { status: response.status, body: response.data };
 };
 
@@ -231,13 +217,16 @@ export const setCookie = async (name: string, cookie: string) => {
     // secure: process.env.NODE_ENV === 'production',
   };
 
-  cookies().set(name, cookie, config);
+  (await cookies()).set(name, cookie, config);
 };
 
 export const getCookie = async (key: string) => {
-  return cookies().get(key)?.value;
+  return (await cookies()).get(key)?.value;
+};
+export const deleteCookie = async (key: string) => {
+  (await cookies()).delete(key);
 };
 
 export const logoutAction = async () => {
-  cookies().delete('jwt');
+  (await cookies()).delete('jwt');
 };

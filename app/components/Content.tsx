@@ -7,6 +7,8 @@ import {
   ContentTypes,
 } from '@/app/utils/schema/otherProps';
 
+import type { JSX } from "react";
+
 function ParagraphBuilder({
   item,
 }: {

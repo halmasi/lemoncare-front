@@ -11,13 +11,20 @@ import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useRouter } from 'next/navigation';
 import { cleanPhone } from '@/app/utils/miniFunctions';
+import BooleanSwitch from './BooleanSwitch';
 
 export default function NewAddressForm({
   existingAddresses,
   onSuccessFn,
+  editModeAddress,
+  onCancel,
+  isPending,
 }: {
   existingAddresses?: AddressProps[];
-  onSuccessFn?: (data: object) => void;
+  onSuccessFn?: (data: AddressProps[]) => void;
+  editModeAddress?: AddressProps;
+  onCancel?: () => void;
+  isPending?: (bool: boolean) => void;
 }) {
   type ErrorState = {
     province?: string[];
@@ -36,22 +43,23 @@ export default function NewAddressForm({
   const [provinceId, setProvinceId] = useState(0);
   const [city, setCity] = useState('');
   const [cityId, setCityId] = useState(0);
+  const [errors, setErrors] = useState<ErrorState>({});
+  const [defaultAddress, setDefaultAddress] = useState<boolean>(
+    editModeAddress?.isDefault || false
+  );
+
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
-  const [errors, setErrors] = useState<ErrorState>({});
+  const addressReff = useRef<HTMLTextAreaElement>(null);
+  const postCodeRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const mobileRef = useRef<HTMLInputElement>(null);
+
   const router = useRouter();
   const { user } = useDataStore();
   const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
-
-  useEffect(() => {
-    const state = states.find((item) => item.name == province);
-    const statesCity = state?.cities.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }));
-    setCities([]);
-    if (statesCity) setCities(statesCity);
-  }, [province]);
 
   const submitFn = useMutation({
     mutationFn: async ({
@@ -85,6 +93,8 @@ export default function NewAddressForm({
         lastName,
       });
       setErrors({});
+      if (onCancel) onCancel();
+      if (isPending) isPending(true);
       if (!isValid.success) {
         const errorMessages = isValid.error.flatten().fieldErrors;
         setErrors({
@@ -112,7 +122,10 @@ export default function NewAddressForm({
           mobileNumber: mobile,
           firstName,
           lastName,
-          isDefault: false,
+          isDefault:
+            existingAddresses && existingAddresses.length
+              ? defaultAddress
+              : true,
         },
       ];
       setCheckoutAddress({
@@ -120,21 +133,39 @@ export default function NewAddressForm({
         cityCode: cityId,
         provinceCode: provinceId,
       });
+
+      let editedAddresses = [...addressesArray];
       if (existingAddresses) {
-        addressesArray.push(...existingAddresses);
+        editedAddresses.push(...existingAddresses);
+        if (defaultAddress) {
+          const addresses: AddressProps[] = editedAddresses.map((item) => {
+            if (item == addressesArray[0]) {
+              return item;
+            }
+            return { ...item, isDefault: false };
+          });
+          editedAddresses = [...addresses];
+        }
+      }
+      if (editModeAddress) {
+        const address = editedAddresses.find((item) => {
+          const check = item.id == editModeAddress.id;
+          return check;
+        });
+        if (address) {
+          editedAddresses.splice(editedAddresses.indexOf(address), 1);
+        }
       }
       if (user && user.postal_information) {
-        const postalInfo = await updatePostalInformation(
-          addressesArray,
+        await updatePostalInformation(
+          editedAddresses,
           user.postal_information.documentId
         );
-        return postalInfo;
-      } else {
-        return checkoutAddress;
+        return editedAddresses;
       }
     },
-    onSuccess: () => {
-      if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
+    onSuccess: (editedAddresses) => {
+      if (onSuccessFn && editedAddresses) onSuccessFn(editedAddresses);
       router.refresh();
     },
     onError: (error: { message: string[] }) => {
@@ -145,6 +176,45 @@ export default function NewAddressForm({
       });
     },
   });
+
+  useEffect(() => {
+    if (editModeAddress) {
+      setProvince(editModeAddress.province);
+      setCity(editModeAddress.city);
+      setCityId(editModeAddress.cityCode!);
+      setProvinceId(editModeAddress.provinceCode!);
+
+      if (provinceRef.current)
+        provinceRef.current.value = editModeAddress.province;
+      if (cityRef.current) cityRef.current.value = editModeAddress.city;
+      if (addressReff.current)
+        addressReff.current.value = editModeAddress.address;
+      if (postCodeRef.current)
+        postCodeRef.current.value = editModeAddress.postCode.toString();
+      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
+      if (lastNameRef.current)
+        lastNameRef.current.value = editModeAddress.lastName;
+      if (phoneRef.current)
+        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
+      if (mobileRef.current)
+        mobileRef.current.value = editModeAddress.mobileNumber.toString();
+      setDefaultAddress(editModeAddress.isDefault);
+    }
+  }, [editModeAddress]);
+
+  useEffect(() => {
+    const state = states.find((item) => item.name == province);
+    const statesCity = state?.cities.map((item) => ({
+      id: item.id,
+      name: item.name,
+    }));
+    setCities([]);
+    if (statesCity) setCities(statesCity);
+  }, [province]);
+
+  useEffect(() => {
+    if (isPending) isPending(submitFn.isPending);
+  }, [isPending, submitFn, submitFn.isPending]);
 
   const submitFunction = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -159,16 +229,19 @@ export default function NewAddressForm({
         postCode: parseInt(data.get('postCode')?.toString() || '0'),
         phone: parseInt(data.get('phone')?.toString() || '0'),
         mobile: data.get('mobile')?.toString() || '',
+        isDefault: defaultAddress,
       };
-      submitFn.mutate(formValues);
+      submitFn.mutateAsync(formValues);
     },
-    [user, submitFn]
+    [submitFn, defaultAddress]
   );
 
   return (
     <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
       <fieldset>
-        <label htmlFor="province">استان</label>
+        <label className="text-green-700" htmlFor="province">
+          استان
+        </label>
         <CitySelector
           id="province"
           placeholder="استان را انتخاب کنید"
@@ -186,7 +259,7 @@ export default function NewAddressForm({
           id="province"
           name="province"
           ref={provinceRef}
-          key={province}
+          key={'استان' + province}
           className="hidden"
           onChange={() => {}}
           type="text"
@@ -200,7 +273,9 @@ export default function NewAddressForm({
       </fieldset>
       {province && (
         <fieldset>
-          <label htmlFor="city">شهر</label>
+          <label className="text-green-700" htmlFor="city">
+            شهر
+          </label>
           <CitySelector
             key={province}
             id="city"
@@ -214,12 +289,12 @@ export default function NewAddressForm({
           <input
             id="city"
             name="city"
-            ref={cityRef}
-            key={city}
+            key={'شهر' + city}
             className="hidden"
             onChange={() => {}}
             type="text"
             value={city}
+            ref={cityRef}
           />
           {errors.city && (
             <p className="text-red-500 text-sm whitespace-pre-line">
@@ -229,8 +304,11 @@ export default function NewAddressForm({
         </fieldset>
       )}
       <fieldset>
-        <label htmlFor="address">آدرس</label>
+        <label className="text-green-700" htmlFor="address">
+          آدرس
+        </label>
         <textarea
+          ref={addressReff}
           id="address"
           name="address"
           className="border h-20 overflow-y-scroll rounded-lg w-full outline-none p-1"
@@ -245,8 +323,10 @@ export default function NewAddressForm({
         flex="col"
         name="postCode"
         placeholder="کد پستی"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={postCodeRef}
       >
         کد پستی
       </InputBox>
@@ -259,8 +339,10 @@ export default function NewAddressForm({
         flex="col"
         name="firstName"
         placeholder="نام"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={nameRef}
       >
         نام
       </InputBox>
@@ -273,8 +355,10 @@ export default function NewAddressForm({
         flex="col"
         name="lastName"
         placeholder="نام خانوادگی"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={lastNameRef}
       >
         نام خانوادگی
       </InputBox>
@@ -287,8 +371,10 @@ export default function NewAddressForm({
         flex="col"
         name="phone"
         placeholder="تلفن"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={phoneRef}
       >
         شماره تلفن
       </InputBox>
@@ -301,8 +387,10 @@ export default function NewAddressForm({
         flex="col"
         name="mobile"
         placeholder="موبایل"
-        format="text"
+        type="text"
         className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={mobileRef}
       >
         شماره همراه
       </InputBox>
@@ -311,7 +399,34 @@ export default function NewAddressForm({
           {errors.mobile.join('\n')}
         </p>
       )}
-      <SubmitButton>ثبت</SubmitButton>
+      {editModeAddress && (
+        <BooleanSwitch
+          isToggledOn={editModeAddress.isDefault}
+          toggle={(b: boolean) => {
+            setDefaultAddress(b);
+          }}
+        />
+      )}
+      <div className="flex w-full gap-2">
+        <SubmitButton
+          type="submit"
+          isPending={submitFn.isPending}
+          className="w-full"
+        >
+          {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
+        </SubmitButton>
+        {onCancel && (
+          <SubmitButton
+            className="w-full bg-accent-pink"
+            type="button"
+            onClick={() => {
+              onCancel();
+            }}
+          >
+            لغو
+          </SubmitButton>
+        )}
+      </div>
     </form>
   );
 }

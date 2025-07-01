@@ -35,10 +35,15 @@ export interface ProductProps {
   updatedAt: string;
   publishedAt: string;
   basicInfo: {
+    slug: string;
     id: number;
     title: string;
     mainImage: ImageProps;
     contentCode: number;
+  };
+  product_view: {
+    view: number;
+    product: { documentId: string };
   };
   media: MediaProps[];
   category: ShopCategoryProps;

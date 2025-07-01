@@ -7,7 +7,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { Fragment, ReactNode, useState } from 'react';
 import {
   FaShoppingCart,
   FaRegHeart,
@@ -15,7 +15,12 @@ import {
   FaUser,
   FaSignOutAlt,
   FaReceipt,
+  FaChevronDown,
+  FaChevronUp,
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import SubmitButton from '../formElements/SubmitButton';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface MenuItemsProps {
   name: string | ReactNode;
@@ -32,13 +37,21 @@ export default function ProfileMenu({
   const { resetUser } = useDataStore();
   const { resetCart } = useCartStore();
   const { resetCheckout } = useCheckoutStore();
+  const { push } = useRouter();
+  const path = usePathname();
 
   const logoutFn = useMutation({
     mutationFn: async () => {
+      await logoutAction();
       resetUser();
       resetCart();
       resetCheckout();
-      await logoutAction();
+      if (path.startsWith('/dashboard') || path.startsWith('/cart')) {
+        push('/login');
+      }
+    },
+    onError: () => {
+      toast.error('خطا در خروج از حساب کاربری');
     },
   });
   const defaultItems: MenuItemsProps[] = [
@@ -55,8 +68,24 @@ export default function ProfileMenu({
       url: `/dashboard/orderhistory`,
     },
     { name: <p>مالی</p>, icon: <FaUser />, key: 'finance' },
-    { name: <p>آدرس‌ها</p>, icon: <FaMapMarkerAlt />, key: 'addresses' },
-    { name: <p>علاقه‌مندی‌ها</p>, icon: <FaRegHeart />, key: 'favorites' },
+    {
+      name: <p>آدرس‌ها</p>,
+      icon: <FaMapMarkerAlt />,
+      key: 'addresses',
+      url: '/dashboard/addresses',
+    },
+    {
+      name: <p>محصولات نشان شده </p>,
+      icon: <FaRegHeart />,
+      key: 'favorites',
+      url: '/dashboard/favorites',
+    },
+    {
+      name: <p>مقالات نشان شده</p>,
+      icon: <FaRegHeart />,
+      key: 'bookmarks',
+      url: '/dashboard/bookmarks',
+    },
     {
       name: <p>اطلاعات حساب کاربری</p>,
       icon: <FaUser />,
@@ -68,15 +97,15 @@ export default function ProfileMenu({
   let menuItems: MenuItemsProps[] = [];
 
   if (extraItems) {
-    extraItems.map((item) => {
+    extraItems.forEach((item) => {
       if (item.position == 'top') {
         menuItems = [...menuItems, ...item.items];
       }
     });
-    defaultItems.map((item) => {
+    defaultItems.forEach((item) => {
       menuItems.push(item);
     });
-    extraItems.map((item) => {
+    extraItems.forEach((item) => {
       if (item.position == 'bottom') {
         item.items.map((singleItem) => menuItems.push(singleItem));
       }
@@ -86,32 +115,29 @@ export default function ProfileMenu({
   return (
     <>
       <nav className="mt-6">
-        {menuItems.map((item) => (
-          <motion.div
-            key={item.key}
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-200 rounded-lg"
-          >
-            {item.icon}
-            <Link className="w-full" href={item.url || '/dashboard'}>
-              {item.name}
-            </Link>
-          </motion.div>
+        {menuItems.map((item, index) => (
+          <Fragment key={item.key + index}>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-200 rounded-lg"
+            >
+              {item.icon}
+              <Link className="w-full" href={item.url || '/dashboard'}>
+                {item.name}
+              </Link>
+            </motion.div>
+          </Fragment>
         ))}
       </nav>
-      <form
-        action={() => {
-          logoutFn.mutate();
+
+      <SubmitButton
+        onClick={() => {
+          logoutFn.mutateAsync();
         }}
-        className="mt-6"
+        className="mt-6 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
       >
-        <button
-          type="submit"
-          className="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg"
-        >
-          <FaSignOutAlt /> خروج از حساب کاربری
-        </button>
-      </form>
+        <FaSignOutAlt /> خروج از حساب کاربری
+      </SubmitButton>
     </>
   );
 }
