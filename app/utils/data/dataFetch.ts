@@ -22,10 +22,20 @@ export async function dataFetch({
     },
     cache,
   };
+
   if (tag) Object.assign(options, { next: { tags: tag } });
 
   try {
     const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
+
+    if (apiData.status == 204) {
+      return {
+        data: { data: 'op was 204,theres no result' },
+        status: 204,
+        meta: {},
+      };
+    }
+
     const data = await apiData.json();
     const meta: MetaProps = data.meta;
     return { data: data.data, meta, fullData: data };
@@ -58,17 +68,27 @@ export async function requestData({
     },
     cache,
   };
+
   if (Object.keys(body).length)
     Object.assign(options, { body: JSON.stringify(body) });
+
   if (tag) Object.assign(options, { next: { tags: tag } });
+
   try {
     const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
+
+    if (apiData.status == 204) {
+      return {
+        data: { data: 'op was 204,theres no result' },
+        status: 204,
+      };
+    }
+
     const data = await apiData.json();
     const result = {
       data: JSON.parse(JSON.stringify(data)),
       status: apiData.status,
     };
-
     return result;
   } catch (error) {
     throw new Error('خطای ارتباط با سرور\n' + error);
