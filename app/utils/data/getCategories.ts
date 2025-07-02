@@ -17,11 +17,12 @@ export const getCategoriesUrl = cache(async function (
       parentCategories: { populate: '*' },
     },
   });
-  const data: CategoriesProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/categories?${query}`,
     tag,
     cache: 'force-cache',
   });
+  const data: CategoriesProps[] = fetchData.data;
   const result = data[0];
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
@@ -42,12 +43,12 @@ export const getCategory = cache(async function (
       childCategories: { populate: '*' },
     },
   });
-
-  return await dataFetch({
+  const res = await dataFetch({
     qs: `/categories?${query}`,
     tag,
     cache: 'force-cache',
   });
+  return res.data;
 });
 
 export const getCategories = cache(async function (
@@ -60,9 +61,10 @@ export const getCategories = cache(async function (
       posts: { populate: '*' },
     },
   });
-  return await dataFetch({
+  const res = await dataFetch({
     qs: `/categories?${query}`,
     tag,
     cache: 'force-cache',
   });
+  return res.data;
 });

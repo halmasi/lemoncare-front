@@ -22,10 +22,11 @@ const getPage = cache(async function (slug: string) {
     populate: '*',
   });
 
-  const apiData: SinglePageProps[] = await dataFetch({
+  const res = await dataFetch({
     qs: `/single-pages?${query}`,
   });
-  return apiData[0];
+  const apiData: SinglePageProps = res.data[0];
+  return apiData;
 });
 
 export async function generateMetadata(props: {

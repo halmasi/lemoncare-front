@@ -3,13 +3,7 @@
 import { PostsProps } from '@/app/utils/schema/blogProps';
 import AddToFavorites from '../../AddToFavorites';
 
-export default function BookmarkContent({
-  posts,
-  onToggleFavorite,
-}: {
-  posts: PostsProps[];
-  onToggleFavorite: (postIdToRemove: string) => void;
-}) {
+export default function BookmarkContent({ posts }: { posts: PostsProps[] }) {
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">
@@ -34,10 +28,7 @@ export default function BookmarkContent({
               <br />
               {post.documentId}
             </p>
-            <AddToFavorites
-              post={post}
-              onUnfavorite={() => onToggleFavorite(post.documentId)}
-            />
+            <AddToFavorites post={post} />
           </div>
         ))}
       </div>

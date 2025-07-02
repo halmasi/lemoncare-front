@@ -2,14 +2,14 @@
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useCartStore } from '@/app/utils/states/useCartData';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
 import { logs } from '@/app/utils/miniFunctions';
-import { CartProps, ProductProps } from '@/app/utils/schema/shopProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { useRouter } from 'next/navigation';
 export default function Count({
   inventory,

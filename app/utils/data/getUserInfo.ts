@@ -210,7 +210,7 @@ export const updateFavorite = async (
   } else if (!checkExists) {
     const which = {
       posts: await getPost(propertyDocumentId),
-      products: await getProduct(propertyDocumentId),
+      products: (await getProduct(propertyDocumentId)).res,
     };
     const newInfo: PostsProps[] | ProductProps[] = which[whichOne];
 

@@ -1,29 +1,24 @@
-import PostCard from '@/app/components/PostCard';
-import { getPostsByTag } from '@/app/utils/data/getPosts';
-import { PostsProps } from '@/app/utils/schema/blogProps';
+import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
 
-export default async function page(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
-  const { slug } = params;
-  const posts: PostsProps[] = await getPostsByTag(slug);
+export default async function page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const slug = (await params).slug;
+  const searchParam = await searchParams;
+  const page = parseInt(searchParam?.p || '1');
 
   return (
     <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
-      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-        {posts.map(async (post: PostsProps) => {
-          return (
-            <PostCard
-              key={post.documentId}
-              basicInfo={post.basicInfo}
-              category={post.category}
-              seo={post.seo}
-              authorName={post.author.name}
-              authorSlug={post.author.username}
-              authorEmail={post.author.email}
-            />
-          );
-        })}
-      </div>
+      <ProductsAndBlogPage
+        resultBy="tag"
+        slug={[slug]}
+        type="post"
+        page={page}
+      />
     </main>
   );
 }

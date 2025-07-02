@@ -34,16 +34,7 @@ export default function Bookmarks() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex justify-center gap-4 mb-8"></div>
-      {bookmarksData && (
-        <BookmarkContent
-          posts={bookmarksData}
-          onToggleFavorite={(postId) =>
-            setBookmarksData((prev: any) =>
-              prev.filter((p: any) => p.documentId !== postId)
-            )
-          }
-        />
-      )}
+      {bookmarksData && <BookmarkContent posts={bookmarksData} />}
     </div>
   );
 }

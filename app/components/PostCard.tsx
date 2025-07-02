@@ -30,9 +30,8 @@ export default function PostCard({
 }) {
   const [categoryFetchUrl, setCategoryFetchUrl] = useState<string>();
   const getCategoryFn = useMutation({
-    mutationFn: async (categoryId: number) => {
-      const url = await getCategoriesUrl(category, ['category']);
-      return url;
+    mutationFn: async () => {
+      return await getCategoriesUrl(category, ['category']);
     },
     onSuccess: (data) => {
       setCategoryFetchUrl(data);
@@ -43,19 +42,21 @@ export default function PostCard({
     if (categoryUrl) {
       setCategoryFetchUrl(categoryUrl);
     } else {
-      getCategoryFn.mutateAsync(category.id);
+      getCategoryFn.mutateAsync();
     }
-  }, [categoryUrl, category]);
+  }, []);
 
   return (
     <article>
-      {categoryFetchUrl && (
+      {categoryFetchUrl ? (
         <div className="flex items-center text-gray-600 text-sm">
           <p>دسته بندی</p> <IoMdArrowDropleft />
           <Link href={'/blog/category/' + categoryFetchUrl}>
             {category.title}
           </Link>
         </div>
+      ) : (
+        <div className="w-[50%] h-5 bg-gray-500 animate-pulse m-2 rounded-lg" />
       )}
       <div className="flex flex-col bg-white shadow-lg rounded-lg">
         <div

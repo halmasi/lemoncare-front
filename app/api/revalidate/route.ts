@@ -231,13 +231,14 @@ export async function POST(request: NextRequest) {
             user: { $null: true },
           },
         });
+        const res = await dataFetch({ qs: `/carts?${query}` });
         const carts: {
           id: number;
           documentId: string;
           createdAt: string;
           updatedAt: string;
           publishedAt: string;
-        }[] = await dataFetch({ qs: `/carts?${query}` });
+        }[] = res.data;
         carts.map(async (item) => {
           await dataFetch({
             qs: `/carts/${item.documentId}`,

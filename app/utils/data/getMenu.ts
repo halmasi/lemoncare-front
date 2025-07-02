@@ -12,7 +12,7 @@ export const getMenuItems = cache(async function () {
     tag: ['main-menu'],
     cache: 'force-cache',
   });
-  const menuItems: MenuProps[] = parsedData.items;
+  const menuItems: MenuProps[] = parsedData.data.items;
   return menuItems;
 });
 
@@ -24,7 +24,7 @@ export const getFooterItems = cache(async function (): Promise<
     tag: ['footer-menu'],
     cache: 'force-cache',
   });
-  const footerItems: FooteritemsProps[] = parsedData.item;
+  const footerItems: FooteritemsProps[] = parsedData.data.item;
   return footerItems;
 });
 
@@ -36,7 +36,7 @@ export const getSocialLinksItems = cache(async function (): Promise<
     tag: ['social-links'],
     cache: 'force-cache',
   });
-  const socialLinksItems: SocialLinksProps[] = parsedData.item;
+  const socialLinksItems: SocialLinksProps[] = parsedData.data.item;
   return socialLinksItems;
 });
 
@@ -49,6 +49,6 @@ export const getShopMenuItems = cache(async function () {
     tag: ['shop-menu'],
     cache: 'force-cache',
   });
-  const menuItems: MenuProps[] = parsedData.menuItems;
+  const menuItems: MenuProps[] = parsedData.data.menuItems;
   return menuItems;
 });

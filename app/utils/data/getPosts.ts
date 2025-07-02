@@ -9,7 +9,15 @@ import {
 } from '@/app/utils/schema/blogProps';
 import { AuthorProps } from '@/app/utils/schema/otherProps';
 
-export const getPosts = cache(async function (count?: number, tag?: string[]) {
+export const getPosts = cache(async function ({
+  page = 1,
+  pageSize = 10,
+  tag,
+}: {
+  page?: number;
+  pageSize?: number;
+  tag?: string[];
+}) {
   const query = qs.stringify({
     populate: {
       seo: { populate: '*' },
@@ -17,19 +25,18 @@ export const getPosts = cache(async function (count?: number, tag?: string[]) {
       basicInfo: { populate: '*' },
       category: { populate: '*' },
     },
+    pagination: { page, pageSize },
   });
   let link = '/posts?' + query;
-  if (count) {
-    link += `&pagination[limit]=${count}&sort[0]=createdAt:desc`;
-  }
-  const result: PostsProps[] = await dataFetch({
+
+  const fetchData = await dataFetch({
     qs: link,
     method: 'GET',
     tag,
     cache: 'force-cache',
   });
-
-  return result;
+  const result: PostsProps[] = fetchData.data;
+  return { result, meta: fetchData.meta };
 });
 
 export const getPost = cache(async function (slug: string | number) {
@@ -48,10 +55,11 @@ export const getPost = cache(async function (slug: string | number) {
       sources: { populate: '*' },
     },
   });
-  const result: PostsProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/posts?${query}`,
     cache: 'force-cache',
   });
+  const result: PostsProps[] = fetchData.data;
   return result;
 });
 
@@ -84,10 +92,17 @@ export const getCategoryHierarchy = cache(async function (
   return allCategories;
 });
 
-export const getPostsByCategory = cache(async function (
-  category: CategoriesProps,
-  tag?: string[]
-) {
+export const getPostsByCategory = cache(async function ({
+  category,
+  tag,
+  page = 1,
+  pageSize = 10,
+}: {
+  category: CategoriesProps;
+  tag?: string[];
+  page?: number;
+  pageSize?: number;
+}) {
   if (!category) return;
   const subCategories: SubCategoryProps[] | [] =
     category.childCategories.length > 0
@@ -113,19 +128,31 @@ export const getPostsByCategory = cache(async function (
       basicInfo: { populate: '*' },
       category: { populate: '*' },
     },
+    pagination: {
+      page,
+      pageSize,
+    },
   });
-  const result: PostsProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/posts?${query}&sort[0]=createdAt:desc`,
     tag,
     cache: 'force-cache',
   });
-  return result;
+  const result: PostsProps[] = fetchData.data;
+  return { result, meta: fetchData.meta };
 });
 
-export const getPostsByTag = cache(async function (
-  slug: string,
-  tag?: string[]
-) {
+export const getPostsByTag = cache(async function ({
+  slug,
+  page = 1,
+  pageSize = 10,
+  tag,
+}: {
+  slug: string;
+  tag?: string[];
+  page?: number;
+  pageSize?: number;
+}) {
   const query = qs.stringify({
     filters: {
       tags: {
@@ -137,20 +164,33 @@ export const getPostsByTag = cache(async function (
       author: { populate: 1 },
       basicInfo: { populate: '*' },
       category: { populate: '*' },
+      tags: { populate: '*' },
+    },
+    pagination: {
+      page,
+      pageSize,
     },
   });
-  const result: PostsProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/posts?${query}&sort[0]=createdAt:desc`,
     tag,
     cache: 'force-cache',
   });
-  return result;
+  const result: PostsProps[] = fetchData.data;
+  return { result, meta: fetchData.meta };
 });
 
-export const getPostsByAuthor = cache(async function (
-  slug: string,
-  tag?: string[]
-) {
+export const getPostsByAuthor = cache(async function ({
+  slug,
+  tag,
+  page = 1,
+  pageSize = 10,
+}: {
+  slug: string;
+  tag?: string[];
+  page?: number;
+  pageSize?: number;
+}) {
   const query = qs.stringify({
     filters: {
       author: {
@@ -163,23 +203,34 @@ export const getPostsByAuthor = cache(async function (
       basicInfo: { populate: '*' },
       category: { populate: '*' },
     },
+    pagination: {
+      page,
+      pageSize,
+    },
   });
-  const result: PostsProps[] = await dataFetch({
+  const fetchData = await dataFetch({
     qs: `/posts?${query}&sort[0]=createdAt:desc`,
     tag,
     cache: 'force-cache',
   });
-  return result;
+  const result: PostsProps[] = fetchData.data;
+  return { posts: result, meta: fetchData.meta };
 });
 
 export const getAuthorInformation = cache(async function (
-  id: string,
+  slug: string,
   tag?: string[]
 ) {
-  const result: AuthorProps = await dataFetch({
-    qs: `/authors/${id}`,
+  const query = qs.stringify({
+    filters: {
+      username: { $eq: slug },
+    },
+  });
+  const fetchData = await dataFetch({
+    qs: `/authors?${query}`,
     tag,
     cache: 'force-cache',
   });
+  const result: AuthorProps = fetchData.data[0];
   return result;
 });
