@@ -32,7 +32,14 @@ export async function dataFetch({
       return {
         data: { data: 'op was 204,theres no result' },
         status: 204,
-        meta: {},
+        meta: {
+          pagination: {
+            page: 0,
+            pageCount: 0,
+            pageSize: 0,
+            total: 0,
+          },
+        },
       };
     }
 
