@@ -13,7 +13,7 @@ import { BiCopy } from 'react-icons/bi';
 import { VscLoading } from 'react-icons/vsc';
 import { toast } from 'react-toastify';
 
-export default function page() {
+export default function GatePage() {
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const {
