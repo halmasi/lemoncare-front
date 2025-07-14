@@ -46,8 +46,8 @@ export async function dataFetch({
     const data = await apiData.json();
     const meta: MetaProps = data.meta;
     return { data: data.data, meta, fullData: data };
-  } catch (error) {
-    throw new Error('خطای ارتباط با سرور\n' + error);
+  } catch (ـ) {
+    throw new Error('خطای ارتباط با سرور\n');
   }
 }
 
@@ -97,7 +97,7 @@ export async function requestData({
       status: apiData.status,
     };
     return result;
-  } catch (error) {
-    throw new Error('خطای ارتباط با سرور\n' + error);
+  } catch (ـ) {
+    throw new Error('خطای ارتباط با سرور\n');
   }
 }

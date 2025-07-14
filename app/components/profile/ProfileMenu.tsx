@@ -7,7 +7,7 @@ import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Fragment, ReactNode, useState } from 'react';
+import { Fragment, ReactNode } from 'react';
 import {
   FaShoppingCart,
   FaRegHeart,
@@ -15,12 +15,11 @@ import {
   FaUser,
   FaSignOutAlt,
   FaReceipt,
-  FaChevronDown,
-  FaChevronUp,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import SubmitButton from '../formElements/SubmitButton';
 import { usePathname, useRouter } from 'next/navigation';
+import { useLoginData } from '@/app/utils/states/useLoginData';
 
 interface MenuItemsProps {
   name: string | ReactNode;
@@ -37,6 +36,7 @@ export default function ProfileMenu({
   const { resetUser } = useDataStore();
   const { resetCart } = useCartStore();
   const { resetCheckout } = useCheckoutStore();
+  const { setStep } = useLoginData();
   const { push } = useRouter();
   const path = usePathname();
 
@@ -46,6 +46,7 @@ export default function ProfileMenu({
       resetUser();
       resetCart();
       resetCheckout();
+      setStep('identifier');
       if (path.startsWith('/dashboard') || path.startsWith('/cart')) {
         push('/login');
       }

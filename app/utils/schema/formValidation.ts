@@ -23,7 +23,7 @@ export const registerSchema = z.object({
   username: z
     .string()
     .nonempty('شماره تلفن الزامی است')
-    .regex(/^9\d{9}$/, 'شماره تلفن وارد شده معتبر نیست'),
+    .regex(/^98\d{10}$/, 'شماره تلفن وارد شده معتبر نیست'),
 
   email: z
     .string()
@@ -35,7 +35,7 @@ export const registerSchema = z.object({
     .min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
     .max(32, 'رمز عبور حداکثر ۳۲ کاراکتر میباشد')
     .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$/,
+      /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,32}$/,
       'رمز عبور باید شامل حروف بزرگ، کوچک، عدد و کاراکتر خاص باشد'
     ),
 });
@@ -50,6 +50,6 @@ export const updateUserInformationSchema = z.object({
 
   username: z
     .string()
-    .regex(/^9\d{9}$/, 'شماره تلفن معتبر نیست')
+    .regex(/^98\d{10}$/, 'شماره تلفن معتبر نیست')
     .optional(),
 });

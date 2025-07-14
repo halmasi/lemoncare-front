@@ -33,7 +33,7 @@ export default function RegisterForm() {
     }) => {
       const response = await registerAction(username, email, password);
       if (!response.success) {
-        throw new Error('نام کاربری تکراری است.');
+        throw new Error('ایمیل یا شماره موبایل تکراری است.');
       }
       return response.jwt;
     },
@@ -114,8 +114,8 @@ export default function RegisterForm() {
       {errors.password && (
         <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
       )}
-      <SubmitButton isPending={registerMutation.status === 'pending'}>
-        {registerMutation.status ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
+      <SubmitButton isPending={registerMutation.isPending}>
+        {registerMutation.isPending ? 'در حال ثبت نام...' : 'ثبت نام'}
       </SubmitButton>
     </form>
   );

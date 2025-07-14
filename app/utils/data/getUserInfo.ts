@@ -15,14 +15,12 @@ export const updateUserInformation = async (
   id: string,
   token: string,
   userData: {
+    phoneConfirmed?: boolean;
     fullName?: string;
     username?: string;
     email?: string;
   }
 ) => {
-  if (userData.username) {
-    userData.username = '98' + userData.username;
-  }
   const response = await requestData({
     qs: `/users/${id}`,
     method: 'PUT',
@@ -31,6 +29,7 @@ export const updateUserInformation = async (
   });
   return response.data;
 };
+
 export const getPostalInformation = async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({

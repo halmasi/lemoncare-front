@@ -21,6 +21,7 @@ export interface LoginUserProps {
       email: string;
       provider: string;
       confirmed: boolean;
+      phoneConfirmed: boolean;
       blocked: boolean;
       createdAt: string;
       updatedAt: string;

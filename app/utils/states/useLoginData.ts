@@ -4,7 +4,12 @@ export interface LoginDataProps {
   username: string;
   email: string;
   password: string;
-  step: 'identifier' | 'login' | 'register';
+  step:
+    | 'identifier'
+    | 'login'
+    | 'register'
+    | 'phoneConfirmationLogin'
+    | 'phoneConfirmationRegister';
   completedSteps: {
     identifier: boolean;
     login: boolean;
@@ -21,9 +26,21 @@ export interface LoginDataProps {
   setUsername: (username: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  setStep: (step: 'identifier' | 'login' | 'register') => void;
+  setStep: (
+    step:
+      | 'identifier'
+      | 'login'
+      | 'register'
+      | 'phoneConfirmationLogin'
+      | 'phoneConfirmationRegister'
+  ) => void;
   setCompletedStep: (
-    step: 'identifier' | 'login' | 'register',
+    step:
+      | 'identifier'
+      | 'login'
+      | 'register'
+      | 'phoneConfirmationLogin'
+      | 'phoneConfirmationRegister',
     completed: boolean
   ) => void;
   resetForm: () => void;

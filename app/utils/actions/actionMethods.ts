@@ -35,7 +35,7 @@ export const registerAction = async (
   };
   username = cleanPhone(username);
   const validationResult = registerSchema.safeParse({
-    username,
+    username: '98' + username,
     email,
     password,
   });
@@ -184,28 +184,28 @@ export const loginCheck = async () => {
   };
 };
 
-export const getFullUserData = async (
-  isDeep: boolean = false,
-  populateOptions?: object[]
-) => {
+export const getFullUserData = async (input?: {
+  isDeep?: boolean;
+  token?: string;
+  populateOptions?: object[];
+}) => {
   const defaultOptions = {
-    // order_history: { populate: '*' },
-    shopingCart: { populate: '1' },
-    postal_information: { populate: '1' },
+    shopingCart: { populate: '*' },
+    postal_information: { populate: '*' },
     favorite: { populate: '1' },
   };
-  const options = populateOptions
-    ? Object.assign(defaultOptions, ...populateOptions)
+  const options = input?.populateOptions
+    ? Object.assign(defaultOptions, ...input.populateOptions)
     : defaultOptions;
   const query = qs.stringify({
     populate: options,
   });
-  const token = await getCookie('jwt');
+  const getToken = await getCookie('jwt');
 
   const response = await requestData({
-    qs: `/users/me?${isDeep ? 'pLevel' : query}`,
+    qs: `/users/me?${input?.isDeep ? 'pLevel' : query}`,
     method: 'GET',
-    token,
+    token: input && input.token ? input.token : getToken,
   });
   return { status: response.status, body: response.data };
 };

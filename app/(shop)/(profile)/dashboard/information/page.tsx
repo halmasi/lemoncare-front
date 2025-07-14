@@ -71,9 +71,13 @@ export default function Information() {
     const formData = new FormData(event.currentTarget);
     const inputUserData = {
       fullName: formData.get('fullName')?.toString() || '',
-      username: cleanPhone(formData.get('username')?.toString() || ''),
+      username: '',
       email: formData.get('email')?.toString() || '',
     };
+    const userName = formData.get('username');
+    if (userName) {
+      inputUserData.username = '98' + cleanPhone(userName.toString());
+    }
     const validation = updateUserInformationSchema.safeParse(inputUserData);
     if (!validation.success) {
       console.error(validation.error.format());
