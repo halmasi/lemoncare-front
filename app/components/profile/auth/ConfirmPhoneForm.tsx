@@ -99,9 +99,7 @@ export default function ConfirmPhoneForm({
       const res = await removeUser(id);
       return res;
     },
-    onSuccess: (data) => {
-      console.log(data);
-    },
+    onSuccess: () => {},
   });
 
   useEffect(() => {

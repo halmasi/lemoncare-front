@@ -60,12 +60,16 @@ export default function ProfileDropDown() {
                         {
                           name: (
                             <div className="flex items-center justify-between w-full">
-                              {user && user.fullName ? (
+                              {user ? (
                                 <>
                                   <div>
                                     <div className="flex gap-3">
                                       <Gravatar />
-                                      <p>{user.fullName}</p>
+                                      <p>
+                                        {user.fullName
+                                          ? user.fullName
+                                          : user.email}
+                                      </p>
                                     </div>
                                   </div>
                                   <IoIosArrowBack />
@@ -78,6 +82,7 @@ export default function ProfileDropDown() {
                               )}
                             </div>
                           ),
+                          title: 'پنل کاربری',
                           key: user && user.fullName ? user.fullName : 'user',
                           url: '/dashboard',
                         },

@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 export default function Dashboard() {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
 
-  const { user, setUser } = useDataStore();
+  const { user, setUser, jwt } = useDataStore();
 
   const getUserDataFn = useMutation({
     mutationFn: async () => {
@@ -31,9 +31,9 @@ export default function Dashboard() {
     if (!user) {
       getUserDataFn.mutateAsync();
     }
-  }, [user]);
+  }, [user, jwt]);
 
-  if (!user) {
+  if (!jwt || !user) {
     return (
       <div>
         <h4>در حال بارگزاری ...</h4>

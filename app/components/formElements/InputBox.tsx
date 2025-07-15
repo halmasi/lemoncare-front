@@ -52,41 +52,44 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             {required && <p className="text-accent-pink"> * </p>}
           </label>
         )}
-        <input
-          className={`w-full  p-2 border rounded-xl focus:shadow-accent-pink/30 focus:outline-none transition-all ${className} ${ltr && 'ltr'}`}
-          onFocus={onFocus}
-          onChange={(e) => {
-            e.preventDefault();
-            if (type != 'password') {
-              const englishNumbers = convertPersianAndArabicToEnglish(
-                e.target.value
-              );
-              e.target.value = englishNumbers;
+        <div className="w-full h-fit rounded-md border flex items-center gap-1">
+          <input
+            className={`w-full p-2 focus:shadow-accent-pink/30 focus:outline-none transition-all ${type == 'password' && 'rounded-l-none border-l-0'} ${className} ${ltr && 'ltr'}`}
+            onFocus={onFocus}
+            onChange={(e) => {
+              e.preventDefault();
+              if (type != 'password') {
+                const englishNumbers = convertPersianAndArabicToEnglish(
+                  e.target.value
+                );
+                e.target.value = englishNumbers;
+              }
+              if (onChange) onChange(e);
+            }}
+            type={
+              type == 'password'
+                ? showPassword
+                  ? 'text'
+                  : 'password'
+                : type || 'text'
             }
-            if (onChange) onChange(e);
-          }}
-          type={
-            type == 'password'
-              ? showPassword
-                ? 'text'
-                : 'password'
-              : type || 'text'
-          }
-          placeholder={placeholder}
-          name={name}
-          id={name}
-          ref={ref}
-          dir={ltr ? 'ltr' : 'rtl'}
-        />
-        {type == 'password' && (
-          <button
-            type="button"
-            onClick={togglePassword}
-            className="justify-center transform text-black"
-          >
-            {showPassword ? <LuEyeClosed size={20} /> : <LuEye size={20} />}
-          </button>
-        )}
+            placeholder={placeholder}
+            name={name}
+            id={name}
+            ref={ref}
+            dir={ltr ? 'ltr' : 'rtl'}
+          />
+
+          {type == 'password' && (
+            <button
+              type="button"
+              onClick={togglePassword}
+              className="flex w-fit p-1 justify-center transform text-black"
+            >
+              {showPassword ? <LuEyeClosed size={20} /> : <LuEye size={20} />}
+            </button>
+          )}
+        </div>
       </div>
     );
   }

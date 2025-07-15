@@ -16,9 +16,11 @@ const PhoneInputBox = forwardRef<HTMLInputElement, PhoneInputProps>(
             {required && <p className="text-accent-pink"> * </p>}
           </label>
         )}
-        <div className={`flex w-full items-center`}>
+        <div
+          className={`flex w-full border rounded-md border-gray-300 items-center`}
+        >
           <input
-            className="p-2 border-l-0 border-2 border-gray-400 rounded-r-xl shadow-lg focus:shadow-accent-pink/30 focus:outline-none transition-all text-left w-full h-12"
+            className="p-2 focus:outline-none transition-all text-left w-full"
             type={'tel'}
             dir="ltr"
             placeholder={placeholder}
@@ -26,8 +28,8 @@ const PhoneInputBox = forwardRef<HTMLInputElement, PhoneInputProps>(
             id={name}
             ref={ref}
           />
-          <div className="flex justify-center items-center px-3 bg-gray-200 border-2 border-r-0 border-gray-400 rounded-l-xl shadow-lg w-28 h-12">
-            <h6 className="text-base text-left">98+ ایران</h6>
+          <div className="flex justify-center items-center px-3 bg-gray-200/50 h-10">
+            <p className="text-base text-left">98+</p>
           </div>
         </div>
       </div>
