@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
         location,
       },
     });
-
     if (res.status >= 200 && res.status < 300) {
       return Response.json(
         JSON.stringify({

@@ -4,17 +4,13 @@ export interface LoginDataProps {
   username: string;
   email: string;
   password: string;
+  id: number;
   step:
     | 'identifier'
     | 'login'
     | 'register'
     | 'phoneConfirmationLogin'
     | 'phoneConfirmationRegister';
-  completedSteps: {
-    identifier: boolean;
-    login: boolean;
-    register: boolean;
-  };
   errors: {
     identifier: string[];
     username: string[];
@@ -26,6 +22,7 @@ export interface LoginDataProps {
   setUsername: (username: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
+  setId: (id: number) => void;
   setStep: (
     step:
       | 'identifier'
@@ -34,27 +31,14 @@ export interface LoginDataProps {
       | 'phoneConfirmationLogin'
       | 'phoneConfirmationRegister'
   ) => void;
-  setCompletedStep: (
-    step:
-      | 'identifier'
-      | 'login'
-      | 'register'
-      | 'phoneConfirmationLogin'
-      | 'phoneConfirmationRegister',
-    completed: boolean
-  ) => void;
   resetForm: () => void;
 }
 export const useLoginData = create<LoginDataProps>((set) => ({
   username: '',
   email: '',
   password: '',
+  id: 0,
   step: 'identifier',
-  completedSteps: {
-    identifier: false,
-    login: false,
-    register: false,
-  },
   errors: {
     identifier: [],
     username: [],
@@ -69,14 +53,8 @@ export const useLoginData = create<LoginDataProps>((set) => ({
   setUsername: (username) => set(() => ({ username })),
   setEmail: (email) => set(() => ({ email })),
   setPassword: (password) => set(() => ({ password })),
+  setId: (id) => set(() => ({ id })),
   setStep: (step) => set(() => ({ step })),
-  setCompletedStep: (step, completed) =>
-    set((state) => ({
-      completedSteps: {
-        ...state.completedSteps,
-        [step]: completed,
-      },
-    })),
   resetForm: () =>
     set(() => ({
       identifier: '',

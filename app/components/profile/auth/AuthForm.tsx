@@ -8,7 +8,7 @@ import RegisterForm from './RegisterForm';
 import ConfirmPhoneForm from './ConfirmPhoneForm';
 
 export default function AuthForm() {
-  const { step, setStep, resetForm, completedSteps } = useLoginData();
+  const { step, setStep, resetForm } = useLoginData();
 
   const stepTitles = {
     identifier: 'ورود یا ثبت نام',
@@ -39,41 +39,34 @@ export default function AuthForm() {
           <div className="flex gap-2">
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.identifier
-                  ? 'bg-green-500'
-                  : step === 'identifier'
-                    ? 'bg-blue-500'
+                step === 'identifier'
+                  ? 'bg-accent-pink'
+                  : step === 'register' ||
+                      step === 'login' ||
+                      step === 'phoneConfirmationLogin' ||
+                      step === 'phoneConfirmationRegister'
+                    ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
               layout
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.login
-                  ? 'bg-green-500'
-                  : step === 'login'
-                    ? 'bg-blue-500'
+                step === 'register' || step === 'login'
+                  ? 'bg-accent-pink'
+                  : step === 'phoneConfirmationLogin' ||
+                      step === 'phoneConfirmationRegister'
+                    ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
               layout
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.register
-                  ? 'bg-green-500'
-                  : step === 'register'
-                    ? 'bg-blue-500'
-                    : 'bg-gray-300'
-              }`}
-              layout
-            />
-            <motion.div
-              className={`w-3 h-3 rounded-full ${
-                completedSteps.login
-                  ? 'bg-green-500'
-                  : step === 'phoneConfirmationLogin'
-                    ? 'bg-blue-500'
-                    : 'bg-gray-300'
+                step === 'phoneConfirmationLogin' ||
+                step === 'phoneConfirmationRegister'
+                  ? 'bg-accent-pink'
+                  : 'bg-gray-300'
               }`}
               layout
             />
@@ -83,7 +76,9 @@ export default function AuthForm() {
         {(step === 'identifier' || step === 'login') && <LoginForm />}
         {step === 'register' && <RegisterForm />}
         {step === 'phoneConfirmationLogin' && <ConfirmPhoneForm isLogin />}
-        {step === 'phoneConfirmationRegister' && <ConfirmPhoneForm />}
+        {step === 'phoneConfirmationRegister' && (
+          <ConfirmPhoneForm isRegister />
+        )}
       </div>
     </div>
   );

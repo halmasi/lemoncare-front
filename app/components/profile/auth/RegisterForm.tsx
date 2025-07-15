@@ -14,7 +14,16 @@ export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { setStep, setErrors, email, username, errors } = useLoginData();
+  const {
+    setStep,
+    setErrors,
+    email,
+    username,
+    errors,
+    setEmail,
+    setUsername,
+    setId,
+  } = useLoginData();
 
   useEffect(() => {
     usernameRef.current!.value = username;
@@ -35,10 +44,13 @@ export default function RegisterForm() {
       if (!response.success) {
         throw new Error('ایمیل یا شماره موبایل تکراری است.');
       }
-      return response.jwt;
+      setUsername(username);
+      setEmail(email);
+      return response.user;
     },
-    onSuccess: () => {
-      setStep('login');
+    onSuccess: (data) => {
+      setId(data);
+      setStep('phoneConfirmationRegister');
     },
     onError: (error: Error) => {
       setErrors({
@@ -64,7 +76,7 @@ export default function RegisterForm() {
 
     // Validate the form using the schema
     const validationResult = registerSchema.safeParse({
-      username,
+      username: '98' + username,
       email,
       password: enteredPassword,
     });

@@ -8,21 +8,28 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { BiEditAlt } from 'react-icons/bi';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { getFullUserData, setCookie } from '@/app/utils/actions/actionMethods';
+import {
+  getFullUserData,
+  registerAction,
+  removeUser,
+  setCookie,
+} from '@/app/utils/actions/actionMethods';
 import { usePathname, useRouter } from 'next/navigation';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
 
 export default function ConfirmPhoneForm({
   isLogin = false,
+  isRegister = false,
 }: {
   isLogin?: boolean;
+  isRegister?: boolean;
 }) {
   const codeRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
   const path = usePathname();
 
-  const { username, setStep } = useLoginData();
+  const { username, setStep, id } = useLoginData();
   const { setJwt, setUser, setLoginProcces } = useDataStore();
 
   const sendCodeFn = useMutation({
@@ -87,6 +94,16 @@ export default function ConfirmPhoneForm({
     },
   });
 
+  const deleteUserFn = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await removeUser(id);
+      return res;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
+
   useEffect(() => {
     if (username) {
       sendCodeFn.mutate('98' + username);
@@ -122,6 +139,10 @@ export default function ConfirmPhoneForm({
           <span
             onClick={() => {
               if (isLogin) setStep('identifier');
+              else if (isRegister) {
+                deleteUserFn.mutateAsync(id);
+                setStep('register');
+              }
             }}
             className="flex items-center gap-2 cursor-pointer"
           >

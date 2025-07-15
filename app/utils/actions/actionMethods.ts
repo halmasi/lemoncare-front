@@ -11,7 +11,6 @@ export const registerAction = async (
   email: string,
   password: string
 ) => {
-  let success = false;
   const fieldErrors: {
     username: string[];
     email: string[];
@@ -23,19 +22,9 @@ export const registerAction = async (
     password: [],
     server: [],
   };
-  const response: {
-    data: {
-      data?: null | '';
-      jwt: string;
-      user: object;
-      error?: { message: string };
-    };
-  } = {
-    data: { jwt: '', user: {} },
-  };
-  username = cleanPhone(username);
+  username = '98' + cleanPhone(username);
   const validationResult = registerSchema.safeParse({
-    username: '98' + username,
+    username: username,
     email,
     password,
   });
@@ -51,7 +40,7 @@ export const registerAction = async (
       qs: '/auth/local/register',
       method: 'POST',
       body: {
-        username: '98' + validationResult.data.username,
+        username: validationResult.data.username,
         email: validationResult.data.email,
         password: validationResult.data.password,
       },
@@ -59,8 +48,8 @@ export const registerAction = async (
 
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
+      return { success: false, fieldErrors };
     } else {
-      success = true;
       const userId = response.data.user.id;
 
       const requests = [
@@ -83,13 +72,15 @@ export const registerAction = async (
           })
         )
       );
+      return {
+        success: true,
+        fieldErrors,
+        user: userId,
+      };
     }
   }
-
   return {
-    success,
-    jwt: response.data.jwt,
-    user: response.data.user,
+    success: false,
     fieldErrors,
   };
 };
@@ -208,6 +199,14 @@ export const getFullUserData = async (input?: {
     token: input && input.token ? input.token : getToken,
   });
   return { status: response.status, body: response.data };
+};
+
+export const removeUser = async (id: number) => {
+  const response = await requestData({
+    qs: `/users/${id}`,
+    method: 'DELETE',
+  });
+  return response;
 };
 
 export const setCookie = async (name: string, cookie: string) => {
