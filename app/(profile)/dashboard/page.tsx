@@ -152,7 +152,7 @@ export default function Dashboard() {
           </div>
         )}
         <div className="w-full flex flex-wrap gap-2">
-          <div className="w-full flex flex-col gap-2 md:w-[49%]">
+          <div className="w-full flex flex-col gap-2 lg:w-[49%]">
             <Title>
               <h6 className="text-accent-pink">آدرس پیش فرض</h6>
             </Title>
@@ -216,7 +216,7 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col gap-2 md:w-[49%]">
+          <div className="w-full flex flex-col gap-2 lg:w-[49%]">
             <Title>
               <h6 className="text-accent-pink">علاقمندی ها</h6>
             </Title>
@@ -252,7 +252,7 @@ export default function Dashboard() {
                         slidesPerView: 1,
                         spaceBetween: 20,
                       },
-                      1024: {
+                      1300: {
                         slidesPerView: 2,
                         spaceBetween: 30,
                       },
@@ -266,14 +266,14 @@ export default function Dashboard() {
                       prevEl: '.slide-prev',
                     }}
                     modules={[Keyboard, Navigation, Scrollbar, A11y, FreeMode]}
-                    className="mySwiper flex w-full overflow-hidden"
+                    className="mySwiper flex w-full overflow-hidden max-w-prose"
                   >
                     {favorites.slice(0, 10).map((item, index) => (
                       <SwiperSlide
                         key={index}
                         className="flex justify-center items-center"
                       >
-                        <ProductCart product={item} />
+                        <ProductCart showDiscount={false} product={item} />
                       </SwiperSlide>
                     ))}
                   </Swiper>
