@@ -3,6 +3,7 @@
 import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
 import { logs } from '@/app/utils/miniFunctions';
 import { cleanPhone } from '@/app/utils/miniFunctions';
@@ -14,7 +15,7 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Information() {
-  const { user, jwt } = useDataStore();
+  const { user, jwt, setUser } = useDataStore();
   const queryClient = useQueryClient();
 
   const router = useRouter();
@@ -36,7 +37,15 @@ export default function Information() {
       }
     }
   }, [user]);
-
+  const getUserInfoFn = useMutation({
+    mutationFn: async () => {
+      const userData = await getFullUserData();
+      return userData;
+    },
+    onSuccess: (data) => {
+      setUser(data.body);
+    },
+  });
   const editUserInformaion = useMutation({
     mutationFn: async (inputUserData: {
       fullName?: string;
@@ -59,8 +68,7 @@ export default function Information() {
       }
     },
     onSuccess: async () => {
-      if (user) queryClient.setQueryData(['user'], user.data);
-      router.push('/dashboard/information');
+      getUserInfoFn.mutateAsync();
     },
     onError: (error: string) => {
       logs.error('onError: ' + error);
@@ -87,7 +95,7 @@ export default function Information() {
   };
   return (
     <>
-      <form className="flex flex-col w-5/12" onSubmit={handleSubmit}>
+      <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
         <PhoneInputBox
           name="username"
           placeholder="شماره تلفن"
@@ -101,7 +109,10 @@ export default function Information() {
         <InputBox name="email" placeholder="آدرس ایمیل" ref={emailRef}>
           آدرس ایمیل
         </InputBox>
-        <SubmitButton disabled={editUserInformaion.isPending}>
+        <SubmitButton
+          className="self-center"
+          disabled={editUserInformaion.isPending}
+        >
           {editUserInformaion.isPending ? 'در حال ذخیره...' : 'ثبت'}
         </SubmitButton>
       </form>

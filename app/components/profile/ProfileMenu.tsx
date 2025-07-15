@@ -126,21 +126,20 @@ export default function ProfileMenu({
     <>
       <nav className="mt-6">
         {menuItems.map((item, index) => (
-          <Fragment key={item.key + index}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-200 rounded-lg"
+          <motion.div
+            key={item.key + index}
+            whileHover={{ scale: 1.05 }}
+            className={`flex items-center gap-3 p-3 cursor-pointer  rounded-lg ${path == item.url ? 'bg-accent-pink/10' : 'hover:bg-gray-200'}`}
+          >
+            <Link
+              title={item.title}
+              className="w-full flex gap-2 items-center min-h-6"
+              href={path == item.url ? '' : item.url || '/dashboard'}
             >
-              <Link
-                title={item.title}
-                className="w-full flex gap-2 items-center min-h-6"
-                href={item.url || '/dashboard'}
-              >
-                <span>{item.icon}</span>
-                {!compact && <span>{item.name}</span>}
-              </Link>
-            </motion.div>
-          </Fragment>
+              <span>{item.icon}</span>
+              {!compact && <span className="w-full">{item.name}</span>}
+            </Link>
+          </motion.div>
         ))}
       </nav>
 

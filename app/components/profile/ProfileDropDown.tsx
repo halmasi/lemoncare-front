@@ -59,21 +59,19 @@ export default function ProfileDropDown() {
                       items: [
                         {
                           name: (
-                            <div className="flex items-center justify-between w-full">
+                            <div className="w-full flex items-center justify-between">
                               {user ? (
-                                <>
-                                  <div>
-                                    <div className="flex gap-3">
-                                      <Gravatar />
-                                      <p>
-                                        {user.fullName
-                                          ? user.fullName
-                                          : user.email}
-                                      </p>
-                                    </div>
+                                <div className="w-full flex gap-2 items-center justify-between">
+                                  <div className="flex gap-3">
+                                    <Gravatar />
+                                    <p>
+                                      {user.fullName
+                                        ? user.fullName
+                                        : user.email}
+                                    </p>
                                   </div>
                                   <IoIosArrowBack />
-                                </>
+                                </div>
                               ) : (
                                 <LoadingAnimation
                                   size={15}

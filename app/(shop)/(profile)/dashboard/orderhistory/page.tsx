@@ -47,7 +47,6 @@ export default function OrderHistory() {
       setShowLoading(false);
     },
     onError: () => {
-      toast.warn('خطایی رخ داده');
       setShowLoading(false);
     },
   });
@@ -66,7 +65,7 @@ export default function OrderHistory() {
         <div className="w-full overflow-hidden">
           <LoadingSkeleton />
         </div>
-      ) : orderHistory.length > 0 ? (
+      ) : orderHistory && orderHistory.length > 0 ? (
         <div className="flex flex-col gap-5">
           {orderHistory.map((item) => {
             const order = item.order;

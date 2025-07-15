@@ -80,7 +80,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.documentId } },
+    filters: { user: { $eq: check.body.id } },
     populate: {
       order: {
         populate: {
@@ -102,6 +102,7 @@ export const getOrderHistory = async (
     method: 'GET',
     token: check.jwt,
   });
+  console.log(response);
   return response.data;
 };
 

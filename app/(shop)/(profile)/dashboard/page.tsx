@@ -2,15 +2,12 @@
 
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
-import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Dashboard() {
-  const [orderHistory, setOrderHistory] = useState<OrderHistoryProps[]>([]);
-
   const { user, setUser, jwt } = useDataStore();
 
   const getUserDataFn = useMutation({
@@ -19,7 +16,6 @@ export default function Dashboard() {
       return res.body;
     },
     onSuccess: async (data) => {
-      setOrderHistory(data.orderHistory || []);
       setUser(data);
     },
     onError: (error: { message: string[] }) => {
@@ -43,16 +39,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 w-full">
-      <h2>آخرین سفارش</h2>
-      <ul className="bg-gray-100 p-4 rounded-lg shadow">
-        {Object.entries(user).map(([key, value]) => (
-          <li key={key} className="p-2 border-b last:border-none">
-            <strong>{key}:</strong>
-            {typeof value === 'string' ? value : JSON.stringify(value)}
-          </li>
-        ))}
-      </ul>
+    <div className="hidden md:flex w-full">
+      {/* show on desktop */}
+      <div className="hidden md:flex"></div>
+
+      {/* show on mobile */}
+      <div className="md:hidden" />
     </div>
   );
 }
