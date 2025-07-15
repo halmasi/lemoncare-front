@@ -6,6 +6,9 @@ import { ReactNode, useState } from 'react';
 import ProfileMenu from '@/app/components/profile/ProfileMenu';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { usePathname } from 'next/navigation';
+import { RiDashboard2Fill } from 'react-icons/ri';
+import { ImProfile } from 'react-icons/im';
+import { MdAdminPanelSettings } from 'react-icons/md';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { jwt } = useDataStore();
@@ -17,7 +20,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       {jwt && (
         <aside
-          className={`hidden md:flex flex-col bg-white p-4 rounded-xl shadow-sm ${compact ? 'w-20' : 'w-4/12'} transition-width duration-300`}
+          className={`flex flex-col bg-white p-4 rounded-xl shadow-sm ${compact ? 'w-20' : 'w-full md:w-5/12 md:max-w-80'} transition-width duration-300`}
         >
           <button
             className={`hidden md:flex ${compact ? 'self-center' : 'self-end'} p-3 m-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200 transition-colors`}
@@ -26,29 +29,31 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {compact ? <IoIosArrowBack className="" /> : <IoIosArrowForward />}
           </button>
           <ProfileDetailes compact={compact} />
-          <ProfileMenu compact={compact} />
+          <ProfileMenu
+            compact={compact}
+            extraItems={[
+              {
+                items: [
+                  {
+                    key: 'profile',
+                    name: <p>داشبورد</p>,
+                    title: 'داشبورد',
+                    icon: <MdAdminPanelSettings />,
+                    url: '/dashboard',
+                  },
+                ],
+                position: 'top',
+              },
+            ]}
+          />
         </aside>
       )}
       {/* Main Content */}
       <main
-        className={`${path == '/dashboard' && 'hidden md:flex'} w-full bg-white p-6 rounded-xl shadow-md justify-center `}
+        className={`flex w-full bg-white p-6 rounded-xl shadow-md justify-center `}
       >
         {children}
       </main>
-      {jwt && path == '/dashboard' && (
-        <aside
-          className={`flex md:hidden flex-col bg-white p-4 rounded-xl shadow-sm w-full`}
-        >
-          <button
-            className={`hidden md:flex ${compact ? 'self-center' : 'self-end'} p-3 m-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200 transition-colors`}
-            onClick={() => setCompact(!compact)}
-          >
-            {compact ? <IoIosArrowBack className="" /> : <IoIosArrowForward />}
-          </button>
-          <ProfileDetailes compact={compact} />
-          <ProfileMenu compact={compact} />
-        </aside>
-      )}
     </div>
   );
 }

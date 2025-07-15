@@ -96,13 +96,13 @@ export const getOrderHistory = async (
       page,
       pageSize,
     },
+    sort: { createdAt: 'desc' },
   });
   const response = await requestData({
     qs: `/order-histories?${query}`,
     method: 'GET',
     token: check.jwt,
   });
-  console.log(response);
   return response.data;
 };
 

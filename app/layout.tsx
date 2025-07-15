@@ -12,6 +12,7 @@ import {
   FooteritemsProps,
   SocialLinksProps,
 } from '@/app/utils/schema/menuProps';
+import Navbar from './components/navbarComponents/Navbar';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
@@ -43,7 +44,14 @@ export default async function RootLayout({
       <body className={`${iranFont.className} antialiased min-h-svh`}>
         <ClientProvider>
           <LoginHandler />
-          {children}
+
+          <Navbar />
+          <div className="flex bg-background relative z-10 justify-center">
+            <div className="flex min-h-svh w-full justify-center">
+              {children}
+            </div>
+          </div>
+
           <FooterNavbar />
           <ToastContainer
             position="bottom-center"

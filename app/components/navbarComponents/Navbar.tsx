@@ -9,16 +9,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HamburgerMenuButton } from './HamburgerMenuBotton';
 import { usePathname } from 'next/navigation';
 import Cart from './CartButton';
-import { useDataStore } from '@/app/utils/states/useUserdata';
 import ProfileDropDown from '../profile/ProfileDropDown';
 import { MenuProps } from '@/app/utils/schema/menuProps';
 import { Search } from '../Search';
+import { useMutation } from '@tanstack/react-query';
+import { getMenuItems, getShopMenuItems } from '@/app/utils/data/getMenu';
 
-export default function Navbar({
-  menuItems,
-}: {
-  menuItems?: (MenuProps | undefined)[] | undefined;
-}) {
+export default function Navbar() {
   const [menuState, setMenuState] = useState<boolean>(false);
   const [subMenuHead, setSubMenuHead] = useState<{
     title: string;
@@ -29,9 +26,26 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
-
+  const [menuItems, setMenuItems] = useState<MenuProps[]>();
   const path = usePathname();
-  const { user } = useDataStore();
+
+  const getMenuItemsFn = useMutation({
+    mutationFn: async () => {
+      if (path.startsWith('/blog')) {
+        const menuItems = await getMenuItems();
+        return menuItems;
+      }
+      const menuItems = await getShopMenuItems();
+      return menuItems;
+    },
+    onSuccess: (data) => {
+      setMenuItems(data);
+    },
+  });
+
+  useEffect(() => {
+    getMenuItemsFn.mutate();
+  }, [path.startsWith('/blog')]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,7 +74,7 @@ export default function Navbar({
         className={`sticky z-20 transition-all duration-500 ${menuState ? 'fixed' : 'sticky'} ${visibility || menuState ? 'top-0 sticky' : '-top-52'}`}
       >
         <div
-          className={`flex flex-col items-center w-full border-t-4 ${path.startsWith('/blog') ? 'border-accent-yellow' : 'border-accent-pink'} justify-between shadow-lg bg-white md:px-10 pb-5 pt-10 gap-2`}
+          className={`flex flex-col items-center w-full border-t-4 border-accent-pink justify-between shadow-lg bg-white md:px-10 pb-5 pt-10 gap-2`}
         >
           <motion.div
             className="flex flex-col md:hidden bg-white w-full relative space-y-5 px-5"
