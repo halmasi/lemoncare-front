@@ -201,7 +201,6 @@ export const getFavorites = cache(
       method: 'GET',
       token: check.jwt,
     });
-
     return response.data;
   }
 );
