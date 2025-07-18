@@ -96,7 +96,7 @@ export default function Dashboard() {
     },
     onSuccess: (data) => {
       if (!data) return;
-      setFavorites([data[0], data[0], data[0], data[0]]);
+      setFavorites(data);
     },
   });
 
@@ -247,16 +247,6 @@ export default function Dashboard() {
                       } as CSSProperties
                     }
                     slidesPerView={1}
-                    breakpoints={{
-                      320: {
-                        slidesPerView: 1,
-                        spaceBetween: 20,
-                      },
-                      1300: {
-                        slidesPerView: 2,
-                        spaceBetween: 30,
-                      },
-                    }}
                     loop
                     spaceBetween={10}
                     keyboard={{ enabled: true }}
@@ -266,7 +256,7 @@ export default function Dashboard() {
                       prevEl: '.slide-prev',
                     }}
                     modules={[Keyboard, Navigation, Scrollbar, A11y, FreeMode]}
-                    className="mySwiper flex w-full overflow-hidden max-w-prose"
+                    className="mySwiper flex"
                   >
                     {favorites.slice(0, 10).map((item, index) => (
                       <SwiperSlide

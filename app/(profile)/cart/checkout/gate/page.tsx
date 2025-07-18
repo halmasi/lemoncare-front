@@ -1,6 +1,7 @@
 'use client';
 
 import LoadingAnimation from '@/app/components/LoadingAnimation';
+import Title from '@/app/components/Title';
 import { emptyCart } from '@/app/utils/actions/cartActionMethods';
 import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
 import { useCartStore } from '@/app/utils/states/useCartData';
@@ -74,7 +75,9 @@ export default function page() {
   if (paymentOption == 'offline')
     return (
       <div>
-        <h1 className="text-2xl font-bold">پرداخت به صورت کارت به کارت</h1>
+        <Title>
+          <h5 className="text-accent-pink">پرداخت به صورت کارت به کارت</h5>
+        </Title>
         <br />
         <div className="flex flex-wrap items-center justify-center gap-2">
           <p>لطفا مبلغ</p>{' '}

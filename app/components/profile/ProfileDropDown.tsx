@@ -35,7 +35,7 @@ export default function ProfileDropDown() {
           <RiAccountPinCircleFill className="text-2xl" />
           <IoIosArrowDown />
         </Link>
-        {!path.startsWith('/dashboard') && !path.startsWith('/cart') && jwt && (
+        {jwt && (
           <AnimatePresence>
             {
               <motion.div

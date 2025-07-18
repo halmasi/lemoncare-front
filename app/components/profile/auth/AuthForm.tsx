@@ -15,6 +15,7 @@ export default function AuthForm() {
     login: 'ورود به حساب',
     register: 'ثبت نام',
     phoneConfirmationLogin: 'تایید شماره موبایل',
+    phoneConfirmationLoginNoPhone: 'تایید شماره موبایل',
     phoneConfirmationRegister: 'تایید شماره موبایل',
   };
 
@@ -44,6 +45,7 @@ export default function AuthForm() {
                   : step === 'register' ||
                       step === 'login' ||
                       step === 'phoneConfirmationLogin' ||
+                      step === 'phoneConfirmationLoginNoPhone' ||
                       step === 'phoneConfirmationRegister'
                     ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
@@ -76,6 +78,9 @@ export default function AuthForm() {
         {(step === 'identifier' || step === 'login') && <LoginForm />}
         {step === 'register' && <RegisterForm />}
         {step === 'phoneConfirmationLogin' && <ConfirmPhoneForm isLogin />}
+        {step === 'phoneConfirmationLoginNoPhone' && (
+          <ConfirmPhoneForm isLogin isNoPhone />
+        )}
         {step === 'phoneConfirmationRegister' && (
           <ConfirmPhoneForm isRegister />
         )}

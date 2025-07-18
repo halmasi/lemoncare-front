@@ -4,6 +4,7 @@ import Cart from '@/app/components/navbarComponents/Cart';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import Toman from '@/app/components/Toman';
+import Title from '@/app/components/Title';
 
 export default function CartPage() {
   const [count, setCount] = useState(0);
@@ -18,27 +19,30 @@ export default function CartPage() {
   }, [cart]);
 
   return (
-    <div className="flex flex-col md:flex-row w-full px-4 pt-2 gap-4 md:max-w-screen-lg">
-      <div className="w-full">
-        {count > 0 && (
-          <div className="flex gap-1">
-            <p className="text-accent-pink">{count}</p>{' '}
-            <p> محصول در سبد خرید.</p>
-          </div>
-        )}
-        <Cart
-          key={count}
-          priceAmount={(main, before) => {
-            setPrice({
-              before,
-              main,
-            });
-          }}
-        />
-      </div>
-      {price.main != 0 && (
-        <>
-          <div className="flex flex-wrap h-fit w-full border rounded-lg p-5 md:w-5/12 md:sticky md:top-5 items-center gap-3 justify-between">
+    <div className="w-full">
+      <Title>
+        <h6 className="text-accent-pink">سبد خرید</h6>
+      </Title>
+      <div className="flex flex-col md:flex-row justify-around w-full px-4 pt-2 gap-4">
+        <div className="w-full max-w-screen-md">
+          {count > 0 && (
+            <div className="flex gap-1">
+              <p className="text-accent-pink">{count}</p>{' '}
+              <p> محصول در سبد خرید.</p>
+            </div>
+          )}
+          <Cart
+            key={count}
+            priceAmount={(main, before) => {
+              setPrice({
+                before,
+                main,
+              });
+            }}
+          />
+        </div>
+        {price.main != 0 && (
+          <div className="flex flex-wrap h-fit w-full border rounded-lg p-5 md:w-3/12 md:sticky md:top-5 items-center gap-3 justify-between">
             <div className="flex w-full justify-between items-center gap-3">
               <p className="text-sm">مجموع خرید({count}):</p>
               <p className="line-through text-gray-500 text-sm">
@@ -68,8 +72,8 @@ export default function CartPage() {
               <SubmitButton link="cart/checkout">ثبت سفارش</SubmitButton>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

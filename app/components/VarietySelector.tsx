@@ -59,6 +59,7 @@ function AddButton({
       return (
         <SubmitButton
           key={count}
+          className="bg-green-500 hover:bg-green-500/75 text-white"
           onClick={() => {
             setCount(1);
             handleAddToCart({
@@ -94,6 +95,7 @@ function AddButton({
   } else {
     return (
       <SubmitButton
+        className="bg-green-500 hover:bg-green-500/75 text-white"
         onClick={() => {
           handleAddToCart({
             count: 1,

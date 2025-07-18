@@ -12,10 +12,14 @@ import Cart from './CartButton';
 import ProfileDropDown from '../profile/ProfileDropDown';
 import { MenuProps } from '@/app/utils/schema/menuProps';
 import { Search } from '../Search';
-import { useMutation } from '@tanstack/react-query';
-import { getMenuItems, getShopMenuItems } from '@/app/utils/data/getMenu';
 
-export default function Navbar() {
+export default function Navbar({
+  blog,
+  shop,
+}: {
+  blog: MenuProps[];
+  shop: MenuProps[];
+}) {
   const [menuState, setMenuState] = useState<boolean>(false);
   const [subMenuHead, setSubMenuHead] = useState<{
     title: string;
@@ -24,27 +28,17 @@ export default function Navbar() {
     title: '',
     expand: false,
   });
+  const [menuItems, setMenuItems] = useState<MenuProps[]>(shop);
+
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
-  const [menuItems, setMenuItems] = useState<MenuProps[]>();
   const path = usePathname();
 
-  const getMenuItemsFn = useMutation({
-    mutationFn: async () => {
-      if (path.startsWith('/blog')) {
-        const menuItems = await getMenuItems();
-        return menuItems;
-      }
-      const menuItems = await getShopMenuItems();
-      return menuItems;
-    },
-    onSuccess: (data) => {
-      setMenuItems(data);
-    },
-  });
-
   useEffect(() => {
-    getMenuItemsFn.mutate();
+    setMenuItems(shop);
+    if (path.startsWith('/blog')) {
+      setMenuItems(blog);
+    }
   }, [path.startsWith('/blog')]);
 
   useEffect(() => {

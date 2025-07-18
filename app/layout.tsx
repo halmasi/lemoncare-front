@@ -7,7 +7,12 @@ import { ToastContainer, Slide } from 'react-toastify';
 import Footer from '@/app/components/BlogFooter';
 import FooterNavbar from './components/FooterNavbar';
 import LoginHandler from './components/profile/LoginHandler';
-import { getFooterItems, getSocialLinksItems } from '@/app/utils/data/getMenu';
+import {
+  getFooterItems,
+  getMenuItems,
+  getShopMenuItems,
+  getSocialLinksItems,
+} from '@/app/utils/data/getMenu';
 import {
   FooteritemsProps,
   SocialLinksProps,
@@ -38,6 +43,8 @@ export default async function RootLayout({
 }>) {
   const FooterMenu: FooteritemsProps[] = await getFooterItems();
   const SocialLinks: SocialLinksProps[] = await getSocialLinksItems();
+  const blogMenu = await getMenuItems();
+  const shopMenu = await getShopMenuItems();
 
   return (
     <html lang="fa">
@@ -45,7 +52,7 @@ export default async function RootLayout({
         <ClientProvider>
           <LoginHandler />
 
-          <Navbar />
+          <Navbar blog={blogMenu} shop={shopMenu} />
           <div className="flex bg-background relative z-10 justify-center">
             <div className="flex min-h-svh w-full justify-center">
               {children}

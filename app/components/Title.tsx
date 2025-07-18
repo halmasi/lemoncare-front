@@ -3,16 +3,16 @@ import { ReactNode } from 'react';
 export default function Title({
   children,
   className = '',
-  bgColor = 'bg-accent-green',
+  underLineClass = 'bg-accent-green',
 }: {
   children: ReactNode;
   className?: string;
-  bgColor?: string;
+  underLineClass?: string;
 }) {
   return (
     <div className={`w-fit ${className}`}>
       {children}
-      <div className={`w-[75%] h-1 ${bgColor}`} />
+      <div className={`w-[75%] h-1 ${underLineClass}`} />
     </div>
   );
 }

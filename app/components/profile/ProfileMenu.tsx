@@ -129,7 +129,7 @@ export default function ProfileMenu({
           <motion.div
             key={item.key + index}
             whileHover={{ scale: 1.05 }}
-            className={`flex items-center gap-3 p-3 cursor-pointer  rounded-lg ${path == item.url ? 'bg-accent-pink/10' : 'hover:bg-gray-200'}`}
+            className={`flex items-center gap-3 p-3 cursor-pointer  rounded-lg ${path == item.url ? 'bg-accent-pink/10' : 'hover:bg-gray-200'} transition-colors`}
           >
             <Link
               title={item.title}

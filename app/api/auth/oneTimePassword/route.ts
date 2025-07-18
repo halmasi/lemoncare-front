@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
       filters: { user: { username: { $eq: username } } },
       populate: { user: { populate: '*' } },
     });
-
     const userCheckResult = await requestData({
       qs: `/verifications?${query}`,
       method: 'GET',

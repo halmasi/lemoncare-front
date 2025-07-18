@@ -20,7 +20,7 @@ export default function SubmitButton({
 }: Props) {
   return link ? (
     <Link
-      className={`flex px-6 py-2 text-lg font-semibold rounded-lg bg-accent-green text-background hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
+      className={`flex px-6 py-2 text-lg font-semibold rounded-lg border text-foreground bg-gray-50 hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
     ${disabled && 'opacity-50 cursor-not-allowed'} ${isPending && 'cursor-progress opacity-50'} ${className}`}
       href={link}
       onClick={onClick}
@@ -33,7 +33,7 @@ export default function SubmitButton({
       disabled={disabled || isPending}
       aria-disabled={disabled || isPending}
       type={type ? type : 'submit'}
-      className={`px-6 py-2 text-lg font-semibold rounded-lg bg-accent-green text-background hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
+      className={`flex px-6 py-2 text-lg font-semibold rounded-lg border text-foreground bg-gray-50 hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
         ${disabled && 'opacity-50 cursor-not-allowed'} ${isPending && 'cursor-progress opacity-50'} ${className}`}
     >
       <p className="flex items-center gap-2 shadow-foreground drop-shadow-md">

@@ -1,6 +1,7 @@
 'use client';
 import PaymentSelector from '@/app/components/checkout/PaymentSelector';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import { CartProps } from '@/app/utils/schema/shopProps';
@@ -170,8 +171,10 @@ export default function Payment() {
   return (
     <>
       <div className="flex flex-col lg:flex-row w-full gap-2">
-        <div className="w-full lg:w-1/2 flex flex-col bg-background rounded-lg border items-center">
-          <h5 className="font-bold">شیوه پرداخت</h5>
+        <div className="w-full lg:w-1/2 flex flex-col gap-5 bg-background rounded-lg border p-2">
+          <Title>
+            <h6 className="text-accent-pink">شیوه پرداخت</h6>
+          </Title>
           <PaymentSelector
             onPaymentMethodChange={(method) => setPaymentOption(method)}
           />

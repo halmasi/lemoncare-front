@@ -10,6 +10,7 @@ export interface LoginDataProps {
     | 'login'
     | 'register'
     | 'phoneConfirmationLogin'
+    | 'phoneConfirmationLoginNoPhone'
     | 'phoneConfirmationRegister';
   errors: {
     identifier: string[];
@@ -29,6 +30,7 @@ export interface LoginDataProps {
       | 'login'
       | 'register'
       | 'phoneConfirmationLogin'
+      | 'phoneConfirmationLoginNoPhone'
       | 'phoneConfirmationRegister'
   ) => void;
   resetForm: () => void;

@@ -13,6 +13,7 @@ interface InputProps {
   labelClassName?: string;
   flex?: 'row' | 'col';
   ltr?: boolean;
+  showEye?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
@@ -31,6 +32,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
       ltr,
       onChange,
       onFocus,
+      showEye = true,
     }: InputProps,
     ref
   ) => {
@@ -54,7 +56,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="w-full h-fit rounded-md border flex items-center gap-1">
           <input
-            className={`w-full p-2 focus:shadow-accent-pink/30 focus:outline-none transition-all ${type == 'password' && 'rounded-l-none border-l-0'} ${className} ${ltr && 'ltr'}`}
+            className={`w-full p-2 focus:outline-none rounded-md transition-all ${type == 'password' && 'rounded-l-none border-l-0'} ${className} ${ltr && 'ltr'}`}
             onFocus={onFocus}
             onChange={(e) => {
               e.preventDefault();
@@ -80,7 +82,7 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             dir={ltr ? 'ltr' : 'rtl'}
           />
 
-          {type == 'password' && (
+          {type == 'password' && showEye && (
             <button
               type="button"
               onClick={togglePassword}

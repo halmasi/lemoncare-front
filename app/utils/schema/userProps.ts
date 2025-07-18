@@ -66,6 +66,7 @@ export interface FetchUserProps {
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
+  phoneConfirmed: boolean;
   cart: CartProps[];
   shopingCart: {
     documentId: string;

@@ -2,6 +2,7 @@
 
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import LoadingAnimation from '@/app/components/LoadingAnimation';
+import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
 import {
   getSingleOrderHistory,
@@ -170,7 +171,11 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
             >
               <FaArrowRightLong />
             </Link>
-            <h2 className="w-full text-center">جزئیات سفارش</h2>
+            <div className="w-full flex flex-col items-center justify-center text-center mb-5">
+              <Title className="flex flex-col items-center justify-center text-center">
+                <h6>جزئیات سفارش</h6>
+              </Title>
+            </div>
           </div>
           <div className="border">
             <div className="flex flex-col border-b lg:flex-row justify-between">
@@ -363,7 +368,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                         <h3 className="text-accent-pink hover:text-accent-pink/75 transition-colors">
                           {item.product.basicInfo.title}
                         </h3>
-                        <SubmitButton className="bg-gray-200 text-foreground m-1 py-0 mb-2">
+                        <SubmitButton className="bg-gray-100 text-foreground m-1 py-0 mb-2">
                           مشاهده محصول
                         </SubmitButton>
                       </Link>
