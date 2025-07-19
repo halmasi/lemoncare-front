@@ -36,7 +36,7 @@ function Button({
 export default function FooterNavbar() {
   const path = usePathname();
   return (
-    <footer className="flex items-center justify-center bottom-0 sticky z-20 bg-white min-h-14 md:hidden border-t-2">
+    <footer className="flex items-center justify-center bottom-0 sticky z-20 bg-white min-h-14 lg:hidden border-t-2">
       <div className="flex w-full h-full justify-between">
         <Button href="/shop" label="محصولات">
           {path.startsWith('/shop') ? <RiApps2Fill /> : <RiApps2Line />}

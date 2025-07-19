@@ -28,7 +28,7 @@ export default function BookmarkContent({ posts }: { posts: PostsProps[] }) {
               <br />
               {post.documentId}
             </p>
-            <AddToFavorites post={post} />
+            <AddToFavorites isList post={post} />
           </div>
         ))}
       </div>

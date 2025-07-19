@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
+import { orderHistoryIdMaker } from '../shopUtils';
 
 export const registerAction = async (
   username: string,
@@ -184,6 +185,7 @@ export const getFullUserData = async (input?: {
     shopingCart: { populate: '*' },
     postal_information: { populate: '*' },
     favorite: { populate: '1' },
+    order_histories: { populate: '1' },
   };
   const options = input?.populateOptions
     ? Object.assign(defaultOptions, ...input.populateOptions)

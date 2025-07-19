@@ -4,6 +4,7 @@ import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Addresses from '@/app/components/profile/Addresses';
 import AuthForm from '@/app/components/profile/auth/AuthForm';
+import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
@@ -50,12 +51,16 @@ export default function CheckoutPage() {
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-2  justify-between">
-        <div className="w-full lg:w-4/12  p-2 lg:p-5 rounded-lg bg-gray-50/50 border">
-          <h6>انتخاب آدرس:</h6>
+        <div className="flex flex-col w-full gap-5 lg:w-4/12  p-2 lg:p-5 rounded-lg bg-gray-50/50 border">
+          <Title>
+            <h6 className="text-accent-pink">انتخاب آدرس:</h6>
+          </Title>
           <Addresses />
         </div>
-        <div className="w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
-          <h6>روش ارسال:</h6>
+        <div className="flex flex-col gap-5 w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+          <Title>
+            <h6 className="text-accent-pink">روش ارسال:</h6>
+          </Title>
           <DeliveryMethods
             onChangeFn={(isSelected: boolean) => {
               setShowNext(isSelected);

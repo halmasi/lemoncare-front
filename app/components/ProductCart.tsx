@@ -3,7 +3,13 @@ import Image from 'next/image';
 import { ProductProps } from '../utils/schema/shopProps';
 import VarietySelector from './VarietySelector';
 
-export default function ProductCart({ product }: { product: ProductProps }) {
+export default function ProductCart({
+  product,
+  showDiscount = true,
+}: {
+  product: ProductProps;
+  showDiscount?: boolean;
+}) {
   return (
     <div
       key={product.id}
@@ -42,7 +48,7 @@ export default function ProductCart({ product }: { product: ProductProps }) {
 
         <h6>{product.basicInfo.title}</h6>
       </Link>
-      <VarietySelector list product={product} />
+      <VarietySelector showDiscount={showDiscount} list product={product} />
     </div>
   );
 }

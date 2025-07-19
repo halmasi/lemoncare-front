@@ -7,11 +7,10 @@ import { useLoginData } from '@/app/utils/states/useLoginData';
 import { useMutation } from '@tanstack/react-query';
 import {
   checkUserExists,
-  getPostalInformation,
   updatePostalInformation,
   updateUserInformation,
 } from '@/app/utils/data/getUserInfo';
-import { cleanPhone, isEmail, isPhone, logs } from '@/app/utils/miniFunctions';
+import { cleanPhone, isEmail, isPhone } from '@/app/utils/miniFunctions';
 import {
   getFullUserData,
   setCookie,
@@ -57,10 +56,18 @@ export default function LoginForm() {
       const identifier = identifierRef.current?.value || '';
       if (passwordRef.current === null) {
         const result = await checkUserExists(identifier);
-        return { userExists: result.success, identifier, password: '' };
+        return { userExists: result, identifier, password: '' };
       } else
         return {
-          userExists: true,
+          userExists: {
+            success: true,
+            data: {
+              id: 0,
+              email: '',
+              username: '',
+              fullName: '',
+            },
+          },
           identifier,
           password: passwordRef.current.value,
         };
@@ -77,8 +84,11 @@ export default function LoginForm() {
           setEmail('');
           setUsername('');
         }
-        if (userExists) setStep('login');
-        else setStep('register');
+        if (userExists.success) {
+          setEmail(userExists.data.email);
+          setUsername(userExists.data.username);
+          setStep('login');
+        } else setStep('register');
       } else {
         loginMutation.mutateAsync({ password });
       }
@@ -287,10 +297,35 @@ export default function LoginForm() {
               : 'ورود'}
         </SubmitButton>
         {step == 'login' && (
-          <>
-            <p>ورود با رمز یکبار مصرف</p>
-            <p>فراموشی رمز عبور</p>
-          </>
+          <div className=" flex flex-wrap items-center justify-between">
+            <p
+              className="cursor-pointer hover:text-accent-pink transition-colors"
+              onClick={() => {
+                if (username && username != '' && isPhone(username)) {
+                  setUsername(cleanPhone(username));
+                  if (!isPhone(identifierRef.current?.value || ''))
+                    setStep('phoneConfirmationLoginNoPhone');
+                  else setStep('phoneConfirmationLogin');
+                }
+              }}
+            >
+              ورود با رمز یکبار مصرف
+            </p>
+
+            <p
+              className="cursor-pointer hover:text-accent-pink transition-colors"
+              onClick={() => {
+                if (username && username != '' && isPhone(username)) {
+                  setUsername(cleanPhone(username));
+                  if (!isPhone(identifierRef.current?.value || ''))
+                    setStep('phoneConfirmationLoginNoPhone');
+                  else setStep('phoneConfirmationLogin');
+                }
+              }}
+            >
+              فراموشی رمز عبور
+            </p>
+          </div>
         )}
       </form>
     </>

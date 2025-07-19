@@ -59,6 +59,7 @@ function AddButton({
       return (
         <SubmitButton
           key={count}
+          className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
           onClick={() => {
             setCount(1);
             handleAddToCart({
@@ -94,6 +95,7 @@ function AddButton({
   } else {
     return (
       <SubmitButton
+        className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
         onClick={() => {
           handleAddToCart({
             count: 1,
@@ -115,9 +117,11 @@ function AddButton({
 export default function VarietySelector({
   product,
   list,
+  showDiscount = true,
 }: {
   product: ProductProps;
   list?: boolean;
+  showDiscount?: boolean;
 }) {
   const { user, jwt } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
@@ -302,7 +306,7 @@ export default function VarietySelector({
               selected={selected}
             />
           </div>
-          {price.end && <DiscountTimer end={price.end} />}
+          {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
@@ -343,7 +347,7 @@ export default function VarietySelector({
                 {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
               </h6>
             </Toman>
-            {price.end && <DiscountTimer end={price.end} />}
+            {price.end && showDiscount && <DiscountTimer end={price.end} />}
           </>
         ) : (
           <div>

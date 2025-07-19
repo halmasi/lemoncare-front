@@ -2,7 +2,7 @@
 
 import { useLoginData } from '@/app/utils/states/useLoginData';
 import InputBox from '@/app/components/formElements/InputBox';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SubmitButton from '../../formElements/SubmitButton';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -10,48 +10,49 @@ import { BiEditAlt } from 'react-icons/bi';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import {
   getFullUserData,
-  registerAction,
   removeUser,
   setCookie,
 } from '@/app/utils/actions/actionMethods';
 import { usePathname, useRouter } from 'next/navigation';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
+import { sendCode, validateCode } from '@/app/utils/data/getValidation';
 
 export default function ConfirmPhoneForm({
   isLogin = false,
   isRegister = false,
+  isNoPhone = false,
 }: {
   isLogin?: boolean;
   isRegister?: boolean;
+  isNoPhone?: boolean;
 }) {
   const codeRef = useRef<HTMLInputElement>(null);
+
+  const [timer, setTimer] = useState<number>(120);
+  const [resend, setResend] = useState<boolean>(true);
 
   const router = useRouter();
   const path = usePathname();
 
   const { username, setStep, id } = useLoginData();
-  const { setJwt, setUser, setLoginProcces } = useDataStore();
+  const { setJwt, setUser, setLoginProcces, user } = useDataStore();
 
   const sendCodeFn = useMutation({
     mutationFn: async (phone: string) => {
-      return await fetch('api/auth/oneTimePassword', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: phone,
-        }),
-      });
+      setResend(true);
+      return await sendCode(phone);
     },
     onSuccess: async (data) => {
-      const res = await data.json();
-      const result = JSON.parse(res);
+      setResend(false);
       if (data.status >= 400 && data.status < 500) {
+        setTimer(Math.abs(Math.floor(parseInt(data.result.result))));
         toast.warn(
-          `پس از ${Math.floor(parseInt(result.result))} ثانیه، ارسال مجدد کد امکان پذیر است.`
+          `پس از ${Math.floor(parseInt(data.result.result))} ثانیه، ارسال مجدد کد امکان پذیر است.`
         );
-      } else toast.info('کد فعال سازی به شماره شما پیامک شد.');
+      } else {
+        toast.info('کد فعال سازی به شماره شما پیامک شد.');
+        setTimer(120);
+      }
     },
     onError: () => {
       toast.error('خطا در ارسال کد فعال سازی. لطفا دوباره تلاش کنید.');
@@ -66,18 +67,7 @@ export default function ConfirmPhoneForm({
       code: number;
       username: string;
     }) => {
-      const res = await fetch('api/auth/oneTimePassword/validateCode', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          code,
-        }),
-      });
-      const data = await res.json();
-      return JSON.parse(data);
+      return await validateCode({ username, code });
     },
     onSuccess: async (data) => {
       if (!data || !data.jwt)
@@ -89,6 +79,7 @@ export default function ConfirmPhoneForm({
       setUser({ ...userData.body, phoneConfirmed: true });
       setJwt(`Bearer ${data.jwt}`);
       await setCookie('jwt', `Bearer ${data.jwt}`);
+      toast.info('شماره همراه شما تایید شد.');
       setLoginProcces(true);
       if (path.startsWith('/login')) router.push('/');
     },
@@ -99,24 +90,34 @@ export default function ConfirmPhoneForm({
       const res = await removeUser(id);
       return res;
     },
-    onSuccess: (data) => {
-      console.log(data);
-    },
+    onSuccess: () => {},
   });
+
+  useEffect(() => {
+    if (timer) {
+      setTimeout(() => setTimer(timer - 1), 1000);
+    }
+  }, [timer, setTimer]);
 
   useEffect(() => {
     if (username) {
       sendCodeFn.mutate('98' + username);
-    }
-  }, [username]);
+    } else if (user && user.username) sendCodeFn.mutate(user?.username);
+  }, [username, user]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const enteredCode = codeRef.current?.value || '';
-    verifyCodeFn.mutateAsync({
-      code: parseInt(enteredCode),
-      username: '98' + username,
-    });
+    if (username)
+      verifyCodeFn.mutateAsync({
+        code: parseInt(enteredCode),
+        username: '98' + username,
+      });
+    else if (user && user.username)
+      verifyCodeFn.mutateAsync({
+        code: parseInt(enteredCode),
+        username: user.username,
+      });
   };
 
   return (
@@ -146,23 +147,40 @@ export default function ConfirmPhoneForm({
             }}
             className="flex items-center gap-2 cursor-pointer"
           >
-            <BiEditAlt />0{username}
+            <BiEditAlt />
+            {isNoPhone ? (
+              <span>
+                <span>{username.slice(-2)}</span>
+                <span>*****</span>
+                <span>0{username.slice(0, 3)}</span>
+              </span>
+            ) : (
+              <span>0{username ? username : user?.username}</span>
+            )}
           </span>
           کد فعال سازی
         </span>
       </InputBox>
       <div className="w-full flex justify-around gap-5">
-        <SubmitButton type="submit" className="w-full">
+        <SubmitButton
+          isPending={verifyCodeFn.isPending}
+          disabled={verifyCodeFn.isPending}
+          type="submit"
+          className="w-full"
+        >
           تایید
         </SubmitButton>
         <SubmitButton
+          disabled={timer > 0 || resend}
+          isPending={timer > 0 || resend}
           type="button"
-          className="w-full bg-red-500 hover:bg-red-400"
+          className="w-full bg-gray-200 hover:bg-gray-100 hover:text-black"
           onClick={() => {
-            sendCodeFn.mutate('98' + username);
+            if (username) sendCodeFn.mutate('98' + username);
+            else if (user?.username) sendCodeFn.mutate(user?.username);
           }}
         >
-          ارسال مجدد
+          {timer > 0 ? `${timer} ثانیه` : 'ارسال مجدد'}
         </SubmitButton>
       </div>
     </form>

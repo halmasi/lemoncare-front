@@ -35,7 +35,7 @@ export default function ProfileDropDown() {
           <RiAccountPinCircleFill className="text-2xl" />
           <IoIosArrowDown />
         </Link>
-        {!path.startsWith('/dashboard') && !path.startsWith('/cart') && jwt && (
+        {jwt && (
           <AnimatePresence>
             {
               <motion.div
@@ -59,17 +59,19 @@ export default function ProfileDropDown() {
                       items: [
                         {
                           name: (
-                            <div className="flex items-center justify-between w-full">
-                              {user && user.fullName ? (
-                                <>
-                                  <div>
-                                    <div className="flex gap-3">
-                                      <Gravatar />
-                                      <p>{user.fullName}</p>
-                                    </div>
+                            <div className="w-full flex items-center justify-between">
+                              {user ? (
+                                <div className="w-full flex gap-2 items-center justify-between">
+                                  <div className="flex gap-3">
+                                    <Gravatar />
+                                    <p>
+                                      {user.fullName
+                                        ? user.fullName
+                                        : user.email}
+                                    </p>
                                   </div>
                                   <IoIosArrowBack />
-                                </>
+                                </div>
                               ) : (
                                 <LoadingAnimation
                                   size={15}
@@ -78,6 +80,7 @@ export default function ProfileDropDown() {
                               )}
                             </div>
                           ),
+                          title: 'پنل کاربری',
                           key: user && user.fullName ? user.fullName : 'user',
                           url: '/dashboard',
                         },

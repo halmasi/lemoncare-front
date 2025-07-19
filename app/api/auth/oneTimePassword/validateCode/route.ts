@@ -44,6 +44,6 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (err) {
-    return Response.json({ error: 'error' + err }, { status: 200 });
+    return Response.json({ error: 'error' + err }, { status: 500 });
   }
 }

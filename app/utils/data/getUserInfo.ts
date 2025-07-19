@@ -15,10 +15,12 @@ export const updateUserInformation = async (
   id: string,
   token: string,
   userData: {
+    confirmed?: boolean;
     phoneConfirmed?: boolean;
     fullName?: string;
     username?: string;
     email?: string;
+    password?: string;
   }
 ) => {
   const response = await requestData({
@@ -28,6 +30,23 @@ export const updateUserInformation = async (
     token: `Bearer ${token}`,
   });
   return response.data;
+};
+
+export const changePassword = async ({
+  newPassword,
+  token,
+}: {
+  newPassword: string;
+  token: string;
+}) => {
+  const check = await loginCheck();
+  const response = await requestData({
+    qs: `/users/change-password-without-old/${check.body.id}`,
+    method: 'PUT',
+    body: { newPassword },
+    token: `Bearer ${token}`,
+  });
+  return { data: response.data, status: response.status };
 };
 
 export const getPostalInformation = async (documentId: string) => {
@@ -80,7 +99,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.documentId } },
+    filters: { user: { $eq: check.body.id } },
     populate: {
       order: {
         populate: {
@@ -96,6 +115,7 @@ export const getOrderHistory = async (
       page,
       pageSize,
     },
+    sort: { createdAt: 'desc' },
   });
   const response = await requestData({
     qs: `/order-histories?${query}`,
@@ -181,7 +201,6 @@ export const getFavorites = cache(
       method: 'GET',
       token: check.jwt,
     });
-
     return response.data;
   }
 );
@@ -263,8 +282,8 @@ export const checkUserExists = async (identifier: string) => {
   });
 
   const response = await requestData({ qs: `/users?${query}`, method: 'GET' });
-
   return {
+    data: response.data[0],
     isPhone: isPhone(response.data.username),
     success: response.data.length > 0,
     error: [],
