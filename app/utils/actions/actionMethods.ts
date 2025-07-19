@@ -5,35 +5,37 @@ import { cookies } from 'next/headers';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
-import { orderHistoryIdMaker } from '../shopUtils';
 
-export const registerAction = async (
-  username: string,
-  email: string,
-  password: string
-) => {
+export const registerAction = async ({
+  username,
+  password,
+}: {
+  username: string;
+  // email: string,
+  password: string;
+}) => {
   const fieldErrors: {
     username: string[];
-    email: string[];
+    // email: string[];
     password: string[];
     server: string[];
   } = {
     username: [],
-    email: [],
+    // email: [],
     password: [],
     server: [],
   };
   username = '98' + cleanPhone(username);
   const validationResult = registerSchema.safeParse({
     username: username,
-    email,
+    // email,
     password,
   });
 
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
     if (errors.username) fieldErrors.username.push(...errors.username);
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    // if (errors.email) fieldErrors.email.push(...errors.email);
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
@@ -42,7 +44,7 @@ export const registerAction = async (
       method: 'POST',
       body: {
         username: validationResult.data.username,
-        email: validationResult.data.email,
+        // email: validationResult.data.email,
         password: validationResult.data.password,
       },
     });

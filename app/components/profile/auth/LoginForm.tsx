@@ -10,7 +10,7 @@ import {
   updatePostalInformation,
   updateUserInformation,
 } from '@/app/utils/data/getUserInfo';
-import { cleanPhone, isEmail, isPhone } from '@/app/utils/miniFunctions';
+import { cleanPhone, isPhone } from '@/app/utils/miniFunctions';
 import {
   getFullUserData,
   setCookie,
@@ -35,16 +35,8 @@ export default function LoginForm() {
   const router = useRouter();
   const path = usePathname();
 
-  const {
-    setStep,
-    setEmail,
-    setUsername,
-    setErrors,
-    step,
-    email,
-    username,
-    errors,
-  } = useLoginData();
+  const { setStep, setUsername, setErrors, step, username, errors } =
+    useLoginData();
 
   const { setJwt, setUser, jwt, setLoginProcces } = useDataStore();
   const { cart, setCart } = useCartStore();
@@ -63,7 +55,6 @@ export default function LoginForm() {
             success: true,
             data: {
               id: 0,
-              email: '',
               username: '',
               fullName: '',
             },
@@ -74,18 +65,8 @@ export default function LoginForm() {
     },
     onSuccess: ({ userExists, identifier, password }) => {
       if (password == '') {
-        if (isPhone(identifier)) {
-          setUsername(cleanPhone(identifier));
-          setEmail('');
-        } else if (isEmail(identifier)) {
-          setEmail(identifier);
-          setUsername('');
-        } else {
-          setEmail('');
-          setUsername('');
-        }
+        if (isPhone(identifier)) setUsername(cleanPhone(identifier));
         if (userExists.success) {
-          setEmail(userExists.data.email);
           setUsername(userExists.data.username);
           setStep('login');
         } else setStep('register');
@@ -98,7 +79,7 @@ export default function LoginForm() {
         identifier: [error.message],
         username: [],
         password: [],
-        email: [],
+        // email: [],
         server: [],
       });
     },
@@ -106,7 +87,7 @@ export default function LoginForm() {
 
   const loginMutation = useMutation({
     mutationFn: async ({ password }: { password?: string }) => {
-      const identifier = email || username;
+      const identifier = username;
       if (password) {
         const response = await signinAction(identifier, password);
         if (!response.success) {
@@ -114,7 +95,7 @@ export default function LoginForm() {
             identifier: [],
             username: [],
             password: ['رمز عبور اشتباه است.'],
-            email: [],
+            // email: [],
             server: [],
           });
           return;
@@ -192,7 +173,7 @@ export default function LoginForm() {
         identifier: [],
         username: [],
         password: [error.message],
-        email: [],
+        // email: [],
         server: [],
       });
     },

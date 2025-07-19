@@ -12,40 +12,31 @@ import { isPhone } from '@/app/utils/miniFunctions';
 
 export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const {
-    setStep,
-    setErrors,
-    email,
-    username,
-    errors,
-    setEmail,
-    setUsername,
-    setId,
-  } = useLoginData();
+  const { setStep, setErrors, username, errors, setUsername, setId } =
+    useLoginData();
 
   useEffect(() => {
     usernameRef.current!.value = username;
-    emailRef.current!.value = email;
-  }, [email, username]);
+  }, [username]);
 
   const registerMutation = useMutation({
     mutationFn: async ({
       username,
-      email,
+      // email,
       password,
     }: {
       username: string;
-      email: string;
+      // email: string;
       password: string;
     }) => {
-      const response = await registerAction(username, email, password);
+      const response = await registerAction({ username, password });
+      console.log(response);
       if (!response.success) {
-        throw new Error('ایمیل یا شماره موبایل تکراری است.');
+        throw new Error('شماره موبایل تکراری است.');
       }
       setUsername(username);
-      setEmail(email);
+      // setEmail(email);
       return response.user;
     },
     onSuccess: (data) => {
@@ -57,7 +48,6 @@ export default function RegisterForm() {
         identifier: [],
         username: [error.message],
         password: [],
-        email: [],
         server: [],
       });
     },
@@ -66,18 +56,18 @@ export default function RegisterForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const enteredUsername = usernameRef.current?.value || '';
-    const enteredEmail = emailRef.current?.value || '';
+    // const enteredEmail = emailRef.current?.value || '';
     const enteredPassword = passwordRef.current?.value || '';
 
     // Determine if the identifier is a phone number or email
     const isPhoneNumber = isPhone(enteredUsername);
     const username = isPhoneNumber ? enteredUsername : '';
-    const email = isPhoneNumber ? enteredEmail : enteredUsername;
+    // const email = isPhoneNumber ? enteredEmail : enteredUsername;
 
     // Validate the form using the schema
     const validationResult = registerSchema.safeParse({
       username: '98' + username,
-      email,
+      // email,
       password: enteredPassword,
     });
 
@@ -85,7 +75,7 @@ export default function RegisterForm() {
       const validationErrors = validationResult.error.flatten().fieldErrors;
       setErrors({
         username: validationErrors.username || [],
-        email: validationErrors.email || [],
+        // email: validationErrors.email || [],
         password: validationErrors.password || [],
         identifier: [],
         server: [],
@@ -95,7 +85,7 @@ export default function RegisterForm() {
 
     registerMutation.mutate({
       username,
-      email,
+      // email,
       password: enteredPassword,
     });
   };
@@ -108,7 +98,7 @@ export default function RegisterForm() {
         placeholder="شماره تلفن "
         required
       />
-      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required ltr />
+      {/* <InputBox ref={emailRef} name="email" placeholder="ایمیل" required ltr /> */}
       <InputBox
         ref={passwordRef}
         name="password"
@@ -120,9 +110,9 @@ export default function RegisterForm() {
       {errors.username && (
         <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
       )}
-      {errors.email && (
+      {/* {errors.email && (
         <p className="text-red-500 text-sm">{errors.email.join('\n')}</p>
-      )}
+      )} */}
       {errors.password && (
         <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
       )}
