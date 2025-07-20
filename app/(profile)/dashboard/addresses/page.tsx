@@ -6,7 +6,7 @@ export default function AddressesPage() {
   return (
     <div className="w-full flex flex-col gap-5">
       <Title>
-        <h6>آدرس های من</h6>
+        <h6 className="text-accent-pink">آدرس های من</h6>
       </Title>
       <Addresses />
     </div>

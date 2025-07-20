@@ -5,17 +5,25 @@ interface PhoneInputProps {
   name: string;
   required?: boolean;
   children?: ReactNode;
+  className?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 const PhoneInputBox = forwardRef<HTMLInputElement, PhoneInputProps>(
   (
-    { placeholder, name, children, required, onChange }: PhoneInputProps,
+    {
+      placeholder,
+      name,
+      children,
+      required,
+      onChange,
+      className,
+    }: PhoneInputProps,
     ref
   ) => {
     return (
       <div className="flex flex-col md:flex-row w-full items-center">
         {children && (
-          <label className="flex w-full md:w-2/12" htmlFor={name}>
+          <label className="flex w-full md:w-4/12" htmlFor={name}>
             <p>{children}: </p>
             {required && <p className="text-accent-pink"> * </p>}
           </label>

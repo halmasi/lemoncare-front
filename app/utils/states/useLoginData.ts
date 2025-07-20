@@ -16,7 +16,7 @@ export interface LoginDataProps {
     identifier: string[];
     username: string[];
     password: string[];
-    // email: string[];
+    name: string[];
     server: string[];
   };
   setErrors: (errors: LoginDataProps['errors']) => void;
@@ -45,7 +45,7 @@ export const useLoginData = create<LoginDataProps>((set) => ({
     identifier: [],
     username: [],
     password: [],
-    // email: [],
+    name: [],
     server: [],
   },
   setErrors: (errors) =>
@@ -61,14 +61,13 @@ export const useLoginData = create<LoginDataProps>((set) => ({
     set(() => ({
       identifier: '',
       username: '',
-      // email: '',
       password: '',
       step: 'identifier',
       errors: {
         identifier: [],
         username: [],
         password: [],
-        // email: [],
+        name: [],
         server: [],
       },
     })),

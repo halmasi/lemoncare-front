@@ -79,7 +79,7 @@ export default function LoginForm() {
         identifier: [error.message],
         username: [],
         password: [],
-        // email: [],
+        name: [],
         server: [],
       });
     },
@@ -95,7 +95,7 @@ export default function LoginForm() {
             identifier: [],
             username: [],
             password: ['رمز عبور اشتباه است.'],
-            // email: [],
+            name: [],
             server: [],
           });
           return;
@@ -173,65 +173,9 @@ export default function LoginForm() {
         identifier: [],
         username: [],
         password: [error.message],
-        // email: [],
+        name: [],
         server: [],
       });
-    },
-  });
-
-  const handleCartFn = useMutation({
-    mutationFn: async ({
-      fetchedCart,
-      id,
-    }: {
-      fetchedCart: CartProps[];
-      id: string;
-    }) => {
-      if (fetchedCart && cart) {
-        const cartMap = new Map<string, CartProps>();
-        [...fetchedCart, ...cart].forEach((item) => {
-          const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
-          cartMap.set(key, item);
-        });
-        const deduplicatedCart = Array.from(cartMap.values());
-        updateCartFn.mutate({ newCart: deduplicatedCart, id });
-      } else if (fetchedCart && !cart) {
-        setCart(fetchedCart);
-      } else if (!fetchedCart && cart) {
-        updateCartFn.mutate({ newCart: cart, id });
-      }
-    },
-    onSuccess: async () => {},
-    onError: (error: { message: string[] }) => {
-      throw new Error('خطا : ' + error.message);
-    },
-  });
-
-  const updateCartFn = useMutation({
-    mutationFn: async ({
-      newCart,
-      id,
-    }: {
-      newCart: CartProps[];
-      id: string;
-    }) => {
-      const updateCart = newCart.map((item) => {
-        return {
-          count: item.count,
-          product: item.product.documentId,
-          variety: item.variety,
-        };
-      });
-      await updateCartOnLogin(updateCart, id);
-      const res = await getCart(id);
-      return res.data;
-    },
-    onSuccess: async (data) => {
-      if (!data) return;
-      setCart(data.items);
-    },
-    onError: (error: { message: string[] }) => {
-      throw new Error('خطا : ' + error.message);
     },
   });
 

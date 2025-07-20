@@ -16,6 +16,7 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { updateUserInformation } from '@/app/utils/data/getUserInfo';
 import { sendCode, validateCode } from '@/app/utils/data/getValidation';
+import { cleanPhone } from '@/app/utils/miniFunctions';
 
 export default function ConfirmPhoneForm({
   isLogin = false,
@@ -28,7 +29,7 @@ export default function ConfirmPhoneForm({
 }) {
   const codeRef = useRef<HTMLInputElement>(null);
 
-  const [timer, setTimer] = useState<number>(120);
+  const [timer, setTimer] = useState<number>(10);
   const [resend, setResend] = useState<boolean>(true);
 
   const router = useRouter();
@@ -51,11 +52,14 @@ export default function ConfirmPhoneForm({
         );
       } else {
         toast.info('کد فعال سازی به شماره شما پیامک شد.');
-        setTimer(120);
+        setTimer(10);
       }
     },
-    onError: () => {
+    onError: (err) => {
+      console.log(err);
       toast.error('خطا در ارسال کد فعال سازی. لطفا دوباره تلاش کنید.');
+      setTimer(0);
+      setResend(false);
     },
   });
 
@@ -83,6 +87,8 @@ export default function ConfirmPhoneForm({
       setLoginProcces(true);
       if (path.startsWith('/login')) router.push('/');
     },
+    retry: 5,
+    retryDelay: 2000,
   });
 
   const deleteUserFn = useMutation({
@@ -96,28 +102,23 @@ export default function ConfirmPhoneForm({
   useEffect(() => {
     if (timer) {
       setTimeout(() => setTimer(timer - 1), 1000);
-    }
+    } else setResend(false);
   }, [timer, setTimer]);
 
   useEffect(() => {
     if (username) {
-      sendCodeFn.mutate('98' + username);
+      sendCodeFn.mutate(username);
     } else if (user && user.username) sendCodeFn.mutate(user?.username);
   }, [username, user]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const enteredCode = codeRef.current?.value || '';
-    if (username)
-      verifyCodeFn.mutateAsync({
-        code: parseInt(enteredCode),
-        username: '98' + username,
-      });
-    else if (user && user.username)
-      verifyCodeFn.mutateAsync({
-        code: parseInt(enteredCode),
-        username: user.username,
-      });
+
+    verifyCodeFn.mutateAsync({
+      code: parseInt(enteredCode),
+      username: username ? username : user?.username || '',
+    });
   };
 
   return (
@@ -150,12 +151,17 @@ export default function ConfirmPhoneForm({
             <BiEditAlt />
             {isNoPhone ? (
               <span>
-                <span>{username.slice(-2)}</span>
+                <span>{cleanPhone(username).slice(-2)}</span>
                 <span>*****</span>
-                <span>0{username.slice(0, 3)}</span>
+                <span>0{cleanPhone(username).slice(0, 3)}</span>
               </span>
             ) : (
-              <span>0{username ? username : user?.username}</span>
+              <span>
+                0
+                {username
+                  ? cleanPhone(username)
+                  : cleanPhone(user?.username || '')}
+              </span>
             )}
           </span>
           کد فعال سازی

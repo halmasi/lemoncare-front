@@ -157,7 +157,7 @@ export default function Dashboard() {
               <h6 className="text-accent-pink">آدرس پیش فرض</h6>
             </Title>
             <Link
-              className="hover:text-accent-pink flex items-center gap-2 transition-colors"
+              className="hover:text-accent-pink flex items-center gap-2 transition-colors h-10"
               href="/dashboard/addresses"
             >
               <p> ویرایش آدرس ها</p>
@@ -220,13 +220,17 @@ export default function Dashboard() {
             <Title>
               <h6 className="text-accent-pink">علاقمندی ها</h6>
             </Title>
-            <Link
-              className="hover:text-accent-pink flex items-center gap-2 transition-colors"
-              href={'/dashboard/favorites'}
-            >
-              <p>مشاهده لیست علاقمندی ها </p>
-              <IoIosArrowBack className="" />
-            </Link>
+            <div className="h-10">
+              {favorites && favorites.length > 0 && (
+                <Link
+                  className="hover:text-accent-pink flex items-center gap-2 transition-colors"
+                  href={'/dashboard/favorites'}
+                >
+                  <p>مشاهده لیست علاقمندی ها </p>
+                  <IoIosArrowBack className="" />
+                </Link>
+              )}
+            </div>
             {getFavoritesFn.isPending ? (
               <div className="w-full h-52 rounded-lg bg-gray-400 animate-pulse" />
             ) : favorites && favorites.length ? (

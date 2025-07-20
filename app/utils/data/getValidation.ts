@@ -1,5 +1,7 @@
 'use server';
 
+import { cleanPhone } from '../miniFunctions';
+
 export const validateCode = async ({
   username,
   code,
@@ -15,7 +17,7 @@ export const validateCode = async ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username,
+        username: '98' + cleanPhone(username),
         code,
       }),
     }
@@ -25,17 +27,16 @@ export const validateCode = async ({
   return result;
 };
 
-export const sendCode = async (username: number | string) => {
+export const sendCode = async (username: string) => {
   const res = await fetch(process.env.SITE_URL + '/api/auth/oneTimePassword', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      username,
+      username: '98' + cleanPhone(username),
     }),
   });
-
   const data = await res.json();
   const result = JSON.parse(data);
 
