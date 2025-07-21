@@ -15,6 +15,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import AddToFavorites from '@/app/components/AddToFavorites';
+import { FaArrowRightLong } from 'react-icons/fa6';
 
 export default function Bookmarks() {
   const searchParams = useSearchParams();
@@ -49,15 +50,25 @@ export default function Bookmarks() {
 
   useEffect(() => {
     if (user && user.favorite) {
-      getFavoritesFn.mutateAsync(user.favorite.documentId);
+      getFavoritesFn.mutate(user.favorite.documentId);
     }
   }, [user]);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
-      <Title className="mb-5">
-        <h6 className="text-accent-pink">مقالات نشان شده من</h6>
-      </Title>
+      <div className="flex flex-col md:flex-row w-full">
+        <Link
+          href={'/dashboard'}
+          className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+        >
+          <FaArrowRightLong />
+        </Link>
+        <div className="w-full flex flex-col items-center justify-center text-center mb-5">
+          <Title className="flex flex-col items-center justify-center text-center mb-6">
+            <h6 className="text-accent-pink">مقالات نشان شده من</h6>
+          </Title>
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex flex-wrap max-w-screen-lg gap-5 justify-center">
@@ -110,7 +121,7 @@ export default function Bookmarks() {
                   <div className="flex items-center gap-2">
                     <AddToFavorites
                       onFinish={(id) => {
-                        getFavoritesFn.mutateAsync(user!.favorite.documentId);
+                        getFavoritesFn.mutate(user!.favorite.documentId);
                       }}
                       className="h-fit mb-3 p-2 rounded-lg border border-gray-400/75"
                       isList

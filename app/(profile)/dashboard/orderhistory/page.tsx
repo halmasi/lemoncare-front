@@ -9,15 +9,45 @@ import { useSearchParams } from 'next/navigation';
 import Pagination from '@/app/components/Pagination';
 import OrderHistoryCard from '@/app/components/profile/OrderHistoryCard';
 import Title from '@/app/components/Title';
+import Link from 'next/link';
+import { FaArrowRightLong } from 'react-icons/fa6';
+import { RiArrowLeftSLine } from 'react-icons/ri';
 
-function LoadingSkeleton() {
+function LoadingSkeleton({ times }: { times: number }) {
+  const numbersArray = Array.from({ length: times }, (_, i) => i + 1);
+
   return (
-    <div className="w-full justify-between overflow-hidden flex flex-wrap gap-2 h-52 bg-gray-500 animate-pulse p-2">
-      <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
-      <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
-      <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
-      <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
-      <div className="p-2 h-full w-40 bg-gray-300 rounded-lg"></div>
+    <div className="w-full flex flex-col gap-5">
+      {numbersArray.map((i) => (
+        <div
+          key={i}
+          className="w-full justify-between overflow-hidden flex flex-wrap gap-2 h-52 bg-gray-500 animate-pulse p-2 rounded-lg"
+        >
+          <div className="w-full flex items-center p-2 justify-around h-1/2">
+            <div className="w-full flex flex-col justify-between h-full">
+              <div className="w-[80%] h-5 bg-gray-300 rounded-lg" />
+              <div className="w-[80%] h-5 bg-gray-300 rounded-lg" />
+              <div className="w-[80%] h-5 bg-gray-300 rounded-lg" />
+            </div>
+            <RiArrowLeftSLine className="text-gray-300" />
+          </div>
+          <div className="w-full bg-gray-200 h-[1px]" />
+          <div className="w-full flex h-1/2">
+            <div
+              className={`w-16 h-16 rounded-full aspect-square object-cover bg-gray-500 border-2`}
+            />
+            <div
+              className={`w-16 h-16 rounded-full aspect-square object-cover bg-gray-400 border-2 -mr-8`}
+            />
+            <div
+              className={`w-16 h-16 rounded-full aspect-square object-cover bg-gray-300 border-2 -mr-8`}
+            />
+            <div
+              className={`w-16 h-16 rounded-full aspect-square object-cover bg-gray-200 border-2 -mr-8`}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -50,18 +80,29 @@ export default function OrderHistory() {
 
   useEffect(() => {
     if (user) {
-      getOrderHistoryFn.mutateAsync();
+      getOrderHistoryFn.mutate();
     }
   }, [user, page]);
 
   return (
     <div className="p-6 w-full max-w-4xl mx-auto">
-      <Title className="mb-6">
-        <h4 className=" text-accent-pink">سفارش های من</h4>
-      </Title>
+      <div className="flex flex-col md:flex-row w-full">
+        <Link
+          href={'/dashboard'}
+          className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+        >
+          <FaArrowRightLong />
+        </Link>
+        <div className="w-full flex flex-col items-center justify-center text-center mb-5">
+          <Title className="flex flex-col items-center justify-center text-center mb-6">
+            <h4 className=" text-accent-pink">سفارش های من</h4>
+          </Title>
+        </div>
+      </div>
+
       {showLoading ? (
         <div className="w-full overflow-hidden">
-          <LoadingSkeleton />
+          <LoadingSkeleton times={10} />
         </div>
       ) : orderHistory && orderHistory.length > 0 ? (
         <div className="flex flex-col gap-5">

@@ -231,7 +231,7 @@ export default function NewAddressForm({
         mobile: data.get('mobile')?.toString() || '',
         isDefault: defaultAddress,
       };
-      submitFn.mutateAsync(formValues);
+      submitFn.mutate(formValues);
     },
     [submitFn, defaultAddress]
   );

@@ -248,7 +248,7 @@ export const updateFavorite = async (
 };
 
 export const getGravatar = async (email: string) => {
-  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+  const get = await fetch(`${process.env.SITE_URL}/api/auth/gravatar`, {
     headers: {
       'Content-Type': 'application/json',
     },

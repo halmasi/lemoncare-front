@@ -61,7 +61,7 @@ export default function Count({
     },
     onSuccess: async (data) => {
       if (!data || !data.result) return;
-      getCartFn.mutateAsync();
+      getCartFn.mutate();
     },
     onError: async (error) => {
       logs.error(error.cause + ' ' + error.message);
@@ -74,7 +74,7 @@ export default function Count({
       if (newNumber <= 0) {
         updateCart.splice(updateCart.indexOf(cartItem), 1);
         if (user && jwt) {
-          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+          updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
         }
         refreshFunction(0);
       } else {
@@ -83,7 +83,7 @@ export default function Count({
         setCart(updateCart);
 
         if (jwt && user) {
-          getCartFn.mutateAsync();
+          getCartFn.mutate();
           const cartMap = new Map(
             cart.map((cartItem) => [
               `${cartItem.product.documentId}-${cartItem.variety.id}-${cartItem.variety.sub}`,
@@ -98,7 +98,7 @@ export default function Count({
           });
 
           if (shouldUpdate) {
-            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
           }
         }
       }
@@ -116,7 +116,7 @@ export default function Count({
             onClick={() => {
               if (cart[itemIndex].count < inventory) {
                 setNumber((prev) => prev + 1);
-                changeNumberfn.mutateAsync(number + 1);
+                changeNumberfn.mutate(number + 1);
               }
             }}
             disabled={
@@ -145,7 +145,7 @@ export default function Count({
           <button
             onClick={() => {
               setNumber((prev) => prev - 1);
-              changeNumberfn.mutateAsync(number - 1);
+              changeNumberfn.mutate(number - 1);
             }}
             disabled={
               itemIndex === -1 ||

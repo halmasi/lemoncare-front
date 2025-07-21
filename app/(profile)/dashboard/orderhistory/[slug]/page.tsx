@@ -142,7 +142,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
     },
   });
   useEffect(() => {
-    getOrderHistoryFn.mutateAsync();
+    getOrderHistoryFn.mutate();
   }, [user, user?.order_history]);
 
   if (error)

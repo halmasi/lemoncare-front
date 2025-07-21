@@ -71,7 +71,7 @@ export default function LoginForm() {
           setStep('login');
         } else setStep('register');
       } else {
-        loginMutation.mutateAsync({ password });
+        loginMutation.mutate({ password });
       }
     },
     onError: (error: Error) => {
@@ -182,7 +182,7 @@ export default function LoginForm() {
   return (
     <>
       <form
-        onSubmit={loginCheckMutation.mutateAsync}
+        onSubmit={loginCheckMutation.mutate}
         className="flex flex-col space-y-4"
       >
         <InputBox

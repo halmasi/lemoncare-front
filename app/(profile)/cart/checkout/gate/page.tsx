@@ -60,7 +60,7 @@ export default function page() {
 
   useEffect(() => {
     if (orderCode) {
-      getPriceFn.mutateAsync();
+      getPriceFn.mutate();
     }
   }, [orderCode]);
 

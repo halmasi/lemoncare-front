@@ -3,7 +3,7 @@ import PaymentSelector from '@/app/components/checkout/PaymentSelector';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
-import { calcShippingPrice } from '@/app/utils/paymentUtils';
+import { calcShippingPrice, submitOrder } from '@/app/utils/paymentUtils';
 import { CartProps } from '@/app/utils/schema/shopProps';
 import { cartProductSelector, varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
@@ -72,7 +72,7 @@ export default function Payment() {
     mutationFn: async () => {
       if (checkoutAddress && checkoutAddress.cityCode) {
         const res = await calcShippingPrice(
-          checkoutAddress?.cityCode,
+          checkoutAddress.cityCode,
           {
             courierCode: shippingOption.courier_code,
             courierServiceCode: shippingOption.service_type,
@@ -87,6 +87,7 @@ export default function Payment() {
       if (
         !data ||
         !data.data.servicePrices[0] ||
+        !data.data.servicePrices.length ||
         data.data.servicePrices[0].totalPrice < 0
       ) {
         toast('خطا! یک روش ارسال دیگر انتخاب کنید');
@@ -96,13 +97,12 @@ export default function Payment() {
         Math.ceil(data.data.servicePrices[0].totalPrice / 10000) * 10000
       );
       setTotalPrice(shippingPrice + price);
-      makeOrderHistoryFn.mutateAsync();
+      makeOrderHistoryFn.mutate();
     },
   });
 
   const makeOrderHistoryFn = useMutation({
     mutationFn: async () => {
-      const date = new Date();
       const items: CartProps[] = await Promise.all(
         cart.map(async (item) => {
           const product = await cartProductSelector(
@@ -122,45 +122,25 @@ export default function Payment() {
           return null;
         })
       ).then((results) => results.filter((item) => item !== null));
-      const res = await fetch('/api/checkout/submit-order', {
-        method: 'POST',
-        body: JSON.stringify({
-          user: user?.documentId,
+      if (checkoutAddress && user) {
+        const res = await submitOrder({
+          user: parseInt(user.id || '0'),
           jwt: `Bearer ${jwt}`,
-          order: {
-            items: items.map((i: CartProps) => {
-              return {
-                count: i.count,
-                product: i.product.documentId,
-                variety: i.variety,
-                beforePrice: i.beforePrice || 0,
-                mainPrice: i.mainPrice || 0,
-              };
-            }),
-            orderDate: date.toISOString(),
-            address: checkoutAddress?.address,
-            province: checkoutAddress?.province,
-            city: checkoutAddress?.city,
-            firstName: checkoutAddress?.firstName,
-            lastName: checkoutAddress?.lastName,
-            mobileNumber: checkoutAddress?.mobileNumber,
-            phoneNumber: checkoutAddress?.phoneNumber,
-            postCode: checkoutAddress?.postCode,
-            paymentStatus: 'pending',
-            payMethod: paymentOption,
-            shippingMethod: shippingOption.service_name,
-            shippingPrice,
-            orderPrice: price,
-            totalPrice,
-            coupon,
-          },
-        }),
-      });
-      const result = await res.json();
-      return result.data;
+          items,
+          checkoutAddress,
+          paymentOption,
+          shippingOption: shippingOption.service_name,
+          shippingPrice,
+          price,
+          totalPrice,
+          coupon,
+        });
+
+        return res;
+      }
     },
     onSuccess: (data) => {
-      setOrderCode(parseInt(data.orderCode));
+      setOrderCode(parseInt(data.data.orderCode));
       router.push('/cart/checkout/gate');
     },
     onError: () => {
@@ -246,7 +226,7 @@ export default function Payment() {
             <SubmitButton
               isPending={makeOrderHistoryFn.isPending}
               onClick={() => {
-                getShippingPriceFn.mutateAsync();
+                getShippingPriceFn.mutate();
               }}
               // link="/cart/checkout/gate"
             >

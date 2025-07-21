@@ -115,7 +115,7 @@ export default function ConfirmPhoneForm({
     e.preventDefault();
     const enteredCode = codeRef.current?.value || '';
 
-    verifyCodeFn.mutateAsync({
+    verifyCodeFn.mutate({
       code: parseInt(enteredCode),
       username: username ? username : user?.username || '',
     });
@@ -142,7 +142,7 @@ export default function ConfirmPhoneForm({
             onClick={() => {
               if (isLogin) setStep('identifier');
               else if (isRegister) {
-                deleteUserFn.mutateAsync(id);
+                deleteUserFn.mutate(id);
                 setStep('register');
               }
             }}

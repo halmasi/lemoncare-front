@@ -24,7 +24,6 @@ export async function POST(req: Request) {
       body: request,
       token: requestBody.jwt,
     });
-
     return Response.json({ data: result.data.data.order }, { status: 200 });
   } catch (error) {
     return Response.json({ error: error }, { status: 500 });

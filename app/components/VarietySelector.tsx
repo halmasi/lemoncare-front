@@ -220,7 +220,7 @@ export default function VarietySelector({
     },
     onSuccess: async (data) => {
       if (!data || !user) return;
-      getCartFn.mutateAsync();
+      getCartFn.mutate();
     },
     onError: async (error) => {
       toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
@@ -237,7 +237,7 @@ export default function VarietySelector({
       else {
         if (user) {
           newCart = [...cart, { ...newItem, product, id }];
-          addToCartFn.mutateAsync(newItem);
+          addToCartFn.mutate(newItem);
         } else {
           const found = cart.find((item) => {
             return (
@@ -295,7 +295,7 @@ export default function VarietySelector({
           <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
-              handleAddToCart={addToCartHandler.mutateAsync}
+              handleAddToCart={addToCartHandler.mutate}
               isPending={
                 addToCartFn.isPending || addToCartHandler.isPending
                 // ||
@@ -413,7 +413,7 @@ export default function VarietySelector({
       </div>
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
-        handleAddToCart={addToCartHandler.mutateAsync}
+        handleAddToCart={addToCartHandler.mutate}
         isPending={
           addToCartFn.isPending ||
           price.inventory < 1 ||

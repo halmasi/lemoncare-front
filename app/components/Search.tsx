@@ -50,7 +50,7 @@ export function Search() {
 
   useEffect(() => {
     if (param) {
-      searchFn.mutateAsync();
+      searchFn.mutate();
     }
   }, [param]);
 

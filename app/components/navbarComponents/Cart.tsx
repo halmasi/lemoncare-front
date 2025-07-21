@@ -143,11 +143,11 @@ export default function Cart({
   useEffect(() => {
     if (user && jwt && user.shopingCart)
       if (loginProcces) {
-        getCartFn.mutateAsync({
+        getCartFn.mutate({
           id: user.shopingCart.documentId,
           login: true,
         });
-      } else getCartFn.mutateAsync({ id: user.shopingCart.documentId });
+      } else getCartFn.mutate({ id: user.shopingCart.documentId });
   }, [jwt, loginProcces]);
 
   useEffect(() => {
@@ -241,11 +241,11 @@ export default function Cart({
                     refreshFunction={(newCount) => {
                       if (user && user.shopingCart.documentId)
                         if (newCount <= 0)
-                          getCartFn.mutateAsync({
+                          getCartFn.mutate({
                             id: user.shopingCart.documentId,
                           });
                         else
-                          updateCartFn.mutateAsync({
+                          updateCartFn.mutate({
                             cart,
                             cartId: user.shopingCart.documentId,
                           });

@@ -38,7 +38,7 @@ export default function AddToFavorites({
 
   useEffect(() => {
     if (user && user.favorite)
-      getFavoritesFn.mutateAsync({
+      getFavoritesFn.mutate({
         documentId: user.favorite.documentId,
         propertyDocumentId: post ? post.documentId : product!.documentId,
       });

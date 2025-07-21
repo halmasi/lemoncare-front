@@ -123,9 +123,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex w-full">
-      {/* show on desktop */}
       <div className="flex flex-col gap-5 h-fit w-full">
-        {/* {lastOrder ? <OrderHistoryCard item={lastOrder} /> : } */}
         <Title>
           <h6 className="text-accent-pink">آخرین سفارشات من</h6>
         </Title>

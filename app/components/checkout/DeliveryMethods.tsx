@@ -55,7 +55,7 @@ export default function DeliveryMethods({
     useCheckoutStore();
 
   useEffect(() => {
-    getMethodsFn.mutateAsync();
+    getMethodsFn.mutate();
   }, []);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function DeliveryMethods({
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
       setShippingPrice(-1);
-      getPriceFn.mutateAsync(checkoutAddress.cityCode);
+      getPriceFn.mutate(checkoutAddress.cityCode);
       setShippingOption({
         courier_code: selected.courierCode,
         service_type: selected.courierServiceCode,
@@ -105,6 +105,8 @@ export default function DeliveryMethods({
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');
     },
+    retry: 5,
+    retryDelay: 1000,
   });
   const getPriceFn = useMutation({
     mutationFn: async (cityCode: number) => {

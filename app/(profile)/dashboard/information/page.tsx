@@ -19,6 +19,8 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import ConfirmPhoneForm from '@/app/components/profile/auth/ConfirmPhoneForm';
 import Title from '@/app/components/Title';
+import Link from 'next/link';
+import { FaArrowRightLong } from 'react-icons/fa6';
 
 export default function Information() {
   const { user, jwt, setUser } = useDataStore();
@@ -98,7 +100,7 @@ export default function Information() {
     onSuccess: async () => {
       setUsernameChange(false);
       toast.success('تغییرات با موفقیت اعمال شد.');
-      getUserInfoFn.mutateAsync();
+      getUserInfoFn.mutate();
     },
     onError: (error: string) => {
       logs.error('onError: ' + error);
@@ -152,11 +154,11 @@ export default function Information() {
         );
       }
       if (type == 'email')
-        editUserInformaion.mutateAsync({
+        editUserInformaion.mutate({
           email: userName,
         });
       else
-        editUserInformaion.mutateAsync({
+        editUserInformaion.mutate({
           username: userName,
         });
     },
@@ -189,20 +191,20 @@ export default function Information() {
       return;
     }
     if (username && username != '' && username != user?.username) {
-      checkEmailAndUsernameFn.mutateAsync({
+      checkEmailAndUsernameFn.mutate({
         type: 'username',
         userName: username,
       });
     }
     if (email && email != '' && email != user?.email) {
       toast.warn('پس از تغییر آدرس ایمیل، ایمیل ارسال شده را تایید کنید.');
-      checkEmailAndUsernameFn.mutateAsync({
+      checkEmailAndUsernameFn.mutate({
         type: 'email',
         userName: email,
       });
     }
     if (fullName && fullName != '' && fullName != user?.fullName) {
-      editUserInformaion.mutateAsync({ fullName });
+      editUserInformaion.mutate({ fullName });
     }
     if (
       password &&
@@ -210,14 +212,25 @@ export default function Information() {
       confirmPassword &&
       password == confirmPassword
     ) {
-      changePasswordFn.mutateAsync(password);
+      changePasswordFn.mutate(password);
     }
   };
   return (
-    <div className="w-full flex justify-center lg:max-w-screen-md">
-      <Title className="mb-5">
-        <h6 className="text-accent-pink">ویرایش اطلاعات من</h6>
-      </Title>
+    <div className="w-full flex flex-col max-w-screen-md">
+      <div className="flex flex-col md:flex-row w-full">
+        <Link
+          href={'/dashboard'}
+          className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+        >
+          <FaArrowRightLong />
+        </Link>
+        <div className="w-full flex flex-col items-center justify-center text-center mb-5">
+          <Title className="flex flex-col items-center justify-center text-center mb-6">
+            <h6 className="text-accent-pink">ویرایش اطلاعات من</h6>
+          </Title>
+        </div>
+      </div>
+
       <form className="w-full flex flex-col p-5 gap-4 " onSubmit={handleSubmit}>
         <PhoneInputBox
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
