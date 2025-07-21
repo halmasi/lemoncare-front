@@ -18,6 +18,7 @@ import { useMutation } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import ConfirmPhoneForm from '@/app/components/profile/auth/ConfirmPhoneForm';
+import Title from '@/app/components/Title';
 
 export default function Information() {
   const { user, jwt, setUser } = useDataStore();
@@ -51,7 +52,7 @@ export default function Information() {
       if (user.username?.length) {
         usernameRef.current!.value = user.username.slice(2);
       }
-      if (user.email) {
+      if (user.email && user.email != `${user.username}@lemiro.ir`) {
         emailRef.current!.value = user.email;
       }
     }
@@ -187,28 +188,36 @@ export default function Information() {
       console.error(validation.error.format());
       return;
     }
-    if (username && username != user?.username) {
+    if (username && username != '' && username != user?.username) {
       checkEmailAndUsernameFn.mutateAsync({
         type: 'username',
         userName: username,
       });
     }
-    if (email && email != user?.email) {
+    if (email && email != '' && email != user?.email) {
       toast.warn('پس از تغییر آدرس ایمیل، ایمیل ارسال شده را تایید کنید.');
       checkEmailAndUsernameFn.mutateAsync({
         type: 'email',
         userName: email,
       });
     }
-    if (fullName && fullName != user?.fullName) {
+    if (fullName && fullName != '' && fullName != user?.fullName) {
       editUserInformaion.mutateAsync({ fullName });
     }
-    if (password && confirmPassword && password == confirmPassword) {
+    if (
+      password &&
+      password != '' &&
+      confirmPassword &&
+      password == confirmPassword
+    ) {
       changePasswordFn.mutateAsync(password);
     }
   };
   return (
     <div className="w-full flex justify-center lg:max-w-screen-md">
+      <Title className="mb-5">
+        <h6 className="text-accent-pink">ویرایش اطلاعات من</h6>
+      </Title>
       <form className="w-full flex flex-col p-5 gap-4 " onSubmit={handleSubmit}>
         <PhoneInputBox
           onChange={(e: ChangeEvent<HTMLInputElement>) => {

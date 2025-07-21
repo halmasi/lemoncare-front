@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query';
 
 import { getFavorites } from '@/app/utils/data/getUserInfo';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import BookmarkContent from '@/app/components/profile/favorites/BookmarkContent';
 import { toast } from 'react-toastify';
 import { PostsProps } from '@/app/utils/schema/blogProps';
 import Title from '@/app/components/Title';
@@ -57,7 +56,7 @@ export default function Bookmarks() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
       <Title className="mb-5">
-        <h6>مقالات نشان شده من</h6>
+        <h6 className="text-accent-pink">مقالات نشان شده من</h6>
       </Title>
 
       {loading ? (

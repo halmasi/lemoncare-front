@@ -5,35 +5,39 @@ import { cookies } from 'next/headers';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
-import { orderHistoryIdMaker } from '../shopUtils';
+import { updateUserInformation } from '../data/getUserInfo';
 
-export const registerAction = async (
-  username: string,
-  email: string,
-  password: string
-) => {
+export const registerAction = async ({
+  username,
+  name,
+  password,
+}: {
+  username: string;
+  name: string;
+  password: string;
+}) => {
   const fieldErrors: {
     username: string[];
-    email: string[];
+    name: string[];
     password: string[];
     server: string[];
   } = {
     username: [],
-    email: [],
+    name: [],
     password: [],
     server: [],
   };
   username = '98' + cleanPhone(username);
   const validationResult = registerSchema.safeParse({
     username: username,
-    email,
+    name,
     password,
   });
 
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
     if (errors.username) fieldErrors.username.push(...errors.username);
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.name) fieldErrors.name.push(...errors.name);
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
@@ -42,7 +46,7 @@ export const registerAction = async (
       method: 'POST',
       body: {
         username: validationResult.data.username,
-        email: validationResult.data.email,
+        email: `${validationResult.data.username}@lemiro.ir`,
         password: validationResult.data.password,
       },
     });
@@ -55,14 +59,12 @@ export const registerAction = async (
 
       const requests = [
         { url: '/carts', data: { user: userId, items: [] } },
-        // { url: '/order-histories', data: { user: userId, order: [] } },
         {
           url: '/postal-informations',
           data: { user: userId, information: [] },
         },
         { url: '/favorites', data: { user: userId, posts: [], products: [] } },
       ];
-
       await Promise.all(
         requests.map(({ url, data }) =>
           requestData({
@@ -73,6 +75,9 @@ export const registerAction = async (
           })
         )
       );
+      await updateUserInformation(userId, response.data.jwt, {
+        fullName: name,
+      });
       return {
         success: true,
         fieldErrors,

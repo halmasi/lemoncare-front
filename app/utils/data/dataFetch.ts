@@ -75,7 +75,6 @@ export async function requestData({
     },
     cache,
   };
-
   if (Object.keys(body).length)
     Object.assign(options, { body: JSON.stringify(body) });
 

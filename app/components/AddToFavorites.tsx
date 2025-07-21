@@ -16,7 +16,6 @@ import { ProductProps } from '../utils/schema/shopProps';
 import { toast } from 'react-toastify';
 import { VscLoading } from 'react-icons/vsc';
 import { IoTrash } from 'react-icons/io5';
-import { useRouter } from 'next/navigation';
 
 export default function AddToFavorites({
   product,
@@ -36,8 +35,6 @@ export default function AddToFavorites({
   const [whichOne] = useState<'posts' | 'products'>(
     post ? 'posts' : 'products'
   );
-
-  const router = useRouter();
 
   useEffect(() => {
     if (user && user.favorite)
@@ -88,11 +85,12 @@ export default function AddToFavorites({
   });
 
   const handleClick = () => {
+    if (!user) toast.info('لطفا ابتدا وارد حساب کاربری شوید.');
     if (!user || clickHandlerFn.isPending) return;
     clickHandlerFn.mutate();
   };
 
-  if (!user) return null;
+  // if (!user) return null;
 
   const commonProps = {
     onClick: handleClick,

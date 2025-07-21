@@ -3,11 +3,11 @@ import { z } from 'zod';
 export const loginSchema = z.object({
   identifier: z
     .string()
-    .nonempty('ایمیل یا شماره تلفن الزامی است')
+    .nonempty('شماره تلفن الزامی است')
     .refine(
       (val) =>
         /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(val) || /^9\d{9}$/.test(val),
-      'ایمیل یا شماره تلفن وارد شده معتبر نیست'
+      'شماره تلفن وارد شده معتبر نیست'
     ),
   pass: z
     .string()
@@ -25,10 +25,11 @@ export const registerSchema = z.object({
     .nonempty('شماره تلفن الزامی است')
     .regex(/^98\d{10}$/, 'شماره تلفن وارد شده معتبر نیست'),
 
-  email: z
+  name: z
     .string()
-    .nonempty('ایمیل الزامی است')
-    .email('آدرس ایمیل را دوباره بررسی کنید'),
+    .nonempty('نام کامل الزامی است')
+    .min(3, 'نام کامل باید حداقل ۳ کاراکتر باشد')
+    .max(50, 'نام کامل نباید بیشتر از ۵۰ کاراکتر باشد'),
 
   password: z
     .string()

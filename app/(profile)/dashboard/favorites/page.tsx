@@ -55,7 +55,7 @@ export default function Favorites() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
       <Title className="mb-5">
-        <h6>محصولات مورد علاقه من</h6>
+        <h6 className="text-accent-pink">محصولات مورد علاقه من</h6>
       </Title>
 
       {loading ? (

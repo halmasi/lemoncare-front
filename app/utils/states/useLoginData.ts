@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export interface LoginDataProps {
   username: string;
-  email: string;
+  // email: string;
   password: string;
   id: number;
   step:
@@ -16,12 +16,12 @@ export interface LoginDataProps {
     identifier: string[];
     username: string[];
     password: string[];
-    email: string[];
+    name: string[];
     server: string[];
   };
   setErrors: (errors: LoginDataProps['errors']) => void;
   setUsername: (username: string) => void;
-  setEmail: (email: string) => void;
+  // setEmail: (email: string) => void;
   setPassword: (password: string) => void;
   setId: (id: number) => void;
   setStep: (
@@ -37,7 +37,7 @@ export interface LoginDataProps {
 }
 export const useLoginData = create<LoginDataProps>((set) => ({
   username: '',
-  email: '',
+  // email: '',
   password: '',
   id: 0,
   step: 'identifier',
@@ -45,7 +45,7 @@ export const useLoginData = create<LoginDataProps>((set) => ({
     identifier: [],
     username: [],
     password: [],
-    email: [],
+    name: [],
     server: [],
   },
   setErrors: (errors) =>
@@ -53,7 +53,7 @@ export const useLoginData = create<LoginDataProps>((set) => ({
       errors: { ...state.errors, ...errors },
     })),
   setUsername: (username) => set(() => ({ username })),
-  setEmail: (email) => set(() => ({ email })),
+  // setEmail: (email) => set(() => ({ email })),
   setPassword: (password) => set(() => ({ password })),
   setId: (id) => set(() => ({ id })),
   setStep: (step) => set(() => ({ step })),
@@ -61,14 +61,13 @@ export const useLoginData = create<LoginDataProps>((set) => ({
     set(() => ({
       identifier: '',
       username: '',
-      email: '',
       password: '',
       step: 'identifier',
       errors: {
         identifier: [],
         username: [],
         password: [],
-        email: [],
+        name: [],
         server: [],
       },
     })),

@@ -11,14 +11,11 @@ export async function POST(request: NextRequest) {
       username: number;
       location?: 'email' | 'phone';
     } = await request.json();
-
     const nowDate = new Date();
-
     const checkAllItems = await requestData({
       qs: `/verifications`,
       method: 'GET',
     });
-
     if (checkAllItems.data)
       checkAllItems.data.forEach(
         async (item: {
@@ -51,7 +48,6 @@ export async function POST(request: NextRequest) {
       qs: `/verifications?${query}`,
       method: 'GET',
     });
-
     if (userCheckResult.data && userCheckResult.data.length > 0) {
       const dateObject = new Date(userCheckResult.data[0].createdAt);
       return Response.json(

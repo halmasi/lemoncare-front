@@ -12,40 +12,31 @@ import { isPhone } from '@/app/utils/miniFunctions';
 
 export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const {
-    setStep,
-    setErrors,
-    email,
-    username,
-    errors,
-    setEmail,
-    setUsername,
-    setId,
-  } = useLoginData();
+  const passwordValidateRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const { setStep, setErrors, username, errors, setUsername, setId } =
+    useLoginData();
 
   useEffect(() => {
     usernameRef.current!.value = username;
-    emailRef.current!.value = email;
-  }, [email, username]);
+  }, [username]);
 
   const registerMutation = useMutation({
     mutationFn: async ({
       username,
-      email,
       password,
+      name,
     }: {
       username: string;
-      email: string;
       password: string;
+      name: string;
     }) => {
-      const response = await registerAction(username, email, password);
+      const response = await registerAction({ username, password, name });
       if (!response.success) {
-        throw new Error('ایمیل یا شماره موبایل تکراری است.');
+        throw new Error('شماره موبایل تکراری است.');
       }
       setUsername(username);
-      setEmail(email);
       return response.user;
     },
     onSuccess: (data) => {
@@ -57,7 +48,7 @@ export default function RegisterForm() {
         identifier: [],
         username: [error.message],
         password: [],
-        email: [],
+        name: [],
         server: [],
       });
     },
@@ -66,18 +57,25 @@ export default function RegisterForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const enteredUsername = usernameRef.current?.value || '';
-    const enteredEmail = emailRef.current?.value || '';
+    const enteredName = nameRef.current?.value || '';
     const enteredPassword = passwordRef.current?.value || '';
-
+    const passwordValidation = passwordValidateRef.current?.value || '';
+    if (enteredPassword != passwordValidation) {
+      setErrors({
+        ...errors,
+        password: ['رمزعبور و تایید رمزعبور یکسان نیستند.'],
+      });
+      return;
+    }
     // Determine if the identifier is a phone number or email
     const isPhoneNumber = isPhone(enteredUsername);
     const username = isPhoneNumber ? enteredUsername : '';
-    const email = isPhoneNumber ? enteredEmail : enteredUsername;
+    // const email = isPhoneNumber ? enteredEmail : enteredUsername;
 
     // Validate the form using the schema
     const validationResult = registerSchema.safeParse({
       username: '98' + username,
-      email,
+      name: enteredName,
       password: enteredPassword,
     });
 
@@ -85,7 +83,7 @@ export default function RegisterForm() {
       const validationErrors = validationResult.error.flatten().fieldErrors;
       setErrors({
         username: validationErrors.username || [],
-        email: validationErrors.email || [],
+        name: validationErrors.name || [],
         password: validationErrors.password || [],
         identifier: [],
         server: [],
@@ -95,7 +93,7 @@ export default function RegisterForm() {
 
     registerMutation.mutate({
       username,
-      email,
+      name: enteredName,
       password: enteredPassword,
     });
   };
@@ -105,23 +103,42 @@ export default function RegisterForm() {
       <PhoneInputBox
         ref={usernameRef}
         name="username"
-        placeholder="شماره تلفن "
+        placeholder="شماره همراه "
+        children={'شماره همراه '}
         required
       />
-      <InputBox ref={emailRef} name="email" placeholder="ایمیل" required ltr />
       <InputBox
         ref={passwordRef}
         name="password"
         type="password"
+        showEye={false}
         ltr
         placeholder="رمزعبور"
+        children={'رمز عبور'}
         required
+      />
+      <InputBox
+        ref={passwordValidateRef}
+        name="passwordValidate"
+        type="password"
+        showEye={false}
+        ltr
+        placeholder="تایید رمزعبور"
+        required
+        children={'تایید رمز عبور'}
+      />
+      <InputBox
+        ref={nameRef}
+        name="name"
+        placeholder="نام کامل"
+        required
+        children={'نام'}
       />
       {errors.username && (
         <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
       )}
-      {errors.email && (
-        <p className="text-red-500 text-sm">{errors.email.join('\n')}</p>
+      {errors.name && (
+        <p className="text-red-500 text-sm">{errors.name.join('\n')}</p>
       )}
       {errors.password && (
         <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
