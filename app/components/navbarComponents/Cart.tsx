@@ -45,17 +45,21 @@ export default function Cart({
       id: string;
       login?: boolean;
     }) => {
-      const cart = await getCart(id);
-      return { cart, login };
+      const cartData = await getCart(id);
+      if (!cartData || !cartData.data) {
+        return { cartData: cartData.data, login };
+      }
     },
-    onSuccess: ({ cart, login }) => {
-      if (login && user) {
+    onSuccess: (data) => {
+      if (!data || !data.cartData) return;
+      const { cartData, login } = data;
+      if (login && user && cartData && cartData.items) {
         handleCartFn.mutate({
-          fetchedCart: cart.data.items,
+          fetchedCart: cartData.items,
           id: user.shopingCart.documentId,
         });
         setLoginProcces(false);
-      } else setCart(cart.data.items);
+      } else setCart(cartData.items);
     },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');

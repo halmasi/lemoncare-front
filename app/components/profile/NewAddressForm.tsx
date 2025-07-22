@@ -137,7 +137,7 @@ export default function NewAddressForm({
       let editedAddresses = [...addressesArray];
       if (existingAddresses) {
         editedAddresses.push(...existingAddresses);
-        if (defaultAddress) {
+        if (defaultAddress && editedAddresses && editedAddresses.length) {
           const addresses: AddressProps[] = editedAddresses.map((item) => {
             if (item == addressesArray[0]) {
               return item;
@@ -203,13 +203,15 @@ export default function NewAddressForm({
   }, [editModeAddress]);
 
   useEffect(() => {
-    const state = states.find((item) => item.name == province);
-    const statesCity = state?.cities.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }));
-    setCities([]);
-    if (statesCity) setCities(statesCity);
+    if (province) {
+      const state = states.find((item) => item.name == province);
+      const statesCity = state?.cities.map((item) => ({
+        id: item.id,
+        name: item.name,
+      }));
+      setCities([]);
+      if (statesCity) setCities(statesCity);
+    }
   }, [province]);
 
   useEffect(() => {

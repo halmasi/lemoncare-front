@@ -20,7 +20,10 @@ export async function generateMetadata(
   if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
-  const tags = post.tags.map((item) => item.title).join('، ');
+  const tags =
+    post.tags && post.tags.length > 0
+      ? post.tags.map((item) => item.title).join('، ')
+      : [''];
   return {
     title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
@@ -49,6 +52,7 @@ export default async function page(props0: {
   const data = await getPost(slug);
   if (!data.length) return notFound();
   const post = data[0];
+  if (!post.content.length) return notFound();
   const contents: ContentProps[] = post.content;
   const publishDate = new Date(post.createdAt);
   return (

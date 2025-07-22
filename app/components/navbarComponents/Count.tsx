@@ -28,14 +28,15 @@ export default function Count({
 
   const [number, setNumber] = useState(cartItem.count);
 
-  const itemIndex = cart
-    ? cart.findIndex((item) => {
-        const bool =
-          item.product.documentId == cartItem.product.documentId &&
-          item.variety == cartItem.variety;
-        return bool;
-      })
-    : -1;
+  const itemIndex =
+    cart && cart.length > 0
+      ? cart.findIndex((item) => {
+          const bool =
+            item.product.documentId == cartItem.product.documentId &&
+            item.variety == cartItem.variety;
+          return bool;
+        })
+      : -1;
 
   const itemCount = itemIndex != -1 ? cart[itemIndex].count : 0;
 
@@ -70,7 +71,7 @@ export default function Count({
 
   const changeNumberfn = useMutation({
     mutationFn: async (newNumber: number) => {
-      const updateCart = cart;
+      const updateCart = [...cart];
       if (newNumber <= 0) {
         updateCart.splice(updateCart.indexOf(cartItem), 1);
         if (user && jwt) {

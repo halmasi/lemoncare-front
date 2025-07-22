@@ -76,7 +76,8 @@ export default function OrderPage(props: {
       }
     },
     onSuccess: async (data) => {
-      if (!data) return;
+      if (!data || !data.order || !data.order.items || !data.order.items.length)
+        return;
       setOrderData(data);
       const items = data.order.items.map((item) => {
         return {

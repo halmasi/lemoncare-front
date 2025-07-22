@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -49,13 +51,15 @@ export default function Addresses() {
 
   const deleteAddressFn = useMutation({
     mutationFn: async ({ address }: { address: number }) => {
-      const newAddresses = addresses;
-      const found = newAddresses.find((item) => item.id == address);
-      if (found) {
-        const index = newAddresses.findIndex((item) => item == found);
-        if (index >= 0) {
-          newAddresses.splice(index, 1);
-          return newAddresses;
+      if (Array.isArray(addresses) && addresses.length) {
+        const newAddresses = [...addresses];
+        const found = newAddresses.find((item) => item.id == address);
+        if (found) {
+          const index = newAddresses.findIndex((item) => item == found);
+          if (index >= 0) {
+            newAddresses.splice(index, 1);
+            return newAddresses;
+          }
         }
       }
     },
@@ -111,30 +115,32 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    const defaultAddress = addresses.find((item) => item.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress((prevSelectedAddress) => {
-        if (prevSelectedAddress !== defaultAddress.id) {
-          return defaultAddress.id;
+    if (user && addresses && addresses.length) {
+      const defaultAddress = addresses.find((item) => item.isDefault);
+      if (defaultAddress) {
+        setSelectedAddress((prevSelectedAddress) => {
+          if (prevSelectedAddress !== defaultAddress.id) {
+            return defaultAddress.id;
+          }
+          return prevSelectedAddress;
+        });
+
+        const province = states.find(
+          (state) => state.name === defaultAddress.province
+        );
+        const city = province?.cities.find(
+          (city) => city.name === defaultAddress.city
+        );
+
+        const newCheckoutAddress = city
+          ? { ...defaultAddress, cityCode: city.id }
+          : { ...defaultAddress, cityCode: 0 };
+
+        if (
+          JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
+        ) {
+          setCheckoutAddress(newCheckoutAddress);
         }
-        return prevSelectedAddress;
-      });
-
-      const province = states.find(
-        (state) => state.name === defaultAddress.province
-      );
-      const city = province?.cities.find(
-        (city) => city.name === defaultAddress.city
-      );
-
-      const newCheckoutAddress = city
-        ? { ...defaultAddress, cityCode: city.id }
-        : { ...defaultAddress, cityCode: 0 };
-
-      if (
-        JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
-      ) {
-        setCheckoutAddress(newCheckoutAddress);
       }
     }
   }, [addresses]);

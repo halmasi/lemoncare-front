@@ -67,6 +67,7 @@ export default function ProductsAndBlogPage({
           pageSize,
         });
         productsList = getFn.res;
+        if (productsList.length == 0) return notFound();
         const tagTitle =
           productsList[0].tags[
             productsList[0].tags.findIndex((item) => item.slug == slug[0])

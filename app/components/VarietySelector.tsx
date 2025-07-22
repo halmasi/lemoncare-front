@@ -48,7 +48,7 @@ function AddButton({
 
   const [count, setCount] = useState(1);
 
-  if (cart) {
+  if (cart && cart.length > 0) {
     const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
@@ -204,7 +204,8 @@ export default function VarietySelector({
       }
     },
     onSuccess: (data) => {
-      if (!data) setCart(data.data.items);
+      if (!data || !data.data) return;
+      setCart(data.data.items);
     },
     onError: () => {
       toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
@@ -233,8 +234,8 @@ export default function VarietySelector({
       const list = await cartProductSetter(newItem.id, cartProducts);
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
-      if (!cart) newCart = [{ ...newItem, product, id }];
-      else {
+      if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
+      else if (cart.length) {
         if (user) {
           newCart = [...cart, { ...newItem, product, id }];
           addToCartFn.mutate(newItem);

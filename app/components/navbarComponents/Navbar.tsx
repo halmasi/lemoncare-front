@@ -117,6 +117,7 @@ export default function Navbar({
               <Search />
               <div className="flex flex-col w-full h-[80svh] space-y-5 overflow-scroll">
                 {menuItems &&
+                  menuItems.length > 0 &&
                   menuItems.map((item) => {
                     if (item)
                       return (
@@ -203,6 +204,7 @@ export default function Navbar({
             </div>
             <div className="flex flex-row items-center w-10/12 justify-start">
               {menuItems &&
+                menuItems.length > 0 &&
                 menuItems.map((item) => {
                   if (item)
                     return (

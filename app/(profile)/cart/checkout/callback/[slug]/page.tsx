@@ -5,7 +5,7 @@ import Link from 'next/link';
 import successfulSvg from '@/public/successful.svg';
 import unsuccessfulSvg from '@/public/unsuccessful.svg';
 import Image from 'next/image';
-import NotFound from '@/app/not-found';
+import { notFound } from 'next/navigation';
 
 export default async function page({
   params,
@@ -14,7 +14,7 @@ export default async function page({
 }) {
   const slug = (await params).slug;
   const order = await getSingleOrderHistory(parseInt(slug));
-  if (!order) return <div className="w-full">{NotFound()}</div>;
+  if (!order) return <div className="w-full">{notFound()}</div>;
 
   if (order && order.order.paymentStatus != 'completed')
     return (

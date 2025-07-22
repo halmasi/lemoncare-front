@@ -8,10 +8,10 @@ import { ProductProps } from '@/app/utils/schema/shopProps';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-export default async function product(props0: {
+export default async function product(props: {
   params: Promise<{ slug: string }>;
 }) {
-  const params = await props0.params;
+  const params = await props.params;
   const { slug } = params;
   const fetchedData = await getProduct(slug);
   const productArray: ProductProps[] = fetchedData.res;

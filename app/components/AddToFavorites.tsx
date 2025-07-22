@@ -56,7 +56,7 @@ export default function AddToFavorites({
       return { favorites: favorites.data, whichOne, propertyDocumentId };
     },
     onSuccess: (data) => {
-      if (!data) return;
+      if (!data || !data.favorites) return;
       const found = data.favorites[data.whichOne].find(
         (item: PostsProps | ProductProps) => {
           return item.documentId == data.propertyDocumentId;

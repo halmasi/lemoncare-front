@@ -260,14 +260,16 @@ export default function Dashboard() {
                     modules={[Keyboard, Navigation, Scrollbar, A11y, FreeMode]}
                     className="mySwiper flex"
                   >
-                    {favorites.slice(0, 10).map((item, index) => (
-                      <SwiperSlide
-                        key={index}
-                        className="flex justify-center items-center"
-                      >
-                        <ProductCart showDiscount={false} product={item} />
-                      </SwiperSlide>
-                    ))}
+                    {favorites &&
+                      favorites.length > 0 &&
+                      favorites.slice(0, 10).map((item, index) => (
+                        <SwiperSlide
+                          key={index}
+                          className="flex justify-center items-center"
+                        >
+                          <ProductCart showDiscount={false} product={item} />
+                        </SwiperSlide>
+                      ))}
                   </Swiper>
                   <div className={`text-sm rounded-full ml-5`}>
                     <button

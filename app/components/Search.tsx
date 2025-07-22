@@ -134,44 +134,50 @@ export function Search() {
             ) : postData?.length || productData?.length ? (
               <div>
                 <div>
-                  {postData?.map((item) => (
-                    <Link
-                      href={`/blog/posts/${item.basicInfo.contentCode}`}
-                      key={item.id}
-                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
-                    >
-                      <p>{item.basicInfo.title}</p>
-                      <Image
-                        src={item.basicInfo.mainImage.formats.thumbnail.url}
-                        alt={item.basicInfo.title}
-                        width={item.basicInfo.mainImage.formats.thumbnail.width}
-                        height={
-                          item.basicInfo.mainImage.formats.thumbnail.height
-                        }
-                        className="w-32 object-contain rounded-lg"
-                      ></Image>
-                    </Link>
-                  ))}
+                  {postData &&
+                    postData.map((item) => (
+                      <Link
+                        href={`/blog/posts/${item.basicInfo.contentCode}`}
+                        key={item.id}
+                        className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                      >
+                        <p>{item.basicInfo.title}</p>
+                        <Image
+                          src={item.basicInfo.mainImage.formats.thumbnail.url}
+                          alt={item.basicInfo.title}
+                          width={
+                            item.basicInfo.mainImage.formats.thumbnail.width
+                          }
+                          height={
+                            item.basicInfo.mainImage.formats.thumbnail.height
+                          }
+                          className="w-32 object-contain rounded-lg"
+                        ></Image>
+                      </Link>
+                    ))}
                 </div>
                 <div>
-                  {productData?.map((item) => (
-                    <Link
-                      href={`/shop/product/${item.basicInfo.contentCode}`}
-                      key={item.id}
-                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
-                    >
-                      <p>{item.basicInfo.title}</p>
-                      <Image
-                        src={item.basicInfo.mainImage.formats.thumbnail.url}
-                        alt={item.basicInfo.title}
-                        width={item.basicInfo.mainImage.formats.thumbnail.width}
-                        height={
-                          item.basicInfo.mainImage.formats.thumbnail.height
-                        }
-                        className="w-32 object-contain rounded-lg"
-                      ></Image>
-                    </Link>
-                  ))}
+                  {productData &&
+                    productData.map((item) => (
+                      <Link
+                        href={`/shop/product/${item.basicInfo.contentCode}`}
+                        key={item.id}
+                        className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                      >
+                        <p>{item.basicInfo.title}</p>
+                        <Image
+                          src={item.basicInfo.mainImage.formats.thumbnail.url}
+                          alt={item.basicInfo.title}
+                          width={
+                            item.basicInfo.mainImage.formats.thumbnail.width
+                          }
+                          height={
+                            item.basicInfo.mainImage.formats.thumbnail.height
+                          }
+                          className="w-32 object-contain rounded-lg"
+                        ></Image>
+                      </Link>
+                    ))}
                 </div>
               </div>
             ) : (
