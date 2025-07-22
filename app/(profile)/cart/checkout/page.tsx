@@ -22,7 +22,7 @@ export default function CheckoutPage() {
   const [showNext, setShowNext] = useState<boolean>(false);
 
   useEffect(() => {
-    if (cart && cart.length > 0) {
+    if (cart && Array.isArray(cart) && cart.length > 0) {
       setTotalBeforePrice(0);
       setTotalPrice(0);
       cart.forEach((cartItem) => {

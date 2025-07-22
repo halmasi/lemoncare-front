@@ -10,7 +10,7 @@ import {
 } from '@/app/utils/data/getUserInfo';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
-import { useRouter } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
@@ -45,6 +45,7 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
+      if (!data) return;
       setAddresses(data.information);
     },
   });
@@ -190,6 +191,9 @@ export default function Addresses() {
         <LoadingAnimation />
       </div>
     );
+
+  if (!user) return notFound();
+
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
       {addresses && (

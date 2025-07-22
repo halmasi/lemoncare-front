@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import NotFoundImage from '@/public/notfound.svg';
-import './globals.css';
 import SubmitButton from './components/formElements/SubmitButton';
 
 export default function NotFound() {

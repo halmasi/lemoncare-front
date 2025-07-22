@@ -204,7 +204,7 @@ export default function VarietySelector({
       }
     },
     onSuccess: (data) => {
-      if (!data || !data.data) return;
+      if (!data || !data.data || !data.data.items) return;
       setCart(data.data.items);
     },
     onError: () => {
