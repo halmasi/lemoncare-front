@@ -54,9 +54,11 @@ const InputBox = forwardRef<HTMLInputElement, InputProps>(
             {required && <p className="text-accent-pink"> * </p>}
           </label>
         )}
-        <div className="w-full h-fit rounded-md border flex items-center gap-1">
+        <div
+          className={`w-full h-fit overflow-hidden rounded-md ${type == 'password' && 'border'} flex items-center gap-1`}
+        >
           <input
-            className={`w-full p-2 focus:outline-none rounded-md transition-all ${type == 'password' && 'rounded-l-none border-l-0'} ${className} ${ltr && 'ltr'}`}
+            className={`w-full p-2 focus:outline-none outline-none rounded-md border transition-all ${type == 'password' && 'rounded-l-none border-0'} ${className} ${ltr && 'ltr'}`}
             onFocus={onFocus}
             onChange={(e) => {
               e.preventDefault();

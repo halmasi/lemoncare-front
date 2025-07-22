@@ -14,11 +14,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const path = usePathname();
 
   return (
-    <div className="flex flex-col lg:flex-row w-full justify-start bg-gray-100 p-4 gap-4">
+    <div className="w-full flex flex-col lg:flex-row justify-start bg-gray-100 p-4 gap-4">
       {/* Sidebar */}
       {jwt && (
         <aside
-          className={`flex flex-col bg-white p-4 rounded-xl shadow-sm ${compact ? 'w-20' : 'w-full'} lg:w-5/12 lg:max-w-80 ${path != '/dashboard' && 'hidden lg:flex'} transition-width duration-300`}
+          className={`flex flex-col bg-white p-4 rounded-xl shadow-sm ${compact ? 'w-24' : 'w-full lg:w-5/12'}  lg:max-w-80 ${path != '/dashboard' && 'hidden lg:flex'} transition-width duration-300`}
         >
           <button
             className={`hidden md:flex ${compact ? 'self-center' : 'self-end'} p-3 m-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200 transition-colors`}

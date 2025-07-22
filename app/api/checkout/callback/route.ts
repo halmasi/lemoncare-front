@@ -2,6 +2,7 @@ import {
   getSingleOrderHistory,
   updateOrderHistory,
 } from '@/app/utils/data/getUserInfo';
+import { redirect } from 'next/navigation';
 
 export async function POST(req: Request) {
   const request = await req.json();
@@ -59,13 +60,15 @@ export async function POST(req: Request) {
     } = await res.json();
     if (result.ResCode == '0' || result.ResCode == '00') {
       const order = await getSingleOrderHistory(parseInt(result.InvoiceNo));
-      if (order)
+      if (order) {
         await updateOrderHistory(order.documentId, {
           orderDetails: result,
           paymentStatus: 'completed',
           PaymentMethod: 'online',
         });
+        return redirect(`/cart/checkout/callback/${order.order.orderCode}`);
+      }
     }
   }
-  return Response.json({}, { status: 200 });
+  return redirect(`/cart/checkout/callback/406`);
 }

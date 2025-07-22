@@ -108,6 +108,9 @@ export default function RegisterForm() {
       >
         شماره همراه
       </PhoneInputBox>
+      {errors.username && (
+        <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
+      )}
       <InputBox
         ref={passwordRef}
         name="password"
@@ -116,8 +119,12 @@ export default function RegisterForm() {
         ltr
         placeholder="رمزعبور"
         required
-      ></InputBox>
-      رمز عبور
+      >
+        رمز عبور
+      </InputBox>
+      {errors.password && (
+        <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
+      )}
       <InputBox
         ref={passwordValidateRef}
         name="passwordValidate"
@@ -132,14 +139,8 @@ export default function RegisterForm() {
       <InputBox ref={nameRef} name="name" placeholder="نام کامل" required>
         نام
       </InputBox>
-      {errors.username && (
-        <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
-      )}
       {errors.name && (
         <p className="text-red-500 text-sm">{errors.name.join('\n')}</p>
-      )}
-      {errors.password && (
-        <p className="text-red-500 text-sm">{errors.password.join('\n')}</p>
       )}
       <SubmitButton isPending={registerMutation.isPending}>
         {registerMutation.isPending ? 'در حال ثبت نام...' : 'ثبت نام'}
