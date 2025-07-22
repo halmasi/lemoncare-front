@@ -17,9 +17,12 @@ export async function generateSitemaps() {
 
 export default async function sitemap({ id }: { id: string }) {
   const category = await getCategory(id);
-  const posts = await getPostsByCategory(category[0]);
+  const posts = await getPostsByCategory({
+    category: category[0],
+    isSiteMap: true,
+  });
   if (!posts) return;
-  return posts.map((post) => ({
+  return posts.result.map((post) => ({
     url: `${process.env.SITE_URL}/blog/posts/${post.basicInfo.contentCode}`,
     lastModified: post.updatedAt,
   }));

@@ -131,9 +131,9 @@ export default function ProductsAndBlogPage({
   });
 
   useEffect(() => {
-    if (type == 'product') getProductsFn.mutateAsync();
+    if (type == 'product') getProductsFn.mutate();
     else if (type == 'post') {
-      getPostsFn.mutateAsync();
+      getPostsFn.mutate();
     }
   }, []);
 

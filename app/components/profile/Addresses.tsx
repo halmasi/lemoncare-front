@@ -61,7 +61,7 @@ export default function Addresses() {
     },
     onSuccess: (data) => {
       if (!data) return;
-      updateAddressesFn.mutateAsync({ data });
+      updateAddressesFn.mutate({ data });
     },
   });
 
@@ -250,7 +250,7 @@ export default function Addresses() {
                         setLoading(false);
                         setAddresses(checkout);
                         if (user)
-                          getAddressFn.mutateAsync(
+                          getAddressFn.mutate(
                             user.postal_information.documentId
                           );
                         router.refresh();
@@ -277,7 +277,7 @@ export default function Addresses() {
                 setLoading(false);
                 setAddresses(checkout);
                 if (user)
-                  getAddressFn.mutateAsync(user.postal_information.documentId);
+                  getAddressFn.mutate(user.postal_information.documentId);
                 router.refresh();
               }}
               existingAddresses={addresses}
@@ -329,7 +329,7 @@ export default function Addresses() {
                   className="bg-accent-pink hover:bg-accent-pink/50 "
                   onClick={() => {
                     setShowDeleteModal(false);
-                    deleteAddressFn.mutateAsync({ address: selectedAddress });
+                    deleteAddressFn.mutate({ address: selectedAddress });
                   }}
                 >
                   پاک کردن

@@ -15,14 +15,14 @@ export const updateUserInformation = async (
   id: string,
   token: string,
   userData: {
+    confirmed?: boolean;
+    phoneConfirmed?: boolean;
     fullName?: string;
     username?: string;
     email?: string;
+    password?: string;
   }
 ) => {
-  if (userData.username) {
-    userData.username = '98' + userData.username;
-  }
   const response = await requestData({
     qs: `/users/${id}`,
     method: 'PUT',
@@ -31,6 +31,24 @@ export const updateUserInformation = async (
   });
   return response.data;
 };
+
+export const changePassword = async ({
+  newPassword,
+  token,
+}: {
+  newPassword: string;
+  token: string;
+}) => {
+  const check = await loginCheck();
+  const response = await requestData({
+    qs: `/users/change-password-without-old/${check.body.id}`,
+    method: 'PUT',
+    body: { newPassword },
+    token: `Bearer ${token}`,
+  });
+  return { data: response.data, status: response.status };
+};
+
 export const getPostalInformation = async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({
@@ -81,7 +99,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.documentId } },
+    filters: { user: { $eq: check.body.id } },
     populate: {
       order: {
         populate: {
@@ -97,6 +115,7 @@ export const getOrderHistory = async (
       page,
       pageSize,
     },
+    sort: { createdAt: 'desc' },
   });
   const response = await requestData({
     qs: `/order-histories?${query}`,
@@ -137,7 +156,12 @@ export const getSingleOrderHistory = async (orderCode: number) => {
     method: 'GET',
     token: check.jwt,
   });
-  if (res.data.data[0].user.username == check.body.username) {
+  if (
+    res &&
+    res.data &&
+    res.data.data &&
+    res.data.data[0].user.username == check.body.username
+  ) {
     const finalRes: OrderHistoryProps = res.data.data[0];
     return finalRes;
   }
@@ -182,7 +206,6 @@ export const getFavorites = cache(
       method: 'GET',
       token: check.jwt,
     });
-
     return response.data;
   }
 );
@@ -197,16 +220,18 @@ export const updateFavorite = async (
   const currentFavorites = favoriteResponse.data[whichOne];
 
   const checkExists = favoriteResponse.data[whichOne].some(
-    (item: any) => item.documentId === propertyDocumentId
+    (item: { documentId: string }) => item.documentId === propertyDocumentId
   );
 
   let updatedFavorites;
 
   if (checkExists) {
-    updatedFavorites = currentFavorites.filter((item: any) => {
-      const keep = item.documentId !== propertyDocumentId;
-      return keep;
-    });
+    updatedFavorites = currentFavorites.filter(
+      (item: { documentId: string }) => {
+        const keep = item.documentId !== propertyDocumentId;
+        return keep;
+      }
+    );
   } else if (!checkExists) {
     const which = {
       posts: await getPost(propertyDocumentId),
@@ -221,7 +246,7 @@ export const updateFavorite = async (
     method: 'PUT',
     body: {
       data: {
-        [whichOne]: updatedFavorites.map((item: any) => item.id),
+        [whichOne]: updatedFavorites.map((item: { id: string }) => item.id),
       },
     },
     token: check.jwt,
@@ -230,7 +255,7 @@ export const updateFavorite = async (
 };
 
 export const getGravatar = async (email: string) => {
-  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+  const get = await fetch(`${process.env.SITE_URL}/api/auth/gravatar`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -264,8 +289,8 @@ export const checkUserExists = async (identifier: string) => {
   });
 
   const response = await requestData({ qs: `/users?${query}`, method: 'GET' });
-
   return {
+    data: response.data[0],
     isPhone: isPhone(response.data.username),
     success: response.data.length > 0,
     error: [],

@@ -137,7 +137,6 @@ export const cartProductSelector = async (
 
 export const orderHistoryIdMaker = async (): Promise<number> => {
   const orderId: number = parseInt((Math.random() * 10000000000).toFixed(0));
-
   const queryPost = qs.stringify({
     filters: {
       order: {

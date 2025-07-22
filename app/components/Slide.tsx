@@ -55,7 +55,7 @@ export default function Slide({
   useEffect(() => {
     if (slug) {
       setIsLoading(true);
-      getSlideFn.mutateAsync();
+      getSlideFn.mutate();
     } else setIsLoading(false);
 
     setButtonStatus({

@@ -5,45 +5,39 @@ import { cookies } from 'next/headers';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
+import { updateUserInformation } from '../data/getUserInfo';
 
-export const registerAction = async (
-  username: string,
-  email: string,
-  password: string
-) => {
-  let success = false;
+export const registerAction = async ({
+  username,
+  name,
+  password,
+}: {
+  username: string;
+  name: string;
+  password: string;
+}) => {
   const fieldErrors: {
     username: string[];
-    email: string[];
+    name: string[];
     password: string[];
     server: string[];
   } = {
     username: [],
-    email: [],
+    name: [],
     password: [],
     server: [],
   };
-  const response: {
-    data: {
-      data?: null | '';
-      jwt: string;
-      user: object;
-      error?: { message: string };
-    };
-  } = {
-    data: { jwt: '', user: {} },
-  };
-  username = cleanPhone(username);
+  username = '98' + cleanPhone(username);
   const validationResult = registerSchema.safeParse({
-    username,
-    email,
+    username: username,
+    name,
     password,
   });
 
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
     if (errors.username) fieldErrors.username.push(...errors.username);
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.name) fieldErrors.name.push(...errors.name);
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
@@ -51,28 +45,26 @@ export const registerAction = async (
       qs: '/auth/local/register',
       method: 'POST',
       body: {
-        username: '98' + validationResult.data.username,
-        email: validationResult.data.email,
+        username: validationResult.data.username,
+        email: `${validationResult.data.username}@lemiro.ir`,
         password: validationResult.data.password,
       },
     });
 
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
+      return { success: false, fieldErrors };
     } else {
-      success = true;
       const userId = response.data.user.id;
 
       const requests = [
         { url: '/carts', data: { user: userId, items: [] } },
-        // { url: '/order-histories', data: { user: userId, order: [] } },
         {
           url: '/postal-informations',
           data: { user: userId, information: [] },
         },
         { url: '/favorites', data: { user: userId, posts: [], products: [] } },
       ];
-
       await Promise.all(
         requests.map(({ url, data }) =>
           requestData({
@@ -83,13 +75,18 @@ export const registerAction = async (
           })
         )
       );
+      await updateUserInformation(userId, response.data.jwt, {
+        fullName: name,
+      });
+      return {
+        success: true,
+        fieldErrors,
+        user: userId,
+      };
     }
   }
-
   return {
-    success,
-    jwt: response.data.jwt,
-    user: response.data.user,
+    success: false,
     fieldErrors,
   };
 };
@@ -184,30 +181,39 @@ export const loginCheck = async () => {
   };
 };
 
-export const getFullUserData = async (
-  isDeep: boolean = false,
-  populateOptions?: object[]
-) => {
+export const getFullUserData = async (input?: {
+  isDeep?: boolean;
+  token?: string;
+  populateOptions?: object[];
+}) => {
   const defaultOptions = {
-    // order_history: { populate: '*' },
-    shopingCart: { populate: '1' },
-    postal_information: { populate: '1' },
+    shopingCart: { populate: '*' },
+    postal_information: { populate: '*' },
     favorite: { populate: '1' },
+    order_histories: { populate: '1' },
   };
-  const options = populateOptions
-    ? Object.assign(defaultOptions, ...populateOptions)
+  const options = input?.populateOptions
+    ? Object.assign(defaultOptions, ...input.populateOptions)
     : defaultOptions;
   const query = qs.stringify({
     populate: options,
   });
-  const token = await getCookie('jwt');
+  const getToken = await getCookie('jwt');
 
   const response = await requestData({
-    qs: `/users/me?${isDeep ? 'pLevel' : query}`,
+    qs: `/users/me?${input?.isDeep ? 'pLevel' : query}`,
     method: 'GET',
-    token,
+    token: input && input.token ? input.token : getToken,
   });
   return { status: response.status, body: response.data };
+};
+
+export const removeUser = async (id: number) => {
+  const response = await requestData({
+    qs: `/users/${id}`,
+    method: 'DELETE',
+  });
+  return response;
 };
 
 export const setCookie = async (name: string, cookie: string) => {

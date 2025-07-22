@@ -21,6 +21,7 @@ export interface LoginUserProps {
       email: string;
       provider: string;
       confirmed: boolean;
+      phoneConfirmed: boolean;
       blocked: boolean;
       createdAt: string;
       updatedAt: string;
@@ -65,6 +66,7 @@ export interface FetchUserProps {
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
+  phoneConfirmed: boolean;
   cart: CartProps[];
   shopingCart: {
     documentId: string;
