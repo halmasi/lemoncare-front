@@ -72,7 +72,7 @@ export default function Cart({
     }) => {
       await updateCart(cart, cartId);
     },
-    onSuccess: async (data) => {},
+    onSuccess: async () => {},
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
     },

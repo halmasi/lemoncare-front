@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+// import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import ProfileMenu from './ProfileMenu';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -12,7 +12,7 @@ import Gravatar from './Gravatar';
 import LoadingAnimation from '../LoadingAnimation';
 
 export default function ProfileDropDown() {
-  const path = usePathname();
+  // const path = usePathname();
   const [showItems, setShowItems] = useState(false);
 
   const { jwt, user } = useDataStore();

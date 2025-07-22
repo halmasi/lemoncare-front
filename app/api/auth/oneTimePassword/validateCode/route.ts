@@ -23,18 +23,7 @@ export async function POST(request: NextRequest) {
         location,
       },
     });
-    // const result = res.data
-    if (res.data.jwt) {
-      const res = await requestData({
-        qs: `/auth/otp-login`,
-        method: 'POST',
-        body: {
-          user: { username },
-          code,
-          location,
-        },
-      });
-    }
+
     return Response.json(
       JSON.stringify({
         jwt: res.data.jwt,

@@ -123,7 +123,7 @@ export default function Favorites() {
                       ).toLocaleString('fa-IR')}
                     </Toman>
                     <AddToFavorites
-                      onFinish={(id) => {
+                      onFinish={() => {
                         getFavoritesFn.mutate(user!.favorite.documentId);
                       }}
                       className="h-fit mb-3 p-2 rounded-lg border border-gray-400/75"

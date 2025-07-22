@@ -59,7 +59,7 @@ export default function NewAddressForm({
 
   const router = useRouter();
   const { user } = useDataStore();
-  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
+  const { setCheckoutAddress } = useCheckoutStore();
 
   const submitFn = useMutation({
     mutationFn: async ({

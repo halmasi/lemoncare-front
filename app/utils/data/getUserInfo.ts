@@ -215,16 +215,18 @@ export const updateFavorite = async (
   const currentFavorites = favoriteResponse.data[whichOne];
 
   const checkExists = favoriteResponse.data[whichOne].some(
-    (item: any) => item.documentId === propertyDocumentId
+    (item: { documentId: string }) => item.documentId === propertyDocumentId
   );
 
   let updatedFavorites;
 
   if (checkExists) {
-    updatedFavorites = currentFavorites.filter((item: any) => {
-      const keep = item.documentId !== propertyDocumentId;
-      return keep;
-    });
+    updatedFavorites = currentFavorites.filter(
+      (item: { documentId: string }) => {
+        const keep = item.documentId !== propertyDocumentId;
+        return keep;
+      }
+    );
   } else if (!checkExists) {
     const which = {
       posts: await getPost(propertyDocumentId),
@@ -239,7 +241,7 @@ export const updateFavorite = async (
     method: 'PUT',
     body: {
       data: {
-        [whichOne]: updatedFavorites.map((item: any) => item.id),
+        [whichOne]: updatedFavorites.map((item: { id: string }) => item.id),
       },
     },
     token: check.jwt,

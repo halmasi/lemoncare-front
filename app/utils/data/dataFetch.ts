@@ -1,5 +1,6 @@
 'use server';
 
+import { logs } from '../miniFunctions';
 import { MetaProps } from '../schema/metaProps';
 
 export async function dataFetch({
@@ -46,7 +47,8 @@ export async function dataFetch({
     const data = await apiData.json();
     const meta: MetaProps = data.meta;
     return { data: data.data, meta, fullData: data };
-  } catch (ـ) {
+  } catch (e) {
+    logs.error("'خطای ارتباط با سرور\n" + e);
     throw new Error('خطای ارتباط با سرور\n');
   }
 }
@@ -96,7 +98,8 @@ export async function requestData({
       status: apiData.status,
     };
     return result;
-  } catch (ـ) {
+  } catch (e) {
+    logs.error("'خطای ارتباط با سرور\n" + e);
     throw new Error('خطای ارتباط با سرور\n');
   }
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import PostLogo from '@/public/iranPost.svg';
-import ChaparLogo from '@/public/chapar.svg';
+// import ChaparLogo from '@/public/chapar.svg';
 import TipaxLogo from '@/public/tipax.svg';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';

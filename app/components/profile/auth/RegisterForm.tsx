@@ -104,9 +104,10 @@ export default function RegisterForm() {
         ref={usernameRef}
         name="username"
         placeholder="شماره همراه "
-        children={'شماره همراه '}
         required
-      />
+      >
+        شماره همراه
+      </PhoneInputBox>
       <InputBox
         ref={passwordRef}
         name="password"
@@ -114,9 +115,9 @@ export default function RegisterForm() {
         showEye={false}
         ltr
         placeholder="رمزعبور"
-        children={'رمز عبور'}
         required
-      />
+      ></InputBox>
+      رمز عبور
       <InputBox
         ref={passwordValidateRef}
         name="passwordValidate"
@@ -125,15 +126,12 @@ export default function RegisterForm() {
         ltr
         placeholder="تایید رمزعبور"
         required
-        children={'تایید رمز عبور'}
-      />
-      <InputBox
-        ref={nameRef}
-        name="name"
-        placeholder="نام کامل"
-        required
-        children={'نام'}
-      />
+      >
+        تایید رمز عبور
+      </InputBox>
+      <InputBox ref={nameRef} name="name" placeholder="نام کامل" required>
+        نام
+      </InputBox>
       {errors.username && (
         <p className="text-red-500 text-sm">{errors.username.join('\n')}</p>
       )}

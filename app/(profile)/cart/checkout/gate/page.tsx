@@ -4,6 +4,8 @@ import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Title from '@/app/components/Title';
 import { emptyCart } from '@/app/utils/actions/cartActionMethods';
 import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
+import { getPaymentToken, redirectToSizPay } from '@/app/utils/paymentUtils';
+import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -14,7 +16,8 @@ import { BiCopy } from 'react-icons/bi';
 import { VscLoading } from 'react-icons/vsc';
 import { toast } from 'react-toastify';
 
-export default function page() {
+export default function GatePage() {
+  const [orderInfo, setOrderInfo] = useState<OrderHistoryProps>();
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const {
@@ -34,12 +37,13 @@ export default function page() {
     mutationFn: async () => {
       const order = await getSingleOrderHistory(orderCode);
       if (order) {
-        return order.order;
+        return order;
       }
     },
     onSuccess: async (data) => {
       if (!data) return;
-      setTotalPrice(parseInt(data.totalPrice.toString()));
+      setOrderInfo(data);
+      setTotalPrice(parseInt(data.order.totalPrice.toString()));
 
       if (user && !orderHistoryCheckout) {
         resetCart();
@@ -48,8 +52,8 @@ export default function page() {
           courier_code: '',
           service_name: '',
           service_type: '',
-        }),
-          setBeforePrice(0);
+        });
+        setBeforePrice(0);
         setPrice(0);
         setOrderHistoryCheckout(false);
         await emptyCart(user.shopingCart.documentId);
@@ -58,11 +62,45 @@ export default function page() {
     onError: () => {},
   });
 
+  const getTokenFn = useMutation({
+    mutationFn: async () => {
+      if (orderInfo && user) {
+        const res = await getPaymentToken({
+          email: user.email || '',
+          orderInfo,
+          totalPrice,
+        });
+        return res;
+      }
+    },
+    onSuccess: async (data) => {
+      console.log(data);
+      if (!data || !(data.ResCod == '0' || data.ResCod == '00')) {
+        toast.error('خطا در انتقال به درگاه پرداخت');
+        return;
+      }
+      // const message = data.Message;
+      setOrderHistoryCheckout(false);
+      const Token = data.Token;
+      await redirectToSizPay(Token);
+    },
+    onError: (err) => {
+      toast.error('خطا در انتقال به درگاه پرداخت');
+      console.log(err.message);
+    },
+  });
+
   useEffect(() => {
     if (orderCode) {
       getPriceFn.mutate();
     }
   }, [orderCode]);
+
+  useEffect(() => {
+    if (paymentOption == 'online' && totalPrice > 0) {
+      getTokenFn.mutate();
+    }
+  }, [totalPrice, paymentOption]);
 
   if (paymentOption == 'online')
     return (
@@ -110,7 +148,8 @@ export default function page() {
           </div>
           <div className="flex flex-col items-center justify-center pt-3 md:pt-0">
             <p>شماره کارت:</p>
-            <p>6037-7011-1111-2222</p>
+            <p>5041-7210-8182-4998</p>
+            <p>به نام حسین الماسی</p>
           </div>
         </div>
         <p>

@@ -120,7 +120,7 @@ export default function Bookmarks() {
                   </Link>
                   <div className="flex items-center gap-2">
                     <AddToFavorites
-                      onFinish={(id) => {
+                      onFinish={() => {
                         getFavoritesFn.mutate(user!.favorite.documentId);
                       }}
                       className="h-fit mb-3 p-2 rounded-lg border border-gray-400/75"

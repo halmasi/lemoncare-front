@@ -2,9 +2,88 @@
 
 import { PostMethodsProps } from '@/app/components/checkout/DeliveryMethods';
 import { CartProps } from './schema/shopProps';
-import { AddressProps } from './schema/userProps';
+import { AddressProps, OrderHistoryProps } from './schema/userProps';
+import { convertPersianAndArabicToEnglish } from './miniFunctions';
 
 // export const paymentMethod = async (amount: number) => {};
+
+export const getPaymentToken = async ({
+  orderInfo,
+  totalPrice,
+  email,
+}: {
+  orderInfo: OrderHistoryProps;
+  totalPrice: number;
+  email: string;
+}) => {
+  const date = new Date();
+
+  const res = await fetch(
+    'https://rt.sizpay.ir/api/PaymentSimple/GetTokenSimple',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username: process.env.SIZPAY_USERNAME,
+        password: process.env.SIZPAY_PASSWORD,
+        MerchantID: process.env.SIZPAY_MERCHANT_ID,
+        TerminalID: process.env.SIZPAY_TERMINAL_ID,
+        Amount: totalPrice,
+        DocDate: convertPersianAndArabicToEnglish(
+          date.toLocaleDateString('fa-IR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          })
+        ),
+        OrderID: orderInfo.order.orderCode,
+        ReturnURL: `${process.env.SITE_URL}/api/checkout/callback`,
+        ExtraInf: '',
+        InvoiceNo: orderInfo.order.orderCode,
+        AppExtraInf: {
+          PayerNm:
+            (orderInfo?.order.firstName || '') +
+            (orderInfo?.order.lastName || ''),
+          PayerMobile: orderInfo?.order.mobileNumber || '',
+          PayerEmail: email || '',
+          Descr: '',
+          PayerIP: '',
+          PayTitle: 'پرداخت سفارش lemiro',
+          PayerNCode: '',
+        },
+        SignData: '',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+      },
+    }
+  );
+  const data = await res.json();
+  return data;
+};
+
+export async function redirectToSizPay(Token: string) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://rt.sizpay.ir/Route/Payment';
+
+  const ParamEntries = {
+    MerchantID: process.env.SIZPAY_MERCHANT_ID || '',
+    TerminalID: process.env.SIZPAY_TERMINAL_ID || '',
+    Token,
+  };
+
+  Object.entries(ParamEntries).forEach(([key, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+}
 
 export const submitOrder = async ({
   user,

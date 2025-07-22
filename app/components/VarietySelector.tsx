@@ -123,7 +123,7 @@ export default function VarietySelector({
   list?: boolean;
   showDiscount?: boolean;
 }) {
-  const { user, jwt } = useDataStore();
+  const { user } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
   const [selected, setSelected] = useState<{

@@ -37,7 +37,9 @@ import { LiaShippingFastSolid } from 'react-icons/lia';
 import { LuCalendarClock } from 'react-icons/lu';
 import { toast } from 'react-toastify';
 
-export default function page(props: { params: Promise<{ slug: string }> }) {
+export default function OrderPage(props: {
+  params: Promise<{ slug: string }>;
+}) {
   const router = useRouter();
   const params = use(props.params);
   const { slug } = params;
@@ -305,7 +307,7 @@ export default function page(props: { params: Promise<{ slug: string }> }) {
                 {orderData.order.paymentStatus == 'pending' && (
                   <p className="text-foreground/75 text-sm">
                     در صورت عدم پرداخت تا ۲۴ ساعت بعد از ثبت سفارش وضعیت پرداخت
-                    به "لغو شده" تغییر خواهد کرد.
+                    به ٬لغو شده٬ تغییر خواهد کرد.
                   </p>
                 )}
                 <p className="flex items-center gap-2">

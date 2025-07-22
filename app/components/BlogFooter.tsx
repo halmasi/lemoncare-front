@@ -43,7 +43,14 @@ export default function Footer({
           </ul>
         </div>
         <div className="w-full">
-          <h3>Footer Details2</h3>
+          <a href="https://me.sizpay.ir/SizPayNamad/2519D30323CEEA6750014004040000140103835">
+            <img
+              src="https://me.sizpay.ir/SizPayNamadImg/2519D30323CEEA6750014004040000140103835"
+              className="cursor-pointer"
+              alt="درگاه پرداخت"
+              title=" درگاه پرداخت سيزپی"
+            />
+          </a>
         </div>
         <div className="w-full">
           <h3>Footer Details3</h3>

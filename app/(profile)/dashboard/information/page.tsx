@@ -4,7 +4,6 @@ import InputBox from '@/app/components/formElements/InputBox';
 import PhoneInputBox from '@/app/components/formElements/PhoneInputBox';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import { getFullUserData } from '@/app/utils/actions/actionMethods';
-import { dataFetch } from '@/app/utils/data/dataFetch';
 import {
   changePassword,
   checkUserExists,

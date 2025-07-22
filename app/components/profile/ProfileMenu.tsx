@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { ReactNode } from 'react';
 import {
   FaShoppingCart,
-  FaRegHeart,
   FaMapMarkerAlt,
   FaUser,
   FaSignOutAlt,

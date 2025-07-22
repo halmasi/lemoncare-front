@@ -9,7 +9,7 @@ import LoadingAnimation from '@/app/components/LoadingAnimation';
 import ProductCart from '@/app/components/ProductCart';
 import PostCard from '@/app/components/PostCard';
 
-export default function page() {
+export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get('s-query');
   //   const page = searchParams.get('s-page');

@@ -18,12 +18,6 @@ import {
 } from '@/app/utils/actions/actionMethods';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { usePathname, useRouter } from 'next/navigation';
-import { CartProps } from '@/app/utils/schema/shopProps';
-import { useCartStore } from '@/app/utils/states/useCartData';
-import {
-  getCart,
-  updateCartOnLogin,
-} from '@/app/utils/actions/cartActionMethods';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 
 export default function LoginForm() {
@@ -39,7 +33,6 @@ export default function LoginForm() {
     useLoginData();
 
   const { setJwt, setUser, jwt, setLoginProcces } = useDataStore();
-  const { cart, setCart } = useCartStore();
   const { checkoutAddress } = useCheckoutStore();
 
   const loginCheckMutation = useMutation({

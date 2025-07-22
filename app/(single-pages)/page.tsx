@@ -5,9 +5,7 @@ import { getProduct } from '@/app/utils/data/getProducts';
 import {
   getArticleSuggestions,
   getProductSuggestions,
-  getSlides,
 } from '@/app/utils/data/getSuggestions';
-import { SlideProps } from '@/app/utils/schema/otherProps';
 import { GrArticle } from 'react-icons/gr';
 
 export default async function page() {

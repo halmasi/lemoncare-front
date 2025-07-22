@@ -6,8 +6,6 @@ import { ReactNode, useState } from 'react';
 import ProfileMenu from '@/app/components/profile/ProfileMenu';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { usePathname } from 'next/navigation';
-import { RiDashboard2Fill } from 'react-icons/ri';
-import { ImProfile } from 'react-icons/im';
 import { MdAdminPanelSettings } from 'react-icons/md';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
