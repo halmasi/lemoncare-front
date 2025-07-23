@@ -22,6 +22,10 @@ export default function Footer({
   const date = new Date(Date.now());
   const year = date.getFullYear();
 
+  const enamadCode = `<img src="/img/pic/enamad.png" width="100" height="110" code="lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v"
+  onclick="window.open(&quot;https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v;, &quot;Popup&quot;,&quot;toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30&quot;)"
+  alt="enamad">`;
+
   return (
     <footer className="min-h-[20svh] bg-yellow-300 flex flex-col justify-between w-full sticky bottom-0">
       <div className="flex flex-col md:flex-row h-full">
@@ -51,6 +55,12 @@ export default function Footer({
               title=" درگاه پرداخت سيزپی"
             />
           </a>
+          <a
+            referrerPolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v"
+            dangerouslySetInnerHTML={{ __html: enamadCode }}
+          ></a>
         </div>
         <div className="w-full">
           <h3>Footer Details3</h3>

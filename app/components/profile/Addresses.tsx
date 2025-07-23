@@ -192,7 +192,7 @@ export default function Addresses() {
       </div>
     );
 
-  if (!user) return notFound();
+  if (!user) return <></>;
 
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>

@@ -96,7 +96,7 @@ export default function DeliveryMethods({
         !data ||
         !data.isSuccess ||
         !data.data ||
-        !data.data.length ||
+        data.data.length <= 0 ||
         !data.data[0].courierCode
       ) {
         toast.warn('خطا در دریافت روش های ارسال');
@@ -166,7 +166,7 @@ export default function DeliveryMethods({
       </div>
     );
 
-  if (courier && courier.length == 0)
+  if (courier && courier.length != 0)
     return (
       <div key={courier.length}>
         <p className="text-red-700">{error}</p>

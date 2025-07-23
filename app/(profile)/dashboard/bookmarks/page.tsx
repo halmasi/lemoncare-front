@@ -37,14 +37,13 @@ export default function Bookmarks() {
       return data;
     },
     onSuccess: (data) => {
+      setLoading(false);
       if (!data) return;
       setFavoritesData(data);
     },
     onError: () => {
-      toast.error('خطایی رخ داده');
-    },
-    onSettled: () => {
       setLoading(false);
+      toast.error('خطایی رخ داده');
     },
   });
 
@@ -76,7 +75,7 @@ export default function Bookmarks() {
             <FavoriteSkeleton key={item} />
           ))}
         </div>
-      ) : favoritesData.length > 0 ? (
+      ) : favoritesData && favoritesData.length > 0 ? (
         <div className="flex flex-wrap justify-center max-w-screen-lg gap-5">
           {numbersArray.map((index) => {
             if (favoritesData[index])
@@ -139,12 +138,12 @@ export default function Bookmarks() {
         </div>
       ) : (
         <div className="w-full flex flex-col gap-3 items-center">
-          <p className="">محصولی در لیست شما وجود ندارد!</p>
+          <p className="">مقاله ای در لیست شما وجود ندارد!</p>
           <SubmitButton
-            link="/shop"
+            link="/blog"
             className="bg-pink-500 text-white hover:bg-pink-600"
           >
-            برو به صفحه محصولات
+            برو به صفحه مقالات
           </SubmitButton>
         </div>
       )}
