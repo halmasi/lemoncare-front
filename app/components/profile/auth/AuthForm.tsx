@@ -40,13 +40,13 @@ export default function AuthForm() {
           <div className="flex gap-2">
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                step === 'identifier'
+                step == 'identifier'
                   ? 'bg-accent-pink'
-                  : step === 'register' ||
-                      step === 'login' ||
-                      step === 'phoneConfirmationLogin' ||
-                      step === 'phoneConfirmationLoginNoPhone' ||
-                      step === 'phoneConfirmationRegister'
+                  : step == 'register' ||
+                      step == 'login' ||
+                      step == 'phoneConfirmationLogin' ||
+                      step == 'phoneConfirmationLoginNoPhone' ||
+                      step == 'phoneConfirmationRegister'
                     ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
@@ -54,10 +54,10 @@ export default function AuthForm() {
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                step === 'register' || step === 'login'
+                step == 'register' || step == 'login'
                   ? 'bg-accent-pink'
-                  : step === 'phoneConfirmationLogin' ||
-                      step === 'phoneConfirmationRegister'
+                  : step == 'phoneConfirmationLogin' ||
+                      step == 'phoneConfirmationRegister'
                     ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
@@ -65,8 +65,8 @@ export default function AuthForm() {
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                step === 'phoneConfirmationLogin' ||
-                step === 'phoneConfirmationRegister'
+                step == 'phoneConfirmationLogin' ||
+                step == 'phoneConfirmationRegister'
                   ? 'bg-accent-pink'
                   : 'bg-gray-300'
               }`}
@@ -75,15 +75,13 @@ export default function AuthForm() {
           </div>
         </div>
 
-        {(step === 'identifier' || step === 'login') && <LoginForm />}
-        {step === 'register' && <RegisterForm />}
-        {step === 'phoneConfirmationLogin' && <ConfirmPhoneForm isLogin />}
-        {step === 'phoneConfirmationLoginNoPhone' && (
+        {(step == 'identifier' || step == 'login') && <LoginForm />}
+        {step == 'register' && <RegisterForm />}
+        {step == 'phoneConfirmationLogin' && <ConfirmPhoneForm isLogin />}
+        {step == 'phoneConfirmationLoginNoPhone' && (
           <ConfirmPhoneForm isLogin isNoPhone />
         )}
-        {step === 'phoneConfirmationRegister' && (
-          <ConfirmPhoneForm isRegister />
-        )}
+        {step == 'phoneConfirmationRegister' && <ConfirmPhoneForm isRegister />}
       </div>
     </div>
   );

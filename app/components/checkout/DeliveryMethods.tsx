@@ -92,22 +92,30 @@ export default function DeliveryMethods({
       return data;
     },
     onSuccess: (data) => {
-      if (data && data.isSuccess && data.data && data.data[0].courierCode) {
-        data.data.map((item) => {
-          if (
-            (item.courierCode == 'IR_POST' ||
-              // item.courierCode == 'CHAPAR' ||
-              item.courierCode == 'TIPAX') &&
-            item.courierServiceCode != 'CERTIFIED'
-          ) {
-            setCourier((prev) => {
-              const copy = prev;
-              copy.push(item);
-              return copy;
-            });
-          }
-        });
-      } else toast.warn('خطا در دریافت روش های ارسال');
+      if (
+        !data ||
+        !data.isSuccess ||
+        !data.data ||
+        !data.data.length ||
+        !data.data[0].courierCode
+      ) {
+        toast.warn('خطا در دریافت روش های ارسال');
+        return;
+      }
+      data.data.map((item) => {
+        if (
+          (item.courierCode == 'IR_POST' ||
+            // item.courierCode == 'CHAPAR' ||
+            item.courierCode == 'TIPAX') &&
+          item.courierServiceCode != 'CERTIFIED'
+        ) {
+          setCourier((prev) => {
+            const copy = prev;
+            copy.push(item);
+            return copy;
+          });
+        }
+      });
     },
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');

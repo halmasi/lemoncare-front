@@ -1,7 +1,7 @@
 'use client';
 
-import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import Addresses from '@/app/components/profile/Addresses';
 import AuthForm from '@/app/components/profile/auth/AuthForm';
 import Title from '@/app/components/Title';
