@@ -10,7 +10,7 @@ import {
 } from '@/app/utils/data/getUserInfo';
 import NewAddressForm from './NewAddressForm';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
-import { notFound, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import states from '@/public/cities.json';
 import { BiEdit } from 'react-icons/bi';
 import SubmitButton from '../formElements/SubmitButton';
