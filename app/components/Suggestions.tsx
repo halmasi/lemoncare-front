@@ -104,6 +104,7 @@ export default function Suggestions({
           className="mySwiper"
         >
           {posts &&
+            posts.length > 0 &&
             posts.map((item) => (
               <SwiperSlide
                 key={item.documentId}
@@ -118,6 +119,7 @@ export default function Suggestions({
               </SwiperSlide>
             ))}
           {products &&
+            products.length > 0 &&
             products.map((item) => (
               <SwiperSlide
                 key={item.documentId}

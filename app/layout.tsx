@@ -4,7 +4,7 @@ import './globals.css';
 import ClientProvider from './components/ClientProvider';
 import { ToastContainer, Slide } from 'react-toastify';
 
-import Footer from '@/app/components/BlogFooter';
+import Footer from '@/app/components/Footer';
 import FooterNavbar from './components/FooterNavbar';
 import LoginHandler from './components/profile/LoginHandler';
 import {

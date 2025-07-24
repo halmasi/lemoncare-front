@@ -39,13 +39,12 @@ export default function Favorites() {
     },
     onSuccess: (data) => {
       if (!data) return;
+      setLoading(false);
       setFavoritesData(data);
     },
     onError: () => {
-      toast.error('خطایی رخ داده');
-    },
-    onSettled: () => {
       setLoading(false);
+      toast.error('خطایی رخ داده');
     },
   });
 
@@ -74,7 +73,7 @@ export default function Favorites() {
             <FavoriteSkeleton key={item} />
           ))}
         </div>
-      ) : favoritesData.length > 0 ? (
+      ) : favoritesData && favoritesData.length > 0 ? (
         <div className="flex flex-wrap justify-center max-w-screen-lg gap-5">
           {numbersArray.map((index) => {
             if (favoritesData[index])

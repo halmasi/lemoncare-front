@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -43,19 +45,22 @@ export default function Addresses() {
       return res.data;
     },
     onSuccess: (data) => {
+      if (!data) return;
       setAddresses(data.information);
     },
   });
 
   const deleteAddressFn = useMutation({
     mutationFn: async ({ address }: { address: number }) => {
-      const newAddresses = addresses;
-      const found = newAddresses.find((item) => item.id == address);
-      if (found) {
-        const index = newAddresses.findIndex((item) => item == found);
-        if (index >= 0) {
-          newAddresses.splice(index, 1);
-          return newAddresses;
+      if (Array.isArray(addresses) && addresses.length) {
+        const newAddresses = [...addresses];
+        const found = newAddresses.find((item) => item.id == address);
+        if (found) {
+          const index = newAddresses.findIndex((item) => item == found);
+          if (index >= 0) {
+            newAddresses.splice(index, 1);
+            return newAddresses;
+          }
         }
       }
     },
@@ -67,10 +72,9 @@ export default function Addresses() {
 
   const updateAddressesFn = useMutation({
     mutationFn: async ({ data }: { data: AddressProps[] }) => {
-      if (!user) return;
       const res = await updatePostalInformation(
         data,
-        user.postal_information.documentId
+        user!.postal_information.documentId
       );
       return res;
     },
@@ -83,12 +87,8 @@ export default function Addresses() {
     },
   });
 
-  const getUserAddresses = (documentId: string) => {
-    getAddressFn.mutate(documentId);
-  };
-
   useEffect(() => {
-    if (addresses && addresses.length)
+    if (addresses && Array.isArray(addresses) && addresses.length)
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
@@ -111,59 +111,63 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    const defaultAddress = addresses.find((item) => item.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress((prevSelectedAddress) => {
-        if (prevSelectedAddress !== defaultAddress.id) {
-          return defaultAddress.id;
+    if (user && addresses && Array.isArray(addresses) && addresses.length) {
+      const defaultAddress = addresses.find((item) => item.isDefault);
+      if (defaultAddress) {
+        setSelectedAddress((prevSelectedAddress) => {
+          if (prevSelectedAddress !== defaultAddress.id) {
+            return defaultAddress.id;
+          }
+          return prevSelectedAddress;
+        });
+
+        const province = states.find(
+          (state) => state.name === defaultAddress.province
+        );
+        const city = province?.cities.find(
+          (city) => city.name === defaultAddress.city
+        );
+
+        const newCheckoutAddress = city
+          ? { ...defaultAddress, cityCode: city.id }
+          : { ...defaultAddress, cityCode: 0 };
+
+        if (
+          JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
+        ) {
+          setCheckoutAddress(newCheckoutAddress);
         }
-        return prevSelectedAddress;
-      });
-
-      const province = states.find(
-        (state) => state.name === defaultAddress.province
-      );
-      const city = province?.cities.find(
-        (city) => city.name === defaultAddress.city
-      );
-
-      const newCheckoutAddress = city
-        ? { ...defaultAddress, cityCode: city.id }
-        : { ...defaultAddress, cityCode: 0 };
-
-      if (
-        JSON.stringify(checkoutAddress) !== JSON.stringify(newCheckoutAddress)
-      ) {
-        setCheckoutAddress(newCheckoutAddress);
       }
     }
   }, [addresses]);
 
   useEffect(() => {
-    const selectedAddressData = addresses.find(
-      (item) => item.id == selectedAddress
-    );
-    if (selectedAddressData) {
-      const province = states.find((state) => {
-        return state.name == selectedAddressData.province;
-      });
-      const city = province?.cities.find((city) => {
-        return city.name == selectedAddressData.city;
-      });
-      if (city) {
-        setCheckoutAddress({
-          ...selectedAddressData,
-          cityCode: city.id,
+    if (addresses && Array.isArray(addresses) && addresses.length) {
+      const selectedAddressData = addresses.find(
+        (item) => item.id == selectedAddress
+      );
+      if (selectedAddressData) {
+        const province = states.find((state) => {
+          return state.name == selectedAddressData.province;
         });
-      } else {
-        setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+        const city = province?.cities.find((city) => {
+          return city.name == selectedAddressData.city;
+        });
+        if (city) {
+          setCheckoutAddress({
+            ...selectedAddressData,
+            cityCode: city.id,
+          });
+        } else {
+          setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+        }
       }
     }
   }, [selectedAddress]);
 
   useEffect(() => {
     if (user && user.postal_information) {
-      getUserAddresses(user.postal_information.documentId);
+      getAddressFn.mutate(user.postal_information.documentId);
       setShowTextBox(false);
     } else if (checkoutAddress) {
       setAddresses([checkoutAddress]);
@@ -184,6 +188,7 @@ export default function Addresses() {
         <LoadingAnimation />
       </div>
     );
+
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
       {addresses && (

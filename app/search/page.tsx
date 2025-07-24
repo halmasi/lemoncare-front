@@ -90,7 +90,7 @@ export default function SearchPage() {
                     جستجوی <span className="text-accent-pink">{query}</span> در
                     محصولات
                   </h2>
-                  {products.length > 0 && (
+                  {products && products.length > 0 && (
                     <div className="flex flex-col container py-5 px-2 md:px-10">
                       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
                         {products.map((item) => (
@@ -109,19 +109,20 @@ export default function SearchPage() {
                   {posts.length > 0 && (
                     <div className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
                       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-                        {posts.map((post) => {
-                          return (
-                            <PostCard
-                              key={post.documentId + 'post'}
-                              basicInfo={post.basicInfo}
-                              category={post.category}
-                              seo={post.seo}
-                              authorEmail={post.author.email}
-                              authorName={post.author.name}
-                              authorSlug={post.author.username}
-                            />
-                          );
-                        })}
+                        {posts &&
+                          posts.map((post) => {
+                            return (
+                              <PostCard
+                                key={post.documentId + 'post'}
+                                basicInfo={post.basicInfo}
+                                category={post.category}
+                                seo={post.seo}
+                                authorEmail={post.author.email}
+                                authorName={post.author.name}
+                                authorSlug={post.author.username}
+                              />
+                            );
+                          })}
                       </div>
                     </div>
                   )}

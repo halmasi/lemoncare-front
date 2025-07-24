@@ -16,12 +16,6 @@ export default async function shopPage({
         slug={['']}
         type="product"
       />
-
-      {/* <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
-        {products.res.map((item) => (
-          <ProductCart product={item} key={item.id} />
-        ))}
-      </div> */}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import AuthForm from '@/app/components/profile/auth/AuthForm';
 import React from 'react';
 

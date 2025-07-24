@@ -48,7 +48,7 @@ function AddButton({
 
   const [count, setCount] = useState(1);
 
-  if (cart) {
+  if (cart && cart.length > 0) {
     const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
@@ -167,7 +167,7 @@ export default function VarietySelector({
 
   useEffect(() => {
     const lessPrice = lowestPrice(product);
-    if (lessPrice.price && lessPrice.id) {
+    if (lessPrice.price && lessPrice.id && lessPrice.uid) {
       setSelected({
         id: lessPrice.id,
         sub: lessPrice.sub,
@@ -204,7 +204,8 @@ export default function VarietySelector({
       }
     },
     onSuccess: (data) => {
-      if (!data) setCart(data.data.items);
+      if (!data || !data.data || !data.data.items) return;
+      setCart(data.data.items);
     },
     onError: () => {
       toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
@@ -233,8 +234,8 @@ export default function VarietySelector({
       const list = await cartProductSetter(newItem.id, cartProducts);
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
-      if (!cart) newCart = [{ ...newItem, product, id }];
-      else {
+      if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
+      else if (cart.length) {
         if (user) {
           newCart = [...cart, { ...newItem, product, id }];
           addToCartFn.mutate(newItem);
@@ -265,7 +266,7 @@ export default function VarietySelector({
     <>
       {price.price ? (
         <div>
-          {price.before && (
+          {price.before != undefined && price.before > 0 ? (
             <div className="flex flex-col gap-3 pb-2">
               <div className="flex gap-3">
                 <p className="flex gap-2 items-center">
@@ -290,6 +291,12 @@ export default function VarietySelector({
                 </strong>
               </p>
             </div>
+          ) : (
+            <Toman className="text-accent-green fill-accent-green">
+              <h6>
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              </h6>
+            </Toman>
           )}
 
           <div className="flex justify-center">
@@ -321,10 +328,9 @@ export default function VarietySelector({
 
         {price.price && price.inventory ? (
           <>
-            {/* <h5>{product.off}</h5> */}
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
-              {price.before && (
+              {price.before != undefined && price.before > 0 && (
                 <>
                   <p className="flex gap-2 items-center">
                     <span className="text-sm  text-gray-500 line-through">

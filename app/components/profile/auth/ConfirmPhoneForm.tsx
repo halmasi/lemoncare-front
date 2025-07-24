@@ -29,7 +29,7 @@ export default function ConfirmPhoneForm({
 }) {
   const codeRef = useRef<HTMLInputElement>(null);
 
-  const [timer, setTimer] = useState<number>(10);
+  const [timer, setTimer] = useState<number>(120);
   const [resend, setResend] = useState<boolean>(true);
 
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function ConfirmPhoneForm({
         );
       } else {
         toast.info('کد فعال سازی به شماره شما پیامک شد.');
-        setTimer(10);
+        setTimer(120);
       }
     },
     onError: (err) => {

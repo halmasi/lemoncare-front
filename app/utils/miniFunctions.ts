@@ -51,7 +51,7 @@ export const convertPersianAndArabicToEnglish = (input: string): string => {
 };
 
 export const deleteKeysFromObject = (
-  data: Record<string, any>,
+  data: Record<string, any>, // eslint-disable-line no-use-before-define
   deleteKeys: string[]
 ) => {
   if (typeof data != 'object') return {};

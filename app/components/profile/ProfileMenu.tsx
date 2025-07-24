@@ -107,7 +107,7 @@ export default function ProfileMenu({
 
   let menuItems: MenuItemsProps[] = [];
 
-  if (extraItems) {
+  if (extraItems && extraItems.length > 0) {
     extraItems.forEach((item) => {
       if (item.position == 'top') {
         menuItems = [...menuItems, ...item.items];

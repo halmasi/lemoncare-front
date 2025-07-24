@@ -103,43 +103,46 @@ export default function Payment() {
 
   const makeOrderHistoryFn = useMutation({
     mutationFn: async () => {
-      const items: CartProps[] = await Promise.all(
-        cart.map(async (item) => {
-          const product = await cartProductSelector(
-            item.product.documentId,
-            cartProducts
-          );
-          if (product) {
-            const variety = varietyFinder(item.variety, product);
-            return {
-              count: item.count,
-              product: item.product,
-              variety: item.variety,
-              beforePrice: variety.priceBefforDiscount,
-              mainPrice: variety.mainPrice,
-            };
-          }
-          return null;
-        })
-      ).then((results) => results.filter((item) => item !== null));
-      if (checkoutAddress && user) {
-        const res = await submitOrder({
-          user: parseInt(user.id || '0'),
-          jwt: `Bearer ${jwt}`,
-          items,
-          checkoutAddress,
-          paymentOption,
-          shippingOption: shippingOption.service_name,
-          shippingPrice,
-          price,
-          totalPrice,
-          coupon,
-        });
+      if (cart) {
+        const items: CartProps[] = await Promise.all(
+          cart.map(async (item) => {
+            const product = await cartProductSelector(
+              item.product.documentId,
+              cartProducts
+            );
+            if (product) {
+              const variety = varietyFinder(item.variety, product);
+              return {
+                count: item.count,
+                product: item.product,
+                variety: item.variety,
+                beforePrice: variety.priceBefforDiscount,
+                mainPrice: variety.mainPrice,
+              };
+            }
+            return null;
+          })
+        ).then((results) => results.filter((item) => item !== null));
+        if (checkoutAddress && user) {
+          const res = await submitOrder({
+            user: parseInt(user.id || '0'),
+            jwt: `Bearer ${jwt}`,
+            items,
+            checkoutAddress,
+            paymentOption,
+            shippingOption: shippingOption.service_name,
+            shippingPrice,
+            price,
+            totalPrice,
+            coupon,
+          });
 
-        return res;
+          return res;
+        }
       }
     },
     onSuccess: (data) => {
+      if (!data) return;
       setOrderCode(parseInt(data.data.orderCode));
       router.push('/cart/checkout/gate');
     },

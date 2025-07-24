@@ -45,17 +45,21 @@ export default function Cart({
       id: string;
       login?: boolean;
     }) => {
-      const cart = await getCart(id);
-      return { cart, login };
+      const cartData = await getCart(id);
+      // if (!cartData || !cartData.data) return;
+      return { cartData: cartData.data, login };
     },
-    onSuccess: ({ cart, login }) => {
-      if (login && user) {
+    onSuccess: (data) => {
+      if (!data || !data.cartData) return;
+      // setTotalPrice()
+      const { cartData, login } = data;
+      if (login && user && cartData && cartData.items) {
         handleCartFn.mutate({
-          fetchedCart: cart.data.items,
+          fetchedCart: cartData.items,
           id: user.shopingCart.documentId,
         });
         setLoginProcces(false);
-      } else setCart(cart.data.items);
+      } else setCart(cartData.items);
     },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
@@ -71,8 +75,14 @@ export default function Cart({
       cartId: string;
     }) => {
       await updateCart(cart, cartId);
+      return cartId;
     },
-    onSuccess: async () => {},
+    onSuccess: async (id) => {
+      getCartFn.mutateAsync({
+        id,
+        login: true,
+      });
+    },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
     },
@@ -239,16 +249,20 @@ export default function Cart({
                 <div className="w-full h-full">
                   <Count
                     refreshFunction={(newCount) => {
-                      if (user && user.shopingCart.documentId)
+                      if (user && user.shopingCart.documentId) {
                         if (newCount <= 0)
                           getCartFn.mutate({
                             id: user.shopingCart.documentId,
                           });
-                        else
+                        else {
                           updateCartFn.mutate({
                             cart,
                             cartId: user.shopingCart.documentId,
                           });
+                        }
+                      }
+                      if (priceAmount)
+                        priceAmount(totalPrice, totalBeforePrice);
                     }}
                     key={index}
                     cartItem={cartItem}

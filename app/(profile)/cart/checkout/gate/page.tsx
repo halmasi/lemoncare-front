@@ -74,7 +74,6 @@ export default function GatePage() {
       }
     },
     onSuccess: async (data) => {
-      console.log(data);
       if (!data || !(data.ResCod == '0' || data.ResCod == '00')) {
         toast.error('خطا در انتقال به درگاه پرداخت');
         return;

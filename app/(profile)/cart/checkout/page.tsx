@@ -1,7 +1,7 @@
 'use client';
 
-import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
+import DeliveryMethods from '@/app/components/checkout/DeliveryMethods';
 import Addresses from '@/app/components/profile/Addresses';
 import AuthForm from '@/app/components/profile/auth/AuthForm';
 import Title from '@/app/components/Title';
@@ -22,32 +22,37 @@ export default function CheckoutPage() {
   const [showNext, setShowNext] = useState<boolean>(false);
 
   useEffect(() => {
-    setTotalBeforePrice(0);
-    setTotalPrice(0);
-    cart.forEach((cartItem) => {
-      let priceBefore = 0;
-      let priceAfter = 0;
+    if (cart && Array.isArray(cart) && cart.length > 0) {
+      setTotalBeforePrice(0);
+      setTotalPrice(0);
+      cart.forEach((cartItem) => {
+        let priceBefore = 0;
+        let priceAfter = 0;
 
-      const product = cartProducts.find(
-        (searchProduct) =>
-          searchProduct.documentId == cartItem.product.documentId
-      );
+        const product = cartProducts.find(
+          (searchProduct) =>
+            searchProduct.documentId == cartItem.product.documentId
+        );
 
-      if (product) {
-        const variety = varietyFinder(cartItem.variety, product);
-        priceBefore = variety.priceBefforDiscount;
-        priceAfter = variety.mainPrice;
+        if (product) {
+          const variety = varietyFinder(cartItem.variety, product);
+          priceBefore = variety.priceBefforDiscount;
+          priceAfter = variety.mainPrice;
 
-        setTotalPrice((prev) => prev + priceAfter * cartItem.count);
-        setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
-      }
-    });
+          setTotalPrice((prev) => prev + priceAfter * cartItem.count);
+          setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
+        }
+      });
+    }
   }, [cart]);
+
   useEffect(() => {
-    setPrice(totalPrice);
-    setBeforePrice(totalBeforePrice);
+    if (totalPrice) setPrice(totalPrice);
+    if (totalBeforePrice) setBeforePrice(totalBeforePrice);
   }, [totalPrice]);
+
   if (!totalPrice) return <div>درحال بارگذاری</div>;
+
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-2  justify-between">

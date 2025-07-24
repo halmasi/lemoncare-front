@@ -1,7 +1,7 @@
 'use client';
 
-import ColoredButton from '@/app/components/ColoredButton';
 import { useEffect } from 'react';
+import SubmitButton from './components/formElements/SubmitButton';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -22,9 +22,9 @@ export default function Error({ error, reset }: ErrorProps) {
         <br />
         {error.message}
       </p>
-      <ColoredButton onClick={reset} href={'#'}>
+      <SubmitButton onClick={reset} link={'#'}>
         تلاش دوباره
-      </ColoredButton>
+      </SubmitButton>
     </div>
   );
 }
