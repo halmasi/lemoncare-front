@@ -46,8 +46,7 @@ export default function Cart({
       login?: boolean;
     }) => {
       const cartData = await getCart(id);
-      // if (!cartData || !cartData.data) return;
-      return { cartData: cartData.data, login };
+      if (!cartData) return { cartData: cartData.data, login };
     },
     onSuccess: (data) => {
       if (!data || !data.cartData) return;

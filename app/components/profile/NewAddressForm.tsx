@@ -225,27 +225,49 @@ export default function NewAddressForm({
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-      const formValues = {
-        province: data.get('province')?.toString() || '',
-        city: data.get('city')?.toString() || '',
-        address: data.get('address')?.toString() || '',
-        firstName: data.get('firstName')?.toString() || '',
-        lastName: data.get('lastName')?.toString() || '',
-        postCode: parseInt(data.get('postCode')?.toString() || '0'),
-        phone: parseInt(data.get('phone')?.toString() || '0'),
-        mobile: data.get('mobile')?.toString() || '',
-        isDefault: defaultAddress,
-      };
-      submitFn.mutate(formValues);
+      const province = data.get('province')?.toString();
+      const city = data.get('city')?.toString();
+      const address = data.get('address')?.toString();
+      const firstName = data.get('firstName')?.toString();
+      const lastName = data.get('lastName')?.toString();
+      const postCode = parseInt(data.get('postCode')?.toString() || '0');
+      const phone = parseInt(data.get('phone')?.toString() || '0');
+      const mobile = data.get('mobile')?.toString();
+      if (
+        !data ||
+        !province ||
+        !city ||
+        !address ||
+        !firstName ||
+        !lastName ||
+        !postCode ||
+        !phone ||
+        !mobile
+      ) {
+        setErrors({
+          server: ['وارد کردن همه موارد الزامی است.'],
+        });
+        return;
+      }
+      submitFn.mutate({
+        province,
+        city,
+        address,
+        firstName,
+        lastName,
+        postCode,
+        phone,
+        mobile,
+      });
     },
     [submitFn, defaultAddress]
   );
 
   return (
-    <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
-      <fieldset>
+    <form onSubmit={submitFunction} className="w-full flex flex-col gap-2 py-3">
+      <fieldset className="items-center">
         <label className="text-green-700" htmlFor="province">
-          استان
+          استان <span className="text-accent-pink">*</span>
         </label>
         <CitySelector
           id="province"
@@ -279,7 +301,7 @@ export default function NewAddressForm({
       {province && (
         <fieldset>
           <label className="text-green-700" htmlFor="city">
-            شهر
+            شهر <span className="text-accent-pink">*</span>
           </label>
           <CitySelector
             key={province}
@@ -310,7 +332,7 @@ export default function NewAddressForm({
       )}
       <fieldset>
         <label className="text-green-700" htmlFor="address">
-          آدرس
+          آدرس <span className="text-accent-pink">*</span>
         </label>
         <textarea
           ref={addressReff}
@@ -329,6 +351,7 @@ export default function NewAddressForm({
         name="postCode"
         placeholder="کد پستی"
         type="text"
+        required
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={postCodeRef}
@@ -348,6 +371,7 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={nameRef}
+        required
       >
         نام
       </InputBox>
@@ -364,6 +388,7 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={lastNameRef}
+        required
       >
         نام خانوادگی
       </InputBox>
@@ -374,12 +399,30 @@ export default function NewAddressForm({
       )}
       <InputBox
         flex="col"
+        name="mobile"
+        placeholder="موبایل"
+        type="text"
+        className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={mobileRef}
+        required
+      >
+        شماره همراه
+      </InputBox>
+      {errors.mobile && (
+        <p className="text-red-500 text-sm whitespace-pre-line">
+          {errors.mobile.join('\n')}
+        </p>
+      )}
+      <InputBox
+        flex="col"
         name="phone"
         placeholder="تلفن"
         type="text"
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={phoneRef}
+        required
       >
         شماره تلفن
       </InputBox>
@@ -388,20 +431,9 @@ export default function NewAddressForm({
           {errors.phone.join('\n')}
         </p>
       )}
-      <InputBox
-        flex="col"
-        name="mobile"
-        placeholder="موبایل"
-        type="text"
-        className="border rounded-lg w-full"
-        labelClassName="text-green-700"
-        ref={mobileRef}
-      >
-        شماره همراه
-      </InputBox>
-      {errors.mobile && (
+      {errors.server && (
         <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.mobile.join('\n')}
+          {errors.server.join('\n')}
         </p>
       )}
       {editModeAddress && (

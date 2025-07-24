@@ -83,7 +83,7 @@ export default function CheckoutPage() {
               <p>مجموع خرید:</p>
               <div className="flex flex-wrap md:pr-5 items-center justify-center gap-2">
                 <p className="line-through text-xl text-gray-500">
-                  {totalBeforePrice / 10}
+                  {totalBeforePrice > 0 && totalBeforePrice / 10}
                 </p>
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
