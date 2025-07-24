@@ -1,37 +1,60 @@
-import { ReactNode } from 'react';
+import { ChangeEvent, forwardRef, ReactNode } from 'react';
 
-export default function PhoneInputBox({
-  placeholder,
-  name,
-  children,
-  required,
-}: {
+interface PhoneInputProps {
   placeholder: string;
   name: string;
   required?: boolean;
   children?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col md:flex-row w-full items-center">
-      {children && (
-        <label className="flex w-full md:w-2/12" htmlFor={name}>
-          <p>{children}: </p>
-          {required && <p className="text-accent-pink"> * </p>}
-        </label>
-      )}
-      <div className={`flex w-full items-center`}>
-        <input
-          className="p-2 border-l-0 border-2 border-gray-400 rounded-r-xl shadow-lg focus:shadow-accent-pink/30 focus:outline-none transition-all text-left w-full h-12"
-          type={'tel'}
-          dir="ltr"
-          placeholder={placeholder}
-          name={name}
-          id={name}
-        />
-        <div className="flex justify-center items-center px-3 bg-gray-200 border-2 border-r-0 border-gray-400 rounded-l-xl shadow-lg w-28 h-12">
-          <h6 className="text-base text-left">98+ ایران</h6>
+  className?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+const PhoneInputBox = forwardRef<HTMLInputElement, PhoneInputProps>(
+  (
+    {
+      placeholder,
+      name,
+      children,
+      required,
+      onChange,
+      className,
+    }: PhoneInputProps,
+    ref
+  ) => {
+    return (
+      <div
+        className={`flex flex-col md:flex-row w-full items-center ${className}`}
+      >
+        {children && (
+          <label className="flex w-full md:w-4/12" htmlFor={name}>
+            <p>{children}: </p>
+            {required && <p className="text-accent-pink"> * </p>}
+          </label>
+        )}
+        <div className={`flex w-full border rounded-md items-center`}>
+          <input
+            className="p-2 focus:outline-none rounded-md transition-all text-left w-full"
+            dir="ltr"
+            placeholder={placeholder}
+            name={name}
+            id={name}
+            ref={ref}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              e.target.value = value;
+              if (value.length > 11) {
+                e.target.value = value.slice(0, 11);
+              }
+              if (onChange) onChange(e);
+            }}
+          />
+          <div className="flex justify-center items-center px-3 bg-gray-200/50 h-10">
+            <p className="text-base text-left">98+</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+PhoneInputBox.displayName = 'InputBox';
+
+export default PhoneInputBox;

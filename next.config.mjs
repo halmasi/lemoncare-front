@@ -12,6 +12,16 @@ const nextConfig = {
         hostname: '0.gravatar.com',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'me.sizpay.ir',
+        port: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'trustseal.enamad.ir',
+        port: '',
+      },
     ],
   },
 };

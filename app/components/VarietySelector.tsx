@@ -1,15 +1,22 @@
 'use client';
 import { BiShoppingBag } from 'react-icons/bi';
-import { getProduct, ProductProps } from '../utils/data/getProducts';
-import RadioButton from './formElements/RadioButton';
+import ProductSelectorRadioButton from './formElements/ProductSelectorRadioButton';
 import { useEffect, useState } from 'react';
 import DiscountTimer from './DiscountTimer';
 import { useMutation } from '@tanstack/react-query';
 import { useCartStore } from '../utils/states/useCartData';
 import { useDataStore } from '../utils/states/useUserdata';
-import { getFullUserData } from '../utils/actions/actionMethods';
-import { addToCart } from '@/app/utils/actions/cartActionMethods';
+import { addToCart, getCart } from '@/app/utils/actions/cartActionMethods';
 import SubmitButton from './formElements/SubmitButton';
+import { logs } from '@/app/utils/miniFunctions';
+import Count from './navbarComponents/Count';
+import Toman from './Toman';
+import { ProductProps } from '@/app/utils/schema/shopProps';
+import { lowestPrice, varietyFinder } from '../utils/shopUtils';
+import { cartProductSetter } from '../utils/shopUtils';
+import AddToFavorites from './AddToFavorites';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 interface NewItemProps {
   count: number;
@@ -17,47 +24,107 @@ interface NewItemProps {
   variety: { id: number; sub: number | null };
 }
 
+function AddButton({
+  product,
+  selected,
+  price,
+  isPending,
+  handleAddToCart,
+}: {
+  product: ProductProps;
+  selected: {
+    id: number;
+    sub: number | null;
+    uniqueId: number;
+    uniqueSub: number | null;
+  };
+  price: { price: number | null };
+  isPending: boolean;
+  handleAddToCart: (object: NewItemProps) => void;
+}) {
+  const { cart } = useCartStore();
+
+  const router = useRouter();
+
+  const [count, setCount] = useState(1);
+
+  if (cart && cart.length > 0) {
+    const findCart = cart.find(
+      (item) =>
+        item.product.documentId == product.documentId &&
+        item.variety.id == selected.uniqueId &&
+        item.variety.sub == selected.uniqueSub
+    );
+    if (!findCart || findCart.count < 1 || isPending || count <= 0) {
+      return (
+        <SubmitButton
+          key={count}
+          className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
+          onClick={() => {
+            setCount(1);
+            handleAddToCart({
+              count: 1,
+              id: product.documentId,
+              variety: { id: selected.uniqueId, sub: selected.uniqueSub },
+            });
+          }}
+          isPending={!price.price || isPending}
+        >
+          <span>افزودن به سبد خرید</span> <BiShoppingBag />
+        </SubmitButton>
+      );
+    } else {
+      const variety = varietyFinder(
+        { id: selected.uniqueId, sub: selected.uniqueSub },
+        product
+      );
+      const inventory = variety.inventory;
+      return (
+        <Count
+          key={selected.sub || selected.id || count}
+          cartItem={findCart}
+          inventory={inventory}
+          refreshFunction={(c: number) => {
+            setCount(c);
+            router.refresh();
+          }}
+          isProductPage
+        />
+      );
+    }
+  } else {
+    return (
+      <SubmitButton
+        className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
+        onClick={() => {
+          handleAddToCart({
+            count: 1,
+            id: product.documentId,
+            variety: {
+              id: selected.uniqueId,
+              sub: selected.uniqueSub,
+            },
+          });
+        }}
+        isPending={!price.price || isPending}
+      >
+        <span>افزودن به سبد خرید</span> <BiShoppingBag />
+      </SubmitButton>
+    );
+  }
+}
+
 export default function VarietySelector({
   product,
   list,
+  showDiscount = true,
 }: {
   product: ProductProps;
   list?: boolean;
+  showDiscount?: boolean;
 }) {
-  const { user, setUser } = useDataStore();
+  const { user } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
-
-  const addToCartFn = useMutation({
-    mutationFn: async (newItem: NewItemProps) => {
-      if (user && user.id && cart) {
-        const findProduct = cartProducts.find(
-          (item) => item.documentId == newItem.id
-        );
-        if (!findProduct) {
-          const newArray = cartProducts;
-          newArray.push({
-            basicInfo: product.basicInfo,
-            documentId: product.documentId,
-            variety: product.variety,
-          });
-          setCartProducts(newArray);
-        }
-        const res = await addToCart(cart, newItem);
-        return res;
-      }
-    },
-    onSuccess: async (data) => {
-      if (!data || !user) return;
-      const getUser = await getFullUserData();
-      setCart(getUser.body.cart);
-      const newUser = user;
-      newUser.cart = getUser.body.cart;
-      setUser(newUser);
-    },
-    onError: async (error) => {
-      console.log(error.cause);
-    },
-  });
 
   const [selected, setSelected] = useState<{
     id: number;
@@ -77,10 +144,12 @@ export default function VarietySelector({
     before?: number | null;
     end?: number | null;
     price: number | null;
+    inventory: number;
   }>({
     id: selected.id,
     sub: selected.sub,
     price: null,
+    inventory: 0,
   });
   const itemSelectFunc = ({
     id,
@@ -97,36 +166,7 @@ export default function VarietySelector({
   };
 
   useEffect(() => {
-    const lessPrice: {
-      id: number | null;
-      sub: number | null;
-      uid: number;
-      usub: number | null;
-      price: number;
-    } = { id: null, sub: null, uid: 0, usub: null, price: 0 };
-    product.variety.map((item) => {
-      if (item.subVariety.length) {
-        item.subVariety.map((sub) => {
-          if (sub.mainPrice < lessPrice.price || !lessPrice.price) {
-            lessPrice.id = item.id;
-            lessPrice.sub = sub.id;
-            lessPrice.uid = item.uniqueId;
-            lessPrice.usub = sub.uniqueId;
-            lessPrice.price = sub.mainPrice;
-          }
-        });
-        if (
-          (item.mainPrice && item.mainPrice < lessPrice.price) ||
-          !lessPrice.price
-        ) {
-          lessPrice.id = item.id;
-          lessPrice.sub = null;
-          lessPrice.uid = item.uniqueId;
-          lessPrice.usub = null;
-          lessPrice.price = item.mainPrice;
-        }
-      }
-    });
+    const lessPrice = lowestPrice(product);
     if (lessPrice.price && lessPrice.id) {
       setSelected({
         id: lessPrice.id,
@@ -134,59 +174,93 @@ export default function VarietySelector({
         uniqueId: lessPrice.uid,
         uniqueSub: lessPrice.usub,
       });
-    } else setAvailable(true);
+    } else setAvailable(false);
   }, []);
 
   useEffect(() => {
-    const mainIdPrice = product.variety.find(
-      (e) => e.id == selected.id
-    )?.mainPrice;
-    const subIdPrice = product.variety
-      .find((e) => e.id == selected.id)
-      ?.subVariety.find((s) => s.id == selected.sub)?.mainPrice;
-    if (mainIdPrice && selected.sub == null) {
-      const endDate =
-        new Date(
-          product.variety.find((e) => e.id == selected.id)!.endOfDiscount!
-        ).getTime() || null;
+    const price = varietyFinder(
+      {
+        id: selected.uniqueId,
+        sub: selected.uniqueSub,
+      },
+      product
+    );
 
-      setPrice({
-        id: selected.id,
-        sub: selected.sub,
-        before:
-          product.variety.find((e) => e.id == selected.id)
-            ?.priceBeforeDiscount || null,
-        end: endDate || null,
-        price: mainIdPrice,
-      });
-    } else if (selected.sub != null && subIdPrice) {
-      const endDate =
-        new Date(
-          product.variety
-            .find((e) => e.id == selected.id)!
-            .subVariety.find((s) => s.id == selected.sub)!.endOfDiscount!
-        ).getTime() || null;
-      setPrice({
-        id: selected.id,
-        sub: selected.sub,
-        before:
-          product.variety
-            .find((e) => e.id == selected.id)
-            ?.subVariety.find((s) => s.id == selected.sub)
-            ?.priceBefforDiscount || null,
-        end: endDate || null,
-        price: subIdPrice,
-      });
-    } else {
-      setPrice({
-        id: selected.id,
-        sub: null,
-        before: null,
-        end: null,
-        price: null,
-      });
-    }
+    setPrice({
+      id: selected.id,
+      sub: selected.sub,
+      before: price.priceBefforDiscount,
+      end: price.endOfDiscount || null,
+      price: price.mainPrice,
+      inventory: price.inventory,
+    });
   }, [selected]);
+
+  const getCartFn = useMutation({
+    mutationFn: async () => {
+      if (user) {
+        const getCartData = await getCart(user.shopingCart.documentId);
+        return getCartData;
+      }
+    },
+    onSuccess: (data) => {
+      if (!data || !data.data || !data.data.items) return;
+      setCart(data.data.items);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
+
+  const addToCartFn = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      if (user && user.id && cart) {
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
+        return res;
+      }
+    },
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+      getCartFn.mutate();
+    },
+    onError: async (error) => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+      logs.error(error.message + ' ' + error.cause);
+    },
+  });
+
+  const addToCartHandler = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      const list = await cartProductSetter(newItem.id, cartProducts);
+      let newCart = cart;
+      const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
+      if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
+      else if (cart.length) {
+        if (user) {
+          newCart = [...cart, { ...newItem, product, id }];
+          addToCartFn.mutate(newItem);
+        } else {
+          const found = cart.find((item) => {
+            return (
+              item.product.documentId == newItem.id &&
+              item.variety == newItem.variety
+            );
+          });
+          if (found) return;
+          newCart.push({ ...newItem, product, id });
+        }
+      }
+      return { list, cart: newCart };
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      setCartProducts(data.list);
+      setCart(data.cart);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
 
   return list ? (
     <>
@@ -200,10 +274,11 @@ export default function VarietySelector({
                     {parseInt(price.before / 10 + '').toLocaleString('fa-IR')}
                   </span>
                 </p>
-                <h6 className="text-accent-green">
-                  {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
-                  تومان
-                </h6>
+                <Toman className="text-accent-green fill-accent-green">
+                  <h6>
+                    {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                  </h6>
+                </Toman>
               </div>
               <p>
                 <strong className="p-1 bg-accent-pink rounded-xl text-background">
@@ -217,20 +292,22 @@ export default function VarietySelector({
               </p>
             </div>
           )}
-          <SubmitButton
-            onClick={() => {
-              addToCartFn.mutate({
-                count: 1,
-                id: product.documentId,
-                variety: { id: selected.uniqueId, sub: selected.uniqueSub },
-              });
-            }}
-            disabled={!price.price || addToCartFn.isPending}
-          >
-            افزودن به سبد خرید
-            <BiShoppingBag />
-          </SubmitButton>
-          {price.end && <DiscountTimer end={price.end} />}
+
+          <div className="flex justify-center">
+            <AddButton
+              key={selected.uniqueSub || selected.uniqueId}
+              handleAddToCart={addToCartHandler.mutate}
+              isPending={
+                addToCartFn.isPending || addToCartHandler.isPending
+                // ||
+                // getCartFn.isPending
+              }
+              price={price}
+              product={product}
+              selected={selected}
+            />
+          </div>
+          {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
@@ -239,9 +316,13 @@ export default function VarietySelector({
   ) : (
     <>
       <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        {price.price ? (
+        <div className="self-start flex gap-2 items-center">
+          <AddToFavorites product={product} />
+        </div>
+
+        {price.price && price.inventory ? (
           <>
-            <h5>{product.off}</h5>
+            {/* <h5>{product.off}</h5> */}
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
               {price.before && (
@@ -262,10 +343,12 @@ export default function VarietySelector({
                 </>
               )}
             </div>
-            <h6 className="text-accent-green">
-              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')} تومان
-            </h6>
-            {price.end && <DiscountTimer end={price.end} />}
+            <Toman className="text-accent-green fill-accent-green">
+              <h6>
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              </h6>
+            </Toman>
+            {price.end && showDiscount && <DiscountTimer end={price.end} />}
           </>
         ) : (
           <div>
@@ -284,7 +367,7 @@ export default function VarietySelector({
         <div className="flex gap-2 p-2">
           {product.variety.map((item, index) => {
             return (
-              <RadioButton
+              <ProductSelectorRadioButton
                 value={{
                   id: item.id,
                   sub: null,
@@ -298,7 +381,7 @@ export default function VarietySelector({
                 selectedOptions={selected}
               >
                 {item.specification}
-              </RadioButton>
+              </ProductSelectorRadioButton>
             );
           })}
         </div>
@@ -308,7 +391,7 @@ export default function VarietySelector({
               <div className="flex gap-2 p-2" key={index}>
                 {item.subVariety.length > 0 &&
                   item.subVariety.map((subItem) => (
-                    <RadioButton
+                    <ProductSelectorRadioButton
                       key={subItem.id}
                       handler={itemSelectFunc}
                       selectedOptions={selected}
@@ -322,26 +405,27 @@ export default function VarietySelector({
                       group="subItems"
                     >
                       {subItem.specification}
-                    </RadioButton>
+                    </ProductSelectorRadioButton>
                   ))}
               </div>
             );
           })}
         </>
       </div>
-      <SubmitButton
-        onClick={() => {
-          addToCartFn.mutate({
-            count: 1,
-            id: product.documentId,
-            variety: { id: selected.uniqueId, sub: selected.uniqueSub },
-          });
-        }}
-        disabled={!price.price || addToCartFn.isPending}
-      >
-        افزودن به سبد خرید
-        <BiShoppingBag />
-      </SubmitButton>
+      <AddButton
+        key={selected.uniqueSub || selected.uniqueId}
+        handleAddToCart={addToCartHandler.mutate}
+        isPending={
+          addToCartFn.isPending ||
+          price.inventory < 1 ||
+          addToCartHandler.isPending
+          // ||
+          // getCartFn.isPending
+        }
+        price={price}
+        product={product}
+        selected={selected}
+      />
     </>
   );
 }

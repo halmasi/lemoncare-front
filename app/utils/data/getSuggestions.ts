@@ -1,30 +1,12 @@
 import qs from 'qs';
 
 import { dataFetch } from './dataFetch';
-import { PostsProps } from './getPosts';
-import { MediaProps, ProductProps } from './getProducts';
 import { cache } from 'react';
-
-interface ArticleSuggestionProps {
-  title: string;
-  slug: string;
-  posts: PostsProps[];
-}
-
-interface ProductSuggestionProps {
-  title: string;
-  slug: string;
-  products: ProductProps[];
-}
-
-interface SlideProps {
-  slug: string;
-  location: 'homepage' | 'shop' | 'blog' | 'category' | 'brand';
-  medias: {
-    link: string;
-    media: MediaProps;
-  }[];
-}
+import {
+  ArticleSuggestionProps,
+  ProductSuggestionProps,
+  SlideProps,
+} from '@/app/utils/schema/otherProps';
 
 export const getArticleSuggestions = cache(
   async (slug: string): Promise<ArticleSuggestionProps> => {
@@ -34,10 +16,12 @@ export const getArticleSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggested-articles?${query}`, [
-      `suggested-article-${slug}`,
-    ]);
-    return data[0];
+    const data = await dataFetch({
+      qs: `/suggested-articles?${query}`,
+      tag: [`suggested-article-${slug}`],
+      cache: 'force-cache',
+    });
+    return data.data[0];
   }
 );
 
@@ -49,10 +33,12 @@ export const getProductSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggestion-lists?${query}`, [
-      `suggestion-list-${slug}`,
-    ]);
-    return data[0];
+    const data = await dataFetch({
+      qs: `/suggestion-lists?${query}`,
+      tag: [`suggestion-list-${slug}`],
+      cache: 'force-cache',
+    });
+    return data.data[0];
   }
 );
 
@@ -60,7 +46,7 @@ export const getSlides = cache(async function (
   location: string
 ): Promise<SlideProps> {
   const query = qs.stringify({
-    filter: {
+    filters: {
       location: { $eq: location },
     },
     populate: {
@@ -69,8 +55,11 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, [
-    `slide-${location}`,
-  ]);
-  return data[0];
+  const fetchData = await dataFetch({
+    qs: `/slideshows?${query}`,
+    tag: [`slide-${location}`],
+    cache: 'force-cache',
+  });
+  const data: SlideProps = fetchData.data[0];
+  return data;
 });

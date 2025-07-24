@@ -2,7 +2,10 @@ import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import SvgLogo from '@/public/logo.svg';
-import { FooteritemsProps, SocialLinksProps } from '@/app/utils/data/getMenu';
+import {
+  FooteritemsProps,
+  SocialLinksProps,
+} from '@/app/utils/schema/menuProps';
 
 export default function Footer({
   FooterMenu,
@@ -18,6 +21,10 @@ export default function Footer({
   };
   const date = new Date(Date.now());
   const year = date.getFullYear();
+
+  const enamadCode = `<img src="/img/pic/enamad.png" width="100" height="110" code="lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v"
+  onclick="window.open(&quot;https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v;, &quot;Popup&quot;,&quot;toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30&quot;)"
+  alt="enamad">`;
 
   return (
     <footer className="min-h-[20svh] bg-yellow-300 flex flex-col justify-between w-full sticky bottom-0">
@@ -40,7 +47,20 @@ export default function Footer({
           </ul>
         </div>
         <div className="w-full">
-          <h3>Footer Details2</h3>
+          <a href="https://me.sizpay.ir/SizPayNamad/2519D30323CEEA6750014004040000140103835">
+            <img
+              src="https://me.sizpay.ir/SizPayNamadImg/2519D30323CEEA6750014004040000140103835"
+              className="cursor-pointer"
+              alt="درگاه پرداخت"
+              title=" درگاه پرداخت سيزپی"
+            />
+          </a>
+          <a
+            referrerPolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v"
+            dangerouslySetInnerHTML={{ __html: enamadCode }}
+          ></a>
         </div>
         <div className="w-full">
           <h3>Footer Details3</h3>
