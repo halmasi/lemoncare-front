@@ -167,7 +167,7 @@ export default function VarietySelector({
 
   useEffect(() => {
     const lessPrice = lowestPrice(product);
-    if (lessPrice.price && lessPrice.id) {
+    if (lessPrice.price && lessPrice.id && lessPrice.uid) {
       setSelected({
         id: lessPrice.id,
         sub: lessPrice.sub,
@@ -266,7 +266,7 @@ export default function VarietySelector({
     <>
       {price.price ? (
         <div>
-          {price.before && (
+          {price.before != undefined && price.before > 0 ? (
             <div className="flex flex-col gap-3 pb-2">
               <div className="flex gap-3">
                 <p className="flex gap-2 items-center">
@@ -291,6 +291,12 @@ export default function VarietySelector({
                 </strong>
               </p>
             </div>
+          ) : (
+            <Toman className="text-accent-green fill-accent-green">
+              <h6>
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              </h6>
+            </Toman>
           )}
 
           <div className="flex justify-center">
@@ -322,10 +328,9 @@ export default function VarietySelector({
 
         {price.price && price.inventory ? (
           <>
-            {/* <h5>{product.off}</h5> */}
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
-              {price.before && (
+              {price.before != undefined && price.before > 0 && (
                 <>
                   <p className="flex gap-2 items-center">
                     <span className="text-sm  text-gray-500 line-through">

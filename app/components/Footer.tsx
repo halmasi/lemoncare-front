@@ -26,6 +26,7 @@ export default function Footer({
   const enamadCode = `<img src="https://trustseal.enamad.ir/logo.aspx?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v" width="100" height="110" code="lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v"
   onclick="window.open(&quot;https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v;, &quot;Popup&quot;,&quot;toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30&quot;)"
   alt="enamad">`;
+  // const enamadCode = `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=629535&Code=lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v' alt='' style='cursor:pointer' code='lJ3C6Fespz4JRhuMgyoLXnSgalPsVt8v'></a>`;
 
   return (
     <footer className="min-h-[20svh] bg-accent-pink/30 flex flex-col justify-between w-full sticky bottom-0">
@@ -34,11 +35,13 @@ export default function Footer({
           <Title>
             <h6 className="text-accent-pink">لینک ها</h6>
           </Title>
-          <ul className="marker:text-black list-disc list-inside">
+          <ul className="flex flex-col marker:text-accent-green list-disc gap-1 list-outside">
             {FooterMenu.map((item) => (
-              <li className="hover:underline" key={item.id}>
-                <Link href={item.url}>{item.title}</Link>
-              </li>
+              <Link key={item.id} className="w-full" href={item.url}>
+                <li className="hover:underline w-full bg-gray-50/20 p-1">
+                  {item.title}
+                </li>
+              </Link>
             ))}
           </ul>
         </div>
@@ -47,7 +50,11 @@ export default function Footer({
             <h6 className="text-accent-pink">نماد های اعتماد</h6>
           </Title>
           <div className="w-full flex flex-wrap gap-3 justify-center">
-            <a href="https://me.sizpay.ir/SizPayNamad/2519D30323CEEA6750014004040000140103835">
+            <a
+              target="_blank"
+              className=""
+              href="https://me.sizpay.ir/SizPayNamad/2519D30323CEEA6750014004040000140103835"
+            >
               <img
                 src="https://me.sizpay.ir/SizPayNamadImg/2519D30323CEEA6750014004040000140103835"
                 className="cursor-pointer"
@@ -74,19 +81,22 @@ export default function Footer({
           </p>
         </div>
       </div>
-      <div className="flex justify-center items-center py-3">
-        {SocialLinks.map(({ id, title, url }) => (
-          <a
-            key={id}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2 text-sm flex items-center justify-center"
-            aria-label={title}
-          >
-            {icons[title]}
-          </a>
-        ))}
+      <div className="flex flex-col items-center">
+        <p className="text-gray-700">تماس با ما</p>
+        <div className="flex justify-center items-center py-3">
+          {SocialLinks.map(({ id, title, url }) => (
+            <a
+              key={id}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-2 text-sm flex items-center justify-center"
+              aria-label={title}
+            >
+              {icons[title]}
+            </a>
+          ))}
+        </div>
       </div>
       <p className="text-sm gerdFont py-2 text-center bg-gray-800/80 text-white">
         {/* © کپی رایت ۱۴۰۴ - {year}، تمامی حقوق متعلق به گروه لمیرو می باشد. © */}
