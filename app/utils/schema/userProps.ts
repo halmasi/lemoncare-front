@@ -1,5 +1,5 @@
-import { CartProps } from './shopProps/cartProps';
-import { ProductProps } from './shopProps/productProps';
+import { PostsProps } from './blogProps';
+import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
   username: string;
@@ -43,8 +43,24 @@ export interface SignInState {
   user?: string;
 }
 
+export interface AddressProps {
+  id: number;
+  address: string;
+  postCode: number;
+  firstName: string;
+  lastName: string;
+  province: string;
+  provinceCode?: number;
+  city: string;
+  cityCode?: number;
+  phoneNumber: number | string | null;
+  mobileNumber: number | string;
+  isDefault: boolean;
+}
+
 export interface FetchUserProps {
   id?: string;
+  documentId?: string;
   fullName?: string;
   email?: string;
   username?: string;
@@ -54,38 +70,46 @@ export interface FetchUserProps {
     documentId: string;
     items: CartProps[];
   };
-}
-
-export interface OrderHistoryProps {
-  id: number;
-  orderDate: string;
-  pay: object | null;
-  address: string;
-  postCode: number;
-  items: {
-    id: number;
-    count: number;
-    variety: { id: number; sub: number | null };
-    product: ProductProps;
+  postal_information: {
+    documentId: string;
+    id?: number;
+    information: AddressProps[];
+  };
+  order_history: {
+    documentId: string;
+    id?: number;
   }[];
+  favorite: FavoriteListProps;
 }
 
-interface postalInformationProps {
-  id: number;
+export interface FavoriteListProps {
   documentId: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  information: {
-    id: number;
-    address: string;
-    postCode: number;
-    firstName: string;
-    lastName: string;
+  id?: number;
+  posts?: PostsProps[];
+  products?: ProductProps[];
+}
+export interface OrderHistoryProps {
+  user: number;
+  documentId: string;
+  order: {
+    id?: number;
+    orderDate: string;
+    paymentStatus: 'pending' | 'completed' | 'canceled';
+    payMethod: 'online' | 'offline' | 'snapp';
+    shippingMethod: string;
+    shippingPrice: number;
+    orderPrice: number;
+    coupon: string | null;
+    totalPrice: number;
+    orderCode: number;
     province: string;
     city: string;
-    phoneNumber: number;
-    mobileNumber: number;
-    isDefault: boolean;
-  }[];
+    firstName: string;
+    lastName: string;
+    mobileNumber: number | string;
+    phoneNumber: number | string;
+    address: string;
+    postCode: number;
+    items: CartProps[];
+  };
 }

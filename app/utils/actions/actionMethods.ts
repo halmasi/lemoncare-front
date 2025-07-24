@@ -2,9 +2,9 @@
 
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
+import { cleanPhone } from '../miniFunctions';
 
 export const registerAction = async (
   username: string,
@@ -33,11 +33,7 @@ export const registerAction = async (
   } = {
     data: { jwt: '', user: {} },
   };
-
-  username = username.includes('9')
-    ? username.slice(username.indexOf('9'))
-    : username;
-
+  username = cleanPhone(username);
   const validationResult = registerSchema.safeParse({
     username,
     email,
@@ -51,15 +47,42 @@ export const registerAction = async (
     if (errors.password) fieldErrors.password.push(...errors.password);
   }
   if (validationResult.success) {
-    const response = await requestData('/auth/local/register', 'POST', {
-      username: '98' + validationResult.data.username,
-      email: validationResult.data.email,
-      password: validationResult.data.password,
+    const response = await requestData({
+      qs: '/auth/local/register',
+      method: 'POST',
+      body: {
+        username: '98' + validationResult.data.username,
+        email: validationResult.data.email,
+        password: validationResult.data.password,
+      },
     });
+
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
     } else {
       success = true;
+      const userId = response.data.user.id;
+
+      const requests = [
+        { url: '/carts', data: { user: userId, items: [] } },
+        // { url: '/order-histories', data: { user: userId, order: [] } },
+        {
+          url: '/postal-informations',
+          data: { user: userId, information: [] },
+        },
+        { url: '/favorites', data: { user: userId, posts: [], products: [] } },
+      ];
+
+      await Promise.all(
+        requests.map(({ url, data }) =>
+          requestData({
+            qs: url,
+            method: 'POST',
+            body: { data },
+            token: `Bearer ${response.data.jwt}`,
+          })
+        )
+      );
     }
   }
 
@@ -71,15 +94,18 @@ export const registerAction = async (
   };
 };
 
-export const signinAction = async (email: string, password: string) => {
+export const signinAction = async (identifier: string, password: string) => {
   let success = false;
 
-  const fieldErrors: { email: string[]; password: string[]; server: string[] } =
-    {
-      email: [],
-      password: [],
-      server: [],
-    };
+  const fieldErrors: {
+    identifier: string[];
+    password: string[];
+    server: string[];
+  } = {
+    identifier: [],
+    password: [],
+    server: [],
+  };
 
   let response: {
     data: {
@@ -92,24 +118,33 @@ export const signinAction = async (email: string, password: string) => {
     data: { jwt: '', user: {} },
   };
 
-  if (!email) fieldErrors.email.push('ایمیل الزامی است');
+  if (!identifier)
+    fieldErrors.identifier.push('ایمیل یا شماره تلفن الزامی است');
   if (!password) fieldErrors.password.push('رمز عبور الزامی است');
-
+  identifier = cleanPhone(identifier);
   const validationResult = loginSchema.safeParse({
-    email,
+    identifier,
     pass: password,
   });
 
   if (validationResult.error) {
     const errors = validationResult.error.flatten().fieldErrors;
-    if (errors.email) fieldErrors.email.push(...errors.email);
+    if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
     if (errors.pass) fieldErrors.password.push(...errors.pass);
   }
 
   if (validationResult.success) {
-    response = await requestData('/auth/local', 'POST', {
-      identifier: validationResult.data.email,
-      password: validationResult.data.pass,
+    if (/^9\d{9}$/.test(validationResult.data?.identifier)) {
+      validationResult.data.identifier =
+        '98' + validationResult.data.identifier;
+    }
+    response = await requestData({
+      qs: '/auth/local',
+      method: 'POST',
+      body: {
+        identifier: validationResult.data.identifier,
+        password: validationResult.data.pass,
+      },
     });
     if (response.data.error) {
       fieldErrors.server.push(response.data.error.message);
@@ -117,7 +152,6 @@ export const signinAction = async (email: string, password: string) => {
       success = true;
     }
   }
-
   return {
     success,
     jwt: response.data.jwt,
@@ -126,20 +160,9 @@ export const signinAction = async (email: string, password: string) => {
   };
 };
 
-export const googleAuthAction = async (accessToken: string) => {
-  const response = await requestData('/auth/google/callback', 'POST', {
-    access_token: accessToken,
-  });
-
-  if (response.data.error) {
-    throw new Error(response.data.error.message);
-  }
-  return response.data;
-};
-
-export const loginCheck = async (_?: string) => {
+export const loginCheck = async () => {
   const token = await getCookie('jwt');
-  const response = await requestData('/users/me', 'GET', {}, token);
+  const response = await requestData({ qs: '/users/me', method: 'GET', token });
   const data: {
     id: number;
     documentId: string;
@@ -155,6 +178,7 @@ export const loginCheck = async (_?: string) => {
   } = response.data;
   return {
     status: response.status,
+    isAuthenticated: response.status === 200,
     body: data,
     jwt: token,
   };
@@ -165,9 +189,10 @@ export const getFullUserData = async (
   populateOptions?: object[]
 ) => {
   const defaultOptions = {
-    order_history: { populate: '*' },
+    // order_history: { populate: '*' },
     shopingCart: { populate: '1' },
     postal_information: { populate: '1' },
+    favorite: { populate: '1' },
   };
   const options = populateOptions
     ? Object.assign(defaultOptions, ...populateOptions)
@@ -177,12 +202,11 @@ export const getFullUserData = async (
   });
   const token = await getCookie('jwt');
 
-  const response = await requestData(
-    `/users/me?${isDeep ? 'pLevel' : query}`,
-    'GET',
-    {},
-    `${token}`
-  );
+  const response = await requestData({
+    qs: `/users/me?${isDeep ? 'pLevel' : query}`,
+    method: 'GET',
+    token,
+  });
   return { status: response.status, body: response.data };
 };
 
@@ -193,54 +217,16 @@ export const setCookie = async (name: string, cookie: string) => {
     // secure: process.env.NODE_ENV === 'production',
   };
 
-  cookies().set(name, cookie, config);
+  (await cookies()).set(name, cookie, config);
 };
 
 export const getCookie = async (key: string) => {
-  return cookies().get(key)?.value;
+  return (await cookies()).get(key)?.value;
+};
+export const deleteCookie = async (key: string) => {
+  (await cookies()).delete(key);
 };
 
 export const logoutAction = async () => {
-  cookies().delete('jwt');
-  redirect('/login');
-};
-
-export const RunTest = async (token: string | null) => {
-  const userId = 1;
-
-  try {
-    const updateReq = await requestData(
-      `/users/${userId}`,
-      'PUT',
-      {
-        cart: [
-          {
-            id: 14,
-            count: 9,
-            // variety: {
-            // id: 1000000004,
-            // sub: null,
-            // },
-            // product: { documentId: 'ti4elghq9pj6hfckkwjd9dev' },
-          },
-        ],
-      },
-
-      `Bearer ${token}`
-    );
-    console.log('Update Response:', updateReq.data);
-
-    const fetchReq = await requestData(
-      `/users/me?populate=*`,
-      'GET',
-      {},
-      `Bearer ${token}`
-    );
-    console.log('Updated User Data:', fetchReq.data);
-
-    return { status: fetchReq.status, body: fetchReq.data };
-  } catch (error) {
-    console.error('Error in RunTest:', error);
-    return { status: 500, body: { message: 'Internal Server Error' } };
-  }
+  (await cookies()).delete('jwt');
 };

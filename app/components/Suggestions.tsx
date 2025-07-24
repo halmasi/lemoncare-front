@@ -10,8 +10,8 @@ import PostCard from './PostCard';
 import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import VarietySelector from './VarietySelector';
 import Link from 'next/link';
-import { PostsProps } from '../utils/schema/blogProps/postProps';
-import { ProductProps } from '../utils/schema/shopProps/productProps';
+import { PostsProps } from '@/app/utils/schema/blogProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 interface Props {
   posts?: PostsProps[];
@@ -101,74 +101,64 @@ export default function Suggestions({
           }}
           onSlideChange={changeSlide}
           modules={[Navigation, Scrollbar, A11y, FreeMode]}
-          className="mySwiper drop-shadow-xl"
+          className="mySwiper"
         >
-          <div>
-            {posts &&
-              posts.map((item) => {
-                return (
-                  <div key={item.documentId}>
-                    <SwiperSlide className="flex justify-center items-center">
-                      <PostCard
-                        isSlide
-                        basicInfo={item.basicInfo}
-                        category={item.category}
-                        seo={item.seo}
-                      />
-                    </SwiperSlide>
-                  </div>
-                );
-              })}
-            {products &&
-              products.map((item) => {
-                return (
-                  <div key={item.documentId}>
-                    <SwiperSlide className="flex justify-center items-center">
-                      <div className="p-2 border rounded-xl transition-shadow hover:shadow-lg">
-                        <Link
-                          className="space-y-2"
-                          href={'/shop/product/' + item.basicInfo.contentCode}
-                        >
-                          <div className="flex flex-row justify-end items-end contain-content">
-                            <Image
-                              src={item.basicInfo.mainImage.formats.medium.url}
-                              alt={
-                                item.basicInfo.mainImage.alternativeText ||
-                                item.basicInfo.mainImage.formats.medium.name
-                              }
-                              width={
-                                item.basicInfo.mainImage.formats.medium.width
-                              }
-                              height={
-                                item.basicInfo.mainImage.formats.medium.height
-                              }
-                              className="rounded-lg"
-                            />
-                            {item.variety.length > 0 && (
-                              <div className="absolute flex gap-1 px-3 py-1">
-                                {item.variety.map(
-                                  (variety) =>
-                                    variety.color && (
-                                      <div
-                                        key={variety.id}
-                                        style={{ background: variety.color }}
-                                        className="h-3 w-3 rounded-full border-white border-2"
-                                      />
-                                    )
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          <h6>{item.basicInfo.title}</h6>
-                        </Link>
-                        <VarietySelector list product={item} />
+          {posts &&
+            posts.map((item) => (
+              <SwiperSlide
+                key={item.documentId}
+                className="flex justify-center items-center"
+              >
+                <PostCard
+                  isSlide
+                  basicInfo={item.basicInfo}
+                  category={item.category}
+                  seo={item.seo}
+                />
+              </SwiperSlide>
+            ))}
+          {products &&
+            products.map((item) => (
+              <SwiperSlide
+                key={item.documentId}
+                className="flex justify-center items-center p-2 border rounded-xl"
+              >
+                <Link
+                  className="space-y-2"
+                  href={'/shop/product/' + item.basicInfo.contentCode}
+                >
+                  <div className="flex flex-row justify-end items-end contain-content">
+                    <Image
+                      src={item.basicInfo.mainImage.formats.medium.url}
+                      alt={
+                        item.basicInfo.mainImage.alternativeText ||
+                        item.basicInfo.mainImage.formats.medium.name
+                      }
+                      width={item.basicInfo.mainImage.formats.medium.width}
+                      height={item.basicInfo.mainImage.formats.medium.height}
+                      className="rounded-lg"
+                    />
+                    {item.variety.length > 0 && (
+                      <div className="absolute flex gap-1 px-3 py-1">
+                        {item.variety.map(
+                          (variety) =>
+                            variety.color && (
+                              <div
+                                key={variety.id}
+                                style={{ background: variety.color }}
+                                className="h-3 w-3 rounded-full border-white border-2"
+                              />
+                            )
+                        )}
                       </div>
-                    </SwiperSlide>
+                    )}
                   </div>
-                );
-              })}
-          </div>
+
+                  <h6>{item.basicInfo.title}</h6>
+                </Link>
+                <VarietySelector list product={item} />
+              </SwiperSlide>
+            ))}
         </Swiper>
         <div
           className={`text-sm rounded-full ml-5 ${buttonStatus.next ? 'opacity-80' : 'opacity-20'}`}

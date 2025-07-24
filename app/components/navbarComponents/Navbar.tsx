@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SearchInput from './SearchInput';
 import Logo from '@/public/lemoncareLogoForHeader.png';
 import MenuButton from './MenuButton';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -13,6 +12,7 @@ import Cart from './CartButton';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import ProfileDropDown from '../profile/ProfileDropDown';
 import { MenuProps } from '@/app/utils/schema/menuProps';
+import { Search } from '../Search';
 
 export default function Navbar({
   menuItems,
@@ -29,7 +29,6 @@ export default function Navbar({
   });
   const [scrollData, setScrollData] = useState({ y: 0, latestY: 0 });
   const [visibility, setVisibility] = useState<boolean>(true);
-  const [usersName, setUsersName] = useState('ورود / ثبت نام');
 
   const path = usePathname();
   const { user } = useDataStore();
@@ -54,20 +53,6 @@ export default function Navbar({
       setVisibility(false);
     else setVisibility(true);
   }, [scrollData]);
-
-  useEffect(() => {
-    if (user && user.fullName) {
-      setUsersName(user.fullName);
-    } else {
-      const storedUser = localStorage.getItem('user-store');
-      const parsedUser = storedUser && JSON.parse(storedUser).state;
-      setUsersName(() => {
-        if (parsedUser && parsedUser.user && parsedUser.jwt)
-          return parsedUser.user.fullName;
-        return 'ورود / ثبت نام';
-      });
-    }
-  }, [user]);
 
   return (
     <>
@@ -99,8 +84,8 @@ export default function Navbar({
               />
               <Link onClick={() => setMenuState(false)} href="/">
                 <Image
-                  width={Logo.width}
-                  height={Logo.height}
+                  width={100}
+                  height={100}
                   src={Logo.src}
                   alt="LemonCare Logo"
                   className="h-10 w-auto drop-shadow-lg"
@@ -121,7 +106,7 @@ export default function Navbar({
                 ease: 'easeInOut',
               }}
             >
-              <SearchInput />
+              <Search />
               <div className="flex flex-col w-full h-[80svh] space-y-5 overflow-scroll">
                 {menuItems &&
                   menuItems.map((item) => {
@@ -200,8 +185,8 @@ export default function Navbar({
             <div className="w-2/12">
               <Link className="w-fit inline-block" href="/">
                 <Image
-                  width={Logo.width}
-                  height={Logo.height}
+                  width={100}
+                  height={100}
                   src={Logo.src}
                   alt="LemonCare Logo"
                   className="h-10 w-auto drop-shadow-lg"
@@ -295,11 +280,11 @@ export default function Navbar({
           </div>
           <div className="w-full max-w-screen-xl px-20 hidden md:flex items-center justify-between gap-2">
             <div className="w-9/12 px-10">
-              <SearchInput />
+              <Search />
             </div>
             <div className="flex w-3/12 items-center gap-3">
               <div className="">
-                <ProfileDropDown usersName={usersName} />
+                <ProfileDropDown />
               </div>
               <p>|</p>
               <Cart />

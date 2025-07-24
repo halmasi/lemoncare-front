@@ -1,10 +1,14 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
-    .nonempty('لطفا ایمیل را وارد کنید')
-    .email('آدرس ایمیل را دوباره بررسی کنید'),
+    .nonempty('ایمیل یا شماره تلفن الزامی است')
+    .refine(
+      (val) =>
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(val) || /^9\d{9}$/.test(val),
+      'ایمیل یا شماره تلفن وارد شده معتبر نیست'
+    ),
   pass: z
     .string()
     .min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
@@ -34,4 +38,18 @@ export const registerSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$/,
       'رمز عبور باید شامل حروف بزرگ، کوچک، عدد و کاراکتر خاص باشد'
     ),
+});
+export const updateUserInformationSchema = z.object({
+  fullName: z
+    .string()
+    .min(3, 'نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد')
+    .max(50, 'نام و نام خانوادگی نباید بیشتر از ۵۰ کاراکتر باشد')
+    .optional(),
+
+  email: z.string().email('آدرس ایمیل معتبر نیست').optional(),
+
+  username: z
+    .string()
+    .regex(/^9\d{9}$/, 'شماره تلفن معتبر نیست')
+    .optional(),
 });

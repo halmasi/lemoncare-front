@@ -1,5 +1,5 @@
 import { getCategories } from '@/app/utils/data/getCategories';
-import { CategoriesProps } from '../utils/schema/blogProps/tagsAndCategoryProps';
+import { CategoriesProps } from '@/app/utils/schema/blogProps';
 
 export default async function generateSitemap() {
   const categories = await getCategories();

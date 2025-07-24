@@ -22,15 +22,17 @@ const getPage = cache(async function (slug: string) {
     populate: '*',
   });
 
-  const apiData: SinglePageProps[] = await dataFetch(`/single-pages?${query}`);
-  return apiData[0];
+  const res = await dataFetch({
+    qs: `/single-pages?${query}`,
+  });
+  const apiData: SinglePageProps = res.data[0];
+  return apiData;
 });
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
 
   const post = await getPage(slug);
@@ -63,11 +65,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function SinglePage({
-  params,
-}: {
-  params: { slug: string };
+export default async function SinglePage(props0: {
+  params: Promise<{ slug: string }>;
 }) {
+  const params = await props0.params;
   const { slug } = params;
   const content: SinglePageProps = await getPage(slug);
 

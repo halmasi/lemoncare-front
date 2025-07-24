@@ -2,7 +2,10 @@ import { FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import SvgLogo from '@/public/logo.svg';
-import { FooteritemsProps, SocialLinksProps } from '../utils/schema/menuProps';
+import {
+  FooteritemsProps,
+  SocialLinksProps,
+} from '@/app/utils/schema/menuProps';
 
 export default function Footer({
   FooterMenu,
