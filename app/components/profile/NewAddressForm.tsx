@@ -142,7 +142,10 @@ export default function NewAddressForm({
             if (item == addressesArray[0]) {
               return item;
             }
-            return { ...item, isDefault: false };
+            return {
+              ...item,
+              isDefault: defaultAddress ? false : item.isDefault,
+            };
           });
           editedAddresses = [...addresses];
         }
