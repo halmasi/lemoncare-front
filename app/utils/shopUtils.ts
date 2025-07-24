@@ -23,41 +23,44 @@ export const varietyFinder = (
   };
   if (variety.sub) {
     product.variety.forEach((item) => {
-      if (item.uniqueId == variety.id) {
+      if (item.uniqueId == variety.id && item) {
         const subItem = item.subVariety.find(
           (sub) => sub.uniqueId == variety.sub
         );
-        value = {
-          specification:
-            item.specification + ' | ' + subItem?.specification || '',
-          color:
-            subItem?.color == '#000000'
-              ? item?.color == '#000000'
-                ? ''
-                : item?.color
-              : subItem?.color || '',
-          priceBefforDiscount: subItem?.priceBefforDiscount || 0,
-          mainPrice: subItem?.mainPrice || 0,
-          inventory: subItem?.inventory || 0,
-          endOfDiscount:
-            subItem && subItem.endOfDiscount
-              ? new Date(subItem.endOfDiscount).getTime()
-              : 0,
-        };
+        if (subItem)
+          value = {
+            specification:
+              item.specification + ' | ' + subItem?.specification || '',
+            color:
+              subItem?.color == '#000000'
+                ? item.color == '#000000'
+                  ? ''
+                  : item.color
+                : subItem?.color || '',
+            priceBefforDiscount: subItem?.priceBefforDiscount || 0,
+            mainPrice: subItem?.mainPrice || 0,
+            inventory: subItem?.inventory || 0,
+            endOfDiscount:
+              subItem && subItem.endOfDiscount
+                ? new Date(subItem.endOfDiscount).getTime()
+                : 0,
+          };
       }
     });
-    return value;
   } else {
     const item = product.variety.find((i) => i.uniqueId == variety.id);
-    value = {
-      color: item?.color == '#000000' ? '' : item?.color || '',
-      inventory: item?.inventory || 0,
-      mainPrice: item?.mainPrice || 0,
-      priceBefforDiscount: item?.priceBeforeDiscount || 0,
-      specification: item?.specification || '',
-      endOfDiscount:
-        item && item.endOfDiscount ? new Date(item.endOfDiscount).getTime() : 0,
-    };
+    if (item)
+      value = {
+        color: item.color == '#000000' ? '' : item.color || '',
+        inventory: item.inventory || 0,
+        mainPrice: item.mainPrice || 0,
+        priceBefforDiscount: item.priceBeforeDiscount || 0,
+        specification: item.specification || '',
+        endOfDiscount:
+          item && item.endOfDiscount
+            ? new Date(item.endOfDiscount).getTime()
+            : 0,
+      };
   }
   return value;
 };
@@ -137,7 +140,6 @@ export const cartProductSelector = async (
 
 export const orderHistoryIdMaker = async (): Promise<number> => {
   const orderId: number = parseInt((Math.random() * 10000000000).toFixed(0));
-
   const queryPost = qs.stringify({
     filters: {
       order: {

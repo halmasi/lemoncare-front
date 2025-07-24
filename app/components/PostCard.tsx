@@ -42,7 +42,7 @@ export default function PostCard({
     if (categoryUrl) {
       setCategoryFetchUrl(categoryUrl);
     } else {
-      getCategoryFn.mutateAsync();
+      getCategoryFn.mutate();
     }
   }, []);
 

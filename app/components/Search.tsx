@@ -50,7 +50,7 @@ export function Search() {
 
   useEffect(() => {
     if (param) {
-      searchFn.mutateAsync();
+      searchFn.mutate();
     }
   }, [param]);
 
@@ -80,7 +80,7 @@ export function Search() {
         };
       }}
     >
-      <div className="flex flex-row justify-stretch w-full">
+      <div className="flex flex-row justify-stretch w-full rounded-lg border overflow-hidden">
         <div className="w-full">
           <InputBox
             type="text"
@@ -88,19 +88,19 @@ export function Search() {
             onChange={(e) => handleSearch(e.target.value)}
             ref={inputRef}
             name={'search'}
-            className="hidden md:flex rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
+            className="hidden md:flex border-0 focus:ring-0 focus:outline-none"
           />
           <InputBox
             type="text"
             placeholder="جستجو مقاله و محصول"
             ref={inputRef}
             name={'search'}
-            className="flex md:hidden rounded-l-none border-l-0 focus:ring-0 focus:outline-none"
+            className="flex md:hidden border-0 focus:ring-0 focus:outline-none"
           />
         </div>
 
         <SubmitButton
-          className="w-fit bg-white hover:bg-gray-50 border rounded-r-none border-r-0 drop-shadow-none text-foreground/80 hover:text-foreground"
+          className="w-fit flex items-center justify-center bg-white hover:bg-gray-50 border-0 border-r rounded-none drop-shadow-none text-foreground/80 hover:text-foreground"
           onClick={() => {
             // redirect
             push(`/search/?s-query=${inputRef.current?.value}&s-page=1`);
@@ -134,44 +134,50 @@ export function Search() {
             ) : postData?.length || productData?.length ? (
               <div>
                 <div>
-                  {postData?.map((item) => (
-                    <Link
-                      href={`/blog/posts/${item.basicInfo.contentCode}`}
-                      key={item.id}
-                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
-                    >
-                      <p>{item.basicInfo.title}</p>
-                      <Image
-                        src={item.basicInfo.mainImage.formats.thumbnail.url}
-                        alt={item.basicInfo.title}
-                        width={item.basicInfo.mainImage.formats.thumbnail.width}
-                        height={
-                          item.basicInfo.mainImage.formats.thumbnail.height
-                        }
-                        className="w-32 object-contain rounded-lg"
-                      ></Image>
-                    </Link>
-                  ))}
+                  {postData &&
+                    postData.map((item) => (
+                      <Link
+                        href={`/blog/posts/${item.basicInfo.contentCode}`}
+                        key={item.id}
+                        className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                      >
+                        <p>{item.basicInfo.title}</p>
+                        <Image
+                          src={item.basicInfo.mainImage.formats.thumbnail.url}
+                          alt={item.basicInfo.title}
+                          width={
+                            item.basicInfo.mainImage.formats.thumbnail.width
+                          }
+                          height={
+                            item.basicInfo.mainImage.formats.thumbnail.height
+                          }
+                          className="w-32 object-contain rounded-lg"
+                        ></Image>
+                      </Link>
+                    ))}
                 </div>
                 <div>
-                  {productData?.map((item) => (
-                    <Link
-                      href={`/shop/product/${item.basicInfo.contentCode}`}
-                      key={item.id}
-                      className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
-                    >
-                      <p>{item.basicInfo.title}</p>
-                      <Image
-                        src={item.basicInfo.mainImage.formats.thumbnail.url}
-                        alt={item.basicInfo.title}
-                        width={item.basicInfo.mainImage.formats.thumbnail.width}
-                        height={
-                          item.basicInfo.mainImage.formats.thumbnail.height
-                        }
-                        className="w-32 object-contain rounded-lg"
-                      ></Image>
-                    </Link>
-                  ))}
+                  {productData &&
+                    productData.map((item) => (
+                      <Link
+                        href={`/shop/product/${item.basicInfo.contentCode}`}
+                        key={item.id}
+                        className="flex flex-row items-center justify-between p-2 border-b border-gray-200"
+                      >
+                        <p>{item.basicInfo.title}</p>
+                        <Image
+                          src={item.basicInfo.mainImage.formats.thumbnail.url}
+                          alt={item.basicInfo.title}
+                          width={
+                            item.basicInfo.mainImage.formats.thumbnail.width
+                          }
+                          height={
+                            item.basicInfo.mainImage.formats.thumbnail.height
+                          }
+                          className="w-32 object-contain rounded-lg"
+                        ></Image>
+                      </Link>
+                    ))}
                 </div>
               </div>
             ) : (

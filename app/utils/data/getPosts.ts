@@ -27,7 +27,7 @@ export const getPosts = cache(async function ({
     },
     pagination: { page, pageSize },
   });
-  let link = '/posts?' + query;
+  const link = '/posts?' + query;
 
   const fetchData = await dataFetch({
     qs: link,
@@ -95,12 +95,14 @@ export const getCategoryHierarchy = cache(async function (
 export const getPostsByCategory = cache(async function ({
   category,
   tag,
+  isSiteMap = false,
   page = 1,
   pageSize = 10,
 }: {
   category: CategoriesProps;
   tag?: string[];
   page?: number;
+  isSiteMap?: boolean;
   pageSize?: number;
 }) {
   if (!category) return;
@@ -128,11 +130,15 @@ export const getPostsByCategory = cache(async function ({
       basicInfo: { populate: '*' },
       category: { populate: '*' },
     },
-    pagination: {
-      page,
-      pageSize,
-    },
   });
+  if (!isSiteMap) {
+    Object.assign(query, {
+      pagination: {
+        page,
+        pageSize,
+      },
+    });
+  }
   const fetchData = await dataFetch({
     qs: `/posts?${query}&sort[0]=createdAt:desc`,
     tag,

@@ -48,7 +48,7 @@ function AddButton({
 
   const [count, setCount] = useState(1);
 
-  if (cart) {
+  if (cart && cart.length > 0) {
     const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
@@ -59,6 +59,7 @@ function AddButton({
       return (
         <SubmitButton
           key={count}
+          className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
           onClick={() => {
             setCount(1);
             handleAddToCart({
@@ -94,6 +95,7 @@ function AddButton({
   } else {
     return (
       <SubmitButton
+        className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
         onClick={() => {
           handleAddToCart({
             count: 1,
@@ -115,11 +117,13 @@ function AddButton({
 export default function VarietySelector({
   product,
   list,
+  showDiscount = true,
 }: {
   product: ProductProps;
   list?: boolean;
+  showDiscount?: boolean;
 }) {
-  const { user, jwt } = useDataStore();
+  const { user } = useDataStore();
   const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
 
   const [selected, setSelected] = useState<{
@@ -200,7 +204,8 @@ export default function VarietySelector({
       }
     },
     onSuccess: (data) => {
-      if (!data) setCart(data.data.items);
+      if (!data || !data.data || !data.data.items) return;
+      setCart(data.data.items);
     },
     onError: () => {
       toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
@@ -216,7 +221,7 @@ export default function VarietySelector({
     },
     onSuccess: async (data) => {
       if (!data || !user) return;
-      getCartFn.mutateAsync();
+      getCartFn.mutate();
     },
     onError: async (error) => {
       toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
@@ -229,11 +234,11 @@ export default function VarietySelector({
       const list = await cartProductSetter(newItem.id, cartProducts);
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
-      if (!cart) newCart = [{ ...newItem, product, id }];
-      else {
+      if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
+      else if (cart.length) {
         if (user) {
           newCart = [...cart, { ...newItem, product, id }];
-          addToCartFn.mutateAsync(newItem);
+          addToCartFn.mutate(newItem);
         } else {
           const found = cart.find((item) => {
             return (
@@ -291,7 +296,7 @@ export default function VarietySelector({
           <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
-              handleAddToCart={addToCartHandler.mutateAsync}
+              handleAddToCart={addToCartHandler.mutate}
               isPending={
                 addToCartFn.isPending || addToCartHandler.isPending
                 // ||
@@ -302,7 +307,7 @@ export default function VarietySelector({
               selected={selected}
             />
           </div>
-          {price.end && <DiscountTimer end={price.end} />}
+          {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
@@ -343,7 +348,7 @@ export default function VarietySelector({
                 {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
               </h6>
             </Toman>
-            {price.end && <DiscountTimer end={price.end} />}
+            {price.end && showDiscount && <DiscountTimer end={price.end} />}
           </>
         ) : (
           <div>
@@ -409,7 +414,7 @@ export default function VarietySelector({
       </div>
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
-        handleAddToCart={addToCartHandler.mutateAsync}
+        handleAddToCart={addToCartHandler.mutate}
         isPending={
           addToCartFn.isPending ||
           price.inventory < 1 ||

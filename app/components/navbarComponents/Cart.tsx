@@ -7,9 +7,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Count from './Count';
 import { useDataStore } from '@/app/utils/states/useUserdata';
-import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
+import {
+  getCart,
+  updateCart,
+  updateCartOnLogin,
+} from '@/app/utils/actions/cartActionMethods';
 import { useRouter } from 'next/navigation';
-import { getFullUserData } from '@/app/utils/actions/actionMethods';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { cartProductSetter } from '@/app/utils/shopUtils';
@@ -24,7 +27,7 @@ export default function Cart({
   priceAmount?: (main: number, before: number) => void;
 }) {
   const { cart, setCart, cartProducts, setCartProducts } = useCartStore();
-  const { user, jwt, setUser } = useDataStore();
+  const { user, jwt, loginProcces, setLoginProcces } = useDataStore();
 
   const route = useRouter();
 
@@ -35,12 +38,28 @@ export default function Cart({
   const [count, setCount] = useState(0);
 
   const getCartFn = useMutation({
-    mutationFn: async ({ id }: { id: string }) => {
-      const cart = await getCart(id);
-      return cart;
+    mutationFn: async ({
+      id,
+      login = false,
+    }: {
+      id: string;
+      login?: boolean;
+    }) => {
+      const cartData = await getCart(id);
+      if (!cartData || !cartData.data) {
+        return { cartData: cartData.data, login };
+      }
     },
     onSuccess: (data) => {
-      setCart(data.data.items);
+      if (!data || !data.cartData) return;
+      const { cartData, login } = data;
+      if (login && user && cartData && cartData.items) {
+        handleCartFn.mutate({
+          fetchedCart: cartData.items,
+          id: user.shopingCart.documentId,
+        });
+        setLoginProcces(false);
+      } else setCart(cartData.items);
     },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
@@ -57,9 +76,65 @@ export default function Cart({
     }) => {
       await updateCart(cart, cartId);
     },
-    onSuccess: async (data) => {},
+    onSuccess: async () => {},
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
+    },
+  });
+
+  const updateCartOnLoginFn = useMutation({
+    mutationFn: async ({
+      newCart,
+      id,
+    }: {
+      newCart: CartProps[];
+      id: string;
+    }) => {
+      const updateCart = newCart.map((item) => {
+        return {
+          count: item.count,
+          product: item.product.documentId,
+          variety: item.variety,
+        };
+      });
+      await updateCartOnLogin(updateCart, id);
+      const res = await getCart(id);
+      return res.data;
+    },
+    onSuccess: async (data) => {
+      if (!data) return;
+      setCart(data.items);
+    },
+    onError: (error: { message: string[] }) => {
+      throw new Error('خطا : ' + error.message);
+    },
+  });
+
+  const handleCartFn = useMutation({
+    mutationFn: async ({
+      fetchedCart,
+      id,
+    }: {
+      fetchedCart: CartProps[];
+      id: string;
+    }) => {
+      if (fetchedCart.length && cart) {
+        const cartMap = new Map<string, CartProps>();
+        [...fetchedCart, ...cart].forEach((item) => {
+          const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
+          cartMap.set(key, item);
+        });
+        const deduplicatedCart = Array.from(cartMap.values());
+        updateCartOnLoginFn.mutate({ newCart: deduplicatedCart, id });
+      } else if (fetchedCart.length && !cart) {
+        setCart(fetchedCart);
+      } else if (!fetchedCart.length && cart) {
+        updateCartOnLoginFn.mutate({ newCart: cart, id });
+      }
+    },
+    onSuccess: async () => {},
+    onError: (error: { message: string[] }) => {
+      throw new Error('خطا : ' + error.message);
     },
   });
 
@@ -71,13 +146,15 @@ export default function Cart({
 
   useEffect(() => {
     if (user && jwt && user.shopingCart)
-      getCartFn.mutateAsync({ id: user.shopingCart.documentId });
-  }, []);
+      if (loginProcces) {
+        getCartFn.mutate({
+          id: user.shopingCart.documentId,
+          login: true,
+        });
+      } else getCartFn.mutate({ id: user.shopingCart.documentId });
+  }, [jwt, loginProcces]);
 
   useEffect(() => {
-    if (user && user.cart && cart.length != user.cart.length)
-      updateCartFn.mutateAsync({ cart, cartId: user.shopingCart.documentId });
-
     if (!cart || !cart.length) {
       setShowCart(false);
     } else {
@@ -168,11 +245,11 @@ export default function Cart({
                     refreshFunction={(newCount) => {
                       if (user && user.shopingCart.documentId)
                         if (newCount <= 0)
-                          getCartFn.mutateAsync({
+                          getCartFn.mutate({
                             id: user.shopingCart.documentId,
                           });
                         else
-                          updateCartFn.mutateAsync({
+                          updateCartFn.mutate({
                             cart,
                             cartId: user.shopingCart.documentId,
                           });

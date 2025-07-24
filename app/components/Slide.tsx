@@ -55,7 +55,7 @@ export default function Slide({
   useEffect(() => {
     if (slug) {
       setIsLoading(true);
-      getSlideFn.mutateAsync();
+      getSlideFn.mutate();
     } else setIsLoading(false);
 
     setButtonStatus({
@@ -132,22 +132,24 @@ export default function Slide({
           className="mySwiper w-[90vw] self-center flex items-center justify-center rounded-xl overflow-hidden"
         >
           <div className="flex justify-center">
-            {media.map((item) => (
-              <SwiperSlide key={item.media.id}>
-                <Link href={item.link}>
-                  {item.media.height && item.media.width && (
-                    <Image
-                      src={item.media.url}
-                      alt=""
-                      height={item.media.height}
-                      width={item.media.width}
-                      priority
-                      className="w-full md:max-h-[50svh] aspect-video object-cover rounded-xl"
-                    />
-                  )}
-                </Link>
-              </SwiperSlide>
-            ))}
+            {media &&
+              media.length > 0 &&
+              media.map((item) => (
+                <SwiperSlide key={item.media.id}>
+                  <Link href={item.link}>
+                    {item.media.height && item.media.width && (
+                      <Image
+                        src={item.media.url}
+                        alt=""
+                        height={item.media.height}
+                        width={item.media.width}
+                        priority
+                        className="w-full md:max-h-[50svh] aspect-video object-cover rounded-xl"
+                      />
+                    )}
+                  </Link>
+                </SwiperSlide>
+              ))}
           </div>
         </Swiper>
       </div>

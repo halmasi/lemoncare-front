@@ -65,7 +65,7 @@ export const getProducts = cache(async function ({
       pageSize,
     },
   });
-  let link = '/products?' + query;
+  const link = '/products?' + query;
   const result = await dataFetch({
     qs: link,
     tag,

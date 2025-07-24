@@ -241,12 +241,13 @@ export async function POST(request: NextRequest) {
           updatedAt: string;
           publishedAt: string;
         }[] = res.data;
-        carts.map(async (item) => {
-          await dataFetch({
-            qs: `/carts/${item.documentId}`,
-            method: 'DELETE',
+        if (carts.length != 0)
+          carts.map(async (item) => {
+            await dataFetch({
+              qs: `/carts/${item.documentId}`,
+              method: 'DELETE',
+            });
           });
-        });
       })();
       break;
 

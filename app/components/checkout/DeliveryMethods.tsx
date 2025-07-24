@@ -1,10 +1,12 @@
+'use client';
+
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import PostLogo from '@/public/iranPost.svg';
-import ChaparLogo from '@/public/chapar.svg';
+// import ChaparLogo from '@/public/chapar.svg';
 import TipaxLogo from '@/public/tipax.svg';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';
@@ -55,7 +57,7 @@ export default function DeliveryMethods({
     useCheckoutStore();
 
   useEffect(() => {
-    getMethodsFn.mutateAsync();
+    getMethodsFn.mutate();
   }, []);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function DeliveryMethods({
     if (selected && checkoutAddress && checkoutAddress.cityCode) {
       setError('');
       setShippingPrice(-1);
-      getPriceFn.mutateAsync(checkoutAddress.cityCode);
+      getPriceFn.mutate(checkoutAddress.cityCode);
       setShippingOption({
         courier_code: selected.courierCode,
         service_type: selected.courierServiceCode,
@@ -80,31 +82,46 @@ export default function DeliveryMethods({
 
   const getMethodsFn = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/checkout');
+      const res = await fetch('/api/checkout', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       const data: GetMethodsProps = await res.json();
       return data;
     },
     onSuccess: (data) => {
-      if (data.isSuccess && data.data[0].courierCode) {
-        data.data.map((item) => {
-          if (
-            (item.courierCode == 'IR_POST' ||
-              // item.courierCode == 'CHAPAR' ||
-              item.courierCode == 'TIPAX') &&
-            item.courierServiceCode != 'CERTIFIED'
-          ) {
-            setCourier((prev) => {
-              const copy = prev;
-              copy.push(item);
-              return copy;
-            });
-          }
-        });
-      } else toast.warn('خطا در دریافت روش های ارسال');
+      if (
+        !data ||
+        !data.isSuccess ||
+        !data.data ||
+        data.data.length <= 0 ||
+        !data.data[0].courierCode
+      ) {
+        toast.warn('خطا در دریافت روش های ارسال');
+        return;
+      }
+      data.data.map((item) => {
+        if (
+          (item.courierCode == 'IR_POST' ||
+            // item.courierCode == 'CHAPAR' ||
+            item.courierCode == 'TIPAX') &&
+          item.courierServiceCode != 'CERTIFIED'
+        ) {
+          setCourier((prev) => {
+            const copy = prev;
+            copy.push(item);
+            return copy;
+          });
+        }
+      });
     },
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');
     },
+    retry: 5,
+    retryDelay: 1000,
   });
   const getPriceFn = useMutation({
     mutationFn: async (cityCode: number) => {
@@ -149,42 +166,45 @@ export default function DeliveryMethods({
       </div>
     );
 
-  return (
-    <div key={courier.length}>
-      <p className="text-red-700">{error}</p>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {courier.map((item, index) => (
-          <RadioButton
-            key={index}
-            id={item.courierCode}
-            onClick={() => {
-              setSelected(item);
-            }}
-            isSelected={selected == item}
-            className="flex-col items-center h-52 w-52 aspect-square gap-2 rounded-2xl"
-          >
-            <div className="flex flex-col w-full justify-between items-center h-[80%]">
-              <Image
-                src={
-                  item.courierCode == 'IR_POST'
-                    ? PostLogo
-                    : // : item.courierCode == 'CHAPAR'
-                      //   ? ChaparLogo.src
-                      TipaxLogo.src
-                }
-                alt={item.courierName}
-                width={50}
-                height={50}
-                className={`w-[65%] h-[65%]`}
-              />
-              <div className="flex flex-col h-fit text-center rounded-xl bg-foreground/10 w-full text-foreground font-bold">
-                <p className="text-xs text-accent-green">{item.courierName}</p>
-                <p>{item.courierServiceName}</p>
+  if (courier && courier.length != 0)
+    return (
+      <div key={courier.length}>
+        <p className="text-red-700">{error}</p>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {courier.map((item, index) => (
+            <RadioButton
+              key={index}
+              id={item.courierCode}
+              onClick={() => {
+                setSelected(item);
+              }}
+              isSelected={selected == item}
+              className="flex-col items-center h-52 w-52 aspect-square gap-2 rounded-2xl"
+            >
+              <div className="flex flex-col w-full justify-between items-center h-[80%]">
+                <Image
+                  src={
+                    item.courierCode == 'IR_POST'
+                      ? PostLogo
+                      : // : item.courierCode == 'CHAPAR'
+                        //   ? ChaparLogo.src
+                        TipaxLogo.src
+                  }
+                  alt={item.courierName}
+                  width={50}
+                  height={50}
+                  className={`w-[65%] h-[65%]`}
+                />
+                <div className="flex flex-col h-fit text-center rounded-xl bg-foreground/10 w-full text-foreground font-bold">
+                  <p className="text-xs text-accent-green">
+                    {item.courierName}
+                  </p>
+                  <p>{item.courierServiceName}</p>
+                </div>
               </div>
-            </div>
-          </RadioButton>
-        ))}
+            </RadioButton>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
 }
