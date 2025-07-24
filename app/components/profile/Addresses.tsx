@@ -72,10 +72,9 @@ export default function Addresses() {
 
   const updateAddressesFn = useMutation({
     mutationFn: async ({ data }: { data: AddressProps[] }) => {
-      if (!user) return;
       const res = await updatePostalInformation(
         data,
-        user.postal_information.documentId
+        user!.postal_information.documentId
       );
       return res;
     },
@@ -88,12 +87,8 @@ export default function Addresses() {
     },
   });
 
-  const getUserAddresses = (documentId: string) => {
-    getAddressFn.mutate(documentId);
-  };
-
   useEffect(() => {
-    if (addresses && addresses.length)
+    if (addresses && Array.isArray(addresses) && addresses.length)
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
@@ -116,7 +111,7 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    if (user && addresses && addresses.length) {
+    if (user && addresses && Array.isArray(addresses) && addresses.length) {
       const defaultAddress = addresses.find((item) => item.isDefault);
       if (defaultAddress) {
         setSelectedAddress((prevSelectedAddress) => {
@@ -147,30 +142,32 @@ export default function Addresses() {
   }, [addresses]);
 
   useEffect(() => {
-    const selectedAddressData = addresses.find(
-      (item) => item.id == selectedAddress
-    );
-    if (selectedAddressData) {
-      const province = states.find((state) => {
-        return state.name == selectedAddressData.province;
-      });
-      const city = province?.cities.find((city) => {
-        return city.name == selectedAddressData.city;
-      });
-      if (city) {
-        setCheckoutAddress({
-          ...selectedAddressData,
-          cityCode: city.id,
+    if (addresses && Array.isArray(addresses) && addresses.length) {
+      const selectedAddressData = addresses.find(
+        (item) => item.id == selectedAddress
+      );
+      if (selectedAddressData) {
+        const province = states.find((state) => {
+          return state.name == selectedAddressData.province;
         });
-      } else {
-        setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+        const city = province?.cities.find((city) => {
+          return city.name == selectedAddressData.city;
+        });
+        if (city) {
+          setCheckoutAddress({
+            ...selectedAddressData,
+            cityCode: city.id,
+          });
+        } else {
+          setCheckoutAddress({ ...selectedAddressData, cityCode: 0 });
+        }
       }
     }
   }, [selectedAddress]);
 
   useEffect(() => {
     if (user && user.postal_information) {
-      getUserAddresses(user.postal_information.documentId);
+      getAddressFn.mutate(user.postal_information.documentId);
       setShowTextBox(false);
     } else if (checkoutAddress) {
       setAddresses([checkoutAddress]);
@@ -191,8 +188,6 @@ export default function Addresses() {
         <LoadingAnimation />
       </div>
     );
-
-  if (!user) return <></>;
 
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>

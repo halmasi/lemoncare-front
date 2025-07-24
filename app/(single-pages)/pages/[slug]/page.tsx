@@ -1,5 +1,6 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
+import Title from '@/app/components/Title';
 import { dataFetch } from '@/app/utils/data/dataFetch';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 import { Metadata } from 'next';
@@ -75,9 +76,13 @@ export default async function SinglePage(props0: {
   if (!content) return notFound();
   return (
     <MainSection>
-      <h1>{content.title}</h1>
+      <Title underLineClass="bg-accent-pink" className="mb-10">
+        <h2>{content.title}</h2>
+      </Title>
       {content.content.map((item: ContentProps, index: number) => (
-        <Content key={index} props={item} />
+        <section key={index}>
+          <Content props={item} />
+        </section>
       ))}
     </MainSection>
   );
