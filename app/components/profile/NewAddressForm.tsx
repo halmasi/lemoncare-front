@@ -71,7 +71,6 @@ export default function NewAddressForm({
       mobile,
       firstName,
       lastName,
-      isDefault,
     }: {
       province: string;
       city: string;
@@ -81,7 +80,6 @@ export default function NewAddressForm({
       mobile: string;
       firstName: string;
       lastName: string;
-      isDefault: boolean;
     }) => {
       mobile = cleanPhone(mobile);
       const isValid = addressSchema.safeParse({
@@ -260,7 +258,6 @@ export default function NewAddressForm({
         postCode,
         phone,
         mobile,
-        isDefault: defaultAddress,
       });
     },
     [submitFn, defaultAddress]

@@ -4,7 +4,7 @@ import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Title from '@/app/components/Title';
 import { emptyCart } from '@/app/utils/actions/cartActionMethods';
 import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
-import { getPaymentToken, redirectToSizPay } from '@/app/utils/paymentUtils';
+import { getPaymentToken } from '@/app/utils/paymentUtils';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
@@ -16,9 +16,51 @@ import { BiCopy } from 'react-icons/bi';
 import { VscLoading } from 'react-icons/vsc';
 import { toast } from 'react-toastify';
 
+function SizPayRedirect({ token }: { token: string }) {
+  useEffect(() => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://rt.sizpay.ir/Route/Payment';
+
+    const ParamEntries = {
+      MerchantID: process.env.SIZPAY_MERCHANT_ID || '',
+      TerminalID: process.env.SIZPAY_TERMINAL_ID || '',
+      Token: token,
+    };
+
+    Object.entries(ParamEntries).forEach(([key, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  }, [token]);
+
+  return (
+    <>
+      <LoadingComponent />
+    </>
+  );
+}
+
+function LoadingComponent() {
+  return (
+    <div className="flex flex-col items-center justify-start w-full">
+      <LoadingAnimation />
+      <p>در حال انتقال به درگاه پرداخت</p>
+      <p>لطفا منتظر بمانید</p>
+    </div>
+  );
+}
+
 export default function GatePage() {
   const [orderInfo, setOrderInfo] = useState<OrderHistoryProps>();
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [Token, setToken] = useState<string>();
 
   const {
     paymentOption,
@@ -74,14 +116,13 @@ export default function GatePage() {
       }
     },
     onSuccess: async (data) => {
-      if (!data || !(data.ResCod == '0' || data.ResCod == '00')) {
+      if (!data || !(data.ResCod == 0 || data.ResCod == parseInt('00'))) {
         toast.error('خطا در انتقال به درگاه پرداخت');
         return;
       }
-      // const message = data.Message;
       setOrderHistoryCheckout(false);
       const Token = data.Token;
-      await redirectToSizPay(Token);
+      setToken(Token);
     },
     onError: (err) => {
       toast.error('خطا در انتقال به درگاه پرداخت');
@@ -103,11 +144,7 @@ export default function GatePage() {
 
   if (paymentOption == 'online')
     return (
-      <div className="flex flex-col items-center justify-start w-full">
-        <LoadingAnimation />
-        <p>در حال انتقال به درگاه پرداخت</p>
-        <p>لطفا منتظر بمانید</p>
-      </div>
+      <>{Token ? <SizPayRedirect token={Token} /> : <LoadingComponent />}</>
     );
   if (paymentOption == 'offline')
     return (
