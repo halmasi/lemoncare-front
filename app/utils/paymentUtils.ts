@@ -36,7 +36,7 @@ export const getPaymentToken = async ({
           })
         ),
         OrderID: orderInfo.order.orderCode,
-        ReturnURL: `${process.env.SITE_URL}/cart/checkout/callback`,
+        ReturnURL: `${process.env.SITE_URL}/api/checkout/callback`,
         ExtraInf: '',
         InvoiceNo: orderInfo.order.orderCode,
         AppExtraInf: {

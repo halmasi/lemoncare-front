@@ -76,7 +76,6 @@ export const lowestPrice = (product: ProductProps | cartProductsProps) => {
   } = { id: null, sub: null, uid: 0, usub: null, price: 0 };
 
   product.variety.map((item) => {
-    console.log(item);
     if (item.subVariety.length) {
       item.subVariety.map((sub) => {
         if (sub.mainPrice < lessPrice.price || !lessPrice.price) {

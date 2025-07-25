@@ -69,7 +69,6 @@ export default function OrderHistoryCard({
                           item.mainPrice
                         ) {
                           offer += item.beforePrice - item.mainPrice;
-                          console.log(item.beforePrice - item.mainPrice);
                         }
                       });
                       return (
