@@ -54,7 +54,7 @@ export interface AddressProps {
   provinceCode?: number;
   city: string;
   cityCode?: number;
-  phoneNumber: number | string | null;
+  phoneNumber?: number | string | null;
   mobileNumber: number | string;
   isDefault: boolean;
 }

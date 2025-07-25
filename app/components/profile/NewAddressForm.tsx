@@ -67,8 +67,8 @@ export default function NewAddressForm({
       city,
       address,
       postCode,
-      phone,
-      mobile,
+      phoneNumber,
+      mobileNumber,
       firstName,
       lastName,
     }: {
@@ -76,22 +76,22 @@ export default function NewAddressForm({
       city: string;
       address: string;
       postCode: number;
-      phone: number;
-      mobile: string;
+      phoneNumber?: number;
+      mobileNumber: string;
       firstName: string;
       lastName: string;
     }) => {
-      mobile = cleanPhone(mobile);
-      const isValid = addressSchema.safeParse({
+      const fields = {
         province,
         city,
         address,
         postCode,
-        phoneNumber: phone,
-        mobileNumber: mobile,
+        mobileNumber: cleanPhone(mobileNumber),
         firstName,
         lastName,
-      });
+      };
+      if (phoneNumber != 0) Object.assign(fields, { phoneNumber: phoneNumber });
+      const isValid = addressSchema.safeParse(fields);
       setErrors({});
       if (onCancel) onCancel();
       if (isPending) isPending(true);
@@ -113,15 +113,8 @@ export default function NewAddressForm({
 
       const addressesArray: AddressProps[] = [
         {
+          ...fields,
           id: 0,
-          province,
-          city,
-          address,
-          postCode,
-          phoneNumber: phone,
-          mobileNumber: mobile,
-          firstName,
-          lastName,
           isDefault:
             existingAddresses && existingAddresses.length
               ? defaultAddress
@@ -231,8 +224,8 @@ export default function NewAddressForm({
       const firstName = data.get('firstName')?.toString();
       const lastName = data.get('lastName')?.toString();
       const postCode = parseInt(data.get('postCode')?.toString() || '0');
-      const phone = parseInt(data.get('phone')?.toString() || '0');
-      const mobile = data.get('mobile')?.toString();
+      const phoneNumber = parseInt(data.get('phone')?.toString() || '0');
+      const mobileNumber = data.get('mobile')?.toString();
       if (
         !data ||
         !province ||
@@ -241,8 +234,7 @@ export default function NewAddressForm({
         !firstName ||
         !lastName ||
         !postCode ||
-        !phone ||
-        !mobile
+        !mobileNumber
       ) {
         setErrors({
           server: ['وارد کردن همه موارد الزامی است.'],
@@ -256,8 +248,8 @@ export default function NewAddressForm({
         firstName,
         lastName,
         postCode,
-        phone,
-        mobile,
+        phoneNumber: phoneNumber ? phoneNumber : 0,
+        mobileNumber,
       });
     },
     [submitFn, defaultAddress]
@@ -422,9 +414,8 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={phoneRef}
-        required
       >
-        شماره تلفن
+        شماره تلفن ثابت
       </InputBox>
       {errors.phone && (
         <p className="text-red-500 text-sm whitespace-pre-line">
@@ -444,26 +435,28 @@ export default function NewAddressForm({
           }}
         />
       )}
-      <div className="flex w-full gap-2">
-        <SubmitButton
-          type="submit"
-          isPending={submitFn.isPending}
-          className="w-full"
-        >
-          {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
-        </SubmitButton>
-        {onCancel && (
+      <>
+        <div className="flex w-full gap-2">
           <SubmitButton
-            className="w-full bg-accent-pink"
-            type="button"
-            onClick={() => {
-              onCancel();
-            }}
+            type="submit"
+            isPending={submitFn.isPending}
+            className="w-full bg-green-500 text-white"
           >
-            لغو
+            {editModeAddress ? 'اعمال تغییرات' : 'ثبت آدرس'}
           </SubmitButton>
-        )}
-      </div>
+          {onCancel && (
+            <SubmitButton
+              className="w-full bg-accent-pink"
+              type="button"
+              onClick={() => {
+                onCancel();
+              }}
+            >
+              لغو
+            </SubmitButton>
+          )}
+        </div>
+      </>
     </form>
   );
 }

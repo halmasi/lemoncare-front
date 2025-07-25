@@ -346,15 +346,17 @@ export default function Addresses() {
         })()}
       </Modal>
 
-      <SubmitButton
-        onClick={() => {
-          setShowTextBox(true);
-        }}
-        className="w-fit"
-        type="button"
-      >
-        افزودن آدرس جدید +
-      </SubmitButton>
+      {!showTextBox && (
+        <SubmitButton
+          onClick={() => {
+            setShowTextBox(true);
+          }}
+          className="w-fit"
+          type="button"
+        >
+          افزودن آدرس جدید +
+        </SubmitButton>
+      )}
     </div>
   );
 }

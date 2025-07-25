@@ -181,7 +181,7 @@ export default function LoginForm() {
         <InputBox
           ref={identifierRef}
           name="username"
-          placeholder="ایمیل یا شماره تلفن"
+          placeholder="شماره تلفن"
           required
           ltr
         />
@@ -227,21 +227,7 @@ export default function LoginForm() {
                 }
               }}
             >
-              ورود با رمز یکبار مصرف
-            </p>
-
-            <p
-              className="cursor-pointer hover:text-accent-pink transition-colors"
-              onClick={() => {
-                if (username && username != '' && isPhone(username)) {
-                  setUsername(cleanPhone(username));
-                  if (!isPhone(identifierRef.current?.value || ''))
-                    setStep('phoneConfirmationLoginNoPhone');
-                  else setStep('phoneConfirmationLogin');
-                }
-              }}
-            >
-              فراموشی رمز عبور
+              ورود با رمز یکبار مصرف (ارسال کد از طریق پیامک)
             </p>
           </div>
         )}
