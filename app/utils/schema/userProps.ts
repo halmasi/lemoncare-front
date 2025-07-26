@@ -63,7 +63,7 @@ export interface AddressProps {
 }
 
 export interface FetchUserProps {
-  id?: string;
+  id?: number;
   documentId?: string;
   fullName?: string;
   email?: string;
