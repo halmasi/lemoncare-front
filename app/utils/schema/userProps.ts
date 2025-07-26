@@ -7,12 +7,14 @@ export interface UserProps {
   phoneNumber: number;
   password: string;
 }
+
 export interface ErrorProps {
   status: number;
   name: string;
   message: string;
   details: object;
 }
+
 export interface LoginUserProps {
   data: {
     user: {
@@ -33,6 +35,7 @@ export interface LoginUserProps {
     error?: string;
   };
 }
+
 export interface SignInState {
   success: boolean;
   fieldErrors?: {
@@ -90,6 +93,7 @@ export interface FavoriteListProps {
   posts?: PostsProps[];
   products?: ProductProps[];
 }
+
 export interface OrderHistoryProps {
   user: number;
   documentId: string;
@@ -113,5 +117,42 @@ export interface OrderHistoryProps {
     address: string;
     postCode: number;
     items: CartProps[];
+    orderDetail: PaymentDetailProps | null;
+    deliveryStatus: string;
   };
+}
+
+export interface PaymentDetailProps {
+  RefNo: number;
+  Token: string;
+  Amount: number;
+  CardNo: string;
+  ResCod: number;
+  Message: string;
+  OrderID: string;
+  TraceNo: string;
+  TransNo: string;
+  ExtraInf: string;
+  InvoiceNo: string;
+  TransDate: string;
+  AmountWage: string;
+  MerchantID: string;
+  TerminalID: string;
+  AmntWageCbi: number;
+  AppExtraInf: {
+    Descr: string;
+    PayTyp: number;
+    PayerIP: string;
+    PayerNm: string;
+    PayTypID: number;
+    PayTitleID: number;
+    PayerAppID: string;
+    PayerAppNm: string;
+    PayerEmail: string;
+    PayerNCode: string;
+    PayerAppTyp: string;
+    PayerMobile: string;
+  };
+  AmountWageTyp: number;
+  AmntWageCbiTyp: number;
 }

@@ -35,6 +35,7 @@ import { GrStatusGood } from 'react-icons/gr';
 import { IoQrCode } from 'react-icons/io5';
 import { LiaShippingFastSolid } from 'react-icons/lia';
 import { LuCalendarClock } from 'react-icons/lu';
+import { RiShoppingBasketLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 
 export default function OrderPage(props: {
@@ -88,8 +89,14 @@ export default function OrderPage(props: {
           beforePrice: item.beforePrice,
         };
       });
+      const seen = new Set();
+
       await Promise.all(
         items.map(async (item) => {
+          const uniqueKey = `${item.product}-${item.variety}`;
+          if (seen.has(uniqueKey)) return;
+          seen.add(uniqueKey);
+
           const productsList = await cartProductSetter(
             item.product,
             cartProducts
@@ -99,18 +106,17 @@ export default function OrderPage(props: {
           const product = await cartProductSelector(item.product, cartProducts);
           const { color, priceBefforDiscount, mainPrice, specification } =
             varietyFinder(item.variety, product);
-          setDetails((prev) => {
-            const orders = prev;
-            orders.push({
+          setDetails((prev) => [
+            ...prev,
+            {
               product,
               count: item.count,
               color,
               priceBefore: priceBefforDiscount,
               priceAfter: mainPrice,
               name: specification,
-            });
-            return orders;
-          });
+            },
+          ]);
         })
       );
 
@@ -189,6 +195,11 @@ export default function OrderPage(props: {
                   <span className="text-accent-pink">
                     {orderData.order.orderCode}
                   </span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <RiShoppingBasketLine className="text-foreground/75" />
+                  <span className="text-foreground/75">وضعیت سفارش: </span>
+                  <span>{orderData.order.deliveryStatus}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <LuCalendarClock className="text-foreground/75" />
@@ -316,6 +327,7 @@ export default function OrderPage(props: {
                   <span className="text-foreground/75">روش ارسال: </span>
                   <span>{orderData.order.shippingMethod}</span>
                 </p>
+
                 {orderData.order.paymentStatus == 'pending' && (
                   <div>
                     <SubmitButton
@@ -399,7 +411,7 @@ export default function OrderPage(props: {
                               <span className="text-gray-500">قیمت واحد: </span>{' '}
                             </p>
                             <Toman className="fill-accent-green gap-2">
-                              {item.priceBefore && (
+                              {item.priceBefore > 0 && (
                                 <p className="line-through text-gray-500">
                                   {(item.priceBefore / 10).toLocaleString(
                                     'fa-IR'
@@ -417,7 +429,7 @@ export default function OrderPage(props: {
                                 <span className="text-gray-500">مجموع: </span>{' '}
                               </p>
                               <Toman className="fill-accent-green gap-2">
-                                {item.priceBefore && (
+                                {item.priceBefore > 0 && (
                                   <p className="line-through text-gray-500">
                                     {(
                                       (item.priceBefore / 10) *

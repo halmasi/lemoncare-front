@@ -11,7 +11,11 @@ export async function POST(req: Request) {
     const request = {
       data: {
         user: requestBody.user,
-        order: { ...requestBody.order, orderCode },
+        order: {
+          ...requestBody.order,
+          orderCode,
+          deliveryStatus: 'در انتظار پرداخت',
+        },
       },
     };
     const query = qs.stringify({

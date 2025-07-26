@@ -2,6 +2,8 @@ import {
   getSingleOrderHistory,
   updateOrderHistory,
 } from '@/app/utils/data/getUserInfo';
+import { CartProps } from '@/app/utils/schema/shopProps';
+import { PaymentDetailProps } from '@/app/utils/schema/userProps';
 
 export async function POST(req: Request) {
   try {
@@ -31,40 +33,7 @@ export async function POST(req: Request) {
         }
       );
 
-      const result: {
-        CardNo: string;
-        TransDate: string;
-        TransNo: string;
-        TraceNo: number;
-        MerchantID: string;
-        TerminalID: string;
-        OrderID: string;
-        RefNo: number;
-        Amount: number;
-        AmountWage: number;
-        AmountWageTyp: number;
-        AmntWageCbi: number;
-        AmntWageCbiTyp: number;
-        InvoiceNo: string;
-        ExtraInf: string;
-        AppExtraInf: {
-          PayTyp: number;
-          PayTypID: number;
-          PayerNm: string;
-          PayerMobile: string;
-          PayerEmail: string;
-          Descr: string;
-          PayTitleID: number;
-          PayerIP: string;
-          PayerAppTyp: string;
-          PayerAppID: string;
-          PayerAppNm: string;
-          PayerNCode: string;
-        };
-        Token: string;
-        ResCod: number;
-        Message: string;
-      } = await res.json();
+      const result: PaymentDetailProps = await res.json();
 
       if (result.ResCod == 0) {
         const order = await getSingleOrderHistory(
@@ -72,12 +41,24 @@ export async function POST(req: Request) {
           true
         );
         if (order) {
+          const orderDeleteId = order.order;
+          delete orderDeleteId.id;
           await updateOrderHistory(order.documentId, {
             order: {
-              ...order.order,
+              ...orderDeleteId,
+              items: orderDeleteId.items.map((item: CartProps) => {
+                return {
+                  count: item.count || 0,
+                  beforePrice: item.beforePrice || 0,
+                  mainPrice: item.mainPrice || 0,
+                  variety: item.variety,
+                  product: item.product.documentId,
+                };
+              }),
               orderDetail: result,
               paymentStatus: 'completed',
               payMethod: 'online',
+              deliveryStatus: 'در صف بررسی',
             },
           });
           return Response.redirect(

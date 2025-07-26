@@ -65,9 +65,9 @@ export default async function product(props: {
               <Content key={i} props={item} />
             ))}
           </div>
-          <div>
+          {/* <div>
             <p>comments</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </MainSection>

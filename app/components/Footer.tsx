@@ -81,22 +81,19 @@ export default function Footer({
           </p>
         </div>
       </div>
-      <div className="flex flex-col items-center">
-        <p className="text-gray-700">تماس با ما</p>
-        <div className="flex justify-center items-center py-3">
-          {SocialLinks.map(({ id, title, url }) => (
-            <a
-              key={id}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mx-2 text-sm flex items-center justify-center"
-              aria-label={title}
-            >
-              {icons[title]}
-            </a>
-          ))}
-        </div>
+      <div className="flex justify-center items-center py-3">
+        {SocialLinks.map(({ id, title, url }) => (
+          <a
+            key={id}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-2 text-sm flex items-center justify-center"
+            aria-label={title}
+          >
+            {icons[title]}
+          </a>
+        ))}
       </div>
       <p className="text-sm gerdFont py-2 text-center bg-gray-800/80 text-white">
         {/* © کپی رایت ۱۴۰۴ - {year}، تمامی حقوق متعلق به گروه لمیرو می باشد. © */}

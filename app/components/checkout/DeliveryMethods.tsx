@@ -82,7 +82,7 @@ export default function DeliveryMethods({
       setShippingPrice(-1);
       setError(
         user
-          ? 'لطفا ابتدا آدرس خود را وارد کنید.'
+          ? 'لطفا ابتدا آدرس خود را ثبت و یا انتخاب کنید.'
           : 'لطفا ابتدا وارد حساب شوید.'
       );
     }
