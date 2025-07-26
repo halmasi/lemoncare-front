@@ -12,7 +12,7 @@ import { PostsProps } from '../schema/blogProps';
 import { ProductProps } from '../schema/shopProps';
 
 export const updateUserInformation = async (
-  id: string,
+  id: number,
   token: string,
   userData: {
     confirmed?: boolean;

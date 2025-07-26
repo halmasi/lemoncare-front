@@ -8,7 +8,10 @@ import {
   getSingleOrderHistory,
   updateOrderHistory,
 } from '@/app/utils/data/getUserInfo';
-import { deleteKeysFromObject } from '@/app/utils/miniFunctions';
+import {
+  deleteKeysFromObject,
+  removeDuplicatesByKeys,
+} from '@/app/utils/miniFunctions';
 import { cartProductsProps } from '@/app/utils/schema/shopProps';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import {
@@ -89,14 +92,17 @@ export default function OrderPage(props: {
           beforePrice: item.beforePrice,
         };
       });
-      const seen = new Set();
 
+      const unique = removeDuplicatesByKeys(items, [
+        'product',
+        'count',
+        'variety',
+        'mainPrice',
+        'beforePrice',
+      ]);
+      setDetails([]);
       await Promise.all(
-        items.map(async (item) => {
-          const uniqueKey = `${item.product}-${item.variety}`;
-          if (seen.has(uniqueKey)) return;
-          seen.add(uniqueKey);
-
+        unique.map(async (item) => {
           const productsList = await cartProductSetter(
             item.product,
             cartProducts

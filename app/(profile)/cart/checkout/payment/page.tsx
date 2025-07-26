@@ -125,7 +125,7 @@ export default function Payment() {
         ).then((results) => results.filter((item) => item !== null));
         if (checkoutAddress && user) {
           const res = await submitOrder({
-            user: parseInt(user.id || '0'),
+            user: user.id || 0,
             jwt: `Bearer ${jwt}`,
             items,
             checkoutAddress,
