@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
           updatedAt: string;
           publishedAt: string;
         }[] = res.data;
-        if (carts.length != 0)
+        if (carts && Array.isArray(carts) && carts.length != 0)
           carts.map(async (item) => {
             await dataFetch({
               qs: `/carts/${item.documentId}`,

@@ -62,7 +62,7 @@ export default function Count({
     },
     onSuccess: async (data) => {
       if (!data || !data.result) return;
-      getCartFn.mutate();
+      getCartFn.mutateAsync();
     },
     onError: async (error) => {
       logs.error(error.cause + ' ' + error.message);
@@ -71,20 +71,20 @@ export default function Count({
 
   const changeNumberfn = useMutation({
     mutationFn: async (newNumber: number) => {
-      const updateCart = [...cart];
+      const updatedCart = cart;
       if (newNumber <= 0) {
-        updateCart.splice(updateCart.indexOf(cartItem), 1);
+        updatedCart.splice(updatedCart.indexOf(cartItem), 1);
+        setCart(updatedCart);
         if (user && jwt) {
-          updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updatedCart)));
         }
-        refreshFunction(0);
       } else {
         if (newNumber > inventory) newNumber = inventory;
-        updateCart[updateCart.indexOf(cartItem)].count = newNumber;
-        setCart(updateCart);
+        updatedCart[updatedCart.indexOf(cartItem)].count = newNumber;
+        setCart(updatedCart);
 
         if (jwt && user) {
-          getCartFn.mutate();
+          getCartFn.mutateAsync();
           const cartMap = new Map(
             cart.map((cartItem) => [
               `${cartItem.product.documentId}-${cartItem.variety.id}-${cartItem.variety.sub}`,
@@ -92,14 +92,14 @@ export default function Count({
             ])
           );
 
-          const shouldUpdate = updateCart.some((item) => {
+          const shouldUpdate = updatedCart.some((item) => {
             const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
             const foundItem = cartMap.get(key);
             return foundItem?.count !== item.count;
           });
 
           if (shouldUpdate) {
-            updateCartFn.mutate(JSON.parse(JSON.stringify(updateCart)));
+            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updatedCart)));
           }
         }
       }
@@ -117,7 +117,7 @@ export default function Count({
             onClick={() => {
               if (cart[itemIndex].count < inventory) {
                 setNumber((prev) => prev + 1);
-                changeNumberfn.mutate(number + 1);
+                changeNumberfn.mutateAsync(number + 1);
               }
             }}
             disabled={
@@ -146,7 +146,7 @@ export default function Count({
           <button
             onClick={() => {
               setNumber((prev) => prev - 1);
-              changeNumberfn.mutate(number - 1);
+              changeNumberfn.mutateAsync(number - 1);
             }}
             disabled={
               itemIndex === -1 ||

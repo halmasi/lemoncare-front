@@ -46,12 +46,11 @@ export default function Cart({
       login?: boolean;
     }) => {
       const cartData = await getCart(id);
-      if (!cartData || !cartData.data) {
-        return { cartData: cartData.data, login };
-      }
+      if (!cartData) return { cartData: cartData.data, login };
     },
     onSuccess: (data) => {
       if (!data || !data.cartData) return;
+      // setTotalPrice()
       const { cartData, login } = data;
       if (login && user && cartData && cartData.items) {
         handleCartFn.mutate({
@@ -75,8 +74,14 @@ export default function Cart({
       cartId: string;
     }) => {
       await updateCart(cart, cartId);
+      return cartId;
     },
-    onSuccess: async () => {},
+    onSuccess: async (id) => {
+      getCartFn.mutateAsync({
+        id,
+        login: true,
+      });
+    },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
     },
@@ -243,16 +248,20 @@ export default function Cart({
                 <div className="w-full h-full">
                   <Count
                     refreshFunction={(newCount) => {
-                      if (user && user.shopingCart.documentId)
+                      if (user && user.shopingCart.documentId) {
                         if (newCount <= 0)
                           getCartFn.mutate({
                             id: user.shopingCart.documentId,
                           });
-                        else
+                        else {
                           updateCartFn.mutate({
                             cart,
                             cartId: user.shopingCart.documentId,
                           });
+                        }
+                      }
+                      if (priceAmount)
+                        priceAmount(totalPrice, totalBeforePrice);
                     }}
                     key={index}
                     cartItem={cartItem}

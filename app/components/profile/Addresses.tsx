@@ -191,11 +191,11 @@ export default function Addresses() {
 
   return (
     <div className="w-full flex flex-col gap-2" key={addresses.toString()}>
-      {addresses && (
-        <div className="flex flex-col gap-2 w-fit">
+      {addresses && Array.isArray(addresses) && (
+        <div className="w-full flex flex-col gap-2">
           {addresses.map((item, index) => {
             return (
-              <div key={index}>
+              <div className="w-full" key={index}>
                 <div>
                   <div className="flex w-full justify-between gap-3">
                     <div>
@@ -346,15 +346,17 @@ export default function Addresses() {
         })()}
       </Modal>
 
-      <SubmitButton
-        onClick={() => {
-          setShowTextBox(true);
-        }}
-        className="w-fit"
-        type="button"
-      >
-        افزودن آدرس جدید +
-      </SubmitButton>
+      {!showTextBox && (
+        <SubmitButton
+          onClick={() => {
+            setShowTextBox(true);
+          }}
+          className="w-fit"
+          type="button"
+        >
+          افزودن آدرس جدید +
+        </SubmitButton>
+      )}
     </div>
   );
 }

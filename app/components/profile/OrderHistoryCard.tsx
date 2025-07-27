@@ -45,8 +45,14 @@ export default function OrderHistoryCard({
                 </div>
                 <div className="flex flex-wrap p-2 gap-2 text-sm ">
                   <p className="text-gray-500">شناسه سفارش: </p>
-                  <p>{order.orderCode}</p>
+                  <p className="text-accent-pink">{order.orderCode}</p>
                 </div>
+                {order.deliveryStatus && (
+                  <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                    <p className="text-gray-500">وضعیت سفارش: </p>
+                    <p className="text-accent-pink">{order.deliveryStatus}</p>
+                  </div>
+                )}
               </div>
               <div
                 className={`text-sm w-full flex flex-wrap items-center gap-1 p-1`}
@@ -57,27 +63,40 @@ export default function OrderHistoryCard({
                     <p>{(order.totalPrice / 10).toLocaleString('fa-IR')}</p>
                   </Toman>
                 </div>
-                <div className="flex flex-wrap p-2 gap-2 text-sm ">
-                  <p className="text-gray-500">تخفیف: </p>
-                  <Toman className="fill-accent-green text-accent-green">
-                    <p>
-                      {(() => {
-                        let offer = 0;
-                        order.items.forEach((item) => {
-                          if (item.beforePrice && item.mainPrice)
-                            offer += item.beforePrice - item.mainPrice;
-                        });
-                        return (
-                          <span>
-                            {((order.orderPrice - offer) / 10).toLocaleString(
-                              'fa-IR'
-                            )}
-                          </span>
-                        );
-                      })()}
-                    </p>
-                  </Toman>
-                </div>
+
+                {
+                  <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                    {(() => {
+                      let offer = 0;
+                      order.items.forEach((item) => {
+                        if (
+                          item.beforePrice &&
+                          item.beforePrice > 0 &&
+                          item.mainPrice
+                        ) {
+                          offer += item.beforePrice - item.mainPrice;
+                        }
+                      });
+                      return (
+                        <>
+                          <p className="text-gray-500">
+                            {offer > 0 && 'تخفیف:'}
+                          </p>
+                          {offer > 0 && (
+                            <Toman className="fill-accent-green text-accent-green">
+                              <p>
+                                {(
+                                  (order.orderPrice - offer) /
+                                  10
+                                ).toLocaleString('fa-IR')}
+                              </p>
+                            </Toman>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                }
               </div>
             </div>
             <p className="self-center p-2 w-fit hover:text-accent-pink transition-colors">

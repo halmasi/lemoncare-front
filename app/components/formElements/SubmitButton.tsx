@@ -25,7 +25,7 @@ export default function SubmitButton({
       title={title}
       className={`flex px-6 py-2 rounded-lg border text-foreground bg-gray-50 hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
     ${disabled && 'opacity-50 cursor-not-allowed'} ${isPending && 'cursor-progress opacity-50'} ${className}`}
-      href={link}
+      href={disabled ? '' : link}
       onClick={onClick}
     >
       {children}

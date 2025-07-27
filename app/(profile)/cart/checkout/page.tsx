@@ -14,8 +14,14 @@ import { useEffect, useState } from 'react';
 
 export default function CheckoutPage() {
   const { cart, cartProducts } = useCartStore();
-  const { setPrice, price, setBeforePrice, shippingPrice, shippingOption } =
-    useCheckoutStore();
+  const {
+    setPrice,
+    price,
+    setBeforePrice,
+    shippingPrice,
+    shippingOption,
+    checkoutAddress,
+  } = useCheckoutStore();
   const { user } = useDataStore();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
@@ -56,12 +62,18 @@ export default function CheckoutPage() {
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-2  justify-between">
-        <div className="flex flex-col w-full gap-5 lg:w-4/12  p-2 lg:p-5 rounded-lg bg-gray-50/50 border">
-          <Title>
-            <h6 className="text-accent-pink">انتخاب آدرس:</h6>
-          </Title>
-          <Addresses />
-        </div>
+        {user ? (
+          <div className="flex flex-col w-full lg:w-4/12 gap-5  p-2 lg:p-5 rounded-lg bg-gray-50/50 border">
+            <Title>
+              <h6 className="text-accent-pink">انتخاب آدرس:</h6>
+            </Title>
+            <Addresses />
+          </div>
+        ) : (
+          <div className="flex flex-col h-fit lg:w-4/12 w-full border rounded-lg p-5 items-center gap-3 justify-between">
+            <AuthForm />
+          </div>
+        )}
         <div className="flex flex-col gap-5 w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
           <Title>
             <h6 className="text-accent-pink">روش ارسال:</h6>
@@ -73,17 +85,28 @@ export default function CheckoutPage() {
           />
         </div>
         <div className="flex flex-col h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
-          {!user && (
-            <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
-              <AuthForm />
-            </div>
-          )}
           <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
+            {checkoutAddress && (
+              <div>
+                <p className="text-gray-600">آدرس انتخاب شده: </p>
+                <p className="text-accent-pink">
+                  <span>{checkoutAddress.province}</span>
+                  {'، '}
+                  <span>{checkoutAddress.city}</span>
+                  {'، '}
+                  <span>{checkoutAddress.address}</span>{' '}
+                </p>
+                <p className="text-accent-pink">
+                  <span className="text-gray-600">شماره تلفن همراه:</span>{' '}
+                  {checkoutAddress.mobileNumber}
+                </p>{' '}
+              </div>
+            )}
             <div className="flex flex-wrap gap-2 text-sm">
               <p>مجموع خرید:</p>
               <div className="flex flex-wrap md:pr-5 items-center justify-center gap-2">
                 <p className="line-through text-xl text-gray-500">
-                  {totalBeforePrice / 10}
+                  {totalBeforePrice > 0 && totalBeforePrice / 10}
                 </p>
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
@@ -103,8 +126,10 @@ export default function CheckoutPage() {
                     <p>{(shippingPrice / 10).toLocaleString('fa-IR')}</p>
                   </Toman>
                 )
-              ) : (
+              ) : user ? (
                 <p className="text-gray-500">آدرس یا نحوه ارسال تعیین نشده</p>
+              ) : (
+                <p className="text-gray-500">لطفا ابتدا وارد حساب شوید.</p>
               )}
             </div>
             <div className="flex flex-wrap border-t gap-2 text-sm">
@@ -121,7 +146,12 @@ export default function CheckoutPage() {
             </div>
             <SubmitButton
               link="/cart/checkout/payment"
-              disabled={!showNext || !user}
+              disabled={
+                !showNext ||
+                !user ||
+                !checkoutAddress ||
+                !checkoutAddress.cityCode
+              }
             >
               ثبت سفارش
             </SubmitButton>

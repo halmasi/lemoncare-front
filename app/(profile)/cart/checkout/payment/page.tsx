@@ -125,7 +125,7 @@ export default function Payment() {
         ).then((results) => results.filter((item) => item !== null));
         if (checkoutAddress && user) {
           const res = await submitOrder({
-            user: parseInt(user.id || '0'),
+            user: user.id || 0,
             jwt: `Bearer ${jwt}`,
             items,
             checkoutAddress,
@@ -167,14 +167,17 @@ export default function Payment() {
             <div className="w-full flex gap-2 p-1 md:pr-10">
               <div className="flex flex-wrap w-full gap-2">
                 <h6 className="w-fit">مبلغ سفارش:</h6>
-                <Toman className="line-through fill-gray-500 text-gray-500">
-                  <p className=" text-sm">
-                    {(beforePrice / 10).toLocaleString('fa-IR', {
-                      style: 'decimal',
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                </Toman>
+
+                {beforePrice - price > 0 && (
+                  <Toman className="line-through fill-gray-500 text-gray-500">
+                    <p className=" text-sm">
+                      {(beforePrice / 10).toLocaleString('fa-IR', {
+                        style: 'decimal',
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                  </Toman>
+                )}
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
                     {(price / 10).toLocaleString('fa-IR', {
@@ -186,15 +189,19 @@ export default function Payment() {
               </div>
             </div>
             <div className="flex justify-center items-center gap-2 text-accent-pink p-1 md:pr-10">
-              <p className="w-fit text-sm self-start">تخفیف: </p>
-              <p className="w-fit text-sm self-start">
-                {' '}
-                {((1 - price / beforePrice) * 100).toLocaleString('fa-IR', {
-                  style: 'decimal',
-                  maximumFractionDigits: 0,
-                })}{' '}
-                %
-              </p>
+              {beforePrice - price > 0 && (
+                <>
+                  <p className="w-fit text-sm self-start">تخفیف: </p>
+                  <p className="w-fit text-sm self-start">
+                    {' '}
+                    {((1 - price / beforePrice) * 100).toLocaleString('fa-IR', {
+                      style: 'decimal',
+                      maximumFractionDigits: 0,
+                    })}{' '}
+                    %
+                  </p>
+                </>
+              )}
             </div>
             <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">

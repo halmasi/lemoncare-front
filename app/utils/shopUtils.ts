@@ -2,6 +2,7 @@ import { cartProductsProps, ProductProps } from './schema/shopProps';
 import { getProduct } from './data/getProducts';
 import qs from 'qs';
 import { dataFetch } from './data/dataFetch';
+
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
   product: ProductProps | cartProductsProps
@@ -85,16 +86,12 @@ export const lowestPrice = (product: ProductProps | cartProductsProps) => {
           lessPrice.price = sub.mainPrice;
         }
       });
-      if (
-        (item.mainPrice && item.mainPrice < lessPrice.price) ||
-        !lessPrice.price
-      ) {
-        lessPrice.id = item.id;
-        lessPrice.sub = null;
-        lessPrice.uid = item.uniqueId;
-        lessPrice.usub = null;
-        lessPrice.price = item.mainPrice;
-      }
+    } else if (item.mainPrice < lessPrice.price || !lessPrice.price) {
+      lessPrice.id = item.id;
+      lessPrice.sub = null;
+      lessPrice.uid = item.uniqueId;
+      lessPrice.usub = null;
+      lessPrice.price = item.mainPrice;
     }
   });
   return lessPrice;

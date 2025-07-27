@@ -67,8 +67,8 @@ export default function NewAddressForm({
       city,
       address,
       postCode,
-      phone,
-      mobile,
+      phoneNumber,
+      mobileNumber,
       firstName,
       lastName,
     }: {
@@ -76,22 +76,22 @@ export default function NewAddressForm({
       city: string;
       address: string;
       postCode: number;
-      phone: number;
-      mobile: string;
+      phoneNumber?: number;
+      mobileNumber: string;
       firstName: string;
       lastName: string;
     }) => {
-      mobile = cleanPhone(mobile);
-      const isValid = addressSchema.safeParse({
+      const fields = {
         province,
         city,
         address,
         postCode,
-        phoneNumber: phone,
-        mobileNumber: mobile,
+        mobileNumber: cleanPhone(mobileNumber),
         firstName,
         lastName,
-      });
+      };
+      if (phoneNumber != 0) Object.assign(fields, { phoneNumber: phoneNumber });
+      const isValid = addressSchema.safeParse(fields);
       setErrors({});
       if (onCancel) onCancel();
       if (isPending) isPending(true);
@@ -113,15 +113,8 @@ export default function NewAddressForm({
 
       const addressesArray: AddressProps[] = [
         {
+          ...fields,
           id: 0,
-          province,
-          city,
-          address,
-          postCode,
-          phoneNumber: phone,
-          mobileNumber: mobile,
-          firstName,
-          lastName,
           isDefault:
             existingAddresses && existingAddresses.length
               ? defaultAddress
@@ -225,27 +218,48 @@ export default function NewAddressForm({
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-      const formValues = {
-        province: data.get('province')?.toString() || '',
-        city: data.get('city')?.toString() || '',
-        address: data.get('address')?.toString() || '',
-        firstName: data.get('firstName')?.toString() || '',
-        lastName: data.get('lastName')?.toString() || '',
-        postCode: parseInt(data.get('postCode')?.toString() || '0'),
-        phone: parseInt(data.get('phone')?.toString() || '0'),
-        mobile: data.get('mobile')?.toString() || '',
-        isDefault: defaultAddress,
-      };
-      submitFn.mutate(formValues);
+      const province = data.get('province')?.toString();
+      const city = data.get('city')?.toString();
+      const address = data.get('address')?.toString();
+      const firstName = data.get('firstName')?.toString();
+      const lastName = data.get('lastName')?.toString();
+      const postCode = parseInt(data.get('postCode')?.toString() || '0');
+      const phoneNumber = parseInt(data.get('phone')?.toString() || '0');
+      const mobileNumber = data.get('mobile')?.toString();
+      if (
+        !data ||
+        !province ||
+        !city ||
+        !address ||
+        !firstName ||
+        !lastName ||
+        !postCode ||
+        !mobileNumber
+      ) {
+        setErrors({
+          server: ['وارد کردن همه موارد الزامی است.'],
+        });
+        return;
+      }
+      submitFn.mutate({
+        province,
+        city,
+        address,
+        firstName,
+        lastName,
+        postCode,
+        phoneNumber: phoneNumber ? phoneNumber : 0,
+        mobileNumber,
+      });
     },
     [submitFn, defaultAddress]
   );
 
   return (
-    <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
-      <fieldset>
+    <form onSubmit={submitFunction} className="w-full flex flex-col gap-2 py-3">
+      <fieldset className="items-center">
         <label className="text-green-700" htmlFor="province">
-          استان
+          استان <span className="text-accent-pink">*</span>
         </label>
         <CitySelector
           id="province"
@@ -279,7 +293,7 @@ export default function NewAddressForm({
       {province && (
         <fieldset>
           <label className="text-green-700" htmlFor="city">
-            شهر
+            شهر <span className="text-accent-pink">*</span>
           </label>
           <CitySelector
             key={province}
@@ -310,7 +324,7 @@ export default function NewAddressForm({
       )}
       <fieldset>
         <label className="text-green-700" htmlFor="address">
-          آدرس
+          آدرس <span className="text-accent-pink">*</span>
         </label>
         <textarea
           ref={addressReff}
@@ -329,6 +343,7 @@ export default function NewAddressForm({
         name="postCode"
         placeholder="کد پستی"
         type="text"
+        required
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={postCodeRef}
@@ -348,6 +363,7 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={nameRef}
+        required
       >
         نام
       </InputBox>
@@ -364,12 +380,30 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={lastNameRef}
+        required
       >
         نام خانوادگی
       </InputBox>
       {errors.lastName && (
         <p className="text-red-500 text-sm whitespace-pre-line">
           {errors.lastName.join('\n')}
+        </p>
+      )}
+      <InputBox
+        flex="col"
+        name="mobile"
+        placeholder="موبایل"
+        type="text"
+        className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={mobileRef}
+        required
+      >
+        شماره همراه
+      </InputBox>
+      {errors.mobile && (
+        <p className="text-red-500 text-sm whitespace-pre-line">
+          {errors.mobile.join('\n')}
         </p>
       )}
       <InputBox
@@ -381,27 +415,16 @@ export default function NewAddressForm({
         labelClassName="text-green-700"
         ref={phoneRef}
       >
-        شماره تلفن
+        شماره تلفن ثابت
       </InputBox>
       {errors.phone && (
         <p className="text-red-500 text-sm whitespace-pre-line">
           {errors.phone.join('\n')}
         </p>
       )}
-      <InputBox
-        flex="col"
-        name="mobile"
-        placeholder="موبایل"
-        type="text"
-        className="border rounded-lg w-full"
-        labelClassName="text-green-700"
-        ref={mobileRef}
-      >
-        شماره همراه
-      </InputBox>
-      {errors.mobile && (
+      {errors.server && (
         <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.mobile.join('\n')}
+          {errors.server.join('\n')}
         </p>
       )}
       {editModeAddress && (
@@ -412,26 +435,28 @@ export default function NewAddressForm({
           }}
         />
       )}
-      <div className="flex w-full gap-2">
-        <SubmitButton
-          type="submit"
-          isPending={submitFn.isPending}
-          className="w-full"
-        >
-          {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
-        </SubmitButton>
-        {onCancel && (
+      <>
+        <div className="flex w-full gap-2">
           <SubmitButton
-            className="w-full bg-accent-pink"
-            type="button"
-            onClick={() => {
-              onCancel();
-            }}
+            type="submit"
+            isPending={submitFn.isPending}
+            className="w-full bg-green-500 text-white"
           >
-            لغو
+            {editModeAddress ? 'اعمال تغییرات' : 'ثبت آدرس'}
           </SubmitButton>
-        )}
-      </div>
+          {onCancel && (
+            <SubmitButton
+              className="w-full bg-accent-pink"
+              type="button"
+              onClick={() => {
+                onCancel();
+              }}
+            >
+              لغو
+            </SubmitButton>
+          )}
+        </div>
+      </>
     </form>
   );
 }

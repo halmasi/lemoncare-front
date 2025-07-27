@@ -1,4 +1,5 @@
 import Breadcrumbs from '@/app/components/Breadcrumbs';
+import CommentSection from '@/app/components/CommentSection';
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
@@ -57,7 +58,7 @@ export default async function product(props: {
             </div>
           ))}
         </div>
-        <div>
+        <div className="flex flex-col gap-5">
           <div className="mt-5 p-2 md:mx-10 bg-slate-50 border rounded-lg">
             {/* <h3 className="text-accent-pink">توضیحات محصول:</h3> */}
             <div className=" border md:hidden" />
@@ -65,9 +66,7 @@ export default async function product(props: {
               <Content key={i} props={item} />
             ))}
           </div>
-          <div>
-            <p>comments</p>
-          </div>
+          <CommentSection productId={product.documentId} />
         </div>
       </div>
     </MainSection>

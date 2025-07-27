@@ -62,29 +62,6 @@ export const getPaymentToken = async ({
   return data;
 };
 
-export async function redirectToSizPay(Token: string) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://rt.sizpay.ir/Route/Payment';
-
-  const ParamEntries = {
-    MerchantID: process.env.SIZPAY_MERCHANT_ID || '',
-    TerminalID: process.env.SIZPAY_TERMINAL_ID || '',
-    Token,
-  };
-
-  Object.entries(ParamEntries).forEach(([key, value]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = value;
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
-}
-
 export const submitOrder = async ({
   user,
   jwt,

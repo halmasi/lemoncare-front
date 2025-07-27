@@ -6,6 +6,7 @@ import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
 import { cleanPhone } from '../miniFunctions';
 import { updateUserInformation } from '../data/getUserInfo';
+import { FetchUserProps } from '../schema/userProps';
 
 export const registerAction = async ({
   username,
@@ -160,19 +161,8 @@ export const signinAction = async (identifier: string, password: string) => {
 export const loginCheck = async () => {
   const token = await getCookie('jwt');
   const response = await requestData({ qs: '/users/me', method: 'GET', token });
-  const data: {
-    id: number;
-    documentId: string;
-    email: string;
-    provider: string;
-    confirmed: boolean;
-    blocked: boolean;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-    username: string;
-    fullName: string;
-  } = response.data;
+  const data: FetchUserProps = response.data;
+
   return {
     status: response.status,
     isAuthenticated: response.status === 200,

@@ -12,6 +12,7 @@ import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';
 import { toast } from 'react-toastify';
 import LoadingAnimation from '../LoadingAnimation';
+import { useDataStore } from '@/app/utils/states/useUserdata';
 
 export interface CourierProps {
   courierCode: string;
@@ -53,8 +54,11 @@ export default function DeliveryMethods({
   const [courier, setCourier] = useState<CourierProps[]>([]);
   const [selected, setSelected] = useState<CourierProps>(courier[0]);
   const [error, setError] = useState<string>('');
+
   const { checkoutAddress, beforePrice, setShippingOption, setShippingPrice } =
     useCheckoutStore();
+
+  const { user } = useDataStore();
 
   useEffect(() => {
     getMethodsFn.mutate();
@@ -76,7 +80,11 @@ export default function DeliveryMethods({
     // toast.info(selected.courierName + ' | ' + selected.courierServiceName);
     if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
       setShippingPrice(-1);
-      setError('لطفا ابتدا آدرس خود را وارد کنید.');
+      setError(
+        user
+          ? 'لطفا ابتدا آدرس خود را ثبت و یا انتخاب کنید.'
+          : 'لطفا ابتدا وارد حساب شوید.'
+      );
     }
   }, [selected, checkoutAddress, checkoutAddress?.cityCode]);
 

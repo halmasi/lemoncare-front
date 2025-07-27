@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      // This disables the origin check for actions (only for these routes)
+      allowFrom: ['https://rt.sizpay.ir'],
+    },
+  },
   images: {
     remotePatterns: [
       {
@@ -15,6 +21,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'me.sizpay.ir',
+        port: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'rt.sizpay.ir',
         port: '',
       },
       {

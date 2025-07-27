@@ -33,10 +33,8 @@ export default function Favorites() {
 
   const getFavoritesFn = useMutation({
     mutationFn: async (documentId: string) => {
-      console.log('mutating');
       const res = await getFavorites(documentId, 'products');
       const data: ProductProps[] = res.data.products;
-      console.log('data: ', data);
       return data;
     },
     onSuccess: (data) => {

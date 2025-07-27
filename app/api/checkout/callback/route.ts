@@ -2,73 +2,79 @@ import {
   getSingleOrderHistory,
   updateOrderHistory,
 } from '@/app/utils/data/getUserInfo';
-import { redirect } from 'next/navigation';
+import { CartProps } from '@/app/utils/schema/shopProps';
+import { PaymentDetailProps } from '@/app/utils/schema/userProps';
 
 export async function POST(req: Request) {
-  const request = await req.json();
+  try {
+    const formData = await req.formData();
+    const ResCod = parseInt(formData.get('ResCod')?.toString() || '1');
+    const MerchantID = formData.get('MerchantID');
+    const TerminalID = formData.get('TerminalID');
+    const Token = formData.get('Token');
 
-  const {
-    ResCod,
-    MerchantID,
-    TerminalID,
-    Token,
-    // Message,
-    // InvoiceNo,
-    // ExtraInf,
-    // AppExtraInf,
-  } = request.body;
-  if (ResCod == '0' || ResCod != '00') {
-    const res = await fetch(
-      'https://rt.sizpay.ir/api/PaymentSimple/ConfirmSimple',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          Username: process.env.SIZPAY_USERNAME,
-          Password: process.env.SIZPAY_PASSWORD,
-          MerchantID,
-          TerminalID,
-          Token,
-          SignData: '',
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': '' + process.env.POSTEX_API_TOKEN,
-        },
-      }
-    );
-    const result: {
-      ResCode: string;
-      Message: string;
-      MerchantID: string;
-      TerminalID: string;
-      OrderId: string;
-      TransNo: number;
-      RefNo: number;
-      TraceNo: number;
-      Amount: number;
-      CardNo: string;
-      TransDate: string;
-      InvoiceNo: string;
-      AppExtraInf: {
-        PayerNm: string;
-        PayerMobile: string;
-        PayerEmail: string;
-        Descr: string;
-        PayerIP: string;
-        PayTitleID: string;
-      };
-    } = await res.json();
-    if (result.ResCode == '0' || result.ResCode == '00') {
-      const order = await getSingleOrderHistory(parseInt(result.InvoiceNo));
-      if (order) {
-        await updateOrderHistory(order.documentId, {
-          orderDetails: result,
-          paymentStatus: 'completed',
-          PaymentMethod: 'online',
-        });
-        return redirect(`/cart/checkout/callback/${order.order.orderCode}`);
+    if (ResCod == 0) {
+      const res = await fetch(
+        'https://rt.sizpay.ir/api/PaymentSimple/ConfirmSimple',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            Username: process.env.SIZPAY_USERNAME,
+            Password: process.env.SIZPAY_PASSWORD,
+            MerchantID: MerchantID,
+            TerminalID: TerminalID,
+            Token: Token,
+            SignData: '',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+          },
+        }
+      );
+
+      const result: PaymentDetailProps = await res.json();
+
+      if (result.ResCod == 0) {
+        const order = await getSingleOrderHistory(
+          parseInt(result.InvoiceNo),
+          true
+        );
+        if (order) {
+          const orderDeleteId = order.order;
+          delete orderDeleteId.id;
+          await updateOrderHistory(order.documentId, {
+            order: {
+              ...orderDeleteId,
+              items: orderDeleteId.items.map((item: CartProps) => {
+                return {
+                  count: item.count || 0,
+                  beforePrice: item.beforePrice || 0,
+                  mainPrice: item.mainPrice || 0,
+                  variety: item.variety,
+                  product: item.product.documentId,
+                };
+              }),
+              orderDetail: result,
+              paymentStatus: 'completed',
+              payMethod: 'online',
+              deliveryStatus: 'در صف بررسی',
+            },
+          });
+          return Response.redirect(
+            `${process.env.SITE_URL}/cart/checkout/callback/${order.order.orderCode}`
+          );
+        }
       }
     }
+    return Response.redirect(
+      `${process.env.SITE_URL}/cart/checkout/callback/406`
+    );
+  } catch (err) {
+    console.log(err);
+    return Response.redirect(
+      `${process.env.SITE_URL}/cart/checkout/callback/406`,
+      500
+    );
   }
-  return redirect(`/cart/checkout/callback/406`);
 }

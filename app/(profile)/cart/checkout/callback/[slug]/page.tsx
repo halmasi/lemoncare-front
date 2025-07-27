@@ -7,7 +7,7 @@ import unsuccessfulSvg from '@/public/unsuccessful.svg';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
-export default async function page({
+export default async function CallbackPage({
   params,
 }: {
   params: Promise<{ slug: string }>;

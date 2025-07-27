@@ -198,8 +198,9 @@ export default function Dashboard() {
                   <p className="flex items-center gap-2">
                     <span className="text-gray-600">شماره تماس: </span>{' '}
                     <span>
-                      {defualtAddress.phoneNumber} /{' '}
                       {defualtAddress.mobileNumber}
+                      {defualtAddress.phoneNumber &&
+                        ` / ${defualtAddress.phoneNumber}`}
                     </span>
                   </p>
                 </div>
