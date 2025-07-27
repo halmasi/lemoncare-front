@@ -17,6 +17,9 @@ import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { RiRefund2Fill } from 'react-icons/ri';
+import { MdOutlineVerified } from 'react-icons/md';
 
 interface NewItemProps {
   count: number;
@@ -321,13 +324,24 @@ export default function VarietySelector({
     </>
   ) : (
     <>
-      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        <div className="self-start flex gap-2 items-center">
-          <AddToFavorites product={product} />
+      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-50 rounded-xl">
+        <AddToFavorites product={product} />
+        <div className="p-10">
+          <div className="flex gap-1 items-center">
+            <MdOutlineVerified className="text-2xl text-accent-pink" />
+            <p>ضمانت اصالت و سلامت کالا</p>
+          </div>
+          <Link
+            className="flex gap-1 items-center"
+            href={'/pages/Terms-Conditions'}
+          >
+            <RiRefund2Fill className="text-2xl text-accent-pink" />
+            بازگشت کالا تا ۷ روز طبق شرایط مرجوعی
+          </Link>
         </div>
 
         {price.price && price.inventory ? (
-          <>
+          <div className="flex flex-col items-center justify-end h-full">
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
               {price.before != undefined && price.before > 0 && (
@@ -354,7 +368,7 @@ export default function VarietySelector({
               </h6>
             </Toman>
             {price.end && showDiscount && <DiscountTimer end={price.end} />}
-          </>
+          </div>
         ) : (
           <div>
             {available ? (
