@@ -1,7 +1,7 @@
 import { ContentProps } from '../otherProps';
 import { ImageProps, MediaProps } from '../mediaProps';
 import { ShopCategoryProps } from './categoryProps';
-import { TagsProps } from '@/app/utils/schema/blogProps';
+import { ShopTagsProps } from '@/app/utils/schema/shopProps';
 
 export interface ProductProps {
   id: number;
@@ -48,5 +48,5 @@ export interface ProductProps {
   media: MediaProps[];
   category: ShopCategoryProps;
   seo: { id: number; seoTitle: string; seoDescription: string };
-  tags: TagsProps[];
+  tags: ShopTagsProps[];
 }

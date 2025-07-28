@@ -1,5 +1,43 @@
 import ProductAndBlogSkeleton from '@/app/components/ProductAndBlogSkeleton';
 import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
+import { getShopCategory } from '@/app/utils/data/getProductCategories';
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const slug = (await params).slug;
+
+  const category = await getShopCategory(slug[slug.length - 1]);
+
+  return {
+    title: category[0].title + ' | lemiro - لمیرو',
+    description: category[0].description,
+    authors: [
+      {
+        name: 'lemiro - لمیرو',
+        url: `https://lemiro.ir`,
+      },
+    ],
+    applicationName: 'lemiro - لمیرو',
+    category: category[0].title + ' | lemiro - لمیرو',
+    openGraph: {
+      title: category[0].title + ' | lemiro - لمیرو',
+      description: category[0].description,
+      siteName: 'lemiro - لمیرو',
+      images: [
+        {
+          url: 'https://lemiro.ir/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png',
+          width: 1200,
+          height: 630,
+          alt: 'lemiro - لمیرو',
+        },
+      ],
+    },
+  };
+}
 
 export default async function shopCategory({
   params,

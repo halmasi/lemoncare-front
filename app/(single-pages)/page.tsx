@@ -8,6 +8,29 @@ import {
 } from '@/app/utils/data/getSuggestions';
 import { GrArticle } from 'react-icons/gr';
 import Head from 'next/head';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'lemiro - لمیرو',
+  description: 'وبسایت تخصصی مراقبت از پوست و مو',
+  applicationName: 'lemiro - لمیرو',
+  openGraph: {
+    title: 'lemiro - لمیرو',
+    description: 'وبسایت تخصصی مراقبت از پوست و مو',
+    siteName: 'lemiro - لمیرو',
+    locale: 'fa-IR',
+    type: 'website',
+    url: 'https://lemiro.ir',
+    images: [
+      {
+        url: 'https://lemiro.ir/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png',
+        width: 1200,
+        height: 630,
+        alt: 'lemiro - لمیرو',
+      },
+    ],
+  },
+};
 
 export default async function page() {
   const suggestedArticles = await getArticleSuggestions('homepage-slide');

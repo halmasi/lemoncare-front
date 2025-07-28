@@ -6,8 +6,49 @@ import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
 import { getProduct } from '@/app/utils/data/getProducts';
 import { ProductProps } from '@/app/utils/schema/shopProps';
+import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const params = await props.params;
+  const { slug } = params;
+  const fetchedData = await getProduct(slug);
+  const productArray: ProductProps[] = fetchedData.res;
+  if (!productArray || !productArray.length) return notFound();
+
+  const product = productArray[0];
+  const previousImages = (await parent).openGraph?.images || [];
+  const tags =
+    product.tags && product.tags.length > 0
+      ? product.tags.map((item) => item.title).join('، ')
+      : [''];
+  return {
+    title: product.seo.seoTitle + ' | lemiro - لمیرو',
+    description: product.seo.seoDescription + '\n برچسب ها: ' + tags,
+    authors: [
+      {
+        name: 'lemiro - لمیرو',
+        url: `https://lemiro.ir`,
+      },
+    ],
+
+    applicationName: 'lemiro - لمیرو',
+    category: product.category.title + ' | lemiro - لمیرو',
+    openGraph: {
+      title: product.seo.seoTitle + ' | lemiro - لمیرو',
+      description: product.seo.seoDescription,
+      siteName: 'lemiro - لمیرو',
+      images: [
+        product.basicInfo.mainImage.formats.medium.url,
+        ...previousImages,
+      ],
+    },
+  };
+}
 
 export default async function product(props: {
   params: Promise<{ slug: string }>;
