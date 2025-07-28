@@ -1,22 +1,24 @@
 import Breadcrumbs from '@/app/components/Breadcrumbs';
+import CommentSection from '@/app/components/CommentSection';
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
-import { getProduct, ProductProps } from '@/app/utils/data/getProducts';
+import { getProduct } from '@/app/utils/data/getProducts';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import React from 'react';
 
-export default async function product({
-  params,
-}: {
-  params: { slug: string };
+export default async function product(props: {
+  params: Promise<{ slug: string }>;
 }) {
+  const params = await props.params;
   const { slug } = params;
-  const productArray: ProductProps[] = await getProduct(slug);
+  const fetchedData = await getProduct(slug);
+  const productArray: ProductProps[] = fetchedData.res;
   if (!productArray || !productArray.length) return notFound();
   const product = productArray[0];
+
   return (
     <MainSection>
       <div className="w-full flex flex-col">
@@ -56,12 +58,15 @@ export default async function product({
             </div>
           ))}
         </div>
-        <div className="mt-5 p-2 md:mx-10 bg-slate-50 border rounded-lg">
-          <h3 className="text-accent-pink">توضیحات محصول:</h3>
-          <div className=" border md:hidden" />
-          {product.detailes.map((item, i) => (
-            <Content key={i} props={item} />
-          ))}
+        <div className="flex flex-col gap-5">
+          <div className="mt-5 p-2 md:mx-10 bg-slate-50 border rounded-lg">
+            {/* <h3 className="text-accent-pink">توضیحات محصول:</h3> */}
+            <div className=" border md:hidden" />
+            {product.detailes.map((item, i) => (
+              <Content key={i} props={item} />
+            ))}
+          </div>
+          <CommentSection productId={product.documentId} />
         </div>
       </div>
     </MainSection>

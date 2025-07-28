@@ -2,76 +2,208 @@
 
 import { loginSchema, registerSchema } from '@/app/utils/schema/formValidation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import qs from 'qs';
 import { requestData } from '@/app/utils/data/dataFetch';
-export const registerAction = async (
-  _prevState: object,
-  formData: FormData
-) => {
-  let username = formData.get('username')?.toString();
-  const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
+import { cleanPhone } from '../miniFunctions';
+import { updateUserInformation } from '../data/getUserInfo';
+import { FetchUserProps } from '../schema/userProps';
 
-  username = username?.includes('9')
-    ? username.slice(username.indexOf('9'))
-    : username;
-  const result = registerSchema.safeParse({
-    username,
-    email,
+export const registerAction = async ({
+  username,
+  name,
+  password,
+}: {
+  username: string;
+  name: string;
+  password: string;
+}) => {
+  const fieldErrors: {
+    username: string[];
+    name: string[];
+    password: string[];
+    server: string[];
+  } = {
+    username: [],
+    name: [],
+    password: [],
+    server: [],
+  };
+  username = '98' + cleanPhone(username);
+  const validationResult = registerSchema.safeParse({
+    username: username,
+    name,
     password,
   });
 
-  if (!result.success) {
-    console.log('Validation failed:', result.error);
-    return { success: false, fieldErrors: result.error.flatten().fieldErrors };
+  if (validationResult.error) {
+    const errors = validationResult.error.flatten().fieldErrors;
+    if (errors.username) fieldErrors.username.push(...errors.username);
+    if (errors.name) fieldErrors.name.push(...errors.name);
+    if (errors.password) fieldErrors.password.push(...errors.password);
   }
+  if (validationResult.success) {
+    const response = await requestData({
+      qs: '/auth/local/register',
+      method: 'POST',
+      body: {
+        username: validationResult.data.username,
+        email: `${validationResult.data.username}@lemiro.ir`,
+        password: validationResult.data.password,
+      },
+    });
 
-  const res = await requestData('/auth/local/register', 'POST', {
-    username: '98' + result.data.username,
-    password: result.data.password,
-    email: result.data.email,
-  });
+    if (response.data.error) {
+      fieldErrors.server.push(response.data.error.message);
+      return { success: false, fieldErrors };
+    } else {
+      const userId = response.data.user.id;
 
-  const { jwt, user } = res.data;
-  return { jwt, user };
+      const requests = [
+        { url: '/carts', data: { user: userId, items: [] } },
+        {
+          url: '/postal-informations',
+          data: { user: userId, information: [] },
+        },
+        { url: '/favorites', data: { user: userId, posts: [], products: [] } },
+      ];
+      await Promise.all(
+        requests.map(({ url, data }) =>
+          requestData({
+            qs: url,
+            method: 'POST',
+            body: { data },
+            token: `Bearer ${response.data.jwt}`,
+          })
+        )
+      );
+      await updateUserInformation(userId, response.data.jwt, {
+        fullName: name,
+      });
+      return {
+        success: true,
+        fieldErrors,
+        user: userId,
+      };
+    }
+  }
+  return {
+    success: false,
+    fieldErrors,
+  };
 };
 
-export const signinAction = async (_prevState: object, formData: FormData) => {
-  const email = formData.get('identifier')?.toString() || null;
-  const password = formData.get('password')?.toString() || null;
+export const signinAction = async (identifier: string, password: string) => {
+  let success = false;
 
-  if (!email || !password) {
-    return {
-      success: false,
-      fieldErrors: {
-        email: !email ? ['ایمیل الزامی است'] : undefined,
-        password: !password ? ['رمز عبور الزامی است'] : undefined,
-      },
+  const fieldErrors: {
+    identifier: string[];
+    password: string[];
+    server: string[];
+  } = {
+    identifier: [],
+    password: [],
+    server: [],
+  };
+
+  let response: {
+    data: {
+      data?: null | '';
+      jwt: string;
+      user: object;
+      error?: { message: string };
     };
-  }
+  } = {
+    data: { jwt: '', user: {} },
+  };
 
-  const result = loginSchema.safeParse({
-    email,
+  if (!identifier)
+    fieldErrors.identifier.push('ایمیل یا شماره تلفن الزامی است');
+  if (!password) fieldErrors.password.push('رمز عبور الزامی است');
+  identifier = cleanPhone(identifier);
+  const validationResult = loginSchema.safeParse({
+    identifier,
     pass: password,
   });
 
-  if (!result.success) {
-    return {
-      success: false,
-      fieldErrors: result.error.flatten().fieldErrors,
-    };
+  if (validationResult.error) {
+    const errors = validationResult.error.flatten().fieldErrors;
+    if (errors.identifier) fieldErrors.identifier.push(...errors.identifier);
+    if (errors.pass) fieldErrors.password.push(...errors.pass);
   }
-  const res = await requestData('/auth/local', 'POST', {
-    identifier: result.data.email,
-    password: result.data.pass,
-  });
-  const { jwt, user } = res.data;
-  return { jwt, user };
+
+  if (validationResult.success) {
+    if (/^9\d{9}$/.test(validationResult.data?.identifier)) {
+      validationResult.data.identifier =
+        '98' + validationResult.data.identifier;
+    }
+    response = await requestData({
+      qs: '/auth/local',
+      method: 'POST',
+      body: {
+        identifier: validationResult.data.identifier,
+        password: validationResult.data.pass,
+      },
+    });
+    if (response.data.error) {
+      fieldErrors.server.push(response.data.error.message);
+    } else {
+      success = true;
+    }
+  }
+  return {
+    success,
+    jwt: response.data.jwt,
+    user: response.data.user,
+    fieldErrors,
+  };
 };
 
-export const loginCheck = async (token: string) => {
-  const res = await requestData('/users/me', 'GET', {}, token);
-  return { status: res.result.status, body: res };
+export const loginCheck = async () => {
+  const token = await getCookie('jwt');
+  const response = await requestData({ qs: '/users/me', method: 'GET', token });
+  const data: FetchUserProps = response.data;
+
+  return {
+    status: response.status,
+    isAuthenticated: response.status === 200,
+    body: data,
+    jwt: token,
+  };
+};
+
+export const getFullUserData = async (input?: {
+  isDeep?: boolean;
+  token?: string;
+  populateOptions?: object[];
+}) => {
+  const defaultOptions = {
+    shopingCart: { populate: '*' },
+    postal_information: { populate: '*' },
+    favorite: { populate: '1' },
+    order_histories: { populate: '1' },
+  };
+  const options = input?.populateOptions
+    ? Object.assign(defaultOptions, ...input.populateOptions)
+    : defaultOptions;
+  const query = qs.stringify({
+    populate: options,
+  });
+  const getToken = await getCookie('jwt');
+
+  const response = await requestData({
+    qs: `/users/me?${input?.isDeep ? 'pLevel' : query}`,
+    method: 'GET',
+    token: input && input.token ? input.token : getToken,
+  });
+  return { status: response.status, body: response.data };
+};
+
+export const removeUser = async (id: number) => {
+  const response = await requestData({
+    qs: `/users/${id}`,
+    method: 'DELETE',
+  });
+  return response;
 };
 
 export const setCookie = async (name: string, cookie: string) => {
@@ -81,11 +213,16 @@ export const setCookie = async (name: string, cookie: string) => {
     // secure: process.env.NODE_ENV === 'production',
   };
 
-  cookies().set(name, cookie, config);
+  (await cookies()).set(name, cookie, config);
+};
+
+export const getCookie = async (key: string) => {
+  return (await cookies()).get(key)?.value;
+};
+export const deleteCookie = async (key: string) => {
+  (await cookies()).delete(key);
 };
 
 export const logoutAction = async () => {
-  cookies().set('jwt', 'null');
-  await setCookie('jwt', 'null');
-  redirect('/login');
+  (await cookies()).delete('jwt');
 };

@@ -1,11 +1,14 @@
 import Image from 'next/image';
+import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
+import Link from 'next/link';
 import {
   ContentChildrenProps,
   ContentProps,
   ContentTypes,
-} from '@/app/utils/data/getPosts';
-import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
-import Link from 'next/link';
+} from '@/app/utils/schema/otherProps';
+
+import type { JSX } from 'react';
+import Title from './Title';
 
 function ParagraphBuilder({
   item,
@@ -38,7 +41,7 @@ export default function Content({
   const { type, children, format, level, image } = props;
   if (type == ContentTypes.paragraph) {
     return (
-      <p>
+      <p className="py-1">
         {children.map((e, index) => {
           if (e.type == 'link' && e.url)
             return (
@@ -56,51 +59,63 @@ export default function Content({
     switch (level) {
       case 1:
         return (
-          <h1>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h1>
+          <Title className="pb-5">
+            <h1>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h1>
+          </Title>
         );
       case 2:
         return (
-          <h2>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h2>
+          <Title className="pb-5">
+            <h2>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h2>
+          </Title>
         );
       case 3:
         return (
-          <h3>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h3>
+          <Title className="pb-5">
+            <h3>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h3>
+          </Title>
         );
       case 4:
         return (
-          <h4>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h4>
+          <Title className="pb-5">
+            <h4>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h4>
+          </Title>
         );
       case 5:
         return (
-          <h5>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h5>
+          <Title className="pb-5">
+            <h5>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h5>
+          </Title>
         );
       default:
         return (
-          <h6>
-            {children.map((item, index) => (
-              <ParagraphBuilder key={index} item={item} />
-            ))}
-          </h6>
+          <Title className="pb-5">
+            <h6>
+              {children.map((item, index) => (
+                <ParagraphBuilder key={index} item={item} />
+              ))}
+            </h6>
+          </Title>
         );
     }
   else if (type == ContentTypes.image && image) {

@@ -17,18 +17,24 @@ function Button({
   href,
   children,
   label,
+  className = '',
 }: {
   href: string;
   children: ReactNode;
   label: string;
+  className?: string;
 }) {
   return (
     <Link
-      className="flex flex-col gap-1 h-full w-full items-center justify-center"
+      className={`flex justify-center items-center h-full w-full border-x`}
       href={href}
     >
-      <div className="text-2xl">{children}</div>
-      <p className="text-xs">{label}</p>
+      <div
+        className={`flex flex-col  justify-center items-center gap-1 w-[60%] ${className}`}
+      >
+        <div className="text-2xl">{children}</div>
+        <p className="text-xs">{label}</p>
+      </div>
     </Link>
   );
 }
@@ -36,26 +42,42 @@ function Button({
 export default function FooterNavbar() {
   const path = usePathname();
   return (
-    <footer className="flex items-center justify-center bottom-0 sticky z-20 bg-white min-h-14 md:hidden border-t-2">
+    <footer className="flex items-center justify-center bottom-0 sticky z-20 bg-white min-h-14 lg:hidden border-t-2">
       <div className="flex w-full h-full justify-between">
-        <Button href="/shop" label="محصولات">
+        <Button
+          href="/shop"
+          className={`${path.startsWith('/shop') && 'bg-accent-pink text-white rounded-lg'}`}
+          label="محصولات"
+        >
           {path.startsWith('/shop') ? <RiApps2Fill /> : <RiApps2Line />}
         </Button>
 
-        <Button href="/blog" label="مقالات">
+        <Button
+          href="/blog"
+          className={`${path.startsWith('/blog') && 'bg-accent-pink text-white rounded-lg'}`}
+          label="مقالات"
+        >
           {path.startsWith('/blog') ? <RiArticleFill /> : <RiArticleLine />}
         </Button>
 
-        <Button href="/dashboard/cart" label="سبد خرید">
-          {path == '/dashboard/cart' ? (
+        <Button
+          href="/cart"
+          className={`${path.startsWith('/cart') && 'bg-accent-pink text-white rounded-lg'}`}
+          label="سبد خرید"
+        >
+          {path.startsWith('/cart') ? (
             <RiShoppingBagFill />
           ) : (
             <RiShoppingBagLine />
           )}
         </Button>
 
-        <Button href="/dashboard" label="حساب من">
-          {path != '/dashboard/cart' && path.startsWith('/dashboard') ? (
+        <Button
+          href="/dashboard"
+          className={`${path.startsWith('/dashboard') && 'bg-accent-pink text-white rounded-lg'}`}
+          label="حساب من"
+        >
+          {path.startsWith('/dashboard') ? (
             <RiAccountPinCircleFill />
           ) : (
             <RiAccountPinCircleLine />

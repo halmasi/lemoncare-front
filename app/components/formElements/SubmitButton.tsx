@@ -1,17 +1,46 @@
+import Link from 'next/link';
 import { ReactNode } from 'react';
 interface Props {
   children: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
+  isPending?: boolean;
+  link?: string;
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+  title?: string;
 }
-function SubmitButton({ children, onClick }: Props) {
-  return (
+export default function SubmitButton({
+  children,
+  disabled,
+  isPending,
+  onClick,
+  link,
+  className,
+  type,
+  title = '',
+}: Props) {
+  return link ? (
+    <Link
+      title={title}
+      className={`flex px-6 py-2 rounded-lg border text-foreground bg-gray-50 hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
+    ${disabled && 'opacity-50 cursor-not-allowed'} ${isPending && 'cursor-progress opacity-50'} ${className}`}
+      href={disabled ? '' : link}
+      onClick={onClick}
+    >
+      {children}
+    </Link>
+  ) : (
     <button
       onClick={onClick}
-      className="px-6 py-2 text-lg font-semibold rounded-xl bg-accent-green text-background hover:text-accent-pink transition-colors ease-in-out drop-shadow-lg"
+      disabled={disabled || isPending}
+      aria-disabled={disabled || isPending}
+      type={type ? type : 'submit'}
+      title={title}
+      className={`flex px-6 py-2 rounded-lg border text-foreground bg-gray-50 hover:text-background/80 hover:bg-accent-green/80 transition-colors ease-in-out drop-shadow-md
+        ${disabled && 'opacity-50 cursor-not-allowed'} ${isPending && 'cursor-progress opacity-50'} ${className}`}
     >
-      <p className="shadow-foreground drop-shadow-md">{children}</p>
+      {children}
     </button>
   );
 }
-
-export default SubmitButton;
