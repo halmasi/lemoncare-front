@@ -3,6 +3,7 @@
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Title from '@/app/components/Title';
 import { emptyCart } from '@/app/utils/actions/cartActionMethods';
+import config from '@/app/utils/config';
 import { getSingleOrderHistory } from '@/app/utils/data/getUserInfo';
 import { getPaymentToken } from '@/app/utils/paymentUtils';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
@@ -23,8 +24,8 @@ function SizPayRedirect({ token }: { token: string }) {
     form.action = 'https://rt.sizpay.ir/Route/Payment';
 
     const ParamEntries = {
-      MerchantID: process.env.SIZPAY_MERCHANT_ID || '',
-      TerminalID: process.env.SIZPAY_TERMINAL_ID || '',
+      MerchantID: config.sizpayMerchantId || '',
+      TerminalID: config.sizpayTerminalId || '',
       Token: token,
     };
 

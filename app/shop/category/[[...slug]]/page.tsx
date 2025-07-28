@@ -1,5 +1,6 @@
 import ProductAndBlogSkeleton from '@/app/components/ProductAndBlogSkeleton';
 import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
+import config from '@/app/utils/config';
 import { getShopCategory } from '@/app/utils/data/getProductCategories';
 import { Metadata } from 'next';
 
@@ -18,7 +19,7 @@ export async function generateMetadata({
     authors: [
       {
         name: 'lemiro - لمیرو',
-        url: `https://lemiro.ir`,
+        url: config.siteUrl,
       },
     ],
     applicationName: 'lemiro - لمیرو',
@@ -29,7 +30,7 @@ export async function generateMetadata({
       siteName: 'lemiro - لمیرو',
       images: [
         {
-          url: 'https://lemiro.ir/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png',
+          url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
           width: 1200,
           height: 630,
           alt: 'lemiro - لمیرو',

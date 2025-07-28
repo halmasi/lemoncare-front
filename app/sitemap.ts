@@ -1,24 +1,22 @@
 import type { MetadataRoute } from 'next';
 import { getCategories } from './utils/data/getCategories';
 import { getShopCategories } from './utils/data/getProductCategories';
-
-export const dynamic = 'force-dynamic';
-
-export const revalidate = 60 * 60;
+import config from './utils/config';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const categories = await getCategories();
-  const shopCategory = await getShopCategories();
-  const shopCategories = shopCategory.filter(
-    (category) => !category.shopParentCategory
-  );
-  const mainCategories = categories.filter(
-    (category) =>
-      !category.parentCategories || category.parentCategories.length === 0
-  );
-  return [
+  const array: {
+    url: string;
+    priority?: number;
+    changeFrequency?:
+      | 'hourly'
+      | 'daily'
+      | 'weekly'
+      | 'monthly'
+      | 'yearly'
+      | 'never';
+  }[] = [
     {
-      url: '',
+      url: '/',
       priority: 1,
     },
     {
@@ -31,12 +29,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
       changeFrequency: 'hourly' as const,
     },
-    ...mainCategories.map((category) => ({
-      url: `/blog/${category.slug}.xml`,
-    })),
-    ...shopCategories.map((category) => ({
-      url: `/shop/${category.slug}.xml`,
-    })),
+  ];
+  const shopCategory = await getShopCategories();
+  if (shopCategory) {
+    const shopCategories = shopCategory.filter(
+      (category) => !category.shopParentCategory
+    );
+
+    if (shopCategories) {
+      shopCategories.forEach((category) =>
+        array.push({
+          url: `/shop/sitemap/${category.slug}.xml`,
+        })
+      );
+    }
+  }
+  const categories = await getCategories();
+  if (categories) {
+    const mainCategories = categories.filter(
+      (category) =>
+        !category.parentCategories || category.parentCategories.length === 0
+    );
+
+    if (mainCategories) {
+      mainCategories.forEach((category) =>
+        array.push({
+          url: `/blog/sitemap/${category.slug}.xml`,
+        })
+      );
+    }
+  }
+
+  [
     {
       url: '/pages/privacy-policy',
       priority: 0.5,
@@ -57,8 +81,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
       changeFrequency: 'monthly' as const,
     },
-  ].map((route: MetadataRoute.Sitemap[number]) => ({
+  ].forEach((item) => {
+    array.push(item);
+  });
+
+  return array.map((route: MetadataRoute.Sitemap[number]) => ({
     ...route,
-    url: `https://lemiro.ir${route.url}`,
+    url: `${config.siteUrl}${route.url}`,
   }));
 }

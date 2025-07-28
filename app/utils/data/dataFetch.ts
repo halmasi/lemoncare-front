@@ -1,5 +1,6 @@
 'use server';
 
+import config from '../config';
 import { logs } from '../miniFunctions';
 import { MetaProps } from '../schema/metaProps';
 
@@ -19,7 +20,7 @@ export async function dataFetch({
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: `Bearer ${process.env.STRAPI_TOKEN}`,
+      Authorization: `Bearer ${config.strapiToken}`,
     },
     cache,
   };
@@ -27,7 +28,7 @@ export async function dataFetch({
   if (tag) Object.assign(options, { next: { tags: tag } });
 
   try {
-    const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
+    const apiData = await fetch(config.backendPath + qs, options);
 
     if (apiData.status == 204) {
       return {
@@ -73,7 +74,7 @@ export async function requestData({
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: token || `Bearer ${process.env.STRAPI_TOKEN}`,
+      Authorization: token || `Bearer ${config.strapiToken}`,
     },
     cache,
   };
@@ -83,7 +84,7 @@ export async function requestData({
   if (tag) Object.assign(options, { next: { tags: tag } });
 
   try {
-    const apiData = await fetch(process.env.BACKEND_PATH + qs, options);
+    const apiData = await fetch(config.backendPath + qs, options);
 
     if (apiData.status == 204) {
       return {

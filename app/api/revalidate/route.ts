@@ -13,14 +13,13 @@ import { NextRequest } from 'next/server';
 import { createHash } from 'node:crypto';
 import { dataFetch } from '@/app/utils/data/dataFetch';
 import qs from 'qs';
+import config from '@/app/utils/config';
 
 export async function POST(request: NextRequest) {
   const token = request.headers.get('token');
   if (!token) return new Response('invalid request', { status: 400 });
 
-  if (
-    process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
-  ) {
+  if (config.secretKey != createHash('sha256').update(token).digest('hex')) {
     return new Response('invalid request', { status: 400 });
   }
   const body = await request.json();

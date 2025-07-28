@@ -1,3 +1,4 @@
+import config from '@/app/utils/config';
 import {
   getSingleOrderHistory,
   updateOrderHistory,
@@ -19,8 +20,8 @@ export async function POST(req: Request) {
         {
           method: 'POST',
           body: JSON.stringify({
-            Username: process.env.SIZPAY_USERNAME,
-            Password: process.env.SIZPAY_PASSWORD,
+            Username: config.sizpayUsername,
+            Password: config.sizpayPassword,
             MerchantID: MerchantID,
             TerminalID: TerminalID,
             Token: Token,
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
           }),
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+            'x-api-key': '' + config.sizpayToken,
           },
         }
       );
@@ -62,18 +63,16 @@ export async function POST(req: Request) {
             },
           });
           return Response.redirect(
-            `${process.env.SITE_URL}/cart/checkout/callback/${order.order.orderCode}`
+            `${config.siteUrl}/cart/checkout/callback/${order.order.orderCode}`
           );
         }
       }
     }
-    return Response.redirect(
-      `${process.env.SITE_URL}/cart/checkout/callback/406`
-    );
+    return Response.redirect(`${config.siteUrl}/cart/checkout/callback/406`);
   } catch (err) {
     console.log(err);
     return Response.redirect(
-      `${process.env.SITE_URL}/cart/checkout/callback/406`,
+      `${config.siteUrl}/cart/checkout/callback/406`,
       500
     );
   }

@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 import AddToFavorites from '@/app/components/AddToFavorites';
+import config from '@/app/utils/config';
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
@@ -30,7 +31,7 @@ export async function generateMetadata(
     authors: [
       {
         name: post.author.name,
-        url: `https://lemiro.ir/author/${post.author.username}`,
+        url: `${config.siteUrl}/author/${post.author.username}`,
       },
     ],
     applicationName: 'lemiro - لمیرو',

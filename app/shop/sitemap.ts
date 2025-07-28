@@ -4,16 +4,21 @@ import {
   getShopCategory,
 } from '../utils/data/getProductCategories';
 import { getProductsByCategory } from '../utils/data/getProducts';
-
-export const revalidate = 60 * 60;
-
-export const dynamic = 'force-dynamic';
+import config from '../utils/config';
 
 export async function generateSitemaps() {
   const categories = await getShopCategories();
+  if (!categories || !Array.isArray(categories) || categories.length == 0)
+    return;
   const mainCategories = categories.filter(
     (category) => !category.shopParentCategory
   );
+  if (
+    !mainCategories ||
+    !Array.isArray(mainCategories) ||
+    mainCategories.length == 0
+  )
+    return;
   const sitemapItems = mainCategories.map((category) => ({
     id: category.slug,
   }));
@@ -24,9 +29,15 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
-  const getCategories = await getShopCategory(id);
+  const categoryList = await getShopCategory(id);
+  if (
+    !categoryList ||
+    !Array.isArray(categoryList) ||
+    categoryList.length === 0
+  )
+    return [];
   const products = await getProductsByCategory({
-    category: getCategories[0],
+    category: categoryList[0],
     isSiteMap: true,
   });
   if (
@@ -36,7 +47,7 @@ export default async function sitemap({
     products.res.length > 0
   ) {
     const sitemapItems = products.res.map((product) => ({
-      url: `/shop/product/${product.basicInfo.contentCode}`,
+      url: `${config.siteUrl}/shop/product/${product.basicInfo.contentCode}`,
       lastModified: product.updatedAt
         ? new Date(product.updatedAt)
         : new Date(),

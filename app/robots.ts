@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import config from './utils/config';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/cart', '/dashboard'],
       },
     ],
-    sitemap: 'https://lemiro.ir/sitemap.xml',
+    sitemap: `${config.siteUrl}/sitemap.xml`,
   };
 }

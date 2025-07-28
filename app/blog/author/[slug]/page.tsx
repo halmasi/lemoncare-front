@@ -1,5 +1,6 @@
 import ProductAndBlogSkeleton from '@/app/components/ProductAndBlogSkeleton';
 import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
+import config from '@/app/utils/config';
 import { getAuthorInformation } from '@/app/utils/data/getPosts';
 import { getGravatar } from '@/app/utils/data/getUserInfo';
 import { Metadata } from 'next';
@@ -23,7 +24,7 @@ export async function generateMetadata({
     authors: [
       {
         name: 'lemiro - لمیرو',
-        url: `https://lemiro.ir`,
+        url: config.siteUrl,
       },
     ],
     applicationName: 'lemiro - لمیرو',

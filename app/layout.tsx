@@ -3,7 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import ClientProvider from './components/ClientProvider';
 import { ToastContainer, Slide } from 'react-toastify';
-
+import config from '@/app/utils/config';
 import Footer from '@/app/components/Footer';
 import FooterNavbar from './components/FooterNavbar';
 import LoginHandler from './components/profile/LoginHandler';
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: 'lemiro - لمیرو',
     images: [
       {
-        url: 'https://lemiro.ir/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png',
+        url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
         width: 1200,
         height: 630,
         alt: 'lemiro - لمیرو',

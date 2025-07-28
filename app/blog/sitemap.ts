@@ -1,21 +1,26 @@
 import { getCategories, getCategory } from '@/app/utils/data/getCategories';
 import { getPostsByCategory } from '@/app/utils/data/getPosts';
 import { MetadataRoute } from 'next';
-
-export const revalidate = 60 * 60 * 24;
-
-export const dynamic = 'force-dynamic';
+import config from '../utils/config';
 
 export async function generateSitemaps() {
   const categories = await getCategories();
+  if (!categories || !Array.isArray(categories) || categories.length == 0)
+    return;
   const mainCategories = categories.filter(
     (category) =>
-      !category.parentCategories || category.parentCategories.length === 0
+      !category.parentCategories || category.parentCategories.length == 0
   );
+  if (
+    !mainCategories ||
+    !Array.isArray(mainCategories) ||
+    mainCategories.length == 0
+  )
+    return;
   const sitemapItems = mainCategories.map((category) => ({
     id: category.slug,
   }));
-  return [...sitemapItems];
+  return sitemapItems;
 }
 
 export default async function sitemap({
@@ -23,9 +28,11 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
-  const getCategories = await getCategory(id);
+  const categoryList = await getCategory(id);
+  if (!categoryList || !Array.isArray(categoryList) || categoryList.length == 0)
+    return [];
   const getPosts = await getPostsByCategory({
-    category: getCategories[0],
+    category: categoryList[0],
     isSiteMap: true,
   });
   if (
@@ -35,7 +42,7 @@ export default async function sitemap({
     getPosts.result.length > 0
   ) {
     const sitemapItems = getPosts.result.map((post) => ({
-      url: `/blog/posts/${post.basicInfo.contentCode}`,
+      url: `${config.siteUrl}/blog/posts/${post.basicInfo.contentCode}`,
       lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.8,

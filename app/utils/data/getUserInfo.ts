@@ -10,6 +10,7 @@ import { getPost } from './getPosts';
 import { getProduct } from './getProducts';
 import { PostsProps } from '../schema/blogProps';
 import { ProductProps } from '../schema/shopProps';
+import config from '../config';
 
 export const updateUserInformation = async (
   id: number,
@@ -153,7 +154,7 @@ export const getSingleOrderHistory = async (
       },
     },
   });
-  const token = useEnvToken ? `Bearer ${process.env.STRAPI_TOKEN}` : check.jwt;
+  const token = useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt;
 
   const res = await requestData({
     qs: `/order-histories?${query}`,
@@ -182,7 +183,7 @@ export const updateOrderHistory = async (
     qs: `/order-histories/${documentId}`,
     method: 'PUT',
     body: { data },
-    token: useEnvToken ? `Bearer ${process.env.STRAPI_TOKEN}` : check.jwt,
+    token: useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt,
   });
   return res.data;
 };
@@ -263,7 +264,7 @@ export const updateFavorite = async (
 };
 
 export const getGravatar = async (email: string) => {
-  const get = await fetch(`${process.env.SITE_URL}/api/auth/gravatar`, {
+  const get = await fetch(`${config.siteUrl}/api/auth/gravatar`, {
     headers: {
       'Content-Type': 'application/json',
     },
