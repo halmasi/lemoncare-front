@@ -24,8 +24,21 @@ const iranFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'LemonCare - لمن کر',
+  title: 'lemiro - لمیرو',
   description: 'وبسایت تخصصی مراقبت از پوست و مو',
+  openGraph: {
+    title: 'lemiro - لمیرو',
+    description: 'وبسایت تخصصی مراقبت از پوست و مو',
+    siteName: 'lemiro - لمیرو',
+    images: [
+      {
+        url: 'https://lemiro.ir/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png',
+        width: 1200,
+        height: 630,
+        alt: 'lemiro - لمیرو',
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

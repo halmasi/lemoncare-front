@@ -6,6 +6,25 @@ import {
   ShopSubCategoiesProps,
 } from '@/app/utils/schema/shopProps';
 
+export const revalidate = 60 * 60;
+
+export const getShopCategories = cache(async function (
+  tag?: string[]
+): Promise<ShopCategoryProps[]> {
+  const query = qs.stringify({
+    populate: {
+      shopParentCategory: { populate: '*' },
+      shopSubCategories: { populate: '*' },
+    },
+  });
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return result.data;
+});
+
 export const getShopCategory = cache(async function (
   slug: string,
   tag?: string[]

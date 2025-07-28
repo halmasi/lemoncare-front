@@ -79,6 +79,7 @@ export const getProducts = cache(async function ({
 export const getProductsByCategory = cache(async function ({
   category,
   tag,
+  isSiteMap = false,
   pageSize = 10,
   page = 1,
 }: {
@@ -86,6 +87,7 @@ export const getProductsByCategory = cache(async function ({
   tag?: string[];
   pageSize?: number;
   page?: number;
+  isSiteMap?: boolean;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const subCategories: ShopSubCategoiesProps[] | [] =
     category.shopSubCategories.length > 0
@@ -109,11 +111,16 @@ export const getProductsByCategory = cache(async function ({
       category: { populate: '*' },
       variety: { populate: '*' },
     },
-    pagination: {
-      page,
-      pageSize,
-    },
   });
+
+  if (!isSiteMap) {
+    Object.assign(query, {
+      pagination: {
+        page,
+        pageSize,
+      },
+    });
+  }
 
   const result = await dataFetch({
     qs: `/products?${query}&sort[0]=createdAt:desc`,

@@ -2,8 +2,46 @@ import ProductAndBlogSkeleton from '@/app/components/ProductAndBlogSkeleton';
 import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
 import { getAuthorInformation } from '@/app/utils/data/getPosts';
 import { getGravatar } from '@/app/utils/data/getUserInfo';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const slug = (await params).slug;
+
+  const author = await getAuthorInformation(slug);
+  if (!author) return notFound();
+  const gravatar = await getGravatar(author.email);
+
+  return {
+    title: author.name + ' | lemiro - لمیرو',
+    description: author.description,
+    authors: [
+      {
+        name: 'lemiro - لمیرو',
+        url: `https://lemiro.ir`,
+      },
+    ],
+    applicationName: 'lemiro - لمیرو',
+    openGraph: {
+      title: author.name + ' | lemiro - لمیرو',
+      description: author.description,
+      siteName: 'lemiro - لمیرو',
+      images: [
+        {
+          url: `${gravatar}?size=512`,
+          width: 512,
+          height: 512,
+          alt: author.name,
+        },
+      ],
+    },
+  };
+}
 
 export default async function AuthorsPage({
   params,
