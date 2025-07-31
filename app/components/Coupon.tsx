@@ -1,10 +1,10 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { useCheckoutStore } from '../utils/states/useCheckoutData';
+// import { useCheckoutStore } from '../utils/states/useCheckoutData';
 import InputBox from './formElements/InputBox';
 import SubmitButton from './formElements/SubmitButton';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { checkCoupon } from '../utils/data/getCoupons';
 import { useCartStore } from '../utils/states/useCartData';
 
@@ -12,15 +12,16 @@ export default function Coupon() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isValid, setIsValid] = useState<boolean>(false);
   const { cart } = useCartStore();
-  const { setCoupon } = useCheckoutStore();
+  // const { setCoupon } = useCheckoutStore();
 
   const checkCouponFn = useMutation({
     mutationFn: async (coupon: string) => {
+      console.log(cart);
       const res = await checkCoupon({ coupon, cart });
-      return res.data;
+      return res;
     },
     onSuccess: (data) => {
-      //   console.log(data);
+      console.log(data);
     },
   });
 

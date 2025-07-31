@@ -11,7 +11,6 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useEffect, useState } from 'react';
-import Coupon from '@/app/components/Coupon';
 
 export default function CheckoutPage() {
   const { cart, cartProducts } = useCartStore();
@@ -86,9 +85,7 @@ export default function CheckoutPage() {
           />
         </div>
         <div className="flex flex-col gap-2 h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
-          <div>
-            <Coupon />
-          </div>
+          <div></div>
           <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
             {checkoutAddress && (
               <div>

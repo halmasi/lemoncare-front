@@ -1,5 +1,6 @@
 'use client';
 import PaymentSelector from '@/app/components/checkout/PaymentSelector';
+import Coupon from '@/app/components/Coupon';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
@@ -154,6 +155,7 @@ export default function Payment() {
   return (
     <>
       <div className="flex flex-col lg:flex-row w-full gap-2">
+        <Coupon />
         <div className="w-full lg:w-1/2 flex flex-col gap-5 bg-background rounded-lg border p-2">
           <Title>
             <h6 className="text-accent-pink">شیوه پرداخت</h6>
