@@ -2,14 +2,14 @@
 
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useCartStore } from '@/app/utils/states/useCartData';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { BiMinus, BiPlus } from 'react-icons/bi';
 import { RiDeleteBin2Fill } from 'react-icons/ri';
 import { useMutation } from '@tanstack/react-query';
 import { VscLoading } from 'react-icons/vsc';
 import { getCart, updateCart } from '@/app/utils/actions/cartActionMethods';
 import { logs } from '@/app/utils/miniFunctions';
-import { CartProps, ProductProps } from '@/app/utils/schema/shopProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 import { useRouter } from 'next/navigation';
 export default function Count({
   inventory,
@@ -28,14 +28,15 @@ export default function Count({
 
   const [number, setNumber] = useState(cartItem.count);
 
-  const itemIndex = cart
-    ? cart.findIndex((item) => {
-        const bool =
-          item.product.documentId == cartItem.product.documentId &&
-          item.variety == cartItem.variety;
-        return bool;
-      })
-    : -1;
+  const itemIndex =
+    cart && cart.length > 0
+      ? cart.findIndex((item) => {
+          const bool =
+            item.product.documentId == cartItem.product.documentId &&
+            item.variety == cartItem.variety;
+          return bool;
+        })
+      : -1;
 
   const itemCount = itemIndex != -1 ? cart[itemIndex].count : 0;
 
@@ -70,17 +71,17 @@ export default function Count({
 
   const changeNumberfn = useMutation({
     mutationFn: async (newNumber: number) => {
-      const updateCart = cart;
+      const updatedCart = cart;
       if (newNumber <= 0) {
-        updateCart.splice(updateCart.indexOf(cartItem), 1);
+        updatedCart.splice(updatedCart.indexOf(cartItem), 1);
+        setCart(updatedCart);
         if (user && jwt) {
-          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+          updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updatedCart)));
         }
-        refreshFunction(0);
       } else {
         if (newNumber > inventory) newNumber = inventory;
-        updateCart[updateCart.indexOf(cartItem)].count = newNumber;
-        setCart(updateCart);
+        updatedCart[updatedCart.indexOf(cartItem)].count = newNumber;
+        setCart(updatedCart);
 
         if (jwt && user) {
           getCartFn.mutateAsync();
@@ -91,14 +92,14 @@ export default function Count({
             ])
           );
 
-          const shouldUpdate = updateCart.some((item) => {
+          const shouldUpdate = updatedCart.some((item) => {
             const key = `${item.product.documentId}-${item.variety.id}-${item.variety.sub}`;
             const foundItem = cartMap.get(key);
             return foundItem?.count !== item.count;
           });
 
           if (shouldUpdate) {
-            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updateCart)));
+            updateCartFn.mutateAsync(JSON.parse(JSON.stringify(updatedCart)));
           }
         }
       }

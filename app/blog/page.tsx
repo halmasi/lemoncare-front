@@ -1,36 +1,33 @@
-import { getPosts } from '@/app/utils/data/getPosts';
-import PostCard from '@/app/components/PostCard';
-import { getSlides } from '../utils/data/getSuggestions';
 import Slide from '../components/Slide';
-import { PostsProps } from '@/app/utils/schema/blogProps';
+import ProductsAndBlogPage from '../components/ProductsAndBlogPage';
+import { Metadata } from 'next';
+import config from '../utils/config';
+
+export const metadata: Metadata = {
+  title: 'lemiro - مقالات لمیرو',
+  description: 'وبسایت تخصصی مراقبت از پوست و مو',
+  openGraph: {
+    title: 'lemiro - مقالات لمیرو',
+    description: 'وبسایت تخصصی مراقبت از پوست و مو',
+    siteName: 'lemiro - لمیرو',
+    images: [
+      {
+        url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
+        width: 1200,
+        height: 630,
+        alt: 'lemiro - مقالات لمیرو',
+      },
+    ],
+  },
+};
 
 export default async function BlogHomePage() {
-  const slide = await getSlides('blog');
-
-  const data = await getPosts(3, ['post']);
-
   return (
     <article className="w-full flex flex-col items-center">
-      <div className="py-5 px-2">
-        <Slide media={slide.medias} />
-      </div>
+      <Slide slug="blog" className="py-5 px-2" />
 
       <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-          {data.map((post: PostsProps) => {
-            return (
-              <PostCard
-                key={post.documentId + 'post'}
-                basicInfo={post.basicInfo}
-                category={post.category}
-                seo={post.seo}
-                authorEmail={post.author.email}
-                authorName={post.author.name}
-                authorSlug={post.author.username}
-              />
-            );
-          })}
-        </div>
+        <ProductsAndBlogPage resultBy="full" slug={['']} type="post" page={1} />
       </main>
     </article>
   );

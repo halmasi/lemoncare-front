@@ -7,12 +7,14 @@ export interface UserProps {
   phoneNumber: number;
   password: string;
 }
+
 export interface ErrorProps {
   status: number;
   name: string;
   message: string;
   details: object;
 }
+
 export interface LoginUserProps {
   data: {
     user: {
@@ -21,6 +23,7 @@ export interface LoginUserProps {
       email: string;
       provider: string;
       confirmed: boolean;
+      phoneConfirmed: boolean;
       blocked: boolean;
       createdAt: string;
       updatedAt: string;
@@ -32,6 +35,7 @@ export interface LoginUserProps {
     error?: string;
   };
 }
+
 export interface SignInState {
   success: boolean;
   fieldErrors?: {
@@ -53,18 +57,19 @@ export interface AddressProps {
   provinceCode?: number;
   city: string;
   cityCode?: number;
-  phoneNumber: number | string | null;
+  phoneNumber?: number | string | null;
   mobileNumber: number | string;
   isDefault: boolean;
 }
 
 export interface FetchUserProps {
-  id?: string;
+  id?: number;
   documentId?: string;
   fullName?: string;
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
+  phoneConfirmed: boolean;
   cart: CartProps[];
   shopingCart: {
     documentId: string;
@@ -88,6 +93,7 @@ export interface FavoriteListProps {
   posts?: PostsProps[];
   products?: ProductProps[];
 }
+
 export interface OrderHistoryProps {
   user: number;
   documentId: string;
@@ -111,5 +117,42 @@ export interface OrderHistoryProps {
     address: string;
     postCode: number;
     items: CartProps[];
+    orderDetail: PaymentDetailProps | null;
+    deliveryStatus: string;
   };
+}
+
+export interface PaymentDetailProps {
+  RefNo: number;
+  Token: string;
+  Amount: number;
+  CardNo: string;
+  ResCod: number;
+  Message: string;
+  OrderID: string;
+  TraceNo: string;
+  TransNo: string;
+  ExtraInf: string;
+  InvoiceNo: string;
+  TransDate: string;
+  AmountWage: string;
+  MerchantID: string;
+  TerminalID: string;
+  AmntWageCbi: number;
+  AppExtraInf: {
+    Descr: string;
+    PayTyp: number;
+    PayerIP: string;
+    PayerNm: string;
+    PayTypID: number;
+    PayTitleID: number;
+    PayerAppID: string;
+    PayerAppNm: string;
+    PayerEmail: string;
+    PayerNCode: string;
+    PayerAppTyp: string;
+    PayerMobile: string;
+  };
+  AmountWageTyp: number;
+  AmntWageCbiTyp: number;
 }

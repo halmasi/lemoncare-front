@@ -10,27 +10,46 @@ import { getPost } from './getPosts';
 import { getProduct } from './getProducts';
 import { PostsProps } from '../schema/blogProps';
 import { ProductProps } from '../schema/shopProps';
+import config from '../config';
 
 export const updateUserInformation = async (
-  id: string,
+  id: number,
   token: string,
   userData: {
+    confirmed?: boolean;
+    phoneConfirmed?: boolean;
     fullName?: string;
     username?: string;
     email?: string;
+    password?: string;
   }
 ) => {
-  if (userData.username) {
-    userData.username = '98' + userData.username;
-  }
-  const response = await requestData(
-    `/users/${id}`,
-    'PUT',
-    userData,
-    `Bearer ${token}`
-  );
+  const response = await requestData({
+    qs: `/users/${id}`,
+    method: 'PUT',
+    body: userData,
+    token: `Bearer ${token}`,
+  });
   return response.data;
 };
+
+export const changePassword = async ({
+  newPassword,
+  token,
+}: {
+  newPassword: string;
+  token: string;
+}) => {
+  const check = await loginCheck();
+  const response = await requestData({
+    qs: `/users/change-password-without-old/${check.body.id}`,
+    method: 'PUT',
+    body: { newPassword },
+    token: `Bearer ${token}`,
+  });
+  return { data: response.data, status: response.status };
+};
+
 export const getPostalInformation = async (documentId: string) => {
   const check = await loginCheck();
   const query = qs.stringify({
@@ -39,12 +58,11 @@ export const getPostalInformation = async (documentId: string) => {
     },
   });
 
-  const response = await requestData(
-    `/postal-informations/${documentId}?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/postal-informations/${documentId}?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -53,10 +71,10 @@ export const updatePostalInformation = async (
   id: string
 ) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/postal-informations/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/postal-informations/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         information: newAddressList.map((item) => ({
           address: item.address,
@@ -70,8 +88,8 @@ export const updatePostalInformation = async (
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data = response.data;
   return data;
 };
@@ -82,7 +100,7 @@ export const getOrderHistory = async (
 ) => {
   const check = await loginCheck();
   const query = qs.stringify({
-    filter: { user: { $eq: check.body.documentId } },
+    filters: { user: { $eq: check.body.id } },
     populate: {
       order: {
         populate: {
@@ -98,17 +116,20 @@ export const getOrderHistory = async (
       page,
       pageSize,
     },
+    sort: { createdAt: 'desc' },
   });
-  const response = await requestData(
-    `/order-histories?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/order-histories?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
-export const getSingleOrderHistory = async (orderCode: number) => {
+export const getSingleOrderHistory = async (
+  orderCode: number,
+  useEnvToken?: boolean
+) => {
   const check = await loginCheck();
 
   const query = qs.stringify({
@@ -133,28 +154,37 @@ export const getSingleOrderHistory = async (orderCode: number) => {
       },
     },
   });
+  const token = useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt;
 
-  const res = await requestData(
-    `/order-histories?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
-  if (res.data.data[0].user.username == check.body.username) {
+  const res = await requestData({
+    qs: `/order-histories?${query}`,
+    method: 'GET',
+    token,
+  });
+  if (
+    res &&
+    res.data &&
+    res.data.data &&
+    (res.data.data[0].user.username == check.body.username || useEnvToken)
+  ) {
     const finalRes: OrderHistoryProps = res.data.data[0];
     return finalRes;
   }
   return null;
 };
 
-export const updateOrderHistory = async (documentId: string, data: object) => {
+export const updateOrderHistory = async (
+  documentId: string,
+  data: object,
+  useEnvToken?: boolean
+) => {
   const check = await loginCheck();
-  const res = await requestData(
-    `/order-histories/${documentId}`,
-    'PUT',
-    { data },
-    check.jwt
-  );
+  const res = await requestData({
+    qs: `/order-histories/${documentId}`,
+    method: 'PUT',
+    body: { data },
+    token: useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt,
+  });
   return res.data;
 };
 
@@ -180,13 +210,11 @@ export const getFavorites = cache(
         },
       },
     });
-    const response = await requestData(
-      `/favorites/${documentId}?${query}`,
-      'GET',
-      {},
-      check.jwt
-    );
-
+    const response = await requestData({
+      qs: `/favorites/${documentId}?${query}`,
+      method: 'GET',
+      token: check.jwt,
+    });
     return response.data;
   }
 );
@@ -201,40 +229,42 @@ export const updateFavorite = async (
   const currentFavorites = favoriteResponse.data[whichOne];
 
   const checkExists = favoriteResponse.data[whichOne].some(
-    (item: any) => item.documentId === propertyDocumentId
+    (item: { documentId: string }) => item.documentId === propertyDocumentId
   );
 
   let updatedFavorites;
 
   if (checkExists) {
-    updatedFavorites = currentFavorites.filter((item: any) => {
-      const keep = item.documentId !== propertyDocumentId;
-      return keep;
-    });
+    updatedFavorites = currentFavorites.filter(
+      (item: { documentId: string }) => {
+        const keep = item.documentId !== propertyDocumentId;
+        return keep;
+      }
+    );
   } else if (!checkExists) {
     const which = {
       posts: await getPost(propertyDocumentId),
-      products: await getProduct(propertyDocumentId),
+      products: (await getProduct(propertyDocumentId)).res,
     };
     const newInfo: PostsProps[] | ProductProps[] = which[whichOne];
 
     updatedFavorites = [...currentFavorites, newInfo[0]];
   }
-  const response = await requestData(
-    `/favorites/${userFavoriteDocumentId}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/favorites/${userFavoriteDocumentId}`,
+    method: 'PUT',
+    body: {
       data: {
-        [whichOne]: updatedFavorites.map((item: any) => item.id),
+        [whichOne]: updatedFavorites.map((item: { id: string }) => item.id),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   return response.data;
 };
 
 export const getGravatar = async (email: string) => {
-  const get = await fetch(process.env.SITE_URL + '/api/auth/gravatar', {
+  const get = await fetch(`${config.siteUrl}/api/auth/gravatar`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -267,9 +297,9 @@ export const checkUserExists = async (identifier: string) => {
     },
   });
 
-  const response = await requestData(`/users?${query}`, 'GET', {});
-
+  const response = await requestData({ qs: `/users?${query}`, method: 'GET' });
   return {
+    data: response.data[0],
     isPhone: isPhone(response.data.username),
     success: response.data.length > 0,
     error: [],

@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 import AddToFavorites from '@/app/components/AddToFavorites';
+import config from '@/app/utils/config';
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
@@ -20,35 +21,39 @@ export async function generateMetadata(
   if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
-  const tags = post.tags.map((item) => item.title).join('، ');
+  const tags =
+    post.tags && post.tags.length > 0
+      ? post.tags.map((item) => item.title).join('، ')
+      : [''];
   return {
-    title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+    title: post.seo.seoTitle + ' | lemiro - لمیرو',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
         name: post.author.name,
-        url: `https://lemoncare.ir/author/${post.author.username}`,
+        url: `${config.siteUrl}/author/${post.author.username}`,
       },
     ],
-    applicationName: 'lemoncare - لمن کر',
-    category: post.category.title + ' | Lemoncare - لمن کر',
+    applicationName: 'lemiro - لمیرو',
+    category: post.category.title + ' | lemiro - لمیرو',
     openGraph: {
-      title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+      title: post.seo.seoTitle + ' | lemiro - لمیرو',
       description: post.seo.seoDescription,
-      siteName: 'لمن کر - lemoncare',
+      siteName: 'lemiro - لمیرو',
       images: [post.basicInfo.mainImage.formats.medium.url, ...previousImages],
     },
   };
 }
 
-export default async function page(props0: {
+export default async function page(props: {
   params: Promise<{ slug: string }>;
 }) {
-  const params = await props0.params;
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
   const post = data[0];
+  if (!post.content.length) return notFound();
   const contents: ContentProps[] = post.content;
   const publishDate = new Date(post.createdAt);
   return (

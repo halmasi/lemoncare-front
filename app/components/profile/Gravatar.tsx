@@ -41,9 +41,9 @@ export default function Gravatar({
   const { user } = useDataStore();
   useEffect(() => {
     if (emailAddress) {
-      getGravatarFn.mutateAsync(emailAddress);
+      getGravatarFn.mutate(emailAddress);
     } else if (user && user.email) {
-      getGravatarFn.mutateAsync(user.email);
+      getGravatarFn.mutate(user.email);
     }
   }, [user, emailAddress]);
 

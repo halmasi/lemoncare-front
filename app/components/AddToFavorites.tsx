@@ -15,24 +15,30 @@ import { PostsProps } from '../utils/schema/blogProps';
 import { ProductProps } from '../utils/schema/shopProps';
 import { toast } from 'react-toastify';
 import { VscLoading } from 'react-icons/vsc';
+import { IoTrash } from 'react-icons/io5';
 
 export default function AddToFavorites({
   product,
   post,
-  onUnfavorite,
+  className = '',
+  isList = false,
+  onFinish,
 }: {
   product?: ProductProps;
   post?: PostsProps;
-  onUnfavorite?: () => void;
+  className?: string;
+  isList?: boolean;
+  onFinish?: (id: string) => void;
 }) {
   const { user } = useDataStore();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [whichOne] = useState<'posts' | 'products'>(
     post ? 'posts' : 'products'
   );
+
   useEffect(() => {
     if (user && user.favorite)
-      getFavoritesFn.mutateAsync({
+      getFavoritesFn.mutate({
         documentId: user.favorite.documentId,
         propertyDocumentId: post ? post.documentId : product!.documentId,
       });
@@ -50,7 +56,7 @@ export default function AddToFavorites({
       return { favorites: favorites.data, whichOne, propertyDocumentId };
     },
     onSuccess: (data) => {
-      if (!data) return;
+      if (!data || !data.favorites) return;
       const found = data.favorites[data.whichOne].find(
         (item: PostsProps | ProductProps) => {
           return item.documentId == data.propertyDocumentId;
@@ -70,12 +76,8 @@ export default function AddToFavorites({
         );
     },
     onSuccess: () => {
-      if (isFavorite) {
-        setIsFavorite(false);
-        onUnfavorite?.(); // remove from parent list if needed
-      } else {
-        setIsFavorite(true);
-      }
+      setIsFavorite(!isFavorite);
+      if (onFinish) onFinish(post ? post.documentId : product!.documentId);
     },
     onError: (err) => {
       toast.error('Favorite update failed:' + err);
@@ -83,37 +85,99 @@ export default function AddToFavorites({
   });
 
   const handleClick = () => {
+    if (!user) toast.info('لطفا ابتدا وارد حساب کاربری شوید.');
     if (!user || clickHandlerFn.isPending) return;
     clickHandlerFn.mutate();
   };
 
-  if (!user) return null;
+  // if (!user) return null;
 
   const commonProps = {
     onClick: handleClick,
     disabled: clickHandlerFn.isPending,
-    className: 'mt-3  transition-transform duration-200',
+    className: `flex items-center transition-transform duration-200 ${className}`,
     'aria-label': isFavorite ? 'Remove from favorites' : 'Add to favorites',
   };
 
+  const iconClassName = `text-md ${className}`;
+
+  if (isList) {
+    return (
+      <button
+        onClick={handleClick}
+        disabled={clickHandlerFn.isPending}
+        className={`flex items-center mt-3 text-gray-600 duration-200 h-10 hover:bg-accent-pink hover:text-white transition-all ${className}`}
+        // 'aria-label': isFavorite ? 'Remove from favorites' : 'Add to favorites',
+      >
+        {clickHandlerFn.isPending ? (
+          <VscLoading className="text-accent-green animate-spin" />
+        ) : (
+          <IoTrash className="text-lg" />
+        )}
+      </button>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-center p-2 w-12 h-12">
+    <div className={`w-fit p-5 mb-5 ${className}`}>
       {clickHandlerFn.isPending ? (
-        <VscLoading className="text-accent-pink animate-spin" />
+        <VscLoading
+          className={`text-accent-pink animate-spin justify-self-center ${iconClassName} ${className}`}
+        />
       ) : product ? (
         <button {...commonProps}>
           {isFavorite ? (
-            <BsHeartFill className="text-accent-pink/80 hover:text-accent-pink transition-colors duration-200" />
+            <div className="flex gap-2 items-center">
+              <BsHeartFill
+                title={'حذف از علاقه مندی ها'}
+                className={`text-accent-pink/80 hover:text-accent-pink transition-colors duration-200 ${iconClassName}`}
+              />
+              <div className="flex items-center">
+                <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
+                  حذف از علاقه مندی ها
+                </p>
+              </div>
+            </div>
           ) : (
-            <BsHeart className="hover:text-red-600 transition-colors duration-200" />
+            <div className="flex gap-2 items-center">
+              <BsHeart
+                title={'افزودن به علاقه مندی ها'}
+                className={`text-accent-pink/80 hover:text-accent-pink transition-colors duration-200 ${iconClassName}`}
+              />
+              <div className="flex items-center">
+                <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
+                  افزودن به علاقه مندی ها
+                </p>
+              </div>
+            </div>
           )}
         </button>
       ) : (
         <button {...commonProps}>
           {isFavorite ? (
-            <BsBookmarkFill className="text-accent-pink/80 hover:text-accent-pink transition-colors duration-200" />
+            <div className="flex gap-2 items-center">
+              <BsBookmarkFill
+                title={'حذف از نشان شده ها'}
+                className={`h-fit text-accent-pink/80 hover:text-accent-pink transition-colors duration-200  ${iconClassName}`}
+              />
+              <div className="flex items-center">
+                <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
+                  حذف از نشان شده ها
+                </p>
+              </div>
+            </div>
           ) : (
-            <BsBookmark className="hover:text-red-600 transition-colors duration-200" />
+            <div className=" flex gap-2 items-center">
+              <BsBookmark
+                title={'افزودن به نشان شده ها'}
+                className={` hover:text-red-600 transition-colors duration-200  ${iconClassName}`}
+              />
+              <div className="flex items-center">
+                <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
+                  افزودن به نشان شده ها
+                </p>
+              </div>
+            </div>
           )}
         </button>
       )}

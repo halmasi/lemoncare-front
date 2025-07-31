@@ -6,6 +6,25 @@ import {
   ShopSubCategoiesProps,
 } from '@/app/utils/schema/shopProps';
 
+export const revalidate = 60 * 60;
+
+export const getShopCategories = cache(async function (
+  tag?: string[]
+): Promise<ShopCategoryProps[]> {
+  const query = qs.stringify({
+    populate: {
+      shopParentCategory: { populate: '*' },
+      shopSubCategories: { populate: '*' },
+    },
+  });
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return result.data;
+});
+
 export const getShopCategory = cache(async function (
   slug: string,
   tag?: string[]
@@ -17,8 +36,12 @@ export const getShopCategory = cache(async function (
       shopSubCategories: { populate: '*' },
     },
   });
-  const result = await dataFetch(`/shop-categories?${query}`, 'GET', tag);
-  return result;
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return result.data;
 });
 
 export const getShopCategoriesUrl = cache(async function (
@@ -35,11 +58,12 @@ export const getShopCategoriesUrl = cache(async function (
       shopParentCategory: { populate: '*' },
     },
   });
-  const data: ShopCategoryProps[] = await dataFetch(
-    `/shop-categories?${query}`,
-    'GET',
-    tag
-  );
+  const fetchData = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  const data: ShopCategoryProps[] = fetchData.data;
   const result = data[0];
   const res: string = result.slug;
   if (result.shopParentCategory)
