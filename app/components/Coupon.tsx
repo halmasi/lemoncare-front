@@ -4,15 +4,16 @@ import { useMutation } from '@tanstack/react-query';
 import { useCheckoutStore } from '../utils/states/useCheckoutData';
 import InputBox from './formElements/InputBox';
 import SubmitButton from './formElements/SubmitButton';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { checkCoupon } from '../utils/data/getCoupons';
 import { useCartStore } from '../utils/states/useCartData';
+import { toast } from 'react-toastify';
 
 export default function Coupon() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isValid, setIsValid] = useState<boolean>(false);
   const { cart } = useCartStore();
-  const { setCoupon } = useCheckoutStore();
+  const { setCoupon, coupon } = useCheckoutStore();
 
   const checkCouponFn = useMutation({
     mutationFn: async (coupon: string) => {
@@ -20,7 +21,10 @@ export default function Coupon() {
       return res.data;
     },
     onSuccess: (data) => {
-      //   console.log(data);
+      if (!data || !data.data || !data.data.length) return;
+      setCoupon(data.data[0].couponCode);
+      toast.success('کد تخفیف اعمال شد!');
+      // console.log(data.data[0].couponCode);
     },
   });
 
@@ -51,7 +55,8 @@ export default function Coupon() {
             if (
               e.target.value &&
               e.target.value.trim() != '' &&
-              e.target.value.trim().length >= 5
+              e.target.value.trim().length >= 5 &&
+              coupon != e.target.value.trim()
             ) {
               setIsValid(true);
             } else {

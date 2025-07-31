@@ -313,7 +313,7 @@ export default function Cart({
         <Table
           key={count}
           rowsWidth={['full', 'fit']}
-          rowsHeight={['20', 'fit']}
+          rowsHeight={[24, 'fit']}
           normalColorChange={0}
           highlightColorChange={0}
           rowItems={tableRow}
