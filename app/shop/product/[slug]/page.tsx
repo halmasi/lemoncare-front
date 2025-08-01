@@ -17,7 +17,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
   const { slug } = params;
-  const fetchedData = await getProduct(slug);
+  const fetchedData = await getProduct({ slug });
   const productArray: ProductProps[] = fetchedData.res;
   if (!productArray || !productArray.length) return notFound();
 
@@ -56,7 +56,7 @@ export default async function product(props: {
 }) {
   const params = await props.params;
   const { slug } = params;
-  const fetchedData = await getProduct(slug);
+  const fetchedData = await getProduct({ slug });
   const productArray: ProductProps[] = fetchedData.res;
   if (!productArray || !productArray.length) return notFound();
   const product = productArray[0];
