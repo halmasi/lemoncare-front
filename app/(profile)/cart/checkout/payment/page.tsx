@@ -44,30 +44,30 @@ export default function Payment() {
     }
   }, [shippingPrice]);
 
-  useEffect(() => {
-    if (cart && cart.length > 0 && !finalPrice) {
-      let cartPrice = 0;
-      cart.map((item) => {
-        const product = cartProducts.find(
-          (i) => i.documentId == item.product.documentId
-        );
-        if (product) {
-          const info = varietyFinder(item.variety, product);
-          const total = info.mainPrice * item.count;
-          cartPrice += total;
-        }
-      });
-      setPrice(cartPrice);
-    }
-  }, [
-    cart,
-    paymentOption,
-    shippingOption,
-    checkoutAddress,
-    setFinalPrice,
-    setPrice,
-    price,
-  ]);
+  // useEffect(() => {
+  //   if (cart && cart.length > 0 && !finalPrice) {
+  //     let cartPrice = 0;
+  //     cart.map((item) => {
+  //       const product = cartProducts.find(
+  //         (i) => i.documentId == item.product.documentId
+  //       );
+  //       if (product) {
+  //         const info = varietyFinder(item.variety, product);
+  //         const total = info.mainPrice * item.count;
+  //         cartPrice += total;
+  //       }
+  //     });
+  //     setPrice(cartPrice);
+  //   }
+  // }, [
+  //   cart,
+  //   paymentOption,
+  //   shippingOption,
+  //   checkoutAddress,
+  //   setFinalPrice,
+  //   setPrice,
+  //   price,
+  // ]);
 
   const getShippingPriceFn = useMutation({
     mutationFn: async () => {
@@ -155,16 +155,21 @@ export default function Payment() {
   return (
     <>
       <div className="flex flex-col lg:flex-row w-full gap-2">
-        <Coupon />
-        <div className="w-full lg:w-1/2 flex flex-col gap-5 bg-background rounded-lg border p-2">
-          <Title>
-            <h6 className="text-accent-pink">شیوه پرداخت</h6>
-          </Title>
-          <PaymentSelector
-            onPaymentMethodChange={(method) => setPaymentOption(method)}
-          />
+        <div className="w-full flex flex-col gap-2 lg:w-1/2">
+          <Coupon />
+          <div className=" flex flex-col gap-5 bg-background rounded-lg border p-2">
+            <Title>
+              <h6 className="text-accent-pink">شیوه پرداخت</h6>
+            </Title>
+            <PaymentSelector
+              onPaymentMethodChange={(method) => setPaymentOption(method)}
+            />
+          </div>
         </div>
-        <div className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10">
+        <div
+          key={price}
+          className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10"
+        >
           <div className="zigzag flex flex-col items-start w-full pb-10">
             <div className="w-full flex gap-2 p-1 md:pr-10">
               <div className="flex flex-wrap w-full gap-2">

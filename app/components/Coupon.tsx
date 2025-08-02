@@ -1,27 +1,58 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-// import { useCheckoutStore } from '../utils/states/useCheckoutData';
+import { useCheckoutStore } from '../utils/states/useCheckoutData';
 import InputBox from './formElements/InputBox';
 import SubmitButton from './formElements/SubmitButton';
 import { FormEvent, useRef, useState } from 'react';
 import { checkCoupon } from '../utils/data/getCoupons';
 import { useCartStore } from '../utils/states/useCartData';
+import { toast } from 'react-toastify';
 
 export default function Coupon() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isValid, setIsValid] = useState<boolean>(false);
   const { cart } = useCartStore();
-  // const { setCoupon } = useCheckoutStore();
+  const {
+    setCoupon,
+    coupon,
+    setBeforePrice,
+    setPrice,
+    beforePrice,
+    price,
+    setShippingPrice,
+    shippingPrice,
+  } = useCheckoutStore();
 
   const checkCouponFn = useMutation({
     mutationFn: async (coupon: string) => {
-      console.log(cart);
-      const res = await checkCoupon({ coupon, cart });
+      const res = await checkCoupon({ coupon, cart, price });
       return res;
     },
     onSuccess: (data) => {
-      console.log(data);
+      if (!data) return;
+      if (data.error != '') {
+        toast.error(data.error);
+        return;
+      }
+      if (data.newCart.length) {
+        if (beforePrice == 0) setBeforePrice(price);
+        let priceAfter = 0;
+        data.newCart.forEach((item) => {
+          if (item.mainPrice) {
+            priceAfter = +(item.mainPrice * item.count);
+          }
+        });
+        console.log(priceAfter);
+        setPrice(priceAfter);
+      } else if (data.itemsPrice) {
+        if (beforePrice == 0) setBeforePrice(price);
+        setPrice(data.itemsPrice);
+      }
+      setShippingPrice((shippingPrice / 100) * data.shippingDiscount);
+      // setCoupon(data.data[0].couponCode);
+      toast.success('کد تخفیف اعمال شد!');
+      // console.log(data.data[0].couponCode);
     },
   });
 
@@ -53,6 +84,8 @@ export default function Coupon() {
               e.target.value &&
               e.target.value.trim() != '' &&
               e.target.value.trim().length >= 5
+              // &&
+              // coupon != e.target.value.trim()
             ) {
               setIsValid(true);
             } else {

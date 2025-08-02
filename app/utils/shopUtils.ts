@@ -1,4 +1,4 @@
-import { cartProductsProps, ProductProps } from './schema/shopProps';
+import { cartProductsProps, CartProps, ProductProps } from './schema/shopProps';
 import { getProduct } from './data/getProducts';
 import qs from 'qs';
 import { dataFetch } from './data/dataFetch';
@@ -101,14 +101,14 @@ export const cartProductSetter = async (
   documentId: string,
   cartProducts: cartProductsProps[]
 ) => {
-  const newArray = cartProducts;
+  const newArray = [...cartProducts];
 
   const findProduct = cartProducts.find(
     (item) => item.documentId == documentId
   );
 
   if (!findProduct) {
-    const getData = await getProduct(documentId);
+    const getData = await getProduct({ slug: documentId });
     const product = getData.res;
     newArray.push({
       basicInfo: product[0].basicInfo,
@@ -129,7 +129,7 @@ export const cartProductSelector = async (
   );
 
   if (!findProduct) {
-    const product = await getProduct(documentId);
+    const product = await getProduct({ slug: documentId });
     return product.res[0];
   }
   return findProduct;
@@ -158,4 +158,26 @@ export const orderHistoryIdMaker = async (): Promise<number> => {
   const res = await dataFetch({ qs: `/order-histories?${queryPost}` });
   if (res.data.length) await orderHistoryIdMaker();
   return orderId;
+};
+
+export const cartCleaner = (cart: CartProps[]): CartProps[] => {
+  const map = new Map<string, CartProps>();
+
+  cart.forEach((item) => {
+    if (item.count === 0) return;
+
+    const key = `${item.product.documentId}_${item.variety}`;
+
+    if (map.has(key)) {
+      const existing = map.get(key)!;
+      map.set(key, {
+        ...existing,
+        count: existing.count + item.count,
+      });
+    } else {
+      map.set(key, { ...item });
+    }
+  });
+
+  return Array.from(map.values());
 };

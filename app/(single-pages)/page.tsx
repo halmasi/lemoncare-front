@@ -46,7 +46,7 @@ export default async function page() {
 
   const products = Promise.all(
     suggestedProducts.products.map(async (product) => {
-      const singleProduct = await getProduct(product.documentId);
+      const singleProduct = await getProduct({ slug: product.documentId });
       return singleProduct.res[0];
     })
   );

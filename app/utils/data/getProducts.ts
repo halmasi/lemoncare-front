@@ -9,11 +9,15 @@ import {
 } from '@/app/utils/schema/shopProps';
 import { MetaProps } from '../schema/metaProps';
 
-export const getProduct = cache(async function (
-  slug: string,
-  options?: object[],
-  tag?: string[]
-): Promise<{ res: ProductProps[]; allData: object }> {
+export const getProduct = cache(async function ({
+  slug,
+  options,
+  tag = [],
+}: {
+  slug: string;
+  options?: object[];
+  tag?: string[];
+}): Promise<{ res: ProductProps[]; allData: object }> {
   const filter =
     slug.length > 6
       ? { documentId: { $eq: slug } }
@@ -36,6 +40,7 @@ export const getProduct = cache(async function (
     filters: filter,
     populate,
   });
+  tag.push(slug);
   const fetchData = await dataFetch({
     qs: `/products?${query}`,
     tag,
