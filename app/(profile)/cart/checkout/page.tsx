@@ -11,9 +11,10 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useEffect, useState } from 'react';
+import { getProduct } from '@/app/utils/data/getProducts';
 
 export default function CheckoutPage() {
-  const { cart, cartProducts } = useCartStore();
+  const { cart } = useCartStore();
   const {
     setPrice,
     price,
@@ -31,23 +32,17 @@ export default function CheckoutPage() {
     if (cart && Array.isArray(cart) && cart.length > 0) {
       setTotalBeforePrice(0);
       setTotalPrice(0);
-      cart.forEach((cartItem) => {
+      cart.forEach(async (cartItem) => {
         let priceBefore = 0;
         let priceAfter = 0;
+        const product = await getProduct({ slug: cartItem.product.documentId });
 
-        const product = cartProducts.find(
-          (searchProduct) =>
-            searchProduct.documentId == cartItem.product.documentId
-        );
+        const variety = varietyFinder(cartItem.variety, product.res[0]);
+        priceBefore = variety.priceBefforDiscount;
+        priceAfter = variety.mainPrice;
 
-        if (product) {
-          const variety = varietyFinder(cartItem.variety, product);
-          priceBefore = variety.priceBefforDiscount;
-          priceAfter = variety.mainPrice;
-
-          setTotalPrice((prev) => prev + priceAfter * cartItem.count);
-          setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
-        }
+        setTotalPrice((prev) => prev + priceAfter * cartItem.count);
+        setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
       });
     }
   }, [cart]);
@@ -85,7 +80,6 @@ export default function CheckoutPage() {
           />
         </div>
         <div className="flex flex-col gap-2 h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
-          <div></div>
           <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
             {checkoutAddress && (
               <div>

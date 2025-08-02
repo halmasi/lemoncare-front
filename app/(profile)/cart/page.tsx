@@ -1,8 +1,7 @@
 'use client';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Cart from '@/app/components/navbarComponents/Cart';
-import { useEffect, useState } from 'react';
-import { useCartStore } from '@/app/utils/states/useCartData';
+import { useState } from 'react';
 import Toman from '@/app/components/Toman';
 import Title from '@/app/components/Title';
 import { useRouter } from 'next/navigation';
@@ -11,13 +10,6 @@ export default function CartPage() {
   const [count, setCount] = useState(0);
   const [price, setPrice] = useState({ before: 0, main: 0 });
   const router = useRouter();
-  const { cart } = useCartStore();
-
-  useEffect(() => {
-    if (cart && cart.length) {
-      setCount(cart.length);
-    } else setCount(0);
-  }, [cart]);
 
   return (
     <div className="w-full">
@@ -33,12 +25,12 @@ export default function CartPage() {
             </div>
           )}
           <Cart
-            key={count}
-            priceAmount={(main, before) => {
+            priceAmount={(main, before, itemcount) => {
               setPrice({
                 before,
                 main,
               });
+              setCount(itemcount);
               router.refresh();
             }}
           />
@@ -47,7 +39,7 @@ export default function CartPage() {
           <div className="flex flex-wrap h-fit w-full border rounded-lg p-5 md:w-3/12 md:sticky md:top-5 items-center gap-3 justify-between">
             <div className="flex w-full justify-between items-center gap-3">
               <p className="text-sm">مجموع خرید({count}):</p>
-              {price.before > 0 && (
+              {price.before > 0 && price.before > price.main && (
                 <p className="line-through text-gray-500 text-sm">
                   {(price.before / 10).toLocaleString('fa-IR')}
                 </p>
