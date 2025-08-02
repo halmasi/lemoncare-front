@@ -13,7 +13,6 @@ import Count from './navbarComponents/Count';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
-import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -127,7 +126,7 @@ export default function VarietySelector({
   showDiscount?: boolean;
 }) {
   const { user } = useDataStore();
-  const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
+  const { cart, setCart } = useCartStore();
 
   const [selected, setSelected] = useState<{
     id: number;
@@ -234,7 +233,6 @@ export default function VarietySelector({
 
   const addToCartHandler = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
-      const list = await cartProductSetter(newItem.id, cartProducts);
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
       if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
@@ -253,11 +251,10 @@ export default function VarietySelector({
           newCart.push({ ...newItem, product, id });
         }
       }
-      return { list, cart: newCart };
+      return { cart: newCart };
     },
     onSuccess: (data) => {
       if (!data) return;
-      setCartProducts(data.list);
       setCart(data.cart);
     },
     onError: () => {

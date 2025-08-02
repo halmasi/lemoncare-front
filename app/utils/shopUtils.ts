@@ -1,11 +1,10 @@
-import { cartProductsProps, CartProps, ProductProps } from './schema/shopProps';
-import { getProduct } from './data/getProducts';
+import { CartProps, ProductProps } from './schema/shopProps';
 import qs from 'qs';
 import { dataFetch } from './data/dataFetch';
 
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
-  product: ProductProps | cartProductsProps
+  product: ProductProps
 ) => {
   let value: {
     specification: string;
@@ -66,7 +65,7 @@ export const varietyFinder = (
   return value;
 };
 
-export const lowestPrice = (product: ProductProps | cartProductsProps) => {
+export const lowestPrice = (product: ProductProps) => {
   const lessPrice: {
     id: number | null;
     sub: number | null;
@@ -95,44 +94,6 @@ export const lowestPrice = (product: ProductProps | cartProductsProps) => {
     }
   });
   return lessPrice;
-};
-
-export const cartProductSetter = async (
-  documentId: string,
-  cartProducts: cartProductsProps[]
-) => {
-  const newArray = [...cartProducts];
-
-  const findProduct = cartProducts.find(
-    (item) => item.documentId == documentId
-  );
-
-  if (!findProduct) {
-    const getData = await getProduct({ slug: documentId });
-    const product = getData.res;
-    newArray.push({
-      basicInfo: product[0].basicInfo,
-      documentId: product[0].documentId,
-      variety: product[0].variety,
-    });
-  }
-
-  return newArray;
-};
-
-export const cartProductSelector = async (
-  documentId: string,
-  cartProducts: cartProductsProps[]
-) => {
-  const findProduct = cartProducts.find(
-    (item) => item.documentId == documentId
-  );
-
-  if (!findProduct) {
-    const product = await getProduct({ slug: documentId });
-    return product.res[0];
-  }
-  return findProduct;
 };
 
 export const orderHistoryIdMaker = async (): Promise<number> => {

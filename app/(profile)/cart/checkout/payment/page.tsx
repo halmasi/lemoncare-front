@@ -4,9 +4,10 @@ import Coupon from '@/app/components/Coupon';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
+import { getProduct } from '@/app/utils/data/getProducts';
 import { calcShippingPrice, submitOrder } from '@/app/utils/paymentUtils';
 import { CartProps } from '@/app/utils/schema/shopProps';
-import { cartProductSelector, varietyFinder } from '@/app/utils/shopUtils';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -30,10 +31,10 @@ export default function Payment() {
     setOrderCode,
   } = useCheckoutStore();
 
-  const [finalPrice, setFinalPrice] = useState<number>(0);
+  // const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  const { cart, cartProducts } = useCartStore();
+  const { cart } = useCartStore();
   const { user, jwt } = useDataStore();
 
   const router = useRouter();
@@ -107,12 +108,9 @@ export default function Payment() {
       if (cart) {
         const items: CartProps[] = await Promise.all(
           cart.map(async (item) => {
-            const product = await cartProductSelector(
-              item.product.documentId,
-              cartProducts
-            );
+            const product = await getProduct({ slug: item.product.documentId });
             if (product) {
-              const variety = varietyFinder(item.variety, product);
+              const variety = varietyFinder(item.variety, product.res[0]);
               return {
                 count: item.count,
                 product: item.product,

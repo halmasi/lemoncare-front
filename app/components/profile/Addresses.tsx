@@ -244,12 +244,7 @@ export default function Addresses() {
                   </div>
                   {editAddress == item && (
                     <NewAddressForm
-                      isPending={(bool) => {
-                        if (bool) {
-                          setShowTextBox(false);
-                          setLoading(true);
-                        }
-                      }}
+                      isPending={(bool) => setLoading(bool)}
                       onSuccessFn={(checkout: AddressProps[]) => {
                         setShowTextBox(false);
                         setLoading(false);
@@ -271,12 +266,7 @@ export default function Addresses() {
           })}
           {showTextBox && (
             <NewAddressForm
-              isPending={(bool) => {
-                if (bool) {
-                  setShowTextBox(false);
-                  setLoading(true);
-                }
-              }}
+              isPending={(bool) => setLoading(bool)}
               onSuccessFn={(checkout: AddressProps[]) => {
                 setShowTextBox(false);
                 setLoading(false);
