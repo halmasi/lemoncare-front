@@ -13,7 +13,6 @@ import Count from './navbarComponents/Count';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
-import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';

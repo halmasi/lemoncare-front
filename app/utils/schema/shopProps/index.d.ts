@@ -1,5 +1,5 @@
 import { ProductProps } from './productProps';
-import { CartProps, cartProductsProps } from './cartProps';
+import { CartProps } from './cartProps';
 import {
   ShopCategoryProps,
   ShopSubCategoiesProps,
@@ -9,7 +9,6 @@ import {
 export type {
   ProductProps,
   CartProps,
-  cartProductsProps,
   ShopCategoryProps,
   ShopSubCategoiesProps,
   ShopTagsProps,
