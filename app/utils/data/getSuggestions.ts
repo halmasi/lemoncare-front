@@ -18,7 +18,7 @@ export const getArticleSuggestions = cache(
     });
     const data = await dataFetch({
       qs: `/suggested-articles?${query}`,
-      tag: [`suggested-article-${slug}`],
+      tag: [`suggested-article-${slug.trim()}`],
       cache: 'force-cache',
     });
     return data.data[0];
@@ -35,7 +35,7 @@ export const getProductSuggestions = cache(
     });
     const data = await dataFetch({
       qs: `/suggestion-lists?${query}`,
-      tag: [`suggestion-list-${slug}`],
+      tag: [`suggestion-list-${slug.trim()}`],
       cache: 'force-cache',
     });
     return data.data[0];
@@ -57,7 +57,7 @@ export const getSlides = cache(async function (
   });
   const fetchData = await dataFetch({
     qs: `/slideshows?${query}`,
-    tag: [`slide-${location}`],
+    tag: [`slide-${location.trim()}`],
     cache: 'force-cache',
   });
   const data: SlideProps = fetchData.data[0];
