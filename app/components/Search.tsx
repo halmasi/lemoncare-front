@@ -88,7 +88,7 @@ export function Search() {
             onChange={(e) => handleSearch(e.target.value)}
             ref={inputRef}
             name={'search'}
-            className="hidden md:flex border-0 focus:ring-0 focus:outline-none"
+            className="hidden w-full md:flex border-0 focus:ring-0 focus:outline-none"
           />
           <InputBox
             type="text"

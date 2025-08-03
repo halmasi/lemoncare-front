@@ -1,12 +1,15 @@
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import Title from '@/app/components/Title';
+import config from '@/app/utils/config';
 import { dataFetch } from '@/app/utils/data/dataFetch';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import qs from 'qs';
 import React, { cache } from 'react';
+import Logo from '@/public/lemiroLogoForHeader.png';
+
 interface SinglePageProps {
   id: number;
   title: string;
@@ -49,19 +52,27 @@ export async function generateMetadata(props: {
     .slice(0, 150);
 
   return {
-    title: post.title + ' | Lemoncare - لمن کر',
+    title: post.title + ' | lemiro - لمیرو',
     description,
     authors: [
       {
-        name: 'Lemoncare',
-        url: 'https://lemoncare.ir',
+        name: 'lemiro - لمیرو',
+        url: 'https://lemiro.ir',
       },
     ],
-    applicationName: 'Lemoncare - لمن کر',
+    applicationName: 'lemiro - لمیرو',
     openGraph: {
-      title: post.title + ' | Lemoncare - لمن کر',
+      title: post.title + ' | lemiro - لمیرو',
       description,
-      siteName: 'لمن کر - Lemoncare',
+      siteName: 'lemiro - لمیرو',
+      images: [
+        {
+          url: `${config.siteUrl}${Logo.src}`,
+          width: 1200,
+          height: 630,
+          alt: 'lemiro - لمیرو',
+        },
+      ],
     },
   };
 }

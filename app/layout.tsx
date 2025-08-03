@@ -18,6 +18,7 @@ import {
   SocialLinksProps,
 } from '@/app/utils/schema/menuProps';
 import Navbar from './components/navbarComponents/Navbar';
+import Logo from '@/public/lemiroLogoForHeader.png';
 
 const iranFont = localFont({
   src: './fonts/IRAN.woff',
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'lemiro - لمیرو',
     images: [
       {
-        url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
+        url: `${config.siteUrl}${Logo.src}`,
         width: 1200,
         height: 630,
         alt: 'lemiro - لمیرو',
