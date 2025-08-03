@@ -1,35 +1,29 @@
 import { cache } from 'react';
-import { ProductProps } from './getProducts';
 import { dataFetch } from './dataFetch';
 import qs from 'qs';
+import {
+  ShopCategoryProps,
+  ShopSubCategoiesProps,
+} from '@/app/utils/schema/shopProps';
 
-export interface ShopSubCategoiesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  products: ProductProps[];
-  shopSubCategories: ShopCategoryProps[];
-  shopParentCategory: ShopCategoryProps;
-}
+export const revalidate = 60 * 60;
 
-export interface ShopCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  products: ProductProps[];
-  shopSubCategories: ShopSubCategoiesProps[];
-  shopParentCategory: ShopSubCategoiesProps;
-}
+export const getShopCategories = cache(async function (
+  tag?: string[]
+): Promise<ShopCategoryProps[]> {
+  const query = qs.stringify({
+    populate: {
+      shopParentCategory: { populate: '*' },
+      shopSubCategories: { populate: '*' },
+    },
+  });
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return result.data;
+});
 
 export const getShopCategory = cache(async function (
   slug: string,
@@ -42,8 +36,12 @@ export const getShopCategory = cache(async function (
       shopSubCategories: { populate: '*' },
     },
   });
-  const result = await dataFetch(`/shop-categories?${query}`, tag);
-  return result;
+  const result = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return result.data;
 });
 
 export const getShopCategoriesUrl = cache(async function (
@@ -60,10 +58,12 @@ export const getShopCategoriesUrl = cache(async function (
       shopParentCategory: { populate: '*' },
     },
   });
-  const data: ShopCategoryProps[] = await dataFetch(
-    `/shop-categories?${query}`,
-    tag
-  );
+  const fetchData = await dataFetch({
+    qs: `/shop-categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  const data: ShopCategoryProps[] = fetchData.data;
   const result = data[0];
   const res: string = result.slug;
   if (result.shopParentCategory)

@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { IoIosArrowDropleft } from 'react-icons/io';
 import { CgFormatSlash } from 'react-icons/cg';
-import { PostsProps } from '@/app/utils/data/getPosts';
 import { getCategoriesUrl, getCategory } from '@/app/utils/data/getCategories';
-import { ProductProps } from '../utils/data/getProducts';
 import {
   getShopCategoriesUrl,
   getShopCategory,
 } from '../utils/data/getProductCategories';
+import { PostsProps } from '@/app/utils/schema/blogProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 
 export default async function Breadcrumbs({
   post,
@@ -48,32 +48,27 @@ export default async function Breadcrumbs({
     ]);
     const categories = url.split('/');
     return (
-      <>
-        <div aria-label="breadcrumb" className="flex flex-wrap items-center">
-          <p>دسته بندی</p> <IoIosArrowDropleft className="ml-3" />
-          {categories.map(async (e, i) => {
-            const getSingleCategory = await getShopCategory(e, [
-              'shop-category',
-            ]);
-            const singleCategory = getSingleCategory[0];
-            const singleCategoryUrl = await getShopCategoriesUrl(
-              singleCategory,
-              ['shop-category-breadcrumb']
-            );
-            return (
-              <div key={i} className="flex flex-row items-center">
-                {i > 0 && <CgFormatSlash />}
-                <Link
-                  href={`/shop/category/${singleCategoryUrl}`}
-                  className="transition-colors hover:text-accent-pink"
-                >
-                  <p>{singleCategory.title}</p>
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-      </>
+      <div aria-label="breadcrumb" className="flex flex-wrap items-center">
+        <p>دسته بندی</p> <IoIosArrowDropleft className="ml-3" />
+        {categories.map(async (e, i) => {
+          const getSingleCategory = await getShopCategory(e, ['shop-category']);
+          const singleCategory = getSingleCategory[0];
+          const singleCategoryUrl = await getShopCategoriesUrl(singleCategory, [
+            'shop-category-breadcrumb',
+          ]);
+          return (
+            <div key={i} className="flex flex-row items-center">
+              {i > 0 && <CgFormatSlash />}
+              <Link
+                href={`/shop/category/${singleCategoryUrl}`}
+                className="transition-colors hover:text-accent-pink"
+              >
+                <p>{singleCategory.title}</p>
+              </Link>
+            </div>
+          );
+        })}
+      </div>
     );
   }
   return <h6>Breadcrumb</h6>;

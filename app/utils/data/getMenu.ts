@@ -1,65 +1,42 @@
 import { cache } from 'react';
 import { dataFetch } from './dataFetch';
-export interface FooteritemsProps {
-  id: number;
-  title: string;
-  url: string;
-}
-
-export interface SocialLinksProps {
-  id: number;
-  title: 'Telegram' | 'Whatsapp' | 'Instagram';
-  url: string;
-}
-
-interface SubMenuProps {
-  id: number;
-  title: string;
-  url: string;
-}
-
-interface SubMenuProps {
-  id: number;
-  documentId: string;
-  name: string;
-  width: number;
-  height: number;
-  url: string;
-}
-
-export interface MenuProps {
-  id: number;
-  title: string;
-  url: string;
-  subMenu: SubMenuProps[] | [];
-  image: SubMenuProps | null;
-}
+import {
+  FooteritemsProps,
+  MenuProps,
+  SocialLinksProps,
+} from '@/app/utils/schema/menuProps';
 
 export const getMenuItems = cache(async function () {
-  const parsedData = await dataFetch('/main-menu?populate[items][populate]=*', [
-    'main-menu',
-  ]);
-  const menuItems: MenuProps[] = parsedData.items;
+  const parsedData = await dataFetch({
+    qs: '/main-menu?populate[items][populate]=*',
+    tag: ['main-menu'],
+    cache: 'force-cache',
+  });
+  const menuItems: MenuProps[] = parsedData.data.items;
   return menuItems;
 });
 
 export const getFooterItems = cache(async function (): Promise<
   FooteritemsProps[]
 > {
-  const parsedData = await dataFetch('/footer-menu?populate=*', [
-    'footer-menu',
-  ]);
-  const footerItems: FooteritemsProps[] = parsedData.item;
+  const parsedData = await dataFetch({
+    qs: '/footer-menu?populate=*',
+    tag: ['footer-menu'],
+    cache: 'force-cache',
+  });
+  const footerItems: FooteritemsProps[] = parsedData.data.item;
   return footerItems;
 });
 
 export const getSocialLinksItems = cache(async function (): Promise<
   SocialLinksProps[]
 > {
-  const parsedData = await dataFetch('/social-link-menu?populate=*', [
-    'social-links',
-  ]);
-  const socialLinksItems: SocialLinksProps[] = parsedData.item;
+  const parsedData = await dataFetch({
+    qs: '/social-link-menu?populate=*',
+    tag: ['social-links'],
+    cache: 'force-cache',
+  });
+  const socialLinksItems: SocialLinksProps[] = parsedData.data.item;
   return socialLinksItems;
 });
 
@@ -67,7 +44,11 @@ export const getShopMenuItems = cache(async function () {
   // const parsedData = await dataFetch('/shop-menu?populate[items][populate]=*', [
   //   'shop-menu',
   // ]);
-  const parsedData = await dataFetch('/shop-menu?populate=*', ['shop-menu']);
-  const menuItems: MenuProps[] = parsedData.menuItems;
+  const parsedData = await dataFetch({
+    qs: '/shop-menu?populate=*',
+    tag: ['shop-menu'],
+    cache: 'force-cache',
+  });
+  const menuItems: MenuProps[] = parsedData.data.menuItems;
   return menuItems;
 });

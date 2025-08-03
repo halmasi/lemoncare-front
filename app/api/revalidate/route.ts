@@ -11,14 +11,15 @@ import {
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { createHash } from 'node:crypto';
+import { dataFetch } from '@/app/utils/data/dataFetch';
+import qs from 'qs';
+import config from '@/app/utils/config';
 
 export async function POST(request: NextRequest) {
   const token = request.headers.get('token');
   if (!token) return new Response('invalid request', { status: 400 });
 
-  if (
-    process.env.SECRET_KEY != createHash('sha256').update(token).digest('hex')
-  ) {
+  if (config.secretKey != createHash('sha256').update(token).digest('hex')) {
     return new Response('invalid request', { status: 400 });
   }
   const body = await request.json();
@@ -107,11 +108,13 @@ export async function POST(request: NextRequest) {
         categoriesSlugs.forEach(async (e) => {
           const url = await getCategoriesUrl(e);
           const postsCategory = await getCategory(e);
-          const posts = await getPostsByCategory(postsCategory[0]);
+          const posts = await getPostsByCategory({
+            category: postsCategory[0],
+          });
 
           revalidatePath(`/blog/category/${url}`, 'layout');
           if (!posts) return;
-          posts.forEach((post) => {
+          posts.result.forEach((post) => {
             revalidatePath(
               `/blog/posts/${post.basicInfo.contentCode}`,
               'layout'
@@ -201,7 +204,6 @@ export async function POST(request: NextRequest) {
     //----------suggested blog article
     case 'suggested-article':
       (async function () {
-        console.log(body);
         revalidateTag('suggested-article-' + body.entry.slug);
       })();
       break;
@@ -221,6 +223,43 @@ export async function POST(request: NextRequest) {
     //----------Coupon
     case 'coupon':
       (async function () {})();
+      break;
+
+    case 'cart':
+      (async function () {
+        const query = qs.stringify({
+          filters: {
+            user: { $null: true },
+          },
+        });
+        const res = await dataFetch({ qs: `/carts?${query}` });
+        const carts: {
+          id: number;
+          documentId: string;
+          createdAt: string;
+          updatedAt: string;
+          publishedAt: string;
+        }[] = res.data;
+        if (carts && Array.isArray(carts) && carts.length != 0)
+          carts.map(async (item) => {
+            await dataFetch({
+              qs: `/carts/${item.documentId}`,
+              method: 'DELETE',
+            });
+          });
+      })();
+      break;
+
+    case 'order-history':
+      (async () => {})();
+      break;
+
+    case 'postal-information':
+      (async () => {})();
+      break;
+
+    case 'verification':
+      (async () => {})();
       break;
 
     default:

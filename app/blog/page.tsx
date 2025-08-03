@@ -1,38 +1,34 @@
-import { getCategoriesUrl } from '@/app/utils/data/getCategories';
-import { getGravatar, getPosts, PostsProps } from '@/app/utils/data/getPosts';
-const PostsSkeleton = dynamic(() => import('@/app/components/Skeleton'));
-const PostCard = dynamic(() => import('@/app/components/PostCard'), {
-  ssr: false,
-  loading: () => <PostsSkeleton />,
-});
+import Slide from '../components/Slide';
+import ProductsAndBlogPage from '../components/ProductsAndBlogPage';
+import { Metadata } from 'next';
+import config from '../utils/config';
 
-import dynamic from 'next/dynamic';
+export const metadata: Metadata = {
+  title: 'lemiro - مقالات لمیرو',
+  description: 'وبسایت تخصصی مراقبت از پوست و مو',
+  openGraph: {
+    title: 'lemiro - مقالات لمیرو',
+    description: 'وبسایت تخصصی مراقبت از پوست و مو',
+    siteName: 'lemiro - لمیرو',
+    images: [
+      {
+        url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
+        width: 1200,
+        height: 630,
+        alt: 'lemiro - مقالات لمیرو',
+      },
+    ],
+  },
+};
 
-export default async function Home() {
-  const data = await getPosts(3, ['post']);
-
+export default async function BlogHomePage() {
   return (
-    <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
-      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-        {data.map(async (post: PostsProps) => {
-          post.categoryUrl = await getCategoriesUrl(post.category, [
-            'category',
-          ]);
-          post.gravatar = await getGravatar(post.author.email);
-          return (
-            <PostCard
-              key={post.documentId}
-              basicInfo={post.basicInfo}
-              category={post.category}
-              seo={post.seo}
-              categoryUrl={post.categoryUrl}
-              gravatar={post.gravatar}
-              authorName={post.author.name}
-              authorSlug={post.author.username}
-            />
-          );
-        })}
-      </div>
-    </main>
+    <article className="w-full flex flex-col items-center">
+      <Slide slug="blog" className="py-5 px-2" />
+
+      <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+        <ProductsAndBlogPage resultBy="full" slug={['']} type="post" page={1} />
+      </main>
+    </article>
   );
 }
