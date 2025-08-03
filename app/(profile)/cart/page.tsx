@@ -5,10 +5,12 @@ import { useState } from 'react';
 import Toman from '@/app/components/Toman';
 import Title from '@/app/components/Title';
 import { useRouter } from 'next/navigation';
+import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 
 export default function CartPage() {
   const [count, setCount] = useState(0);
-  const [price, setPrice] = useState({ before: 0, main: 0 });
+  const [prices, setPrices] = useState({ before: 0, main: 0 });
+  const { setBeforePrice, setPrice } = useCheckoutStore();
   const router = useRouter();
 
   return (
@@ -26,40 +28,44 @@ export default function CartPage() {
           )}
           <Cart
             priceAmount={(main, before, itemcount) => {
-              setPrice({
+              setPrices({
                 before,
                 main,
               });
+              setPrice(main);
+              setBeforePrice(before);
               setCount(itemcount);
               router.refresh();
             }}
           />
         </div>
-        {price.main != 0 && (
+        {prices.main != 0 && (
           <div className="flex flex-wrap h-fit w-full border rounded-lg p-5 md:w-3/12 md:sticky md:top-5 items-center gap-3 justify-between">
             <div className="flex w-full justify-between items-center gap-3">
               <p className="text-sm">مجموع خرید({count}):</p>
-              {price.before > 0 && price.before > price.main && (
+              {prices.before > 0 && prices.before > prices.main && (
                 <p className="line-through text-gray-500 text-sm">
-                  {(price.before / 10).toLocaleString('fa-IR')}
+                  {(prices.before / 10).toLocaleString('fa-IR')}
                 </p>
               )}
               <Toman className="fill-accent-green text-accent-green">
                 <p className="font-bold text-lg">
-                  {(price.main / 10).toLocaleString('fa-IR')}
+                  {(prices.main / 10).toLocaleString('fa-IR')}
                 </p>
               </Toman>
             </div>
-            {price.before - price.main > 0 && (
+            {prices.before - prices.main > 0 && (
               <>
                 <Toman>
                   <p className="font-bold text-sm">
                     سود شما:{' '}
-                    {((price.before - price.main) / 10).toLocaleString('fa-IR')}{' '}
+                    {((prices.before - prices.main) / 10).toLocaleString(
+                      'fa-IR'
+                    )}{' '}
                   </p>
                 </Toman>
                 <p className="text-xs text-gray-500">
-                  {((1 - price.main / price.before) * 100).toLocaleString(
+                  {((1 - prices.main / prices.before) * 100).toLocaleString(
                     'fa-IR',
                     {
                       style: 'decimal',
