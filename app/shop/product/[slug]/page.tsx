@@ -10,6 +10,7 @@ import { ProductProps } from '@/app/utils/schema/shopProps';
 import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { IoIosArrowBack } from 'react-icons/io';
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
@@ -28,7 +29,7 @@ export async function generateMetadata(
       ? product.tags.map((item) => item.title).join('، ')
       : [''];
   return {
-    title: product.seo.seoTitle + ' | lemiro - لمیرو',
+    title: `${product.seo.seoTitle} | ${product.brand.title} | lemiro - لمیرو`,
     description: product.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
@@ -40,7 +41,7 @@ export async function generateMetadata(
     applicationName: 'lemiro - لمیرو',
     category: product.category.title + ' | lemiro - لمیرو',
     openGraph: {
-      title: product.seo.seoTitle + ' | lemiro - لمیرو',
+      title: `${product.seo.seoTitle} | ${product.brand.title} | lemiro - لمیرو`,
       description: product.seo.seoDescription,
       siteName: 'lemiro - لمیرو',
       images: [
@@ -64,9 +65,20 @@ export default async function product(props: {
   return (
     <MainSection>
       <div className="w-full flex flex-col">
-        <div>
+        <div className="my-5">
           <Breadcrumbs product={product} />
           <h2>{product.basicInfo.title}</h2>
+          <div className="w-fit flex gap-3 items-center">
+            <Link href={`/shop/brand/${product.brand.slug}`}>
+              {product.brand.title}
+            </Link>
+            <IoIosArrowBack />
+            <Link
+              href={`/shop/brand/${product.brand.slug}/${product.category.slug}`}
+            >
+              {product.category.title} {product.brand.title}
+            </Link>
+          </div>
         </div>
         <div className="h-fit flex flex-col md:flex-row px-2">
           <div className="w-full md:w-1/2 text-center">
@@ -86,6 +98,7 @@ export default async function product(props: {
             </strong>
             :
           </p>
+
           {product.tags.map((tag, index) => (
             <div className="flex" key={index}>
               <Link

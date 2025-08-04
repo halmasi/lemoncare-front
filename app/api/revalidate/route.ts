@@ -100,6 +100,14 @@ export async function POST(request: NextRequest) {
         });
       })();
       break;
+    //----------brand
+    case 'brand':
+      (async function () {
+        revalidatePath(`/shop/brand/${body.entry.slug}`, 'layout');
+        revalidateTag('brand-' + body.entry.slug);
+        revalidateTag('body.entry.slug');
+      })();
+      break;
 
     //----------blog category
     case 'category':

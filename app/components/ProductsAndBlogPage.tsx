@@ -4,6 +4,7 @@ import ProductCart from './ProductCart';
 import { getShopCategory } from '@/app/utils/data/getProductCategories';
 import {
   getProducts,
+  getProductsByBrand,
   getProductsByCategory,
   getProductsByTag,
 } from '@/app/utils/data/getProducts';
@@ -30,7 +31,7 @@ export default function ProductsAndBlogPage({
   pageSize = 10,
   page = 1,
 }: {
-  resultBy: 'full' | 'category' | 'tag' | 'author';
+  resultBy: 'full' | 'category' | 'tag' | 'author' | 'brand';
   type: 'post' | 'product';
   slug: string[];
   pageSize?: number;
@@ -74,6 +75,35 @@ export default function ProductsAndBlogPage({
           ].title;
         setTitle('برچسب: ' + tagTitle || '');
         setPageCount(getFn.meta.pagination.pageCount);
+      } else if (resultBy == 'brand') {
+        if (slug.length > 1) {
+          const category = await getShopCategory(slug[slug.length - 1]);
+          const getFn = await getProductsByCategory({
+            category: category[0],
+            page,
+            pageSize,
+          });
+          productsList = getFn.res;
+          if (productsList.length == 0) return notFound();
+          setTitle(
+            'دسته بندی: ' +
+              productsList[0].brand.title +
+              ' | ' +
+              category[0].title || ''
+          );
+          setPageCount(getFn.meta.pagination.pageCount);
+          //
+        } else {
+          const getFn = await getProductsByBrand({
+            slug: slug[0],
+            page,
+            pageSize,
+          });
+          productsList = getFn.res;
+          if (productsList.length == 0) return notFound();
+          setTitle(productsList[0].brand.title);
+          setPageCount(getFn.meta.pagination.pageCount);
+        }
       }
       return productsList;
     },

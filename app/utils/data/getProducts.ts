@@ -35,6 +35,7 @@ export const getProduct = cache(async function ({
         tags: { populate: '*' },
         media: { populate: 1 },
         variety: { populate: '*' },
+        brand: { populate: '1' },
       };
   const query = qs.stringify({
     filters: filter,
@@ -86,12 +87,14 @@ export const getProductsByCategory = cache(async function ({
   tag,
   productDocumentId,
   isSiteMap = false,
+  brand,
   pageSize = 10,
   page = 1,
 }: {
   category: ShopCategoryProps;
   tag?: string[];
   productDocumentId?: string;
+  brand?: string;
   pageSize?: number;
   page?: number;
   isSiteMap?: boolean;
@@ -114,6 +117,10 @@ export const getProductsByCategory = cache(async function ({
     Object.assign(filters, {
       documentId: { $eq: productDocumentId },
     });
+  if (brand)
+    Object.assign(filters, {
+      brand: { slug: { $eq: brand } },
+    });
 
   const query = qs.stringify({
     filters,
@@ -122,6 +129,7 @@ export const getProductsByCategory = cache(async function ({
       basicInfo: { populate: '*' },
       category: { populate: '*' },
       variety: { populate: '*' },
+      brand: { populate: '1' },
     },
   });
 
@@ -174,6 +182,51 @@ export const getProductsByTag = cache(async function ({
       category: { populate: '*' },
       variety: { populate: '*' },
       tags: { populate: '*' },
+    },
+    pagination: {
+      page,
+      pageSize,
+    },
+  });
+  const result = await dataFetch({
+    qs: `/products?${query}&sort[0]=createdAt:desc`,
+    tag,
+    cache: 'force-cache',
+  });
+  return { res: result.data, meta: result.meta };
+});
+
+export const getProductsByBrand = cache(async function ({
+  slug,
+  tag,
+  productDocumentId,
+  page = 1,
+  pageSize = 10,
+}: {
+  slug: string;
+  productDocumentId?: string;
+  tag?: string[];
+  page?: number;
+  pageSize?: number;
+}): Promise<{ res: ProductProps[]; meta: MetaProps }> {
+  const filters = {
+    brand: {
+      slug: { $eq: slug },
+    },
+  };
+  if (productDocumentId)
+    Object.assign(filters, {
+      documentId: { $eq: productDocumentId },
+    });
+  const query = qs.stringify({
+    filters,
+    populate: {
+      seo: { populate: '*' },
+      basicInfo: { populate: '*' },
+      category: { populate: '*' },
+      variety: { populate: '*' },
+      tags: { populate: '*' },
+      brand: { populate: '1' },
     },
     pagination: {
       page,
