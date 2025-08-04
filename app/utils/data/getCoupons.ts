@@ -6,18 +6,12 @@ import {
   ShopCategoryProps,
 } from '../schema/shopProps';
 import { cartCleaner, varietyFinder } from '../shopUtils';
-import {
-  getProduct,
-  getProductsByCategory,
-  getProductsByTag,
-} from './getProducts';
-import { CategoriesProps, TagsProps } from '../schema/blogProps';
+import { getProduct, getProductsByTag } from './getProducts';
+import { TagsProps } from '../schema/blogProps';
 import { FetchUserProps } from '../schema/userProps';
 import { loginCheck } from '../actions/actionMethods';
 import {
-  getCategoryparentHierarchy,
   getCategorySubHierarchy,
-  getShopCategories,
   getShopCategory,
 } from './getProductCategories';
 

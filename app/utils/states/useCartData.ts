@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { CartProps, ProductProps } from '@/app/utils/schema/shopProps';
+import { CartProps } from '@/app/utils/schema/shopProps';
 
 export interface cartStoreState {
   cart: CartProps[];

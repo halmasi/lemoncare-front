@@ -20,7 +20,6 @@ export default function Payment() {
   const {
     beforePrice,
     price,
-    setPrice,
     paymentOption,
     setPaymentOption,
     shippingPrice,

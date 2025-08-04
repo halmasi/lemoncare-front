@@ -1,8 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/app/utils/states/useCartData';
-import { ReactNode, useEffect, useState } from 'react';
-import Table from '../Table';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Count from './Count';
@@ -12,7 +11,6 @@ import {
   updateCart,
   updateCartOnLogin,
 } from '@/app/utils/actions/cartActionMethods';
-import { useRouter } from 'next/navigation';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
 import { useMutation } from '@tanstack/react-query';
@@ -28,8 +26,6 @@ export default function Cart({
 }) {
   const { cart, setCart } = useCartStore();
   const { user, jwt, loginProcces, setLoginProcces } = useDataStore();
-
-  const route = useRouter();
 
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
