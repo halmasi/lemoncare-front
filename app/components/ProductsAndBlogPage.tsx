@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { ProductProps } from '../utils/schema/shopProps';
 import Pagination from './Pagination';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import ProductAndBlogSkeleton from './ProductAndBlogSkeleton';
 import PostCard from './PostCard';
 import { PostsProps } from '../utils/schema/blogProps';
@@ -23,6 +23,7 @@ import {
   getPostsByTag,
 } from '../utils/data/getPosts';
 import { getCategory } from '../utils/data/getCategories';
+import Fillters from './Fillters';
 
 export default function ProductsAndBlogPage({
   resultBy,
@@ -192,12 +193,23 @@ export default function ProductsAndBlogPage({
           )}
         </div>
       ) : (
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
-          {isLoading ? (
-            <ProductAndBlogSkeleton count={10} />
-          ) : (
-            products.map((item) => <ProductCart product={item} key={item.id} />)
-          )}
+        <div className="flex gap-5">
+          <Fillters products={products} />
+          <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {isLoading ? (
+              <ProductAndBlogSkeleton count={10} />
+            ) : (
+              products.map((item) => (
+                <Fragment key={item.id}>
+                  <ProductCart product={item} />
+                  <ProductCart product={item} />
+                  <ProductCart product={item} />
+                  <ProductCart product={item} />
+                  <ProductCart product={item} />
+                </Fragment>
+              ))
+            )}
+          </div>
         </div>
       )}
       <Pagination

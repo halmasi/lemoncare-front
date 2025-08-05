@@ -46,7 +46,7 @@ export default function ProductCart({
           )}
         </div>
 
-        <h6>{product.basicInfo.title}</h6>
+        <h6 className="text-sm">{product.basicInfo.title}</h6>
       </Link>
       <VarietySelector showDiscount={showDiscount} list product={product} />
     </div>
