@@ -265,9 +265,9 @@ export default function VarietySelector({
   return list ? (
     <>
       {price.price ? (
-        <div>
+        <div className='mt-5'>
           {price.before != undefined && price.before > 0 ? (
-            <div className="flex flex-col gap-3 pb-2">
+            <div className="flex flex-col gap-3 py-2">
               <div className="flex gap-3">
                 <p className="flex gap-2 items-center">
                   <span className="text-sm  text-gray-500 line-through">
@@ -280,26 +280,22 @@ export default function VarietySelector({
                   </h6>
                 </Toman>
               </div>
-              <p>
-                <strong className="p-1 bg-accent-pink rounded-xl text-background">
+                <p className="p-1 bg-accent-pink rounded-xl text-background">
                   تخفیف{' '}
                   {((1 - price.price / price.before) * 100).toLocaleString(
                     'fa-IR',
                     { style: 'decimal', maximumFractionDigits: 0 }
                   )}{' '}
                   %
-                </strong>
-              </p>
+                </p>
             </div>
           ) : (
             <Toman className="text-accent-green fill-accent-green">
-              <h6>
                 {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
-              </h6>
             </Toman>
           )}
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
               handleAddToCart={addToCartHandler.mutate}
@@ -312,7 +308,7 @@ export default function VarietySelector({
               product={product}
               selected={selected}
             />
-          </div>
+          </div> */}
           {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (

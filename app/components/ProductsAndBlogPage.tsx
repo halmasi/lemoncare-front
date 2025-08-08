@@ -212,12 +212,7 @@ export default function ProductsAndBlogPage({
           </div>
         </div>
       )}
-      <Pagination
-        className="mt-24"
-        currentPage={page}
-        pageCount={pageCount}
-        query="p"
-      />
+      <Pagination className="mt-24" pageCount={pageCount} />
     </div>
   );
 }
