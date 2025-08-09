@@ -7,9 +7,14 @@ import { useEffect, useState } from 'react';
 interface Props {
   pageCount: number;
   className?: string;
+  query?: string;
 }
 
-export default function Pagination({ pageCount, className }: Props) {
+export default function Pagination({
+  pageCount,
+  className,
+  query = 'p',
+}: Props) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const numbersArray = Array.from({ length: pageCount }, (_, i) => i + 1);
 
@@ -18,14 +23,14 @@ export default function Pagination({ pageCount, className }: Props) {
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
-    const currentCategories = params.get('p');
+    const currentCategories = params.get(query);
     setCurrentPage(parseInt(currentCategories || '1'));
   }, [searchParams]);
 
   const onClickFn = (pageNumber: number) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    params.set('p', pageNumber.toString());
+    params.set(query, pageNumber.toString());
     router.push(`?${params.toString()}`);
   };
 
