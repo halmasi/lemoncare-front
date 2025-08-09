@@ -44,10 +44,7 @@ export async function generateMetadata(
       title: `${product.seo.seoTitle} | ${product.brand.title} | lemiro - لمیرو`,
       description: product.seo.seoDescription,
       siteName: 'lemiro - لمیرو',
-      images: [
-        product.basicInfo.mainImage.formats.medium.url,
-        ...previousImages,
-      ],
+      images: [product.basicInfo.mainImage.url, ...previousImages],
     },
   };
 }

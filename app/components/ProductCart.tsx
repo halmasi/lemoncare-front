@@ -21,14 +21,14 @@ export default function ProductCart({
       >
         <div className="flex flex-row justify-end items-end contain-content">
           <Image
-            src={product.basicInfo.mainImage.formats.thumbnail.url}
+            src={product.basicInfo.mainImage.url}
             alt={
               product.basicInfo.mainImage.alternativeText ||
-              product.basicInfo.mainImage.formats.thumbnail.name
+              product.basicInfo.mainImage.name
             }
-            width={product.basicInfo.mainImage.formats.thumbnail.width}
-            height={product.basicInfo.mainImage.formats.thumbnail.height}
-            className="rounded-lg"
+            width={product.basicInfo.mainImage.width}
+            height={product.basicInfo.mainImage.height}
+            className="rounded-lg w-full"
           />
           {product.variety.length > 0 && (
             <div className="absolute flex gap-1 px-3 py-1">

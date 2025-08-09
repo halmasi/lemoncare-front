@@ -9,7 +9,7 @@ import { BrandProps } from '../utils/schema/shopProps/categoryProps';
 import { uniqueBrands, uniqueCategories } from '../utils/shopUtils';
 import Checkbox from './formElements/Checkbox';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { set } from 'zod/v4';
+import Title from './Title';
 
 export default function Fillters({ products }: { products: ProductProps[] }) {
   const [categories, setCategories] = useState<ShopCategoryProps[]>([]);
@@ -70,16 +70,18 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
   };
 
   return (
-    <div className="hidden md:flex flex-col w-4/12 rounded-lg border p-5 gap-5">
+    <div className="flex bg-background w-full md:w-4/12  flex-col rounded-lg border p-5 gap-5">
       <div
         className="w-full flex flex-col justify-between gap-2"
         key={'categories' + categories.length}
       >
         {categories && categories.length > 0 && (
           <div>
-            <h6 className="text-base">دسته بندی ها</h6>
+            <Title>
+              <h6 className="text-base">دسته بندی ها</h6>
+            </Title>
             <div className="rounded-lg border p-1 h-40 overflow-y-scroll">
-              {categories.map((category, index) => (
+              {categories.map((category) => (
                 <Checkbox
                   key={category.slug}
                   isChecked={() => {
@@ -105,10 +107,11 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
       <div key={'brands' + brands.length}>
         {brands && brands.length > 0 && (
           <div>
-            <h6 className="text-base">برند ها</h6>
-
+            <Title>
+              <h6 className="text-base">برند ها</h6>
+            </Title>
             <div className="rounded-lg border p-1 h-40 overflow-y-scroll">
-              {brands.map((brand, index) => (
+              {brands.map((brand) => (
                 <Checkbox
                   key={brand.slug}
                   isChecked={() => {

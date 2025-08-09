@@ -8,7 +8,7 @@ import {
   getProductsByCategory,
   getProductsByTag,
 } from '@/app/utils/data/getProducts';
-import { notFound, useSearchParams } from 'next/navigation';
+import { notFound, useRouter, useSearchParams } from 'next/navigation';
 import { ProductProps } from '../utils/schema/shopProps';
 import Pagination from './Pagination';
 import { useMutation } from '@tanstack/react-query';
@@ -24,14 +24,13 @@ import {
 } from '../utils/data/getPosts';
 import { getCategory } from '../utils/data/getCategories';
 import Fillters from './Fillters';
-import { s } from 'framer-motion/client';
-import { BiSort } from 'react-icons/bi';
+import { BiFilter, BiSort } from 'react-icons/bi';
 
 export default function ProductsAndBlogPage({
   resultBy,
   slug,
   type,
-  pageSize = 10,
+  pageSize = 20,
   page = 1,
 }: {
   resultBy: 'full' | 'category' | 'tag' | 'author' | 'brand';
@@ -45,6 +44,7 @@ export default function ProductsAndBlogPage({
   const currentCategories = params.getAll('category');
   const currentBrands = params.getAll('brand');
   const sortParam = params.get('sort') || 'asc';
+  const router = useRouter();
 
   const [allProducts, setAllProducts] = useState<ProductProps[]>([]);
   const [allPosts, setAllPosts] = useState<PostsProps[]>([]);
@@ -53,6 +53,7 @@ export default function ProductsAndBlogPage({
   const [pageCount, setPageCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [showSort, setShowSort] = useState(false);
+  const [showfilter, setShowFilter] = useState(false);
   const [title, setTitle] = useState<string>('');
 
   const getProductsFn = useMutation({
@@ -61,7 +62,7 @@ export default function ProductsAndBlogPage({
       if (resultBy == 'full') {
         setTitle('');
         const getFn = await getProducts({ isFetchAll: true });
-        setPageCount(Math.round(getFn.res.length / 10 + 0.5));
+        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
         productsList = getFn.res;
       } else if (resultBy == 'category') {
         const category = await getShopCategory(slug[slug.length - 1]);
@@ -70,7 +71,7 @@ export default function ProductsAndBlogPage({
           category: category[0],
           isSiteMap: true,
         });
-        setPageCount(Math.round(getFn.res.length / 10 + 0.5));
+        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
         productsList = getFn.res;
       } else if (resultBy == 'tag') {
         const getFn = await getProductsByTag({
@@ -84,7 +85,7 @@ export default function ProductsAndBlogPage({
             productsList[0].tags.findIndex((item) => item.slug == slug[0])
           ].title;
         setTitle('برچسب: ' + tagTitle || '');
-        setPageCount(Math.round(getFn.res.length / 10 + 0.5));
+        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
       } else if (resultBy == 'brand') {
         if (slug.length > 1) {
           const category = await getShopCategory(slug[slug.length - 1]);
@@ -100,7 +101,7 @@ export default function ProductsAndBlogPage({
               ' | ' +
               category[0].title || ''
           );
-          setPageCount(Math.round(getFn.res.length / 10 + 0.5));
+          setPageCount(Math.round(getFn.res.length / 10 + 0.4));
           //
         } else {
           const getFn = await getProductsByBrand({
@@ -110,7 +111,7 @@ export default function ProductsAndBlogPage({
           productsList = getFn.res;
           if (productsList.length == 0) return notFound();
           setTitle(productsList[0].brand.title);
-          setPageCount(Math.round(getFn.res.length / 10 + 0.5));
+          setPageCount(Math.round(getFn.res.length / 10 + 0.4));
         }
       }
       return productsList;
@@ -229,10 +230,21 @@ export default function ProductsAndBlogPage({
         return priceB - priceA;
       });
     }
+    setPageCount(Math.round(filteredProducts.length / pageSize + 0.4));
 
-    setProducts(filteredProducts);
+    console.log((page - 1) * pageSize, (page - 1) * pageSize);
+    setProducts(filteredProducts.slice((page - 1) * pageSize, page * pageSize));
+    // setProducts(filteredProducts);
   };
 
+  const sortFn = (param: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get('sort') == param) return;
+    setShowSort(false);
+    params.set('sort', param);
+    router.push(`?${params.toString()}`);
+    filterFn(allProducts);
+  };
   useEffect(() => {
     filterFn(allProducts);
   }, [currentBrands.length, currentCategories.length]);
@@ -269,35 +281,65 @@ export default function ProductsAndBlogPage({
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          <div
-            onClick={() => setShowSort(!showSort)}
-            tabIndex={0}
-            onBlur={() => setShowSort(false)}
-            className="flex flex-col gap-3 items-end"
-          >
-            <p className="flex items-center text-accent-pink cursor-pointer">
-              <BiSort /> مرتب سازی
-            </p>
-            {showSort && (
-              <div className="absolute flex flex-col mt-10 border-2 rounded-lg p-5 px-10 bg-white z-10 gap-2">
-                <p className="cursor-pointer hover:text-accent-pink">
-                  قیمت کم به زیاد
-                </p>
-                <p className="cursor-pointer hover:text-accent-pink">
-                  قیمت زیاد به کم
-                </p>
-                <p className="cursor-pointer hover:text-accent-pink">
-                  جدیدترین
-                </p>
-                <p className="cursor-pointer hover:text-accent-pink">
-                  قدیمی ترین
-                </p>
+          <div className="flex justify-between items-center">
+            <div
+              onClick={() => setShowFilter(!showSort)}
+              tabIndex={0}
+              onBlur={() => setShowFilter(false)}
+            >
+              <div className="flex md:hidden items-center text-accent-pink cursor-pointer">
+                <p>فیلتر</p>
+                <BiFilter />
               </div>
-            )}
+              {showfilter && (
+                <div className="absolute w-full z-10">
+                  <Fillters products={allProducts} />
+                </div>
+              )}
+            </div>
+            <div
+              onClick={() => setShowSort(!showSort)}
+              tabIndex={0}
+              onBlur={() => setShowSort(false)}
+              className="flex flex-col gap-3 items-end justify-self-end"
+            >
+              <p className="flex items-center text-accent-pink cursor-pointer">
+                <BiSort /> مرتب سازی
+              </p>
+              {showSort && (
+                <div className="absolute flex flex-col mt-10 border-2 rounded-lg p-5 px-10 bg-white z-10 gap-2">
+                  <p
+                    onClick={() => sortFn('price-desc')}
+                    className="cursor-pointer hover:text-accent-pink"
+                  >
+                    قیمت کم به زیاد
+                  </p>
+                  <p
+                    onClick={() => sortFn('price-asc')}
+                    className="cursor-pointer hover:text-accent-pink"
+                  >
+                    قیمت زیاد به کم
+                  </p>
+                  <p
+                    onClick={() => sortFn('desc')}
+                    className="cursor-pointer hover:text-accent-pink"
+                  >
+                    جدیدترین
+                  </p>
+                  <p
+                    onClick={() => sortFn('asc')}
+                    className="cursor-pointer hover:text-accent-pink"
+                  >
+                    قدیمی ترین
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-
           <div className="flex gap-5">
-            <Fillters products={allProducts} />
+            <div className="hidden md:flex">
+              <Fillters products={allProducts} />
+            </div>
             <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {isLoading ? (
                 <ProductAndBlogSkeleton count={10} />
