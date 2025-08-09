@@ -9,6 +9,7 @@ import { BrandProps } from '../utils/schema/shopProps/categoryProps';
 import { uniqueBrands, uniqueCategories } from '../utils/shopUtils';
 import Checkbox from './formElements/Checkbox';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { set } from 'zod/v4';
 
 export default function Fillters({ products }: { products: ProductProps[] }) {
   const [categories, setCategories] = useState<ShopCategoryProps[]>([]);
@@ -18,20 +19,27 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
 
   const getDataFn = useMutation({
     mutationFn: async (products: ProductProps[]) => {
-      products.map(async (productData) => {
-        const data = await getProduct({ slug: productData.documentId });
-        const product = data.res[0];
-        const categoriesData = await getCategoryparentHierarchy(
-          product.category
-        );
-        setCategories(() => {
-          return uniqueCategories([...categories, ...categoriesData]);
-        });
+      const categoriesList: ShopCategoryProps[] = [];
+      let brandsList: BrandProps[] = [];
 
-        setBrands(() => {
-          return uniqueBrands([...brands, product.brand]);
-        });
-      });
+      await Promise.all(
+        products.map(async (productData) => {
+          const data = await getProduct({ slug: productData.documentId });
+          const product = data.res[0];
+          const categoriesData = await getCategoryparentHierarchy(
+            product.category
+          );
+
+          categoriesList.push(...categoriesData);
+          brandsList = [...brandsList, product.brand];
+        })
+      );
+
+      return { categoriesList, brandsList };
+    },
+    onSuccess: ({ categoriesList, brandsList }) => {
+      setCategories(uniqueCategories(categoriesList));
+      setBrands(uniqueBrands(brandsList));
     },
   });
   useEffect(() => {

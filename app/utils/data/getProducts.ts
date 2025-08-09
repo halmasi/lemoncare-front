@@ -54,10 +54,12 @@ export const getProducts = cache(async function ({
   tag,
   page = 1,
   pageSize = 10,
+  isFetchAll = false,
 }: {
   tag?: string[];
   page?: number;
   pageSize?: number;
+  isFetchAll?: boolean;
 }) {
   const query = qs.stringify({
     populate: {
@@ -66,11 +68,14 @@ export const getProducts = cache(async function ({
       category: { populate: '*' },
       variety: { populate: '*' },
       tags: { populate: '*' },
+      brand: { populate: '1' },
     },
-    pagination: {
-      page,
-      pageSize,
-    },
+    pagination: isFetchAll
+      ? {}
+      : {
+          page,
+          pageSize,
+        },
   });
   const link = '/products?' + query;
   const result = await dataFetch({
@@ -158,12 +163,14 @@ export const getProductsByTag = cache(async function ({
   productDocumentId,
   page = 1,
   pageSize = 10,
+  isFetchAll = false,
 }: {
   slug: string;
   productDocumentId?: string;
   tag?: string[];
   page?: number;
   pageSize?: number;
+  isFetchAll?: boolean;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
     tags: {
@@ -182,11 +189,14 @@ export const getProductsByTag = cache(async function ({
       category: { populate: '*' },
       variety: { populate: '*' },
       tags: { populate: '*' },
+      brand: { populate: '1' },
     },
-    pagination: {
-      page,
-      pageSize,
-    },
+    pagination: isFetchAll
+      ? {}
+      : {
+          page,
+          pageSize,
+        },
   });
   const result = await dataFetch({
     qs: `/products?${query}&sort[0]=createdAt:desc`,
@@ -202,12 +212,14 @@ export const getProductsByBrand = cache(async function ({
   productDocumentId,
   page = 1,
   pageSize = 10,
+  isFetchAll = false,
 }: {
   slug: string;
   productDocumentId?: string;
   tag?: string[];
   page?: number;
   pageSize?: number;
+  isFetchAll?: boolean;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
     brand: {
@@ -228,10 +240,12 @@ export const getProductsByBrand = cache(async function ({
       tags: { populate: '*' },
       brand: { populate: '1' },
     },
-    pagination: {
-      page,
-      pageSize,
-    },
+    pagination: isFetchAll
+      ? {}
+      : {
+          page,
+          pageSize,
+        },
   });
   const result = await dataFetch({
     qs: `/products?${query}&sort[0]=createdAt:desc`,

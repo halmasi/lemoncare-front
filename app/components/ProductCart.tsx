@@ -21,13 +21,13 @@ export default function ProductCart({
       >
         <div className="flex flex-row justify-end items-end contain-content">
           <Image
-            src={product.basicInfo.mainImage.formats.medium.url}
+            src={product.basicInfo.mainImage.formats.thumbnail.url}
             alt={
               product.basicInfo.mainImage.alternativeText ||
-              product.basicInfo.mainImage.formats.medium.name
+              product.basicInfo.mainImage.formats.thumbnail.name
             }
-            width={product.basicInfo.mainImage.formats.medium.width}
-            height={product.basicInfo.mainImage.formats.medium.height}
+            width={product.basicInfo.mainImage.formats.thumbnail.width}
+            height={product.basicInfo.mainImage.formats.thumbnail.height}
             className="rounded-lg"
           />
           {product.variety.length > 0 && (
