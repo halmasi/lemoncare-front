@@ -1,5 +1,7 @@
+'use client';
+
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+// import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import ProfileMenu from './ProfileMenu';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -7,12 +9,13 @@ import Link from 'next/link';
 import { RiAccountPinCircleFill } from 'react-icons/ri';
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io';
 import Gravatar from './Gravatar';
+import LoadingAnimation from '../LoadingAnimation';
 
-export default function ProfileDropDown({ usersName }: { usersName: string }) {
-  const path = usePathname();
+export default function ProfileDropDown() {
+  // const path = usePathname();
   const [showItems, setShowItems] = useState(false);
 
-  const { jwt } = useDataStore();
+  const { jwt, user } = useDataStore();
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -32,7 +35,7 @@ export default function ProfileDropDown({ usersName }: { usersName: string }) {
           <RiAccountPinCircleFill className="text-2xl" />
           <IoIosArrowDown />
         </Link>
-        {!path.startsWith('/dashboard') && !path.startsWith('/cart') && jwt && (
+        {jwt && (
           <AnimatePresence>
             {
               <motion.div
@@ -56,15 +59,29 @@ export default function ProfileDropDown({ usersName }: { usersName: string }) {
                       items: [
                         {
                           name: (
-                            <div className="flex items-center justify-between w-full">
-                              <div className="flex gap-3">
-                                <Gravatar />
-                                <p>{usersName}</p>
-                              </div>
-                              <IoIosArrowBack />
+                            <div className="w-full flex items-center justify-between">
+                              {user ? (
+                                <div className="w-full flex gap-2 items-center justify-between">
+                                  <div className="flex gap-3">
+                                    <Gravatar />
+                                    <p>
+                                      {user.fullName
+                                        ? user.fullName
+                                        : user.email}
+                                    </p>
+                                  </div>
+                                  <IoIosArrowBack />
+                                </div>
+                              ) : (
+                                <LoadingAnimation
+                                  size={15}
+                                  className="pt-0 pb-2"
+                                />
+                              )}
                             </div>
                           ),
-                          key: usersName,
+                          title: 'پنل کاربری',
+                          key: user && user.fullName ? user.fullName : 'user',
                           url: '/dashboard',
                         },
                       ],

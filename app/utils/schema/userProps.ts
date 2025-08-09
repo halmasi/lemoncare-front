@@ -1,3 +1,4 @@
+import { PostsProps } from './blogProps';
 import { CartProps, ProductProps } from './shopProps';
 
 export interface UserProps {
@@ -6,12 +7,14 @@ export interface UserProps {
   phoneNumber: number;
   password: string;
 }
+
 export interface ErrorProps {
   status: number;
   name: string;
   message: string;
   details: object;
 }
+
 export interface LoginUserProps {
   data: {
     user: {
@@ -20,6 +23,7 @@ export interface LoginUserProps {
       email: string;
       provider: string;
       confirmed: boolean;
+      phoneConfirmed: boolean;
       blocked: boolean;
       createdAt: string;
       updatedAt: string;
@@ -31,6 +35,7 @@ export interface LoginUserProps {
     error?: string;
   };
 }
+
 export interface SignInState {
   success: boolean;
   fieldErrors?: {
@@ -52,18 +57,19 @@ export interface AddressProps {
   provinceCode?: number;
   city: string;
   cityCode?: number;
-  phoneNumber: number | string | null;
+  phoneNumber?: number | string | null;
   mobileNumber: number | string;
   isDefault: boolean;
 }
 
 export interface FetchUserProps {
-  id?: string;
+  id?: number;
   documentId?: string;
   fullName?: string;
   email?: string;
   username?: string;
   data?: object | string | object[] | string[];
+  phoneConfirmed: boolean;
   cart: CartProps[];
   shopingCart: {
     documentId: string;
@@ -71,25 +77,82 @@ export interface FetchUserProps {
   };
   postal_information: {
     documentId: string;
-    id: number;
+    id?: number;
     information: AddressProps[];
   };
   order_history: {
     documentId: string;
-    id: number;
-  };
+    id?: number;
+  }[];
+  favorite: FavoriteListProps;
+}
+
+export interface FavoriteListProps {
+  documentId: string;
+  id?: number;
+  posts?: PostsProps[];
+  products?: ProductProps[];
 }
 
 export interface OrderHistoryProps {
-  id: number;
-  orderDate: string;
-  pay: boolean;
-  address: string;
-  postCode: number;
-  items: {
-    id: number;
-    count: number;
-    variety: { id: number; sub: number | null };
-    product: ProductProps;
-  }[];
+  user: number;
+  documentId: string;
+  order: {
+    id?: number;
+    orderDate: string;
+    paymentStatus: 'pending' | 'completed' | 'canceled';
+    payMethod: 'online' | 'offline' | 'snapp';
+    shippingMethod: string;
+    shippingPrice: number;
+    orderPrice: number;
+    coupon: string | null;
+    totalPrice: number;
+    orderCode: number;
+    province: string;
+    city: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: number | string;
+    phoneNumber: number | string;
+    address: string;
+    postCode: number;
+    items: CartProps[];
+    orderDetail: PaymentDetailProps | null;
+    deliveryStatus: string;
+  };
+}
+
+export interface PaymentDetailProps {
+  RefNo: number;
+  Token: string;
+  Amount: number;
+  CardNo: string;
+  ResCod: number;
+  Message: string;
+  OrderID: string;
+  TraceNo: string;
+  TransNo: string;
+  ExtraInf: string;
+  InvoiceNo: string;
+  TransDate: string;
+  AmountWage: string;
+  MerchantID: string;
+  TerminalID: string;
+  AmntWageCbi: number;
+  AppExtraInf: {
+    Descr: string;
+    PayTyp: number;
+    PayerIP: string;
+    PayerNm: string;
+    PayTypID: number;
+    PayTitleID: number;
+    PayerAppID: string;
+    PayerAppNm: string;
+    PayerEmail: string;
+    PayerNCode: string;
+    PayerAppTyp: string;
+    PayerMobile: string;
+  };
+  AmountWageTyp: number;
+  AmntWageCbiTyp: number;
 }

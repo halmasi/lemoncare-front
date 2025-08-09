@@ -8,42 +8,52 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
+import AddToFavorites from '@/app/components/AddToFavorites';
+import config from '@/app/utils/config';
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
   const post = data[0];
   const previousImages = (await parent).openGraph?.images || [];
-  const tags = post.tags.map((item) => item.title).join('، ');
+  const tags =
+    post.tags && post.tags.length > 0
+      ? post.tags.map((item) => item.title).join('، ')
+      : [''];
   return {
-    title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+    title: post.seo.seoTitle + ' | lemiro - لمیرو',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
         name: post.author.name,
-        url: `https://lemoncare.ir/author/${post.author.username}`,
+        url: `${config.siteUrl}/author/${post.author.username}`,
       },
     ],
-    applicationName: 'lemoncare - لمن کر',
-    category: post.category.title + ' | Lemoncare - لمن کر',
+    applicationName: 'lemiro - لمیرو',
+    category: post.category.title + ' | lemiro - لمیرو',
     openGraph: {
-      title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+      title: post.seo.seoTitle + ' | lemiro - لمیرو',
       description: post.seo.seoDescription,
-      siteName: 'لمن کر - lemoncare',
+      siteName: 'lemiro - لمیرو',
       images: [post.basicInfo.mainImage.formats.medium.url, ...previousImages],
     },
   };
 }
 
-export default async function page({ params }: { params: { slug: string } }) {
+export default async function page(props: {
+  params: Promise<{ slug: string }>;
+}) {
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
   const post = data[0];
+  if (!post.content.length) return notFound();
   const contents: ContentProps[] = post.content;
   const publishDate = new Date(post.createdAt);
   return (
@@ -61,7 +71,9 @@ export default async function page({ params }: { params: { slug: string } }) {
           })}
         </p>
       </div>
+
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
+      <AddToFavorites post={post} />
       <Image
         className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
         src={post.basicInfo.mainImage.url}

@@ -1,8 +1,11 @@
-import { cartProductsProps, ProductProps } from './schema/shopProps';
-import { getProduct } from './data/getProducts';
+import { CartProps, ProductProps, ShopCategoryProps } from './schema/shopProps';
+import qs from 'qs';
+import { dataFetch } from './data/dataFetch';
+import { BrandProps } from './schema/shopProps/categoryProps';
+
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
-  product: ProductProps | cartProductsProps
+  product: ProductProps
 ) => {
   let value: {
     specification: string;
@@ -21,46 +24,49 @@ export const varietyFinder = (
   };
   if (variety.sub) {
     product.variety.forEach((item) => {
-      if (item.uniqueId == variety.id) {
+      if (item.uniqueId == variety.id && item) {
         const subItem = item.subVariety.find(
           (sub) => sub.uniqueId == variety.sub
         );
-        value = {
-          specification:
-            item.specification + ' | ' + subItem?.specification || '',
-          color:
-            subItem?.color == '#000000'
-              ? item?.color == '#000000'
-                ? ''
-                : item?.color
-              : subItem?.color || '',
-          priceBefforDiscount: subItem?.priceBefforDiscount || 0,
-          mainPrice: subItem?.mainPrice || 0,
-          inventory: subItem?.inventory || 0,
-          endOfDiscount:
-            subItem && subItem.endOfDiscount
-              ? new Date(subItem.endOfDiscount).getTime()
-              : 0,
-        };
+        if (subItem)
+          value = {
+            specification:
+              item.specification + ' | ' + subItem?.specification || '',
+            color:
+              subItem?.color == '#000000'
+                ? item.color == '#000000'
+                  ? ''
+                  : item.color
+                : subItem?.color || '',
+            priceBefforDiscount: subItem?.priceBefforDiscount || 0,
+            mainPrice: subItem?.mainPrice || 0,
+            inventory: subItem?.inventory || 0,
+            endOfDiscount:
+              subItem && subItem.endOfDiscount
+                ? new Date(subItem.endOfDiscount).getTime()
+                : 0,
+          };
       }
     });
-    return value;
   } else {
     const item = product.variety.find((i) => i.uniqueId == variety.id);
-    value = {
-      color: item?.color == '#000000' ? '' : item?.color || '',
-      inventory: item?.inventory || 0,
-      mainPrice: item?.mainPrice || 0,
-      priceBefforDiscount: item?.priceBeforeDiscount || 0,
-      specification: item?.specification || '',
-      endOfDiscount:
-        item && item.endOfDiscount ? new Date(item.endOfDiscount).getTime() : 0,
-    };
+    if (item)
+      value = {
+        color: item.color == '#000000' ? '' : item.color || '',
+        inventory: item.inventory || 0,
+        mainPrice: item.mainPrice || 0,
+        priceBefforDiscount: item.priceBeforeDiscount || 0,
+        specification: item.specification || '',
+        endOfDiscount:
+          item && item.endOfDiscount
+            ? new Date(item.endOfDiscount).getTime()
+            : 0,
+      };
   }
   return value;
 };
 
-export const lowestPrice = (product: ProductProps | cartProductsProps) => {
+export const lowestPrice = (product: ProductProps) => {
   const lessPrice: {
     id: number | null;
     sub: number | null;
@@ -80,54 +86,89 @@ export const lowestPrice = (product: ProductProps | cartProductsProps) => {
           lessPrice.price = sub.mainPrice;
         }
       });
-      if (
-        (item.mainPrice && item.mainPrice < lessPrice.price) ||
-        !lessPrice.price
-      ) {
-        lessPrice.id = item.id;
-        lessPrice.sub = null;
-        lessPrice.uid = item.uniqueId;
-        lessPrice.usub = null;
-        lessPrice.price = item.mainPrice;
-      }
+    } else if (item.mainPrice < lessPrice.price || !lessPrice.price) {
+      lessPrice.id = item.id;
+      lessPrice.sub = null;
+      lessPrice.uid = item.uniqueId;
+      lessPrice.usub = null;
+      lessPrice.price = item.mainPrice;
     }
   });
   return lessPrice;
 };
 
-export const cartProductSetter = async (
-  documentId: string,
-  cartProducts: cartProductsProps[]
-) => {
-  const newArray = cartProducts;
-
-  const findProduct = cartProducts.find(
-    (item) => item.documentId == documentId
-  );
-
-  if (!findProduct) {
-    const product = await getProduct(documentId);
-    newArray.push({
-      basicInfo: product[0].basicInfo,
-      documentId: product[0].documentId,
-      variety: product[0].variety,
-    });
-  }
-
-  return newArray;
+export const orderHistoryIdMaker = async (): Promise<number> => {
+  const orderId: number = parseInt((Math.random() * 10000000000).toFixed(0));
+  const queryPost = qs.stringify({
+    filters: {
+      order: {
+        orderCode: { $eq: orderId },
+      },
+    },
+    populate: {
+      order: {
+        populate: {
+          items: {
+            populate: {
+              product: { populate: { basicInfo: { populate: ['mainImage'] } } },
+            },
+          },
+        },
+      },
+    },
+  });
+  const res = await dataFetch({ qs: `/order-histories?${queryPost}` });
+  if (res.data.length) await orderHistoryIdMaker();
+  return orderId;
 };
 
-export const cartProductSelector = async (
-  documentId: string,
-  cartProducts: cartProductsProps[]
-) => {
-  const findProduct = cartProducts.find(
-    (item) => item.documentId == documentId
-  );
+export const cartCleaner = (cart: CartProps[]): CartProps[] => {
+  const map = new Map<string, CartProps>();
 
-  if (!findProduct) {
-    const product = await getProduct(documentId);
-    return product[0];
-  }
-  return findProduct;
+  cart.forEach((item) => {
+    if (item.count === 0) return;
+
+    const key = `${item.product.documentId}_${item.variety}`;
+
+    if (map.has(key)) {
+      const existing = map.get(key)!;
+      map.set(key, {
+        ...existing,
+        count: existing.count + item.count,
+      });
+    } else {
+      map.set(key, { ...item });
+    }
+  });
+
+  return Array.from(map.values());
 };
+
+export function uniqueCategories(
+  categories: ShopCategoryProps[]
+): ShopCategoryProps[] {
+  const seen = new Set<string>();
+  const unique = [];
+
+  for (const category of categories) {
+    if (!seen.has(category.documentId)) {
+      seen.add(category.documentId);
+      unique.push(category);
+    }
+  }
+
+  return unique;
+}
+
+export function uniqueBrands(brands: BrandProps[]): BrandProps[] {
+  const seen = new Set<string>();
+  const unique = [];
+
+  for (const brand of brands) {
+    if (!seen.has(brand.slug)) {
+      seen.add(brand.slug);
+      unique.push(brand);
+    }
+  }
+  return unique;
+}

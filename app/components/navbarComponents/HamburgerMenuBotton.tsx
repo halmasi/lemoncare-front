@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, Transition, SVGMotionProps, spring } from 'framer-motion';
+import { motion, Transition, SVGMotionProps } from 'framer-motion';
 
 interface Props extends SVGMotionProps<SVGSVGElement> {
   isOpen?: boolean;
@@ -16,7 +16,7 @@ export const HamburgerMenuButton = ({
   strokeWidth = 1,
   color = '#404040',
   lineProps = null,
-  transition = { spring },
+  transition = { ease: 'easeInOut', duration: 0.2 } as Transition,
   ...props
 }: Props) => {
   const variant = isOpen ? 'opened' : 'closed';

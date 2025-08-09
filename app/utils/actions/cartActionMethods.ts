@@ -22,12 +22,11 @@ export const getCart = async (documentId: string) => {
     },
   });
 
-  const response = await requestData(
-    `/carts/${documentId}?${query}`,
-    'GET',
-    {},
-    check.jwt
-  );
+  const response = await requestData({
+    qs: `/carts/${documentId}?${query}`,
+    method: 'GET',
+    token: check.jwt,
+  });
   return response.data;
 };
 
@@ -40,10 +39,10 @@ export const updateCartOnLogin = async (
   id: string
 ) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: newCart.map((item) => ({
           count: item.count,
@@ -52,18 +51,18 @@ export const updateCartOnLogin = async (
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
   const data: UpdateCartResultProps = response.data;
   return data;
 };
 
 export const updateCart = async (cart: CartProps[], id: string) => {
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
         items: cart.map((item) => ({
           count: item.count,
@@ -72,8 +71,24 @@ export const updateCart = async (cart: CartProps[], id: string) => {
         })),
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
+  const data: UpdateCartResultProps = response.data;
+  return data;
+};
+
+export const emptyCart = async (id: string) => {
+  const check = await loginCheck();
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
+      data: {
+        items: [],
+      },
+    },
+    token: check.jwt,
+  });
   const data: UpdateCartResultProps = response.data;
   return data;
 };
@@ -101,32 +116,17 @@ export const addToCart = async (
     product: newItem.id,
     variety: newItem.variety,
   });
-  newCart.map((item) => {
-    let found = -1;
-    newCart.forEach((check) => {
-      if (check.product == item.product && check.variety == item.variety) {
-        found++;
-      }
-    });
-    if (found) {
-      newCart.splice(newCart.indexOf(item), 1);
-    }
-  });
   const check = await loginCheck();
-  const response = await requestData(
-    `/carts/${id}`,
-    'PUT',
-    {
+  const response = await requestData({
+    qs: `/carts/${id}`,
+    method: 'PUT',
+    body: {
       data: {
-        items: newCart.map((item) => ({
-          count: item.count,
-          product: item.product,
-          variety: item.variety,
-        })),
+        items: newCart,
       },
     },
-    check.jwt
-  );
+    token: check.jwt,
+  });
 
   const data = response.data;
   return data;

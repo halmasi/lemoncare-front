@@ -8,10 +8,13 @@ import { usePathname } from 'next/navigation';
 import SubmitButton from '../formElements/SubmitButton';
 import Link from 'next/link';
 import { useCartStore } from '@/app/utils/states/useCartData';
+import { useDataStore } from '@/app/utils/states/useUserdata';
+import LoadingAnimation from '../LoadingAnimation';
 
 export default function CartButton() {
   const path = usePathname();
   const { cart } = useCartStore();
+  const { loginProcces } = useDataStore();
 
   const [showItems, setShowItems] = useState(false);
   const [price, setPrice] = useState({ before: 0, main: 0 });
@@ -47,25 +50,29 @@ export default function CartButton() {
           )}
           <RiShoppingCart2Fill className="text-2xl" />
         </Link>
-        {path.startsWith('/cart') ||
-          (!path.startsWith('/dashboard') && (
-            <AnimatePresence>
-              {
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={
-                    showItems
-                      ? { opacity: 1, y: 0 }
-                      : { opacity: 0, y: 20, visibility: 'hidden' }
-                  }
-                  exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
-                  style={showItems ? {} : {}}
-                  transition={{
-                    duration: 0.3,
-                    ease: 'easeOut',
-                  }}
-                  className="absolute left-0 top-full min-w-[30rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
-                >
+        {!path.startsWith('/cart') && (
+          <AnimatePresence>
+            {
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={
+                  showItems
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 20, visibility: 'hidden' }
+                }
+                exit={{ opacity: 0, y: 20, visibility: 'hidden' }}
+                style={showItems ? {} : {}}
+                transition={{
+                  duration: 0.3,
+                  ease: 'easeOut',
+                }}
+                className="absolute left-0 top-full min-w-[30rem] w-[50%] max-w-[50rem] min-[1024px]:w-[35%] bg-white rounded-lg border shadow-lg"
+              >
+                {loginProcces ? (
+                  <div>
+                    <LoadingAnimation />
+                  </div>
+                ) : (
                   <div className="w-full min-h-[16rem] max-h-[50svh] overflow-y-scroll">
                     <div className="p-5 ">
                       <Cart
@@ -99,10 +106,11 @@ export default function CartButton() {
                       </div>
                     )}
                   </div>
-                </motion.div>
-              }
-            </AnimatePresence>
-          ))}
+                )}
+              </motion.div>
+            }
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );

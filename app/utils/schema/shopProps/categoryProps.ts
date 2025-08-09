@@ -27,3 +27,17 @@ export interface ShopCategoryProps {
   shopSubCategories: ShopSubCategoiesProps[];
   shopParentCategory: ShopSubCategoiesProps;
 }
+
+export interface ShopTagsProps {
+  id: number;
+  title: string;
+  description: string;
+  slug: string;
+  products: ProductProps[];
+}
+
+export interface BrandProps {
+  title: string;
+  slug: string;
+  products: ProductProps[];
+}

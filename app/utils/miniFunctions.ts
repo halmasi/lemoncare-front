@@ -1,8 +1,9 @@
 export const cleanPhone = (username: string) => {
-  if (/^(\+98|98|0)?9\d{9}$/.test(username)) {
-    return username.replace(/^(\+98|98|0)?/, '');
+  const cleaning = convertPersianAndArabicToEnglish(username);
+  if (/^(\+98|98|0)?9\d{9}$/.test(cleaning)) {
+    return cleaning.replace(/^(\+98|98|0)?/, '');
   }
-  return username;
+  return convertPersianAndArabicToEnglish(cleaning);
 };
 
 export const isPhone = (username: string) => {
@@ -48,6 +49,33 @@ export const convertPersianAndArabicToEnglish = (input: string): string => {
     return englishDigits[index % 10];
   });
 };
+
+export const deleteKeysFromObject = (
+  data: Record<string, any>, // eslint-disable-line no-use-before-define
+  deleteKeys: string[]
+) => {
+  if (typeof data != 'object') return {};
+  if (!data) return {};
+  const res = data;
+  for (const key in res) {
+    if (deleteKeys.includes(key)) {
+      delete res[key];
+    } else {
+      deleteKeysFromObject(res[key], deleteKeys);
+    }
+  }
+  return res;
+};
+
+export function removeDuplicatesByKeys<T>(arr: T[], keys: (keyof T)[]): T[] {
+  const seen = new Set<string>();
+  return arr.filter((item) => {
+    const compositeKey = keys.map((key) => String(item[key])).join('|');
+    if (seen.has(compositeKey)) return false;
+    seen.add(compositeKey);
+    return true;
+  });
+}
 
 export const logs = {
   error: async (log: string) => {

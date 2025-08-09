@@ -16,10 +16,12 @@ export const getArticleSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggested-articles?${query}`, 'GET', [
-      `suggested-article-${slug}`,
-    ]);
-    return data[0];
+    const data = await dataFetch({
+      qs: `/suggested-articles?${query}`,
+      tag: [`suggested-article-${slug.trim()}`],
+      cache: 'force-cache',
+    });
+    return data.data[0];
   }
 );
 
@@ -31,10 +33,12 @@ export const getProductSuggestions = cache(
       },
       populate: '*',
     });
-    const data = await dataFetch(`/suggestion-lists?${query}`, 'GET', [
-      `suggestion-list-${slug}`,
-    ]);
-    return data[0];
+    const data = await dataFetch({
+      qs: `/suggestion-lists?${query}`,
+      tag: [`suggestion-list-${slug.trim()}`],
+      cache: 'force-cache',
+    });
+    return data.data[0];
   }
 );
 
@@ -42,7 +46,7 @@ export const getSlides = cache(async function (
   location: string
 ): Promise<SlideProps> {
   const query = qs.stringify({
-    filter: {
+    filters: {
       location: { $eq: location },
     },
     populate: {
@@ -51,8 +55,11 @@ export const getSlides = cache(async function (
       },
     },
   });
-  const data: SlideProps[] = await dataFetch(`/slideshows?${query}`, 'GET', [
-    `slide-${location}`,
-  ]);
-  return data[0];
+  const fetchData = await dataFetch({
+    qs: `/slideshows?${query}`,
+    tag: [`slide-${location.trim()}`],
+    cache: 'force-cache',
+  });
+  const data: SlideProps = fetchData.data[0];
+  return data;
 });

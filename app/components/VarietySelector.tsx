@@ -13,8 +13,12 @@ import Count from './navbarComponents/Count';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
-import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { RiRefund2Fill } from 'react-icons/ri';
+import { MdOutlineVerified } from 'react-icons/md';
 
 interface NewItemProps {
   count: number;
@@ -42,24 +46,31 @@ function AddButton({
 }) {
   const { cart } = useCartStore();
 
-  if (cart) {
+  const router = useRouter();
+
+  const [count, setCount] = useState(1);
+
+  if (cart && cart.length > 0) {
     const findCart = cart.find(
       (item) =>
         item.product.documentId == product.documentId &&
         item.variety.id == selected.uniqueId &&
         item.variety.sub == selected.uniqueSub
     );
-    if (!findCart || findCart.count < 1 || isPending) {
+    if (!findCart || findCart.count < 1 || isPending || count <= 0) {
       return (
         <SubmitButton
+          key={count}
+          className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
           onClick={() => {
+            setCount(1);
             handleAddToCart({
               count: 1,
               id: product.documentId,
               variety: { id: selected.uniqueId, sub: selected.uniqueSub },
             });
           }}
-          disabled={!price.price || isPending}
+          isPending={!price.price || isPending}
         >
           <span>افزودن به سبد خرید</span> <BiShoppingBag />
         </SubmitButton>
@@ -72,9 +83,13 @@ function AddButton({
       const inventory = variety.inventory;
       return (
         <Count
-          key={selected.sub || selected.id}
+          key={selected.sub || selected.id || count}
           cartItem={findCart}
           inventory={inventory}
+          refreshFunction={(c: number) => {
+            setCount(c);
+            router.refresh();
+          }}
           isProductPage
         />
       );
@@ -82,6 +97,7 @@ function AddButton({
   } else {
     return (
       <SubmitButton
+        className="flex gap-1 items-center bg-green-500 hover:bg-green-500/75 text-white "
         onClick={() => {
           handleAddToCart({
             count: 1,
@@ -92,7 +108,7 @@ function AddButton({
             },
           });
         }}
-        disabled={!price.price || isPending}
+        isPending={!price.price || isPending}
       >
         <span>افزودن به سبد خرید</span> <BiShoppingBag />
       </SubmitButton>
@@ -103,29 +119,14 @@ function AddButton({
 export default function VarietySelector({
   product,
   list,
+  showDiscount = true,
 }: {
   product: ProductProps;
   list?: boolean;
+  showDiscount?: boolean;
 }) {
-  const { user, jwt } = useDataStore();
-  const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
-
-  const addToCartFn = useMutation({
-    mutationFn: async (newItem: NewItemProps) => {
-      if (user && user.id && cart) {
-        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
-        return res;
-      }
-    },
-    onSuccess: async (data) => {
-      if (!data || !user) return;
-      const getCartData = await getCart(user.shopingCart.documentId);
-      setCart(getCartData.data.items);
-    },
-    onError: async (error) => {
-      logs.error(error.message + ' ' + error.cause);
-    },
-  });
+  const { user } = useDataStore();
+  const { cart, setCart } = useCartStore();
 
   const [selected, setSelected] = useState<{
     id: number;
@@ -168,7 +169,7 @@ export default function VarietySelector({
 
   useEffect(() => {
     const lessPrice = lowestPrice(product);
-    if (lessPrice.price && lessPrice.id) {
+    if (lessPrice.price && lessPrice.id && lessPrice.uid) {
       setSelected({
         id: lessPrice.id,
         sub: lessPrice.sub,
@@ -197,40 +198,76 @@ export default function VarietySelector({
     });
   }, [selected]);
 
-  const handleAddToCart = (newItem: NewItemProps) => {
-    cartProductSetter(newItem.id, cartProducts).then((list) =>
-      setCartProducts(list)
-    );
+  const getCartFn = useMutation({
+    mutationFn: async () => {
+      if (user) {
+        const getCartData = await getCart(user.shopingCart.documentId);
+        return getCartData;
+      }
+    },
+    onSuccess: (data) => {
+      if (!data || !data.data || !data.data.items) return;
+      setCart(data.data.items);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
 
-    const id = cart && cart.length ? cart[cart.length - 1].id + 1 : 1;
+  const addToCartFn = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      if (user && user.id && cart) {
+        const res = await addToCart(cart, newItem, user.shopingCart.documentId);
+        return res;
+      }
+    },
+    onSuccess: async (data) => {
+      if (!data || !user) return;
+      getCartFn.mutate();
+    },
+    onError: async (error) => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+      logs.error(error.message + ' ' + error.cause);
+    },
+  });
 
-    if (jwt && user && cart) {
-      const newCart = cart;
-      newCart.push({ ...newItem, product, id });
-      setCart(newCart);
-      addToCartFn.mutate(newItem);
-    } else if (cart) {
-      const found = cart.find((item) => {
-        return (
-          item.product.documentId == newItem.id &&
-          item.variety == newItem.variety
-        );
-      });
-      if (found) return;
-      const newCart = cart;
-      newCart.push({ ...newItem, product, id });
-      setCart(newCart);
-    } else {
-      setCart([{ ...newItem, product, id }]);
-    }
-  };
+  const addToCartHandler = useMutation({
+    mutationFn: async (newItem: NewItemProps) => {
+      let newCart = cart;
+      const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
+      if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
+      else if (cart.length) {
+        if (user) {
+          newCart = [...cart, { ...newItem, product, id }];
+          addToCartFn.mutate(newItem);
+        } else {
+          const found = cart.find((item) => {
+            return (
+              item.product.documentId == newItem.id &&
+              item.variety == newItem.variety
+            );
+          });
+          if (found) return;
+          newCart.push({ ...newItem, product, id });
+        }
+      }
+      return { cart: newCart };
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      setCart(data.cart);
+    },
+    onError: () => {
+      toast.error('خطایی رخ داده است لطفا مجدد تلاش کنید');
+    },
+  });
 
   return list ? (
     <>
       {price.price ? (
-        <div>
-          {price.before && (
-            <div className="flex flex-col gap-3 pb-2">
+        <div className='mt-5'>
+          {price.before != undefined && price.before > 0 ? (
+            <div className="flex flex-col gap-3 py-2">
               <div className="flex gap-3">
                 <p className="flex gap-2 items-center">
                   <span className="text-sm  text-gray-500 line-through">
@@ -243,30 +280,36 @@ export default function VarietySelector({
                   </h6>
                 </Toman>
               </div>
-              <p>
-                <strong className="p-1 bg-accent-pink rounded-xl text-background">
+                <p className="p-1 bg-accent-pink rounded-xl text-background">
                   تخفیف{' '}
                   {((1 - price.price / price.before) * 100).toLocaleString(
                     'fa-IR',
                     { style: 'decimal', maximumFractionDigits: 0 }
                   )}{' '}
                   %
-                </strong>
-              </p>
+                </p>
             </div>
+          ) : (
+            <Toman className="text-accent-green fill-accent-green">
+                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+            </Toman>
           )}
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
-              handleAddToCart={handleAddToCart}
-              isPending={addToCartFn.isPending}
+              handleAddToCart={addToCartHandler.mutate}
+              isPending={
+                addToCartFn.isPending || addToCartHandler.isPending
+                // ||
+                // getCartFn.isPending
+              }
               price={price}
               product={product}
               selected={selected}
             />
-          </div>
-          {price.end && <DiscountTimer end={price.end} />}
+          </div> */}
+          {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (
         <div>{!available && <h5 className="text-red-500">ناموجود</h5>}</div>
@@ -274,17 +317,27 @@ export default function VarietySelector({
     </>
   ) : (
     <>
-      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        <div className="self-start flex gap-2 items-center">
-          <AddToFavorites product={product} />
+      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-50 rounded-xl">
+        <AddToFavorites product={product} />
+        <div className="p-10">
+          <div className="flex gap-1 items-center">
+            <MdOutlineVerified className="text-2xl text-accent-pink" />
+            <p>ضمانت اصالت و سلامت کالا</p>
+          </div>
+          <Link
+            className="flex gap-1 items-center"
+            href={'/pages/Terms-Conditions'}
+          >
+            <RiRefund2Fill className="text-2xl text-accent-pink" />
+            بازگشت کالا تا ۷ روز طبق شرایط مرجوعی
+          </Link>
         </div>
 
         {price.price && price.inventory ? (
-          <>
-            {/* <h5>{product.off}</h5> */}
+          <div className="flex flex-col items-center justify-end h-full">
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
-              {price.before && (
+              {price.before != undefined && price.before > 0 && (
                 <>
                   <p className="flex gap-2 items-center">
                     <span className="text-sm  text-gray-500 line-through">
@@ -307,8 +360,8 @@ export default function VarietySelector({
                 {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
               </h6>
             </Toman>
-            {price.end && <DiscountTimer end={price.end} />}
-          </>
+            {price.end && showDiscount && <DiscountTimer end={price.end} />}
+          </div>
         ) : (
           <div>
             {available ? (
@@ -373,8 +426,14 @@ export default function VarietySelector({
       </div>
       <AddButton
         key={selected.uniqueSub || selected.uniqueId}
-        handleAddToCart={handleAddToCart}
-        isPending={addToCartFn.isPending || price.inventory < 1}
+        handleAddToCart={addToCartHandler.mutate}
+        isPending={
+          addToCartFn.isPending ||
+          price.inventory < 1 ||
+          addToCartHandler.isPending
+          // ||
+          // getCartFn.isPending
+        }
         price={price}
         product={product}
         selected={selected}

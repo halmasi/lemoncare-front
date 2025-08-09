@@ -1,26 +1,67 @@
-import PostCard from '@/app/components/PostCard';
-import {
-  getAuthorInformation,
-  getPostsByAuthor,
-} from '@/app/utils/data/getPosts';
+import ProductAndBlogSkeleton from '@/app/components/ProductAndBlogSkeleton';
+import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
+import config from '@/app/utils/config';
+import { getAuthorInformation } from '@/app/utils/data/getPosts';
 import { getGravatar } from '@/app/utils/data/getUserInfo';
-import { PostsProps } from '@/app/utils/schema/blogProps';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
-export default async function AuthorsPage({
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
-  const { slug } = params;
-  try {
-    const getPosts = await getPostsByAuthor(slug);
-    const getAuthor = await getAuthorInformation(getPosts[0].author.documentId);
-    const gravatar = await getGravatar(getAuthor.email);
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const slug = (await params).slug;
 
-    return (
-      <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+  const author = await getAuthorInformation(slug);
+  if (!author) return notFound();
+  const gravatar = await getGravatar(author.email);
+
+  return {
+    title: author.name + ' | lemiro - لمیرو',
+    description: author.description,
+    authors: [
+      {
+        name: 'lemiro - لمیرو',
+        url: config.siteUrl,
+      },
+    ],
+    applicationName: 'lemiro - لمیرو',
+    openGraph: {
+      title: author.name + ' | lemiro - لمیرو',
+      description: author.description,
+      siteName: 'lemiro - لمیرو',
+      images: [
+        {
+          url: `${gravatar}?size=512`,
+          width: 512,
+          height: 512,
+          alt: author.name,
+        },
+      ],
+    },
+  };
+}
+
+export default async function AuthorsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const slug = (await params).slug;
+  const searchParam = await searchParams;
+  const page = parseInt(searchParam?.p || '1');
+
+  const author = await getAuthorInformation(slug);
+  if (!author) return notFound();
+  const gravatar = await getGravatar(author.email);
+
+  return (
+    <main className="flex flex-col container max-w-screen-xl py-5 px-10 space-y-2">
+      {author ? (
         <div className="w-full flex flex-col md:flex-row gap-5 items-center border-2 rounded-2xl bg-white p-2">
           <Image
             src={`${gravatar}?size=512`}
@@ -31,29 +72,34 @@ export default async function AuthorsPage({
             className="w-[50svw] md:w-52 md:h-52 aspect-square rounded-full ml-3"
           />
           <div className="flex flex-col text-center md:text-right justify-start h-full">
-            <h2 className="text-accent-pink">{getAuthor.name}</h2>
-            <p className="flex flex-wrap">{getAuthor.description}</p>
+            <h2 className="text-accent-pink">{author.name}</h2>
+            <p className="flex flex-wrap">{author.description}</p>
           </div>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
-          {getPosts.map((post: PostsProps) => {
-            return (
-              <PostCard
-                key={post.documentId}
-                basicInfo={post.basicInfo}
-                category={post.category}
-                seo={post.seo}
-                authorName={post.author.name}
-                authorSlug={post.author.username}
-                authorEmail={post.author.email}
-              />
-            );
-          })}
+      ) : (
+        <div className="w-full flex flex-col md:flex-row gap-5 items-center rounded-2xl bg-gray-300 p-2 animate-pulse">
+          <div className="w-[50svw] md:w-52 md:h-52 aspect-square rounded-full ml-3 bg-gray-500" />
+          <div className="flex flex-col w-full gap-2 bg-gray-300 justify-start h-full">
+            <div className="bg-gray-500 w-[50%] h-[50%] p-1 rounded-lg" />
+            <div className="bg-gray-500 w-[80%] h-[12%] rounded-lg" />
+            <div className="bg-gray-500 w-[80%] h-[12%] rounded-lg" />
+            <div className="bg-gray-500 w-[80%] h-[12%] rounded-lg" />
+            <div className="bg-gray-500 w-[80%] h-[12%] rounded-lg" />
+          </div>
         </div>
-      </main>
-    );
-  } catch (error) {
-    console.log(error);
-    return notFound();
-  }
+      )}
+      {slug ? (
+        <ProductsAndBlogPage
+          resultBy="author"
+          slug={[slug]}
+          type="post"
+          page={page}
+        />
+      ) : (
+        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-3">
+          <ProductAndBlogSkeleton count={10} />
+        </div>
+      )}
+    </main>
+  );
 }

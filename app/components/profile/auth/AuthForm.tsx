@@ -1,55 +1,27 @@
 'use client';
 
 import { useLoginData } from '@/app/utils/states/useLoginData';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import LoginForm from './LoginForm';
-import PasswordForm from './PasswordForm';
 import RegisterForm from './RegisterForm';
-import { useDataStore } from '@/app/utils/states/useUserdata';
-import LoadingAnimation from '../../LoadingAnimation';
-import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import ConfirmPhoneForm from './ConfirmPhoneForm';
 
 export default function AuthForm() {
-  const router = useRouter();
-  const path = usePathname();
-  const { step, setStep, resetForm, completedSteps } = useLoginData();
-  const { loginProcces } = useDataStore();
-
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (loginProcces) {
-      setLoading(true);
-    }
-  }, [loginProcces]);
+  const { step, setStep, resetForm } = useLoginData();
 
   const stepTitles = {
-    identifier: 'ورود یا ثبت‌نام',
+    identifier: 'ورود یا ثبت نام',
     login: 'ورود به حساب',
-    register: 'ثبت‌نام',
+    register: 'ثبت نام',
+    phoneConfirmationLogin: 'تایید شماره موبایل',
+    phoneConfirmationLoginNoPhone: 'تایید شماره موبایل',
+    phoneConfirmationRegister: 'تایید شماره موبایل',
   };
-
-  if (loading) {
-    if (path.startsWith('/login')) router.push('/');
-    return (
-      <div className="flex flex-col gap-1 items-center">
-        <h6>در حال بارگذاری ...</h6>
-        <h6>لطفا صبور باشید</h6>
-        <LoadingAnimation />
-      </div>
-    );
-  }
 
   return (
     <div className="flex w-full justify-center items-center">
-      <motion.div
-        className="w-full bg-white p-6 rounded-2xl shadow-lg relative"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="w-full bg-white p-6 rounded-2xl shadow-lg relative">
         <div className="flex justify-between items-center mb-4">
           {step !== 'identifier' && (
             <button
@@ -68,52 +40,49 @@ export default function AuthForm() {
           <div className="flex gap-2">
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.identifier
-                  ? 'bg-green-500'
-                  : step === 'identifier'
-                    ? 'bg-blue-500'
+                step == 'identifier'
+                  ? 'bg-accent-pink'
+                  : step == 'register' ||
+                      step == 'login' ||
+                      step == 'phoneConfirmationLogin' ||
+                      step == 'phoneConfirmationLoginNoPhone' ||
+                      step == 'phoneConfirmationRegister'
+                    ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
               layout
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.login
-                  ? 'bg-green-500'
-                  : step === 'login'
-                    ? 'bg-blue-500'
+                step == 'register' || step == 'login'
+                  ? 'bg-accent-pink'
+                  : step == 'phoneConfirmationLogin' ||
+                      step == 'phoneConfirmationRegister'
+                    ? 'bg-accent-pink/50'
                     : 'bg-gray-300'
               }`}
               layout
             />
             <motion.div
               className={`w-3 h-3 rounded-full ${
-                completedSteps.register
-                  ? 'bg-green-500'
-                  : step === 'register'
-                    ? 'bg-blue-500'
-                    : 'bg-gray-300'
+                step == 'phoneConfirmationLogin' ||
+                step == 'phoneConfirmationRegister'
+                  ? 'bg-accent-pink'
+                  : 'bg-gray-300'
               }`}
               layout
             />
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            className="flex flex-col gap-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.4 }}
-          >
-            {step === 'identifier' && <LoginForm />}
-            {step === 'login' && <PasswordForm />}
-            {step === 'register' && <RegisterForm />}
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
+        {(step == 'identifier' || step == 'login') && <LoginForm />}
+        {step == 'register' && <RegisterForm />}
+        {step == 'phoneConfirmationLogin' && <ConfirmPhoneForm isLogin />}
+        {step == 'phoneConfirmationLoginNoPhone' && (
+          <ConfirmPhoneForm isLogin isNoPhone />
+        )}
+        {step == 'phoneConfirmationRegister' && <ConfirmPhoneForm isRegister />}
+      </div>
     </div>
   );
 }

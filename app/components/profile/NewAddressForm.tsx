@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CitySelector from '../formElements/CitySelector';
 import SubmitButton from '../formElements/SubmitButton';
 import states from '@/public/cities.json';
@@ -9,7 +9,6 @@ import { addressSchema } from '@/app/utils/schema/addressFormValidation';
 import { AddressProps } from '@/app/utils/schema/userProps';
 import { updatePostalInformation } from '@/app/utils/data/getUserInfo';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
-import { useRouter } from 'next/navigation';
 import { cleanPhone } from '@/app/utils/miniFunctions';
 import BooleanSwitch from './BooleanSwitch';
 
@@ -18,22 +17,24 @@ export default function NewAddressForm({
   onSuccessFn,
   editModeAddress,
   onCancel,
+  isPending,
 }: {
   existingAddresses?: AddressProps[];
-  onSuccessFn?: (data: object) => void;
+  onSuccessFn?: (data: AddressProps[]) => void;
   editModeAddress?: AddressProps;
   onCancel?: () => void;
+  isPending?: (bool: boolean) => void;
 }) {
   type ErrorState = {
-    province?: string[];
-    city?: string[];
-    address?: string[];
-    postCode?: string[];
-    phone?: string[];
-    mobile?: string[];
-    firstName?: string[];
-    lastName?: string[];
-    server?: string[];
+    province: string[];
+    city: string[];
+    address: string[];
+    postCode: string[];
+    phoneNumber: string[];
+    mobileNumber: string[];
+    firstName: string[];
+    lastName: string[];
+    server: string[];
   };
 
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
@@ -41,116 +42,70 @@ export default function NewAddressForm({
   const [provinceId, setProvinceId] = useState(0);
   const [city, setCity] = useState('');
   const [cityId, setCityId] = useState(0);
-  const [errors, setErrors] = useState<ErrorState>({});
+  const defaultErrors = {
+    province: [''],
+    city: [''],
+    address: [''],
+    postCode: [''],
+    phoneNumber: [''],
+    mobileNumber: [''],
+    firstName: [''],
+    lastName: [''],
+    server: [''],
+  };
+  const [errors, setErrors] = useState<ErrorState>(defaultErrors);
   const [defaultAddress, setDefaultAddress] = useState<boolean>(
     editModeAddress?.isDefault || false
   );
 
   const provinceRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
-  const addressReff = useRef<HTMLTextAreaElement>(null);
+  const addressRef = useRef<HTMLTextAreaElement>(null);
   const postCodeRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const mobileRef = useRef<HTMLInputElement>(null);
 
-  const router = useRouter();
   const { user } = useDataStore();
-  const { setCheckoutAddress, checkoutAddress } = useCheckoutStore();
-  useEffect(() => {
-    if (editModeAddress) {
-      setProvince(editModeAddress.province);
-      setCity(editModeAddress.city);
-      setCityId(editModeAddress.cityCode!);
-      setProvinceId(editModeAddress.provinceCode!);
+  const { setCheckoutAddress } = useCheckoutStore();
 
-      if (provinceRef.current)
-        provinceRef.current.value = editModeAddress.province;
-      if (cityRef.current) cityRef.current.value = editModeAddress.city;
-      if (addressReff.current)
-        addressReff.current.value = editModeAddress.address;
-      if (postCodeRef.current)
-        postCodeRef.current.value = editModeAddress.postCode.toString();
-      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
-      if (lastNameRef.current)
-        lastNameRef.current.value = editModeAddress.lastName;
-      if (phoneRef.current)
-        phoneRef.current.value = editModeAddress.phoneNumber!.toString();
-      if (mobileRef.current)
-        mobileRef.current.value = editModeAddress.mobileNumber.toString();
-      setDefaultAddress(editModeAddress.isDefault);
-    }
-  }, [editModeAddress]);
-  useEffect(() => {
-    const state = states.find((item) => item.name == province);
-    const statesCity = state?.cities.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }));
-    setCities([]);
-    if (statesCity) setCities(statesCity);
-  }, [province]);
+  const onSubmitFn = useMutation({
+    mutationFn: async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const province = provinceRef.current?.value || '';
+      const city = cityRef.current?.value || '';
+      const address = addressRef.current?.value || '';
+      const firstName = nameRef.current?.value || '';
+      const lastName = lastNameRef.current?.value || '';
+      const postCode = postCodeRef.current?.value || '';
+      const phoneNumber = phoneRef.current?.value || '0';
+      const mobileNumber = mobileRef.current?.value || '';
 
-  const submitFn = useMutation({
-    mutationFn: async ({
-      province,
-      city,
-      address,
-      postCode,
-      phone,
-      mobile,
-      firstName,
-      lastName,
-    }: {
-      province: string;
-      city: string;
-      address: string;
-      postCode: number;
-      phone: number;
-      mobile: string;
-      firstName: string;
-      lastName: string;
-    }) => {
-      mobile = cleanPhone(mobile);
-      const isValid = addressSchema.safeParse({
+      const fields = {
         province,
         city,
         address,
-        postCode,
-        phoneNumber: phone,
-        mobileNumber: mobile,
+        postCode: parseInt(postCode),
+        mobileNumber: cleanPhone(mobileNumber),
         firstName,
         lastName,
-      });
-      setErrors({});
-      if (!isValid.success) {
-        const errorMessages = isValid.error.flatten().fieldErrors;
-        setErrors({
-          province: errorMessages.province || [],
-          city: errorMessages.city || [],
-          address: errorMessages.address || [],
-          postCode: errorMessages.postCode || [],
-          phone: errorMessages.phoneNumber || [],
-          mobile: errorMessages.mobileNumber || [],
-          firstName: errorMessages.firstName || [],
-          lastName: errorMessages.lastName || [],
-        });
+      };
 
-        throw new Error();
+      if (parseInt(phoneNumber) != 0)
+        Object.assign(fields, { phoneNumber: parseInt(phoneNumber) });
+      const isValid = addressSchema.safeParse(fields);
+
+      if (!isValid.success) {
+        setErrors({ ...defaultErrors, ...isValid.error.flatten().fieldErrors });
+        return;
       }
+      if (isPending) isPending(true);
 
       const addressesArray: AddressProps[] = [
         {
+          ...fields,
           id: 0,
-          province,
-          city,
-          address,
-          postCode,
-          phoneNumber: phone,
-          mobileNumber: mobile,
-          firstName,
-          lastName,
           isDefault:
             existingAddresses && existingAddresses.length
               ? defaultAddress
@@ -162,73 +117,95 @@ export default function NewAddressForm({
         cityCode: cityId,
         provinceCode: provinceId,
       });
-      if (editModeAddress) {
-        const address = addressesArray.find((item) => item == editModeAddress);
-        if (address) {
-          addressesArray.splice(addressesArray.indexOf(address), 1);
-        }
-      }
+
       let editedAddresses = [...addressesArray];
       if (existingAddresses) {
         editedAddresses.push(...existingAddresses);
-        if (defaultAddress) {
+        if (defaultAddress && editedAddresses && editedAddresses.length) {
           const addresses: AddressProps[] = editedAddresses.map((item) => {
             if (item == addressesArray[0]) {
               return item;
             }
-            return { ...item, isDefault: false };
+            return {
+              ...item,
+              isDefault: defaultAddress ? false : item.isDefault,
+            };
           });
           editedAddresses = [...addresses];
         }
       }
+      if (editModeAddress) {
+        const address = editedAddresses.find((item) => {
+          const check = item.id == editModeAddress.id;
+          return check;
+        });
+        if (address) {
+          editedAddresses.splice(editedAddresses.indexOf(address), 1);
+        }
+      }
       if (user && user.postal_information) {
-        const postalInfo = await updatePostalInformation(
+        await updatePostalInformation(
           editedAddresses,
           user.postal_information.documentId
         );
-        return postalInfo;
-      } else {
-        return checkoutAddress;
+        return editedAddresses;
       }
     },
-    onSuccess: () => {
-      if (onSuccessFn) onSuccessFn({ checkout: checkoutAddress });
-      router.refresh();
-    },
-    onError: (error: { message: string[] }) => {
-      setErrors((prev) => {
-        const newErrors = prev;
-        Object.assign(newErrors, { server: error.message });
-        return newErrors;
-      });
+    onSuccess: (editedAddresses) => {
+      if (isPending) isPending(false);
+      if (onSuccessFn && editedAddresses) onSuccessFn(editedAddresses);
     },
   });
 
-  const submitFunction = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      const formValues = {
-        province: data.get('province')?.toString() || '',
-        city: data.get('city')?.toString() || '',
-        address: data.get('address')?.toString() || '',
-        firstName: data.get('firstName')?.toString() || '',
-        lastName: data.get('lastName')?.toString() || '',
-        postCode: parseInt(data.get('postCode')?.toString() || '0'),
-        phone: parseInt(data.get('phone')?.toString() || '0'),
-        mobile: data.get('mobile')?.toString() || '',
-        isDefault: defaultAddress,
-      };
-      submitFn.mutate(formValues);
-    },
-    [submitFn, defaultAddress]
-  );
+  useEffect(() => {
+    if (editModeAddress) {
+      setProvince(editModeAddress.province);
+      setCity(editModeAddress.city);
+      setCityId(editModeAddress.cityCode!);
+      setProvinceId(editModeAddress.provinceCode!);
+
+      if (provinceRef.current)
+        provinceRef.current.value = editModeAddress.province;
+      if (cityRef.current) cityRef.current.value = editModeAddress.city;
+      if (addressRef.current)
+        addressRef.current.value = editModeAddress.address;
+      if (postCodeRef.current)
+        postCodeRef.current.value = editModeAddress.postCode.toString();
+      if (nameRef.current) nameRef.current.value = editModeAddress.firstName;
+      if (lastNameRef.current)
+        lastNameRef.current.value = editModeAddress.lastName;
+      if (phoneRef.current)
+        phoneRef.current.value = editModeAddress.phoneNumber?.toString() || '';
+      if (mobileRef.current)
+        mobileRef.current.value = editModeAddress.mobileNumber.toString();
+      setDefaultAddress(editModeAddress.isDefault);
+    }
+  }, [editModeAddress]);
+
+  useEffect(() => {
+    if (province) {
+      const state = states.find((item) => item.name == province);
+      const statesCity = state?.cities.map((item) => ({
+        id: item.id,
+        name: item.name,
+      }));
+      setCities([]);
+      if (statesCity) setCities(statesCity);
+    }
+  }, [province]);
+
+  useEffect(() => {
+    if (isPending) isPending(onSubmitFn.isPending);
+  }, [isPending, onSubmitFn, onSubmitFn.isPending]);
 
   return (
-    <form onSubmit={submitFunction} className="flex flex-col gap-2 py-3">
-      <fieldset>
+    <form
+      onSubmit={onSubmitFn.mutate}
+      className="w-full flex flex-col gap-2 py-3"
+    >
+      <fieldset className="items-center">
         <label className="text-green-700" htmlFor="province">
-          استان
+          استان <span className="text-accent-pink">*</span>
         </label>
         <CitySelector
           id="province"
@@ -262,7 +239,7 @@ export default function NewAddressForm({
       {province && (
         <fieldset>
           <label className="text-green-700" htmlFor="city">
-            شهر
+            شهر <span className="text-accent-pink">*</span>
           </label>
           <CitySelector
             key={province}
@@ -293,10 +270,10 @@ export default function NewAddressForm({
       )}
       <fieldset>
         <label className="text-green-700" htmlFor="address">
-          آدرس
+          آدرس <span className="text-accent-pink">*</span>
         </label>
         <textarea
-          ref={addressReff}
+          ref={addressRef}
           id="address"
           name="address"
           className="border h-20 overflow-y-scroll rounded-lg w-full outline-none p-1"
@@ -312,6 +289,7 @@ export default function NewAddressForm({
         name="postCode"
         placeholder="کد پستی"
         type="text"
+        required
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={postCodeRef}
@@ -331,6 +309,7 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={nameRef}
+        required
       >
         نام
       </InputBox>
@@ -347,12 +326,30 @@ export default function NewAddressForm({
         className="border rounded-lg w-full"
         labelClassName="text-green-700"
         ref={lastNameRef}
+        required
       >
         نام خانوادگی
       </InputBox>
       {errors.lastName && (
         <p className="text-red-500 text-sm whitespace-pre-line">
           {errors.lastName.join('\n')}
+        </p>
+      )}
+      <InputBox
+        flex="col"
+        name="mobile"
+        placeholder="موبایل"
+        type="text"
+        className="border rounded-lg w-full"
+        labelClassName="text-green-700"
+        ref={mobileRef}
+        required
+      >
+        شماره همراه
+      </InputBox>
+      {errors.mobileNumber && (
+        <p className="text-red-500 text-sm whitespace-pre-line">
+          {errors.mobileNumber.join('\n')}
         </p>
       )}
       <InputBox
@@ -364,27 +361,16 @@ export default function NewAddressForm({
         labelClassName="text-green-700"
         ref={phoneRef}
       >
-        شماره تلفن
+        شماره تلفن ثابت
       </InputBox>
-      {errors.phone && (
+      {errors.phoneNumber && (
         <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.phone.join('\n')}
+          {errors.phoneNumber.join('\n')}
         </p>
       )}
-      <InputBox
-        flex="col"
-        name="mobile"
-        placeholder="موبایل"
-        type="text"
-        className="border rounded-lg w-full"
-        labelClassName="text-green-700"
-        ref={mobileRef}
-      >
-        شماره همراه
-      </InputBox>
-      {errors.mobile && (
+      {errors.server && (
         <p className="text-red-500 text-sm whitespace-pre-line">
-          {errors.mobile.join('\n')}
+          {errors.server.join('\n')}
         </p>
       )}
       {editModeAddress && (
@@ -395,22 +381,28 @@ export default function NewAddressForm({
           }}
         />
       )}
-      <div className="flex w-full gap-2">
-        <SubmitButton className="w-full">
-          {editModeAddress ? 'اعمال تغییرات' : 'ثبت'}
-        </SubmitButton>
-        {onCancel && (
+      <>
+        <div className="flex w-full gap-2">
           <SubmitButton
-            className="w-full bg-accent-pink"
-            type="button"
-            onClick={() => {
-              onCancel();
-            }}
+            type="submit"
+            isPending={onSubmitFn.isPending}
+            className="w-full bg-green-500 text-white"
           >
-            لغو
+            {editModeAddress ? 'اعمال تغییرات' : 'ثبت آدرس'}
           </SubmitButton>
-        )}
-      </div>
+          {onCancel && (
+            <SubmitButton
+              className="w-full bg-accent-pink"
+              type="button"
+              onClick={() => {
+                onCancel();
+              }}
+            >
+              لغو
+            </SubmitButton>
+          )}
+        </div>
+      </>
     </form>
   );
 }

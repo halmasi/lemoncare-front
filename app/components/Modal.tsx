@@ -17,7 +17,7 @@ export default function Modal({
     <AnimatePresence>
       {show && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-2 sm:px-4"
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-2 sm:px-4`}
           onClick={(e) => {
             if (e.target === e.currentTarget) onClose();
           }}
@@ -26,7 +26,7 @@ export default function Modal({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className={`relative w-full mt-20 md:mt-36 max-h-[70svh] md:max-h-[75svh] bg-white rounded-2xl shadow-xl overflow-hidden ${className}`}
+            className={`relative p-5 mt-20 md:mt-36 max-h-[70svh] md:max-h-[75svh] bg-white rounded-2xl shadow-xl overflow-hidden ${className}`}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}

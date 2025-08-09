@@ -1,39 +1,10 @@
-import { ImageProps } from '../mediaProps';
+import { ProductProps } from './productProps';
 
 export interface CartProps {
-  id: number;
+  id?: number;
   count: number;
-  product: cartProductsProps;
+  product: ProductProps;
   variety: { id: number; sub: number | null };
-}
-export interface cartProductsProps {
-  documentId: string;
-  variety: {
-    id: number;
-    specification: string;
-    priceBeforeDiscount: number;
-    mainPrice: number;
-    endOfDiscount: string;
-    color: string;
-    inventory: number;
-    uniqueId: number;
-    subVariety:
-      | {
-          id: number;
-          specification: string;
-          priceBefforDiscount: number;
-          mainPrice: number;
-          endOfDiscount: string;
-          color: string;
-          inventory: number;
-          uniqueId: number;
-        }[]
-      | [];
-  }[];
-  basicInfo: {
-    id: number;
-    title: string;
-    mainImage: ImageProps;
-    contentCode: number;
-  };
+  mainPrice?: number;
+  beforePrice?: number;
 }
