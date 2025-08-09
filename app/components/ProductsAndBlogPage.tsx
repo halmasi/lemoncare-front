@@ -1,7 +1,10 @@
 'use client';
 
 import ProductCart from './ProductCart';
-import { getShopCategory } from '@/app/utils/data/getProductCategories';
+import {
+  getCategoryparentHierarchy,
+  getShopCategory,
+} from '@/app/utils/data/getProductCategories';
 import {
   getProducts,
   getProductsByBrand,
@@ -102,7 +105,6 @@ export default function ProductsAndBlogPage({
               category[0].title || ''
           );
           setPageCount(Math.round(getFn.res.length / 10 + 0.4));
-          //
         } else {
           const getFn = await getProductsByBrand({
             slug: slug[0],
@@ -171,13 +173,23 @@ export default function ProductsAndBlogPage({
     },
   });
 
-  const filterFn = (data: ProductProps[]) => {
+  const filterFn = async (data: ProductProps[]) => {
     let filteredProducts = [...data];
 
     if (currentCategories.length > 0) {
-      filteredProducts = filteredProducts.filter((item) =>
-        currentCategories.includes(item.category.slug)
+      const results = await Promise.all(
+        filteredProducts.map(async (item) => {
+          const parents = await getCategoryparentHierarchy(item.category);
+          let isIncloud = false;
+          parents.map((i) => {
+            if (currentCategories.includes(i.slug)) {
+              isIncloud = true;
+            }
+          });
+          return isIncloud || currentCategories.includes(item.category.slug);
+        })
       );
+      filteredProducts = filteredProducts.filter((_, i) => results[i]);
     }
 
     if (currentBrands.length > 0) {
@@ -232,9 +244,7 @@ export default function ProductsAndBlogPage({
     }
     setPageCount(Math.round(filteredProducts.length / pageSize + 0.4));
 
-    console.log((page - 1) * pageSize, (page - 1) * pageSize);
     setProducts(filteredProducts.slice((page - 1) * pageSize, page * pageSize));
-    // setProducts(filteredProducts);
   };
 
   const sortFn = (param: string) => {
@@ -292,7 +302,8 @@ export default function ProductsAndBlogPage({
                 <BiFilter />
               </div>
               {showfilter && (
-                <div className="absolute w-full z-10">
+                <div className="absolute w-full top-0 z-10 h-screen bg-background">
+                  <p className="text-accent-pink cursor-pointer">X</p>
                   <Fillters products={allProducts} />
                 </div>
               )}
@@ -337,7 +348,7 @@ export default function ProductsAndBlogPage({
             </div>
           </div>
           <div className="flex gap-5">
-            <div className="hidden md:flex">
+            <div className="hidden md:flex md:w-4/12">
               <Fillters products={allProducts} />
             </div>
             <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -345,13 +356,7 @@ export default function ProductsAndBlogPage({
                 <ProductAndBlogSkeleton count={10} />
               ) : (
                 products.map((item) => (
-                  <Fragment key={item.id}>
-                    <ProductCart product={item} />
-                    <ProductCart product={item} />
-                    <ProductCart product={item} />
-                    <ProductCart product={item} />
-                    <ProductCart product={item} />
-                  </Fragment>
+                  <ProductCart key={item.id} product={item} />
                 ))
               )}
             </div>

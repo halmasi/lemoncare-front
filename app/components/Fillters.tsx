@@ -70,7 +70,7 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
   };
 
   return (
-    <div className="flex bg-background w-full md:w-4/12  flex-col rounded-lg border p-5 gap-5">
+    <div className="flex bg-background w-full flex-col rounded-lg border p-5 gap-5">
       <div
         className="w-full flex flex-col justify-between gap-2"
         key={'categories' + categories.length}
