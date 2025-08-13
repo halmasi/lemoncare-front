@@ -15,7 +15,7 @@ import { notFound, useRouter, useSearchParams } from 'next/navigation';
 import { ProductProps } from '../utils/schema/shopProps';
 import Pagination from './Pagination';
 import { useMutation } from '@tanstack/react-query';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ProductAndBlogSkeleton from './ProductAndBlogSkeleton';
 import PostCard from './PostCard';
 import { PostsProps } from '../utils/schema/blogProps';
