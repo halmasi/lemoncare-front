@@ -90,11 +90,13 @@ export default async function SinglePage(props0: {
       <Title underLineClass="bg-accent-pink" className="mb-10">
         <h2>{content.title}</h2>
       </Title>
-      {content.content.map((item: ContentProps, index: number) => (
-        <section key={index}>
-          <Content props={item} />
-        </section>
-      ))}
+      <article>
+        {content.content.map((item: ContentProps, index: number) => (
+          <section key={index}>
+            <Content props={item} />
+          </section>
+        ))}
+      </article>
     </MainSection>
   );
 }
