@@ -4,17 +4,57 @@ import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import VarietySelector from '@/app/components/VarietySelector';
+import config from '@/app/utils/config';
 import { getProduct } from '@/app/utils/data/getProducts';
 import { ProductProps } from '@/app/utils/schema/shopProps';
+import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { IoIosArrowBack } from 'react-icons/io';
+
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const params = await props.params;
+  const { slug } = params;
+  const fetchedData = await getProduct({ slug });
+  const productArray: ProductProps[] = fetchedData.res;
+  if (!productArray || !productArray.length) return notFound();
+
+  const product = productArray[0];
+  const previousImages = (await parent).openGraph?.images || [];
+  const tags =
+    product.tags && product.tags.length > 0
+      ? product.tags.map((item) => item.title).join('، ')
+      : [''];
+  return {
+    title: `${product.seo.seoTitle} | ${product.brand.title} | lemiro - لمیرو`,
+    description: product.seo.seoDescription + '\n برچسب ها: ' + tags,
+    authors: [
+      {
+        name: 'lemiro - لمیرو',
+        url: config.siteUrl,
+      },
+    ],
+
+    applicationName: 'lemiro - لمیرو',
+    category: product.category.title + ' | lemiro - لمیرو',
+    openGraph: {
+      title: `${product.seo.seoTitle} | ${product.brand.title} | lemiro - لمیرو`,
+      description: product.seo.seoDescription,
+      siteName: 'lemiro - لمیرو',
+      images: [product.basicInfo.mainImage.url, ...previousImages],
+    },
+  };
+}
 
 export default async function product(props: {
   params: Promise<{ slug: string }>;
 }) {
   const params = await props.params;
   const { slug } = params;
-  const fetchedData = await getProduct(slug);
+  const fetchedData = await getProduct({ slug });
   const productArray: ProductProps[] = fetchedData.res;
   if (!productArray || !productArray.length) return notFound();
   const product = productArray[0];
@@ -22,9 +62,20 @@ export default async function product(props: {
   return (
     <MainSection>
       <div className="w-full flex flex-col">
-        <div>
+        <div className="my-5">
           <Breadcrumbs product={product} />
           <h2>{product.basicInfo.title}</h2>
+          <div className="w-fit flex gap-3 items-center">
+            <Link href={`/shop/brand/${product.brand.slug}`}>
+              {product.brand.title}
+            </Link>
+            <IoIosArrowBack />
+            <Link
+              href={`/shop/brand/${product.brand.slug}/${product.category.slug}`}
+            >
+              {product.category.title} {product.brand.title}
+            </Link>
+          </div>
         </div>
         <div className="h-fit flex flex-col md:flex-row px-2">
           <div className="w-full md:w-1/2 text-center">
@@ -44,6 +95,7 @@ export default async function product(props: {
             </strong>
             :
           </p>
+
           {product.tags.map((tag, index) => (
             <div className="flex" key={index}>
               <Link

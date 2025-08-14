@@ -1,11 +1,13 @@
 'use client';
 import PaymentSelector from '@/app/components/checkout/PaymentSelector';
+import Coupon from '@/app/components/Coupon';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
+import { getProduct } from '@/app/utils/data/getProducts';
 import { calcShippingPrice, submitOrder } from '@/app/utils/paymentUtils';
 import { CartProps } from '@/app/utils/schema/shopProps';
-import { cartProductSelector, varietyFinder } from '@/app/utils/shopUtils';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
@@ -18,7 +20,6 @@ export default function Payment() {
   const {
     beforePrice,
     price,
-    setPrice,
     paymentOption,
     setPaymentOption,
     shippingPrice,
@@ -29,10 +30,10 @@ export default function Payment() {
     setOrderCode,
   } = useCheckoutStore();
 
-  const [finalPrice, setFinalPrice] = useState<number>(0);
+  // const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  const { cart, cartProducts } = useCartStore();
+  const { cart } = useCartStore();
   const { user, jwt } = useDataStore();
 
   const router = useRouter();
@@ -43,30 +44,30 @@ export default function Payment() {
     }
   }, [shippingPrice]);
 
-  useEffect(() => {
-    if (cart && cart.length > 0 && !finalPrice) {
-      let cartPrice = 0;
-      cart.map((item) => {
-        const product = cartProducts.find(
-          (i) => i.documentId == item.product.documentId
-        );
-        if (product) {
-          const info = varietyFinder(item.variety, product);
-          const total = info.mainPrice * item.count;
-          cartPrice += total;
-        }
-      });
-      setPrice(cartPrice);
-    }
-  }, [
-    cart,
-    paymentOption,
-    shippingOption,
-    checkoutAddress,
-    setFinalPrice,
-    setPrice,
-    price,
-  ]);
+  // useEffect(() => {
+  //   if (cart && cart.length > 0 && !finalPrice) {
+  //     let cartPrice = 0;
+  //     cart.map((item) => {
+  //       const product = cartProducts.find(
+  //         (i) => i.documentId == item.product.documentId
+  //       );
+  //       if (product) {
+  //         const info = varietyFinder(item.variety, product);
+  //         const total = info.mainPrice * item.count;
+  //         cartPrice += total;
+  //       }
+  //     });
+  //     setPrice(cartPrice);
+  //   }
+  // }, [
+  //   cart,
+  //   paymentOption,
+  //   shippingOption,
+  //   checkoutAddress,
+  //   setFinalPrice,
+  //   setPrice,
+  //   price,
+  // ]);
 
   const getShippingPriceFn = useMutation({
     mutationFn: async () => {
@@ -106,12 +107,9 @@ export default function Payment() {
       if (cart) {
         const items: CartProps[] = await Promise.all(
           cart.map(async (item) => {
-            const product = await cartProductSelector(
-              item.product.documentId,
-              cartProducts
-            );
+            const product = await getProduct({ slug: item.product.documentId });
             if (product) {
-              const variety = varietyFinder(item.variety, product);
+              const variety = varietyFinder(item.variety, product.res[0]);
               return {
                 count: item.count,
                 product: item.product,
@@ -154,15 +152,21 @@ export default function Payment() {
   return (
     <>
       <div className="flex flex-col lg:flex-row w-full gap-2">
-        <div className="w-full lg:w-1/2 flex flex-col gap-5 bg-background rounded-lg border p-2">
-          <Title>
-            <h6 className="text-accent-pink">شیوه پرداخت</h6>
-          </Title>
-          <PaymentSelector
-            onPaymentMethodChange={(method) => setPaymentOption(method)}
-          />
+        <div className="w-full flex flex-col gap-2 lg:w-1/2">
+          <Coupon />
+          <div className=" flex flex-col gap-5 bg-background rounded-lg border p-2">
+            <Title>
+              <h6 className="text-accent-pink">شیوه پرداخت</h6>
+            </Title>
+            <PaymentSelector
+              onPaymentMethodChange={(method) => setPaymentOption(method)}
+            />
+          </div>
         </div>
-        <div className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10">
+        <div
+          key={price}
+          className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10"
+        >
           <div className="zigzag flex flex-col items-start w-full pb-10">
             <div className="w-full flex gap-2 p-1 md:pr-10">
               <div className="flex flex-wrap w-full gap-2">

@@ -16,7 +16,7 @@ export interface SubMenuProps {
   url: string;
 }
 
-export interface SubMenuProps {
+export interface ImageProps {
   id: number;
   documentId: string;
   name: string;
@@ -30,5 +30,5 @@ export interface MenuProps {
   title: string;
   url: string;
   subMenu: SubMenuProps[] | [];
-  image: SubMenuProps | null;
+  image: ImageProps | null;
 }

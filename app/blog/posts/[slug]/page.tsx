@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ContentProps } from '@/app/utils/schema/otherProps';
 import AddToFavorites from '@/app/components/AddToFavorites';
+import config from '@/app/utils/config';
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
@@ -25,29 +26,29 @@ export async function generateMetadata(
       ? post.tags.map((item) => item.title).join('، ')
       : [''];
   return {
-    title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+    title: post.seo.seoTitle + ' | lemiro - لمیرو',
     description: post.seo.seoDescription + '\n برچسب ها: ' + tags,
     authors: [
       {
         name: post.author.name,
-        url: `https://lemoncare.ir/author/${post.author.username}`,
+        url: `${config.siteUrl}/author/${post.author.username}`,
       },
     ],
-    applicationName: 'lemoncare - لمن کر',
-    category: post.category.title + ' | Lemoncare - لمن کر',
+    applicationName: 'lemiro - لمیرو',
+    category: post.category.title + ' | lemiro - لمیرو',
     openGraph: {
-      title: post.seo.seoTitle + ' | Lemoncare - لمن کر',
+      title: post.seo.seoTitle + ' | lemiro - لمیرو',
       description: post.seo.seoDescription,
-      siteName: 'لمن کر - lemoncare',
+      siteName: 'lemiro - لمیرو',
       images: [post.basicInfo.mainImage.formats.medium.url, ...previousImages],
     },
   };
 }
 
-export default async function page(props0: {
+export default async function page(props: {
   params: Promise<{ slug: string }>;
 }) {
-  const params = await props0.params;
+  const params = await props.params;
   const { slug } = params;
   const data = await getPost(slug);
   if (!data.length) return notFound();
@@ -74,7 +75,7 @@ export default async function page(props0: {
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
       <AddToFavorites post={post} />
       <Image
-        className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
+        className="w-full mb-10 rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
         src={post.basicInfo.mainImage.url}
         alt={
           post.basicInfo.mainImage.alternativeText ||
@@ -83,38 +84,44 @@ export default async function page(props0: {
         width={post.basicInfo.mainImage.width}
         height={post.basicInfo.mainImage.height}
       />
-      {contents.map((item: ContentProps, index: number) => (
-        <Content key={index} props={item} />
-      ))}
-      {post.sources && (
-        <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
-          <p>منبع</p>
-          {post.sources.map((source) => (
-            <a
-              className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
-              key={source.id}
-              target="_blank"
-              href={source.sourceUrl}
-            >
-              {source.websiteName}
-            </a>
-          ))}
+      <article>
+        {contents.map((item: ContentProps, index: number) => (
+          <section key={index}>
+            <Content props={item} />
+          </section>
+        ))}
+        <div className="flex flex-col gap-5 mt-10">
+          {post.sources && (
+            <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
+              <p>منبع</p>
+              {post.sources.map((source) => (
+                <a
+                  className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
+                  key={source.id}
+                  target="_blank"
+                  href={source.sourceUrl}
+                >
+                  {source.websiteName}
+                </a>
+              ))}
+            </div>
+          )}
+          {post.tags && (
+            <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
+              <p>برچسب ها</p>
+              {post.tags.map((tag) => (
+                <Link
+                  className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
+                  key={tag.id}
+                  href={`/blog/tags/${tag.slug}`}
+                >
+                  {tag.title}
+                </Link>
+              ))}
+            </div>
+          )}{' '}
         </div>
-      )}
-      {post.tags && (
-        <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
-          <p>برچسب ها</p>
-          {post.tags.map((tag) => (
-            <Link
-              className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
-              key={tag.id}
-              href={`/blog/tags/${tag.slug}`}
-            >
-              {tag.title}
-            </Link>
-          ))}
-        </div>
-      )}
+      </article>
     </MainSection>
   );
 }

@@ -116,7 +116,7 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
                     width={image.width}
                     height={image.height}
                     priority
-                    className="object-cover block aspect-video"
+                    className="object-cover block aspect-video w-full"
                   />
                 ) : (
                   <video className="aspect-video w-full" ref={vidRef} controls>

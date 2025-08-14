@@ -11,53 +11,49 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useEffect, useState } from 'react';
+import { getProduct } from '@/app/utils/data/getProducts';
 
 export default function CheckoutPage() {
-  const { cart, cartProducts } = useCartStore();
+  const { cart } = useCartStore();
   const {
     setPrice,
     price,
+    beforePrice,
     setBeforePrice,
     shippingPrice,
+    setCoupon,
     shippingOption,
     checkoutAddress,
   } = useCheckoutStore();
   const { user } = useDataStore();
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
   const [showNext, setShowNext] = useState<boolean>(false);
 
   useEffect(() => {
-    if (cart && Array.isArray(cart) && cart.length > 0) {
-      setTotalBeforePrice(0);
-      setTotalPrice(0);
-      cart.forEach((cartItem) => {
+    if (!price && cart && Array.isArray(cart) && cart.length > 0) {
+      let before = 0;
+      let main = 0;
+      cart.forEach(async (cartItem) => {
         let priceBefore = 0;
         let priceAfter = 0;
+        const product = await getProduct({ slug: cartItem.product.documentId });
 
-        const product = cartProducts.find(
-          (searchProduct) =>
-            searchProduct.documentId == cartItem.product.documentId
-        );
-
-        if (product) {
-          const variety = varietyFinder(cartItem.variety, product);
-          priceBefore = variety.priceBefforDiscount;
-          priceAfter = variety.mainPrice;
-
-          setTotalPrice((prev) => prev + priceAfter * cartItem.count);
-          setTotalBeforePrice((prev) => prev + priceBefore * cartItem.count);
-        }
+        const variety = varietyFinder(cartItem.variety, product.res[0]);
+        priceBefore = variety.priceBefforDiscount;
+        priceAfter = variety.mainPrice;
+        before += priceBefore * cartItem.count;
+        main = priceAfter * cartItem.count;
       });
+      setPrice(main);
+      setBeforePrice(before);
     }
   }, [cart]);
 
-  useEffect(() => {
-    if (totalPrice) setPrice(totalPrice);
-    if (totalBeforePrice) setBeforePrice(totalBeforePrice);
-  }, [totalPrice]);
+  // useEffect(() => {
+  //   if (totalPrice) setPrice(totalPrice);
+  //   if (totalBeforePrice) setBeforePrice(totalBeforePrice);
+  // }, [totalPrice]);
 
-  if (!totalPrice) return <div>درحال بارگذاری</div>;
+  if (!price) return <div>درحال بارگذاری</div>;
 
   return (
     <>
@@ -84,7 +80,7 @@ export default function CheckoutPage() {
             }}
           />
         </div>
-        <div className="flex flex-col h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
+        <div className="flex flex-col gap-2 h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
           <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
             {checkoutAddress && (
               <div>
@@ -106,7 +102,7 @@ export default function CheckoutPage() {
               <p>مجموع خرید:</p>
               <div className="flex flex-wrap md:pr-5 items-center justify-center gap-2">
                 <p className="line-through text-xl text-gray-500">
-                  {totalBeforePrice > 0 && totalBeforePrice / 10}
+                  {beforePrice > 0 && price / 10}
                 </p>
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
@@ -146,6 +142,9 @@ export default function CheckoutPage() {
             </div>
             <SubmitButton
               link="/cart/checkout/payment"
+              onClick={() => {
+                setCoupon('');
+              }}
               disabled={
                 !showNext ||
                 !user ||

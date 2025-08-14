@@ -4,6 +4,7 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
+import { getProduct } from '@/app/utils/data/getProducts';
 import {
   getSingleOrderHistory,
   updateOrderHistory,
@@ -12,14 +13,9 @@ import {
   deleteKeysFromObject,
   removeDuplicatesByKeys,
 } from '@/app/utils/miniFunctions';
-import { cartProductsProps } from '@/app/utils/schema/shopProps';
+import { ProductProps } from '@/app/utils/schema/shopProps';
 import { OrderHistoryProps } from '@/app/utils/schema/userProps';
-import {
-  cartProductSelector,
-  cartProductSetter,
-  varietyFinder,
-} from '@/app/utils/shopUtils';
-import { useCartStore } from '@/app/utils/states/useCartData';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
@@ -49,7 +45,6 @@ export default function OrderPage(props: {
   const { slug } = params;
 
   const { user } = useDataStore();
-  const { setCartProducts, cartProducts } = useCartStore();
   const {
     setPaymentOption,
     setPrice,
@@ -63,7 +58,7 @@ export default function OrderPage(props: {
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState<
     {
-      product: cartProductsProps;
+      product: ProductProps;
       count: number;
       color: string;
       priceBefore: number;
@@ -103,19 +98,15 @@ export default function OrderPage(props: {
       setDetails([]);
       await Promise.all(
         unique.map(async (item) => {
-          const productsList = await cartProductSetter(
-            item.product,
-            cartProducts
-          );
-          setCartProducts(productsList);
+          const product = await getProduct({ slug: item.product });
 
-          const product = await cartProductSelector(item.product, cartProducts);
           const { color, priceBefforDiscount, mainPrice, specification } =
-            varietyFinder(item.variety, product);
-          setDetails((prev) => [
-            ...prev,
+            varietyFinder(item.variety, product.res[0]);
+
+          setDetails([
+            ...details,
             {
-              product,
+              product: product.res[0],
               count: item.count,
               color,
               priceBefore: priceBefforDiscount,

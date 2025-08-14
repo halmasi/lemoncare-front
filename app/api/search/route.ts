@@ -2,17 +2,20 @@ import { dataFetch } from '@/app/utils/data/dataFetch';
 import qs from 'qs';
 
 export async function POST(req: Request) {
-  const body = await req.json();
-
+  const { param, productPage, postPage, pageSize = 10 } = await req.json();
+  if (!param)
+    return Response.json({ error: 'پارامتر یافت نشد' }, { status: 401 });
   const queryPost = qs.stringify({
     filters: {
       $or: [
-        { basicInfo: { title: { $containsi: body.param } } },
-        { basicInfo: { contentCode: { $containsi: body.param } } },
-        { content: { $containsin: body.param } },
-        { tags: { title: { $containsi: body.param } } },
-        { category: { title: { $containsi: body.param } } },
-        { category: { description: { $containsi: body.param } } },
+        { basicInfo: { title: { $containsi: param } } },
+        { basicInfo: { contentCode: { $containsi: param } } },
+        { seo: { seoTitle: { $containsin: param } } },
+        { seo: { seoDescription: { $containsin: param } } },
+        { content: { $containsin: param } },
+        { tags: { title: { $containsi: param } } },
+        { category: { title: { $containsi: param } } },
+        { category: { description: { $containsi: param } } },
       ],
     },
     populate: {
@@ -22,8 +25,8 @@ export async function POST(req: Request) {
       category: { populate: '*' },
     },
     pagination: {
-      page: body.page || 1,
-      pageSize: body.pageSize || 10,
+      page: postPage,
+      pageSize,
     },
     sort: { createdAt: 'desc' },
   });
@@ -31,14 +34,14 @@ export async function POST(req: Request) {
   const queryProducts = qs.stringify({
     filters: {
       $or: [
-        { basicInfo: { title: { $containsi: body.param } } },
-        { basicInfo: { contentCode: { $containsi: body.param } } },
-        { detailes: { $containsin: body.param } },
-        { seo: { seoTitle: { $containsin: body.param } } },
-        { seo: { seoDescription: { $containsin: body.param } } },
-        { tags: { title: { $containsi: body.param } } },
-        { category: { title: { $containsi: body.param } } },
-        { category: { description: { $containsi: body.param } } },
+        { basicInfo: { title: { $containsi: param } } },
+        { basicInfo: { contentCode: { $containsi: param } } },
+        { detailes: { $containsin: param } },
+        { seo: { seoTitle: { $containsin: param } } },
+        { seo: { seoDescription: { $containsin: param } } },
+        { tags: { title: { $containsi: param } } },
+        { category: { title: { $containsi: param } } },
+        { category: { description: { $containsi: param } } },
       ],
     },
     populate: {
@@ -50,13 +53,17 @@ export async function POST(req: Request) {
       variety: { populate: '*' },
     },
     pagination: {
-      page: body.page || 1,
-      pageSize: body.pageSize || 10,
+      page: productPage,
+      pageSize,
     },
     sort: { createdAt: 'desc' },
   });
-
   const result1 = await dataFetch({ qs: `/posts?${queryPost}` });
   const result2 = await dataFetch({ qs: `/products?${queryProducts}` });
-  return Response.json([{ posts: result1.data, products: result2.data }]);
+  return Response.json({
+    posts: result1.data,
+    products: result2.data,
+    postMeta: result1.meta,
+    productMeta: result2.meta,
+  });
 }

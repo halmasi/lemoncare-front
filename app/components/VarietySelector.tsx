@@ -13,10 +13,12 @@ import Count from './navbarComponents/Count';
 import Toman from './Toman';
 import { ProductProps } from '@/app/utils/schema/shopProps';
 import { lowestPrice, varietyFinder } from '../utils/shopUtils';
-import { cartProductSetter } from '../utils/shopUtils';
 import AddToFavorites from './AddToFavorites';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { RiRefund2Fill } from 'react-icons/ri';
+import { MdOutlineVerified } from 'react-icons/md';
 
 interface NewItemProps {
   count: number;
@@ -124,7 +126,7 @@ export default function VarietySelector({
   showDiscount?: boolean;
 }) {
   const { user } = useDataStore();
-  const { cart, cartProducts, setCartProducts, setCart } = useCartStore();
+  const { cart, setCart } = useCartStore();
 
   const [selected, setSelected] = useState<{
     id: number;
@@ -231,7 +233,14 @@ export default function VarietySelector({
 
   const addToCartHandler = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
-      const list = await cartProductSetter(newItem.id, cartProducts);
+      if (product.isForDoctors) {
+        if (!user || !user.drConfirmed) {
+          toast.error(
+            'برای خرید از این محصول باید حساب کاربری پزشک داشته باشید'
+          );
+          return;
+        }
+      }
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
       if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
@@ -250,11 +259,10 @@ export default function VarietySelector({
           newCart.push({ ...newItem, product, id });
         }
       }
-      return { list, cart: newCart };
+      return { cart: newCart };
     },
     onSuccess: (data) => {
       if (!data) return;
-      setCartProducts(data.list);
       setCart(data.cart);
     },
     onError: () => {
@@ -265,9 +273,9 @@ export default function VarietySelector({
   return list ? (
     <>
       {price.price ? (
-        <div>
+        <div className="mt-5">
           {price.before != undefined && price.before > 0 ? (
-            <div className="flex flex-col gap-3 pb-2">
+            <div className="flex flex-col gap-3 py-2">
               <div className="flex gap-3">
                 <p className="flex gap-2 items-center">
                   <span className="text-sm  text-gray-500 line-through">
@@ -276,30 +284,28 @@ export default function VarietySelector({
                 </p>
                 <Toman className="text-accent-green fill-accent-green">
                   <h6>
-                    {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                    {parseInt(price.price / 10 + '').toLocaleString(
+                      'fa-IR'
+                    )}{' '}
                   </h6>
                 </Toman>
               </div>
-              <p>
-                <strong className="p-1 bg-accent-pink rounded-xl text-background">
-                  تخفیف{' '}
-                  {((1 - price.price / price.before) * 100).toLocaleString(
-                    'fa-IR',
-                    { style: 'decimal', maximumFractionDigits: 0 }
-                  )}{' '}
-                  %
-                </strong>
+              <p className="p-1 bg-accent-pink rounded-xl text-background">
+                تخفیف{' '}
+                {((1 - price.price / price.before) * 100).toLocaleString(
+                  'fa-IR',
+                  { style: 'decimal', maximumFractionDigits: 0 }
+                )}{' '}
+                %
               </p>
             </div>
           ) : (
             <Toman className="text-accent-green fill-accent-green">
-              <h6>
-                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
-              </h6>
+              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
             </Toman>
           )}
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <AddButton
               key={selected.uniqueSub || selected.uniqueId}
               handleAddToCart={addToCartHandler.mutate}
@@ -312,7 +318,7 @@ export default function VarietySelector({
               product={product}
               selected={selected}
             />
-          </div>
+          </div> */}
           {price.end && showDiscount && <DiscountTimer end={price.end} />}
         </div>
       ) : (
@@ -321,13 +327,24 @@ export default function VarietySelector({
     </>
   ) : (
     <>
-      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-100 rounded-xl justify-center items-center">
-        <div className="self-start flex gap-2 items-center">
-          <AddToFavorites product={product} />
+      <div className="flex flex-col w-full md:w-[80%] min-h-[30svh] m-10 mt-0 p-5 border bg-gray-50 rounded-xl">
+        <AddToFavorites product={product} />
+        <div className="p-10">
+          <div className="flex gap-1 items-center">
+            <MdOutlineVerified className="text-2xl text-accent-pink" />
+            <p>ضمانت اصالت و سلامت کالا</p>
+          </div>
+          <Link
+            className="flex gap-1 items-center"
+            href={'/pages/Terms-Conditions'}
+          >
+            <RiRefund2Fill className="text-2xl text-accent-pink" />
+            بازگشت کالا تا ۷ روز طبق شرایط مرجوعی
+          </Link>
         </div>
 
         {price.price && price.inventory ? (
-          <>
+          <div className="flex flex-col items-center justify-end h-full">
             <strong>قیمت</strong>
             <div className="flex flex-col items-center gap-1">
               {price.before != undefined && price.before > 0 && (
@@ -354,7 +371,7 @@ export default function VarietySelector({
               </h6>
             </Toman>
             {price.end && showDiscount && <DiscountTimer end={price.end} />}
-          </>
+          </div>
         ) : (
           <div>
             {available ? (
