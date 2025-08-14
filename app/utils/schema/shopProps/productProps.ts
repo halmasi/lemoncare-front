@@ -8,6 +8,7 @@ export interface ProductProps {
   documentId: string;
   detailes: ContentProps[];
   available: boolean;
+  isForDoctors?: boolean;
   off: 'none' | 'offer' | 'special offer';
   variety: {
     id: number;
