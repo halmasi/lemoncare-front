@@ -344,15 +344,22 @@ export default function Information() {
       <div className="flex flex-col text-background items-center justify-center p-10 bg-accent-pink rounded-lg">
         <strong>
           برای دسترسی به دسته محصولات مربوط به پزشکان گرامی، مدارک خود را به شرح
-          زیر به واتساپ 09025548887 ارسال نماید.
+          زیر به واتساپ{' '}
+          <a target="_blank" href="https://wa.me/09025548887">
+            09025548887
+          </a>{' '}
+          ارسال نماید.
         </strong>
         <p>مدارک مورد نیاز:</p>
         <ul className="w-full list-disc">
-          <li>شماره تلفن همراه(شماره ای که با آن در سایت ثبت نام کرده اید)</li>
+          <li>
+            شماره تلفن همراه(شماره ای که با آن در سایت ثبت نام کرده اید و به نام
+            خود پزشک می باشد.)
+          </li>
           <li>شماره نظام پزشکی</li>
           <li>تصویر پروانه طبابت</li>
           <li>تصویر کارت ملی</li>
-          <li>تصویر سلفی با کارت ملی</li>
+          {/* <li>تصویر سلفی با کارت ملی</li> */}
         </ul>
         <SubmitButton link="https://wa.me/09025548887">
           ارسال مدارک پزشک
