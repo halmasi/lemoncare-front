@@ -110,12 +110,7 @@ export default function OrderHistory() {
             <OrderHistoryCard item={item} key={item.order.id} />
           ))}
           {pageCount > 1 && (
-            <Pagination
-              currentPage={page}
-              pageCount={pageCount}
-              key={pageCount}
-              query={'p'}
-            />
+            <Pagination pageCount={pageCount} key={pageCount} />
           )}
         </div>
       ) : (

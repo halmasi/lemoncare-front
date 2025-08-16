@@ -12,6 +12,7 @@ import LoadingAnimation from './LoadingAnimation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { MetaProps } from '../utils/schema/metaProps';
 
 export function Search() {
   const [param, setParam] = useState<string>('');
@@ -32,16 +33,22 @@ export function Search() {
         const res = await fetch(`/api/search`, {
           method: 'POST',
           body: JSON.stringify({
-            param: param,
-            page: 1,
+            param,
+            productPage: 1,
+            postPage: 1,
             pageSize: 3,
           }),
         });
         const data = await res.json();
-        return data[0];
+        return data;
       }
     },
-    onSuccess: (data: { posts: PostsProps[]; products: ProductProps[] }) => {
+    onSuccess: (data: {
+      posts: PostsProps[];
+      products: ProductProps[];
+      postMeta: MetaProps;
+      productMeta: MetaProps;
+    }) => {
       if (!data) return;
       setPostData(data.posts);
       setProductData(data.products);
@@ -88,7 +95,7 @@ export function Search() {
             onChange={(e) => handleSearch(e.target.value)}
             ref={inputRef}
             name={'search'}
-            className="hidden md:flex border-0 focus:ring-0 focus:outline-none"
+            className="hidden w-full md:flex border-0 focus:ring-0 focus:outline-none"
           />
           <InputBox
             type="text"
@@ -103,7 +110,9 @@ export function Search() {
           className="w-fit flex items-center justify-center bg-white hover:bg-gray-50 border-0 border-r rounded-none drop-shadow-none text-foreground/80 hover:text-foreground"
           onClick={() => {
             // redirect
-            push(`/search/?s-query=${inputRef.current?.value}&s-page=1`);
+            push(
+              `/search/?s-query=${inputRef.current?.value}&product-p=1&post-p=1`
+            );
           }}
         >
           <BiSearchAlt2 />

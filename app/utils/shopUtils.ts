@@ -1,6 +1,7 @@
-import { CartProps, ProductProps } from './schema/shopProps';
+import { CartProps, ProductProps, ShopCategoryProps } from './schema/shopProps';
 import qs from 'qs';
 import { dataFetch } from './data/dataFetch';
+import { BrandProps } from './schema/shopProps/categoryProps';
 
 export const varietyFinder = (
   variety: { id: number; sub: number | null },
@@ -142,3 +143,32 @@ export const cartCleaner = (cart: CartProps[]): CartProps[] => {
 
   return Array.from(map.values());
 };
+
+export function uniqueCategories(
+  categories: ShopCategoryProps[]
+): ShopCategoryProps[] {
+  const seen = new Set<string>();
+  const unique = [];
+
+  for (const category of categories) {
+    if (!seen.has(category.documentId)) {
+      seen.add(category.documentId);
+      unique.push(category);
+    }
+  }
+
+  return unique;
+}
+
+export function uniqueBrands(brands: BrandProps[]): BrandProps[] {
+  const seen = new Set<string>();
+  const unique = [];
+
+  for (const brand of brands) {
+    if (!seen.has(brand.slug)) {
+      seen.add(brand.slug);
+      unique.push(brand);
+    }
+  }
+  return unique;
+}

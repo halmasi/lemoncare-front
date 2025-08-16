@@ -10,6 +10,7 @@ import { GrArticle } from 'react-icons/gr';
 import Head from 'next/head';
 import { Metadata } from 'next';
 import config from '../utils/config';
+import Logo from '@/public/lemiroLogoForHeader.png';
 
 export const metadata: Metadata = {
   title: 'lemiro - لمیرو',
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     url: config.siteUrl,
     images: [
       {
-        url: `${config.siteUrl}/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FlemoncareLogoForHeader.29327b2f.png`,
+        url: `${config.siteUrl}${Logo.src}`,
         width: 1200,
         height: 630,
         alt: 'lemiro - لمیرو',

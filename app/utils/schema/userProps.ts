@@ -71,6 +71,7 @@ export interface FetchUserProps {
   data?: object | string | object[] | string[];
   phoneConfirmed: boolean;
   cart: CartProps[];
+  drConfirmed?: boolean;
   shopingCart: {
     documentId: string;
     items: CartProps[];

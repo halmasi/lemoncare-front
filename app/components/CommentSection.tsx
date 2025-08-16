@@ -112,7 +112,7 @@ export default function CommentSection({ productId }: { productId: string }) {
       ) : (
         <>دیدگاهی ثبت نشده، اولین نفر باشید</>
       )}
-      <Pagination currentPage={page} pageCount={pageCount} query={'cp'} />
+      <Pagination pageCount={pageCount} query={'cp'} />
       {/* <div>{}</div> */}
     </div>
   );

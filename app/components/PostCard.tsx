@@ -84,9 +84,7 @@ export default function PostCard({
                 className={`object-cover ${isSlide ? 'rounded-lg' : 'rounded-t-lg'} w-full min-h-[15rem] hover:scale-105 transition-transform duration-200`}
               />
             </Suspense>
-            <h6 className="absolute text-white bg-black/30 rounded-xl w-fit px-3">
-              {basicInfo.title}
-            </h6>
+            <h6 className="px-3 text-accent-green">{basicInfo.title}</h6>
           </Link>
         </div>
         {!isSlide && (

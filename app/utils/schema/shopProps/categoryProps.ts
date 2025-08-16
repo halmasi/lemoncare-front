@@ -35,3 +35,9 @@ export interface ShopTagsProps {
   slug: string;
   products: ProductProps[];
 }
+
+export interface BrandProps {
+  title: string;
+  slug: string;
+  products: ProductProps[];
+}

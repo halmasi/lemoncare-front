@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
     //----------blog post
     case 'post':
       (async function () {
+        // if (body.event == 'entry.delete') {
+        // }
         revalidatePath(
           `/blog/posts/${body.entry.basicInfo.contentCode}`,
           'layout'
@@ -44,6 +46,9 @@ export async function POST(request: NextRequest) {
           revalidatePath(`/blog/category/${url}`, 'layout');
         });
         revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
+        revalidateTag(body.entry.author.username);
+        revalidateTag(body.entry.basicInfo.contentCode);
+        revalidateTag(body.entry.documentId);
         revalidateTag('post');
       })();
       break;
@@ -53,6 +58,7 @@ export async function POST(request: NextRequest) {
       (async function () {
         revalidatePath(`/blog/author/${body.entry.author.username}`, 'layout');
         revalidateTag('author');
+        revalidateTag(body.entry.author.username);
       })();
       break;
 
@@ -63,6 +69,8 @@ export async function POST(request: NextRequest) {
           `/shop/products/${body.entry.basicInfo.contentCode}`,
           'layout'
         );
+        revalidateTag(body.entry.basicInfo.contentCode);
+        revalidateTag(body.entry.documentId);
 
         const url = await getShopCategoriesUrl(body.entry.category);
         const categories = url.split('/');
@@ -90,6 +98,14 @@ export async function POST(request: NextRequest) {
           const shopCategoryUrl = await getShopCategoriesUrl(item.slug);
           revalidatePath(`/shop/category/${shopCategoryUrl}`, 'layout');
         });
+      })();
+      break;
+    //----------brand
+    case 'brand':
+      (async function () {
+        revalidatePath(`/shop/brand/${body.entry.slug}`, 'layout');
+        revalidateTag('brand-' + body.entry.slug);
+        revalidateTag('body.entry.slug');
       })();
       break;
 
@@ -197,7 +213,9 @@ export async function POST(request: NextRequest) {
           revalidatePath('/');
           return;
         }
+
         revalidatePath(`/${body.entry.location}`);
+        revalidateTag(`slide-${body.entry.location}`);
       })();
       break;
 

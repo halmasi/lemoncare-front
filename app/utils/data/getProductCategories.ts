@@ -109,11 +109,11 @@ export const getCategoryparentHierarchy = cache(async function (
   allCategories.push(result);
 
   if (result.shopParentCategory) {
-    getCategoryparentHierarchy(result.shopParentCategory, tag).then(
-      (fetchedCategories) => {
-        allCategories.push(...fetchedCategories);
-      }
+    const fetchedCategories = await getCategoryparentHierarchy(
+      result.shopParentCategory,
+      tag
     );
+    allCategories.push(...fetchedCategories);
   }
 
   return allCategories;

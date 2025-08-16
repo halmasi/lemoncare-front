@@ -14,20 +14,22 @@ export default function Coupon() {
   const [isValid, setIsValid] = useState<boolean>(false);
   const { cart } = useCartStore();
   const {
-    setCoupon,
     coupon,
     setBeforePrice,
     setPrice,
     beforePrice,
+    setCoupon,
     price,
     setShippingPrice,
     shippingPrice,
   } = useCheckoutStore();
 
+  const [disable, setDisable] = useState(false);
+
   const checkCouponFn = useMutation({
     mutationFn: async (coupon: string) => {
       const res = await checkCoupon({ coupon, cart, price });
-      return res;
+      if (coupon != '') return res;
     },
     onSuccess: (data) => {
       if (!data) return;
@@ -35,22 +37,13 @@ export default function Coupon() {
         toast.error(data.error);
         return;
       }
-      if (data.newCart.length) {
+      if (data.itemsDiscountPrice) {
         if (beforePrice == 0) setBeforePrice(price);
-        let priceAfter = 0;
-        data.newCart.forEach((item) => {
-          if (item.mainPrice) {
-            priceAfter = +(item.mainPrice * item.count);
-          }
-        });
-        console.log(priceAfter);
-        setPrice(priceAfter);
-      } else if (data.itemsPrice) {
-        if (beforePrice == 0) setBeforePrice(price);
-        setPrice(data.itemsPrice);
+        setPrice(price - data.itemsDiscountPrice);
       }
       setShippingPrice((shippingPrice / 100) * data.shippingDiscount);
-      // setCoupon(data.data[0].couponCode);
+      setCoupon(data.data.couponCode);
+      setDisable(true);
       toast.success('کد تخفیف اعمال شد!');
       // console.log(data.data[0].couponCode);
     },
@@ -70,7 +63,7 @@ export default function Coupon() {
       }
     },
     onSuccess: (data) => {
-      if (!data) return;
+      if (!data || coupon != '') return;
       checkCouponFn.mutate(data);
     },
   });
@@ -100,7 +93,11 @@ export default function Coupon() {
         >
           کد تخفیف
         </InputBox>
-        <SubmitButton key={'' + isValid} disabled={!isValid}>
+        <SubmitButton
+          isPending={checkCouponFn.isPending}
+          key={'' + isValid}
+          disabled={!isValid || disable}
+        >
           ثبت کد تخفیف
         </SubmitButton>
       </form>

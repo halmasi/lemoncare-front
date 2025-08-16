@@ -1,6 +1,6 @@
 import { ContentProps } from '../otherProps';
 import { ImageProps, MediaProps } from '../mediaProps';
-import { ShopCategoryProps } from './categoryProps';
+import { BrandProps, ShopCategoryProps } from './categoryProps';
 import { ShopTagsProps } from '@/app/utils/schema/shopProps';
 
 export interface ProductProps {
@@ -8,6 +8,7 @@ export interface ProductProps {
   documentId: string;
   detailes: ContentProps[];
   available: boolean;
+  isForDoctors?: boolean;
   off: 'none' | 'offer' | 'special offer';
   variety: {
     id: number;
@@ -41,6 +42,7 @@ export interface ProductProps {
     mainImage: ImageProps;
     contentCode: number;
   };
+  brand: BrandProps;
   product_view: {
     view: number;
     product: { documentId: string };

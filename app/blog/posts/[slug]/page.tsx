@@ -75,7 +75,7 @@ export default async function page(props: {
       <h1 className="text-center text-green-700">{post.basicInfo.title}</h1>
       <AddToFavorites post={post} />
       <Image
-        className="rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
+        className="w-full mb-10 rounded-lg overflow-hidden shadow-[rgb(234,179,8,0.6)_5px_5px_10px_0px,rgb(21,128,61,0.6)_-5px_-5px_10px_0px]"
         src={post.basicInfo.mainImage.url}
         alt={
           post.basicInfo.mainImage.alternativeText ||
@@ -84,38 +84,44 @@ export default async function page(props: {
         width={post.basicInfo.mainImage.width}
         height={post.basicInfo.mainImage.height}
       />
-      {contents.map((item: ContentProps, index: number) => (
-        <Content key={index} props={item} />
-      ))}
-      {post.sources && (
-        <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
-          <p>منبع</p>
-          {post.sources.map((source) => (
-            <a
-              className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
-              key={source.id}
-              target="_blank"
-              href={source.sourceUrl}
-            >
-              {source.websiteName}
-            </a>
-          ))}
+      <article>
+        {contents.map((item: ContentProps, index: number) => (
+          <section key={index}>
+            <Content props={item} />
+          </section>
+        ))}
+        <div className="flex flex-col gap-5 mt-10">
+          {post.sources && (
+            <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
+              <p>منبع</p>
+              {post.sources.map((source) => (
+                <a
+                  className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
+                  key={source.id}
+                  target="_blank"
+                  href={source.sourceUrl}
+                >
+                  {source.websiteName}
+                </a>
+              ))}
+            </div>
+          )}
+          {post.tags && (
+            <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
+              <p>برچسب ها</p>
+              {post.tags.map((tag) => (
+                <Link
+                  className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
+                  key={tag.id}
+                  href={`/blog/tags/${tag.slug}`}
+                >
+                  {tag.title}
+                </Link>
+              ))}
+            </div>
+          )}{' '}
         </div>
-      )}
-      {post.tags && (
-        <div className="flex flex-wrap gap-2 bg-gray-200 items-center w-fit px-2">
-          <p>برچسب ها</p>
-          {post.tags.map((tag) => (
-            <Link
-              className="px-2 rounded-full border bg-white border-gray-800 w-fit hover:bg-yellow-500 text-gray-600 transition-colors"
-              key={tag.id}
-              href={`/blog/tags/${tag.slug}`}
-            >
-              {tag.title}
-            </Link>
-          ))}
-        </div>
-      )}
+      </article>
     </MainSection>
   );
 }
