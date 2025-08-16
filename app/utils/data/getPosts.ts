@@ -12,7 +12,7 @@ import { AuthorProps } from '@/app/utils/schema/otherProps';
 export const getPosts = cache(async function ({
   page = 1,
   pageSize = 10,
-  tag,
+  tag = [],
 }: {
   page?: number;
   pageSize?: number;
@@ -28,7 +28,6 @@ export const getPosts = cache(async function ({
     pagination: { page, pageSize },
   });
   const link = '/posts?' + query;
-
   const fetchData = await dataFetch({
     qs: link,
     method: 'GET',
@@ -58,6 +57,7 @@ export const getPost = cache(async function (slug: string | number) {
   const fetchData = await dataFetch({
     qs: `/posts?${query}`,
     cache: 'force-cache',
+    tag: [slug.toString()],
   });
   const result: PostsProps[] = fetchData.data;
   return result;
@@ -94,7 +94,7 @@ export const getCategoryHierarchy = cache(async function (
 
 export const getPostsByCategory = cache(async function ({
   category,
-  tag,
+  tag = [],
   isSiteMap = false,
   page = 1,
   pageSize = 10,

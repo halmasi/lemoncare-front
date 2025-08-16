@@ -12,6 +12,8 @@ import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useEffect, useState } from 'react';
 import { getProduct } from '@/app/utils/data/getProducts';
+import LoadingAnimation from '@/app/components/LoadingAnimation';
+import { loginCheck } from '@/app/utils/actions/actionMethods';
 
 export default function CheckoutPage() {
   const { cart } = useCartStore();
@@ -23,10 +25,25 @@ export default function CheckoutPage() {
     shippingPrice,
     setCoupon,
     shippingOption,
+    setCheckoutAddress,
     checkoutAddress,
   } = useCheckoutStore();
   const { user } = useDataStore();
   const [showNext, setShowNext] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      setCheckoutAddress(null);
+      setLoading(false);
+      // const check = await loginCheck();
+      // if (check.isAuthenticated) {
+      //   setIsLoggedIn(true);
+      // }
+      // setLoading(false);
+    })();
+  }, [user]);
 
   useEffect(() => {
     if (!price && cart && Array.isArray(cart) && cart.length > 0) {
@@ -53,7 +70,13 @@ export default function CheckoutPage() {
   //   if (totalBeforePrice) setBeforePrice(totalBeforePrice);
   // }, [totalPrice]);
 
-  if (!price) return <div>درحال بارگذاری</div>;
+  if (!price || loading)
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <h6>درحال بارگذاری</h6>
+        <LoadingAnimation />
+      </div>
+    );
 
   return (
     <>
@@ -70,16 +93,20 @@ export default function CheckoutPage() {
             <AuthForm />
           </div>
         )}
-        <div className="flex flex-col gap-5 w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
-          <Title>
-            <h6 className="text-accent-pink">روش ارسال:</h6>
-          </Title>
-          <DeliveryMethods
-            onChangeFn={(isSelected: boolean) => {
-              setShowNext(isSelected);
-            }}
-          />
-        </div>
+
+        {user && (
+          <div className="flex flex-col gap-5 w-full lg:w-5/12 p-2 lg:p-5 rounded-lg bg-gray-50/50 border min-h-svh">
+            <Title>
+              <h6 className="text-accent-pink">روش ارسال:</h6>
+            </Title>
+            <DeliveryMethods
+              onChangeFn={(isSelected: boolean) => {
+                setShowNext(isSelected);
+              }}
+            />
+          </div>
+        )}
+
         <div className="flex flex-col gap-2 h-fit w-full lg:w-3/12 lg:sticky lg:top-5">
           <div className="flex flex-col h-fit w-full border rounded-lg p-5 items-center gap-3 justify-between">
             {checkoutAddress && (
@@ -115,7 +142,9 @@ export default function CheckoutPage() {
             <div className="flex flex-wrap gap-2 text-sm">
               <p>هزینه ارسال:</p>
               {shippingPrice > -1 ? (
-                shippingOption.courier_code == 'TIPAX' ? (
+                shippingOption.courier_code == 'TIPAX' ||
+                shippingOption.courier_code == 'ALUPAYK' ||
+                shippingOption.courier_code == 'SNAPPPAYK' ? (
                   <p className="text-accent-green">پس کرایه</p>
                 ) : (
                   <Toman className="fill-accent-green text-accent-green">

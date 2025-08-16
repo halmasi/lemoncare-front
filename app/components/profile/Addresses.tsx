@@ -35,6 +35,7 @@ export default function Addresses() {
 
   const getAddressFn = useMutation({
     mutationFn: async (id: string) => {
+      setCheckoutAddress(null);
       const res: {
         data: {
           id: number;
@@ -44,9 +45,12 @@ export default function Addresses() {
       } = await getPostalInformation(id);
       return res.data;
     },
-    onSuccess: (data) => {
-      if (!data) return;
-      setAddresses(data.information);
+    onSettled(data, error) {
+      setLoading(false);
+      if (data) {
+        setAddresses(data.information);
+      }
+      if (error) toast.error('خطا در دریافت آدرس');
     },
   });
 
@@ -64,7 +68,9 @@ export default function Addresses() {
         }
       }
     },
-    onSuccess: (data) => {
+    onSettled(data, error) {
+      setLoading(false);
+      if (error) toast.error('خطا در حذف آدرس');
       if (!data) return;
       updateAddressesFn.mutate({ data });
     },
@@ -76,19 +82,30 @@ export default function Addresses() {
         data,
         user!.postal_information.documentId
       );
-      return res;
+      if (res.data)
+        return {
+          data: res.data,
+          documentId: user!.postal_information.documentId,
+        };
     },
-    onSuccess: (data) => {
-      if (!data) return;
-      router.refresh();
-    },
-    onError: () => {
-      toast.error('خطا در بروزرسانی آدرس ها');
+    onSettled(data, error) {
+      setLoading(false);
+      if (data) {
+        getAddressFn.mutate(data.documentId);
+        router.refresh();
+      }
+      if (error) {
+        toast.error('خطا در بروزرسانی آدرس ها');
+      }
     },
   });
 
   useEffect(() => {
-    if (addresses && Array.isArray(addresses) && addresses.length)
+    setCheckoutAddress(null);
+  }, []);
+
+  useEffect(() => {
+    if (addresses && Array.isArray(addresses) && addresses.length) {
       addresses.map((item) => {
         if (item.isDefault) {
           setSelectedAddress(item.id);
@@ -108,6 +125,10 @@ export default function Addresses() {
           }
         }
       });
+      if (!checkoutAddress) {
+        setCheckoutAddress(addresses[0]);
+      }
+    }
   }, [addresses]);
 
   useEffect(() => {
@@ -169,20 +190,10 @@ export default function Addresses() {
     if (user && user.postal_information) {
       getAddressFn.mutate(user.postal_information.documentId);
       setShowTextBox(false);
-    } else if (checkoutAddress) {
-      setAddresses([checkoutAddress]);
-      setShowTextBox(false);
-    } else {
-      setShowTextBox(true);
     }
   }, [user]);
 
-  if (
-    getAddressFn.isPending ||
-    updateAddressesFn.isPending ||
-    deleteAddressFn.isPending ||
-    loading
-  )
+  if (updateAddressesFn.isPending || getAddressFn.isPending || loading)
     return (
       <div>
         <LoadingAnimation />

@@ -136,7 +136,31 @@ export const calcShippingPrice = async (
   price: number,
   weight: number
 ) => {
-  if (selected.courierCode == 'TIPAX') {
+  if (
+    cityCode == 286 &&
+    (selected.courierCode == 'ALUPAYK' || selected.courierCode == 'SNAPPPAYK')
+  ) {
+    return {
+      isSuccess: true,
+      data: {
+        optionalServices: {},
+        servicePrices: [
+          {
+            courierName: selected.courierCode,
+            courierCode: selected.courierCode,
+            serviceType: selected.courierCode,
+            serviceName: selected.courierCode,
+            slaDays: 'none',
+            slaHours: 0,
+            vat: 0,
+            discountAmount: 0,
+            totalPrice: 0,
+            initPrice: 0,
+          },
+        ],
+      },
+    };
+  } else if (selected.courierCode == 'TIPAX') {
     return {
       isSuccess: true,
       data: {

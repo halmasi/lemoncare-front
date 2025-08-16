@@ -8,6 +8,8 @@ import Image from 'next/image';
 import PostLogo from '@/public/iranPost.svg';
 // import ChaparLogo from '@/public/chapar.svg';
 import TipaxLogo from '@/public/tipax.svg';
+import SNAPPLOGO from '@/public/snappTextLogo.svg';
+import ALUPAYKLOGO from '@/public/alupayk.svg';
 import { calcShippingPrice } from '@/app/utils/paymentUtils';
 import RadioButton from '../formElements/RadioButton';
 import { toast } from 'react-toastify';
@@ -51,7 +53,45 @@ export default function DeliveryMethods({
 }: {
   onChangeFn: (isSelected: boolean) => void;
 }) {
-  const [courier, setCourier] = useState<CourierProps[]>([]);
+  const logos = {
+    IR_POST: PostLogo,
+    TIPAX: TipaxLogo.src,
+    ALUPAYK: ALUPAYKLOGO.src,
+    SNAPPPAYK: SNAPPLOGO.src,
+  };
+
+  const [courier, setCourier] = useState<CourierProps[]>([
+    {
+      courierCode: 'TIPAX',
+      courierName: 'تیپاکس',
+      courierServiceCode: 'TIPAX',
+      courierServiceId: 0,
+      courierServiceName: 'تیپاکس',
+      days: '2',
+      slaHours: 2,
+      taxPercent: 0,
+    },
+    {
+      courierCode: 'ALUPAYK',
+      courierName: 'اسنپ پیک',
+      courierServiceCode: 'ALUPAYK',
+      courierServiceId: 0,
+      courierServiceName: 'الوپیک',
+      days: '1',
+      slaHours: 2,
+      taxPercent: 0,
+    },
+    {
+      courierCode: 'SNAPPPAYK',
+      courierName: 'اسنپ پیک',
+      courierServiceCode: 'SNAPPPAYK',
+      courierServiceId: 0,
+      courierServiceName: 'اسنپ پیک',
+      days: '1',
+      slaHours: 2,
+      taxPercent: 0,
+    },
+  ]);
   const [selected, setSelected] = useState<CourierProps>(courier[0]);
   const [error, setError] = useState<string>('');
 
@@ -110,20 +150,22 @@ export default function DeliveryMethods({
         toast.warn('خطا در دریافت روش های ارسال');
         return;
       }
-      data.data.map((item) => {
-        if (
-          (item.courierCode == 'IR_POST' ||
-            // item.courierCode == 'CHAPAR' ||
-            item.courierCode == 'TIPAX') &&
+      const posts = data.data.filter(
+        (item) =>
+          item.courierCode == 'IR_POST' &&
           item.courierServiceCode != 'CERTIFIED'
-        ) {
-          setCourier((prev) => {
-            const copy = prev;
-            copy.push(item);
-            return copy;
-          });
-        }
-      });
+      );
+      setCourier([...courier, ...posts]);
+
+      // const postsaaa = data.data.map((item) => {
+      //   if (
+      //     item.courierCode == 'IR_POST' ||
+      //     // item.courierCode == 'CHAPAR' ||
+      //     // item.courierCode == 'TIPAX') &&
+      //     item.courierServiceCode != 'CERTIFIED'
+      //   ) {
+      //   }
+      // });
     },
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');
@@ -179,39 +221,37 @@ export default function DeliveryMethods({
       <div key={courier.length}>
         <p className="text-red-700">{error}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {courier.map((item, index) => (
-            <RadioButton
-              key={index}
-              id={item.courierCode}
-              onClick={() => {
-                setSelected(item);
-              }}
-              isSelected={selected == item}
-              className="flex-col items-center h-52 w-52 aspect-square gap-2 rounded-2xl"
-            >
-              <div className="flex flex-col w-full justify-between items-center h-[80%]">
-                <Image
-                  src={
-                    item.courierCode == 'IR_POST'
-                      ? PostLogo
-                      : // : item.courierCode == 'CHAPAR'
-                        //   ? ChaparLogo.src
-                        TipaxLogo.src
-                  }
-                  alt={item.courierName}
-                  width={50}
-                  height={50}
-                  className={`w-[65%] h-[65%]`}
-                />
-                <div className="flex flex-col h-fit text-center rounded-xl bg-foreground/10 w-full text-foreground font-bold">
-                  <p className="text-xs text-accent-green">
-                    {item.courierName}
-                  </p>
-                  <p>{item.courierServiceName}</p>
-                </div>
-              </div>
-            </RadioButton>
-          ))}
+          {courier.map((item, index) => {
+            if (item.courierCode !== '') {
+              return (
+                <RadioButton
+                  key={index}
+                  id={item.courierCode}
+                  onClick={() => {
+                    setSelected(item);
+                  }}
+                  isSelected={selected == item}
+                  className="flex-col items-center h-52 w-52 aspect-square gap-2 rounded-2xl"
+                >
+                  <div className="flex flex-col w-full justify-between items-center h-[80%]">
+                    <Image
+                      src={logos[item.courierCode as keyof typeof logos]}
+                      alt={item.courierName}
+                      width={50}
+                      height={50}
+                      className={`w-[65%] h-[65%]`}
+                    />
+                    <div className="flex flex-col h-fit text-center rounded-xl bg-foreground/10 w-full text-foreground font-bold">
+                      <p className="text-xs text-accent-green">
+                        {item.courierName}
+                      </p>
+                      <p>{item.courierServiceName}</p>
+                    </div>
+                  </div>
+                </RadioButton>
+              );
+            }
+          })}
         </div>
       </div>
     );
