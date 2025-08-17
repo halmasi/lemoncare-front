@@ -9,6 +9,9 @@ export interface ProductProps {
   detailes: ContentProps[];
   available: boolean;
   isForDoctors?: boolean;
+  mainPrice: number;
+  beforePrice: number;
+  detailesTable: {};
   off: 'none' | 'offer' | 'special offer';
   variety: {
     id: number;

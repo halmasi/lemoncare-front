@@ -98,7 +98,6 @@ export default function Payment() {
           })
         ).then((results) => results.filter((item) => item !== null));
         if (checkoutAddress && user) {
-          let getCoupon = null;
           const res = await submitOrder({
             user: user.id || 0,
             jwt: `Bearer ${jwt}`,

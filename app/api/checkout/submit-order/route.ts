@@ -1,5 +1,3 @@
-import qs from 'qs';
-
 import { requestData } from '@/app/utils/data/dataFetch';
 import { orderHistoryIdMaker } from '@/app/utils/shopUtils';
 import { getCoupon } from '@/app/utils/data/getCoupons';
@@ -19,9 +17,6 @@ export async function POST(req: Request) {
         },
       },
     };
-    const query = qs.stringify({
-      populate: '*',
-    });
     if (requestBody.coupon) {
       const coupon = await getCoupon({ couponCode: requestBody.coupon });
       request.data.order = {
@@ -29,7 +24,7 @@ export async function POST(req: Request) {
         coupon: coupon.data.documentId,
       };
     }
-    const result = await requestData({
+    await requestData({
       qs: `/order-histories`,
       method: 'POST',
       body: request,
