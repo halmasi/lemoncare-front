@@ -188,7 +188,7 @@ export default function Addresses() {
 
   useEffect(() => {
     if (user && user.postal_information) {
-      getAddressFn.mutate(user.postal_information.documentId);
+      getAddressFn.mutateAsync(user.postal_information.documentId);
       setShowTextBox(false);
     }
   }, [user]);

@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import PostLogo from '@/public/iranPost.svg';
-// import ChaparLogo from '@/public/chapar.svg';
 import TipaxLogo from '@/public/tipax.svg';
 import SNAPPLOGO from '@/public/snappTextLogo.svg';
 import ALUPAYKLOGO from '@/public/alupayk.svg';
@@ -73,7 +72,7 @@ export default function DeliveryMethods({
     },
     {
       courierCode: 'ALUPAYK',
-      courierName: 'اسنپ پیک',
+      courierName: 'الوپیک',
       courierServiceCode: 'ALUPAYK',
       courierServiceId: 0,
       courierServiceName: 'الوپیک',
@@ -117,7 +116,6 @@ export default function DeliveryMethods({
           selected.courierName + ' | ' + selected.courierServiceName,
       });
     }
-    // toast.info(selected.courierName + ' | ' + selected.courierServiceName);
     if (selected && (!checkoutAddress || !checkoutAddress.cityCode)) {
       setShippingPrice(-1);
       setError(
@@ -156,16 +154,6 @@ export default function DeliveryMethods({
           item.courierServiceCode != 'CERTIFIED'
       );
       setCourier([...courier, ...posts]);
-
-      // const postsaaa = data.data.map((item) => {
-      //   if (
-      //     item.courierCode == 'IR_POST' ||
-      //     // item.courierCode == 'CHAPAR' ||
-      //     // item.courierCode == 'TIPAX') &&
-      //     item.courierServiceCode != 'CERTIFIED'
-      //   ) {
-      //   }
-      // });
     },
     onError: () => {
       toast.warn('خطا در دریافت روش های ارسال');
@@ -221,10 +209,20 @@ export default function DeliveryMethods({
       <div key={courier.length}>
         <p className="text-red-700">{error}</p>
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {courier.map((item, index) => {
-            if (item.courierCode !== '') {
+          {courier
+            .filter((item) => {
+              return (
+                item.courierCode == 'TIPAX' ||
+                item.courierCode == 'IR_POST' ||
+                ((item.courierCode == 'ALUPAYK' ||
+                  item.courierCode == 'SNAPPPAYK') &&
+                  checkoutAddress?.cityCode == 286)
+              );
+            })
+            .map((item, index) => {
               return (
                 <RadioButton
+                  isPending={getPriceFn.isPending}
                   key={index}
                   id={item.courierCode}
                   onClick={() => {
@@ -250,8 +248,7 @@ export default function DeliveryMethods({
                   </div>
                 </RadioButton>
               );
-            }
-          })}
+            })}
         </div>
       </div>
     );

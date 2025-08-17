@@ -12,8 +12,10 @@ import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FaArrowRightLong } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 
 export default function Payment() {
@@ -30,7 +32,6 @@ export default function Payment() {
     setOrderCode,
   } = useCheckoutStore();
 
-  // const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const { cart } = useCartStore();
@@ -43,31 +44,6 @@ export default function Payment() {
       router.push('/cart/checkout');
     }
   }, [shippingPrice]);
-
-  // useEffect(() => {
-  //   if (cart && cart.length > 0 && !finalPrice) {
-  //     let cartPrice = 0;
-  //     cart.map((item) => {
-  //       const product = cartProducts.find(
-  //         (i) => i.documentId == item.product.documentId
-  //       );
-  //       if (product) {
-  //         const info = varietyFinder(item.variety, product);
-  //         const total = info.mainPrice * item.count;
-  //         cartPrice += total;
-  //       }
-  //     });
-  //     setPrice(cartPrice);
-  //   }
-  // }, [
-  //   cart,
-  //   paymentOption,
-  //   shippingOption,
-  //   checkoutAddress,
-  //   setFinalPrice,
-  //   setPrice,
-  //   price,
-  // ]);
 
   const getShippingPriceFn = useMutation({
     mutationFn: async () => {
@@ -122,6 +98,7 @@ export default function Payment() {
           })
         ).then((results) => results.filter((item) => item !== null));
         if (checkoutAddress && user) {
+          let getCoupon = null;
           const res = await submitOrder({
             user: user.id || 0,
             jwt: `Bearer ${jwt}`,
@@ -132,9 +109,8 @@ export default function Payment() {
             shippingPrice,
             price,
             totalPrice,
-            coupon,
+            coupon: coupon != '' ? coupon : null,
           });
-
           return res;
         }
       }
@@ -150,7 +126,18 @@ export default function Payment() {
   });
 
   return (
-    <>
+    <div className="w-full">
+      <div className="flex">
+        <Link
+          href={'/cart/checkout'}
+          className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+        >
+          <FaArrowRightLong />
+        </Link>
+        <Title className="pr-10">
+          <h6>تکمیل فرایند خرید</h6>
+        </Title>
+      </div>
       <div className="flex flex-col lg:flex-row w-full gap-2">
         <div className="w-full flex flex-col gap-2 lg:w-1/2">
           <Coupon />
@@ -210,8 +197,12 @@ export default function Payment() {
             <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">
               <h6 className="w-fit self-start">هزینه ارسال:</h6>
-              {shippingOption.courier_code == 'TIPAX' ? (
-                <p className="text-accent-green">تیپاکس | پس کرایه</p>
+              {shippingOption.courier_code == 'TIPAX' ||
+              shippingOption.courier_code == 'ALUPAYK' ||
+              shippingOption.courier_code == 'SNAPPPAYK' ? (
+                <p className="text-accent-green">
+                  {shippingOption.service_name.split('|')[0].trim()} | پس کرایه
+                </p>
               ) : (
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
@@ -249,6 +240,6 @@ export default function Payment() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

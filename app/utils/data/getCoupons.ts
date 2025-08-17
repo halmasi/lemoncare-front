@@ -83,6 +83,15 @@ const checkProducts = async ({
   return res;
 };
 
+export const getCoupon = async ({ couponCode }: { couponCode: string }) => {
+  const query = qs.stringify({
+    filters: { couponCode: { $eq: couponCode } },
+    populate: '*',
+  });
+  const res = await dataFetch({ qs: `/coupons?${query}` });
+  return res;
+};
+
 export const checkCoupon = async ({
   coupon,
   cart,
@@ -92,13 +101,7 @@ export const checkCoupon = async ({
   cart: CartProps[];
   price: number;
 }) => {
-  const query = qs.stringify({
-    filters: { couponCode: { $eq: coupon } },
-    populate: '*',
-  });
-
-  const res = await dataFetch({ qs: `/coupons?${query}` });
-
+  const res = await getCoupon({ couponCode: coupon });
   const result: {
     data: {
       id: number;

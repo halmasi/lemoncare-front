@@ -11,6 +11,7 @@ interface RadioButtonProps {
   className?: string;
   onClick: (id: string) => void;
   id: string;
+  isPending?: boolean;
   showRadioIcon?: boolean;
 }
 
@@ -18,6 +19,7 @@ export default function RadioButton({
   children,
   isSelected,
   className,
+  isPending = false,
   onClick,
   id,
   isSelectedClass,
@@ -27,9 +29,9 @@ export default function RadioButton({
     <div className={className + ' ' + isSelectedClass}>
       <div
         onClick={() => {
-          onClick(id);
+          if (!isPending) onClick(id);
         }}
-        className={`flex w-full h-fit justify-between rounded-lg p-2 border cursor-pointer ${className} ${isSelectedClass}`}
+        className={`flex w-full h-fit justify-between rounded-lg p-2 border cursor-pointer ${className} ${isSelectedClass} ${isPending && 'opacity-75 cursor-wait'}`}
       >
         {children}
         {showRadioIcon && (

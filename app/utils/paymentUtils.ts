@@ -87,7 +87,6 @@ export const submitOrder = async ({
   coupon: string | null;
 }) => {
   const date = new Date();
-
   const res = await fetch(`${config.siteUrl}/api/checkout/submit-order`, {
     method: 'POST',
     headers: {
@@ -125,6 +124,7 @@ export const submitOrder = async ({
       },
     }),
   });
+
   const result = await res.json();
 
   return result;
