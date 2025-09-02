@@ -101,7 +101,7 @@ export function Search() {
             type="text"
             placeholder="جستجو مقاله و محصول"
             ref={inputRef}
-            name={'search'}
+            name={'searchMobile'}
             className="flex md:hidden border-0 focus:ring-0 focus:outline-none"
           />
         </div>

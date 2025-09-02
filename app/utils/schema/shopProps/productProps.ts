@@ -9,9 +9,13 @@ export interface ProductProps {
   detailes: ContentProps[];
   available: boolean;
   isForDoctors?: boolean;
+  import?: boolean;
   mainPrice: number;
   beforePrice: number;
-  detailesTable: {};
+  detailesTable: {
+    detaile_key: DetaileKey;
+    detaile_value: DetaileValue;
+  };
   off: 'none' | 'offer' | 'special offer';
   variety: {
     id: number;
@@ -54,4 +58,18 @@ export interface ProductProps {
   category: ShopCategoryProps;
   seo: { id: number; seoTitle: string; seoDescription: string };
   tags: ShopTagsProps[];
+}
+
+export interface DetaileKey {
+  id: number;
+  documentId: string;
+  title: string;
+  detaile_values: DetaileValue[];
+}
+
+export interface DetaileValue {
+  id: number;
+  documentId: string;
+  title: string;
+  detaile_key: DetaileKey;
 }

@@ -121,6 +121,7 @@ export const submitOrder = async ({
         orderPrice: price,
         totalPrice,
         coupon,
+        deliveryStatus: 'در انتظار پرداخت',
       },
     }),
   });

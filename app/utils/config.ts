@@ -4,6 +4,7 @@ export default {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
   strapiToken: process.env.NEXT_PUBLIC_STRAPI_TOKEN,
   backendPath: process.env.NEXT_PUBLIC_BACKEND_PATH,
+  adminPath: process.env.NEXT_PUBLIC_ADMIN_PATH,
   gravatarUrl: process.env.NEXT_PUBLIC_GRAVATAR_URI,
   secretKey: process.env.NEXT_PUBLIC_SECRET_KEY,
   postexToken: process.env.NEXT_PUBLIC_POSTEX_API_TOKEN,
