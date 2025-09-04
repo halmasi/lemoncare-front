@@ -8,6 +8,10 @@ import {
   ShopSubCategoiesProps,
 } from '@/app/utils/schema/shopProps';
 import { MetaProps } from '../schema/metaProps';
+import {
+  DetaileKeyProps,
+  DetaileValueProps,
+} from '../schema/shopProps/productProps';
 
 export const getProduct = cache(async function ({
   slug,
@@ -36,6 +40,7 @@ export const getProduct = cache(async function ({
         media: { populate: 1 },
         variety: { populate: '*' },
         brand: { populate: '1' },
+        detailesTable: { populate: '*' },
       };
   const query = qs.stringify({
     filters: filter,
@@ -254,3 +259,26 @@ export const getProductsByBrand = cache(async function ({
   });
   return { res: result.data, meta: result.meta };
 });
+
+export const getDetailesKey = cache(
+  async ({ id, tag = [] }: { id: string; tag?: string[] }) => {
+    const data = await dataFetch({
+      qs: `/detaile-keys/${id}?pLevel`,
+      cache: 'force-cache',
+      tag: [...tag, id],
+    });
+    const res: DetaileKeyProps = data.data;
+    return res;
+  }
+);
+export const getDetailesValue = cache(
+  async ({ id, tag = [] }: { id: string; tag?: string[] }) => {
+    const data = await dataFetch({
+      qs: `/detaile-values/${id}?pLevel`,
+      cache: 'force-cache',
+      tag: [...tag, id],
+    });
+    const res: DetaileValueProps = data.data;
+    return res;
+  }
+);
