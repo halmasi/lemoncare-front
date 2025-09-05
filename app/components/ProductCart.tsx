@@ -30,7 +30,7 @@ export default function ProductCart({
             height={product.basicInfo.mainImage.height}
             className="rounded-lg w-full"
           />
-          {product.variety.length > 0 && (
+          {product.variety && product.variety.length > 0 && (
             <div className="absolute flex gap-1 px-3 py-1">
               {product.variety.map(
                 (variety) =>

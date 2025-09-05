@@ -35,10 +35,10 @@ export const getProduct = cache(async function ({
     : {
         seo: { populate: '*' },
         basicInfo: { populate: '*' },
-        category: { populate: '*' },
         tags: { populate: '*' },
         media: { populate: 1 },
         variety: { populate: '*' },
+        category: { populate: '*' },
         brand: { populate: '1' },
         detailesTable: { populate: '*' },
       };
@@ -60,21 +60,26 @@ export const getProducts = cache(async function ({
   page = 1,
   pageSize = 10,
   isFetchAll = false,
+  sort = { createdAt: 'desc' },
+  populate = {
+    basicInfo: { populate: '*' },
+    variety: { populate: '*' },
+    seo: { populate: '*' },
+    category: { populate: '*' },
+    tags: { populate: '*' },
+    brand: { populate: '1' },
+  },
 }: {
   tag?: string[];
   page?: number;
   pageSize?: number;
   isFetchAll?: boolean;
+  populate?: object;
+  sort?: object;
 }) {
   const query = qs.stringify({
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      variety: { populate: '*' },
-      tags: { populate: '*' },
-      brand: { populate: '1' },
-    },
+    populate,
+    sort,
     pagination: isFetchAll
       ? {}
       : {
@@ -100,6 +105,14 @@ export const getProductsByCategory = cache(async function ({
   brand,
   pageSize = 10,
   page = 1,
+  sort = { createdAt: 'desc' },
+  populate = {
+    basicInfo: { populate: '*' },
+    variety: { populate: '*' },
+    seo: { populate: '*' },
+    category: { populate: '*' },
+    brand: { populate: '1' },
+  },
 }: {
   category: ShopCategoryProps;
   tag?: string[];
@@ -108,6 +121,8 @@ export const getProductsByCategory = cache(async function ({
   pageSize?: number;
   page?: number;
   isSiteMap?: boolean;
+  populate?: object;
+  sort?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const subCategories: ShopSubCategoiesProps[] | [] =
     category.shopSubCategories.length > 0
@@ -134,13 +149,8 @@ export const getProductsByCategory = cache(async function ({
 
   const query = qs.stringify({
     filters,
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      variety: { populate: '*' },
-      brand: { populate: '1' },
-    },
+    populate,
+    sort,
   });
 
   if (!isSiteMap) {
@@ -153,7 +163,7 @@ export const getProductsByCategory = cache(async function ({
   }
 
   const result = await dataFetch({
-    qs: `/products?${query}&sort[0]=createdAt:desc`,
+    qs: `/products?${query}`,
     tag,
     cache: 'force-cache',
   });
@@ -169,6 +179,16 @@ export const getProductsByTag = cache(async function ({
   page = 1,
   pageSize = 10,
   isFetchAll = false,
+  sort = { createdAt: 'desc' },
+
+  populate = {
+    seo: { populate: '*' },
+    basicInfo: { populate: '*' },
+    category: { populate: '*' },
+    variety: { populate: '*' },
+    tags: { populate: '*' },
+    brand: { populate: '1' },
+  },
 }: {
   slug: string;
   productDocumentId?: string;
@@ -176,6 +196,8 @@ export const getProductsByTag = cache(async function ({
   page?: number;
   pageSize?: number;
   isFetchAll?: boolean;
+  populate?: object;
+  sort?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
     tags: {
@@ -188,14 +210,8 @@ export const getProductsByTag = cache(async function ({
     });
   const query = qs.stringify({
     filters,
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      variety: { populate: '*' },
-      tags: { populate: '*' },
-      brand: { populate: '1' },
-    },
+    populate,
+    sort,
     pagination: isFetchAll
       ? {}
       : {
@@ -218,6 +234,16 @@ export const getProductsByBrand = cache(async function ({
   page = 1,
   pageSize = 10,
   isFetchAll = false,
+  sort = { createdAt: 'desc' },
+
+  populate = {
+    seo: { populate: '*' },
+    basicInfo: { populate: '*' },
+    category: { populate: '*' },
+    variety: { populate: '*' },
+    tags: { populate: '*' },
+    brand: { populate: '1' },
+  },
 }: {
   slug: string;
   productDocumentId?: string;
@@ -225,6 +251,8 @@ export const getProductsByBrand = cache(async function ({
   page?: number;
   pageSize?: number;
   isFetchAll?: boolean;
+  populate?: object;
+  sort?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
     brand: {
@@ -237,14 +265,8 @@ export const getProductsByBrand = cache(async function ({
     });
   const query = qs.stringify({
     filters,
-    populate: {
-      seo: { populate: '*' },
-      basicInfo: { populate: '*' },
-      category: { populate: '*' },
-      variety: { populate: '*' },
-      tags: { populate: '*' },
-      brand: { populate: '1' },
-    },
+    populate,
+    sort,
     pagination: isFetchAll
       ? {}
       : {

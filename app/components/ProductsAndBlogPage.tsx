@@ -44,8 +44,6 @@ export default function ProductsAndBlogPage({
 }) {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
-  const currentCategories = params.getAll('category');
-  const currentBrands = params.getAll('brand');
   const sortParam = params.get('sort') || 'asc';
   const router = useRouter();
 
@@ -60,43 +58,99 @@ export default function ProductsAndBlogPage({
   const [title, setTitle] = useState<string>('');
 
   const getProductsFn = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (sortParamValue: string) => {
+      setIsLoading(true);
+      setProducts([]);
       let productsList: ProductProps[] = [];
+      let productsListThisPage: ProductProps[] = [];
+      let sort: object;
+      if (sortParamValue == 'asc' || sortParamValue == 'desc') {
+        sort = { createdAt: sortParam };
+      } else if (sortParamValue == 'price-asc') {
+        sort = { mainPrice: 'asc' };
+      } else {
+        sort = { mainPrice: 'desc' };
+      }
       if (resultBy == 'full') {
         setTitle('');
-        const getFn = await getProducts({ isFetchAll: true });
-        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
+        const getFn = await getProducts({
+          isFetchAll: true,
+          populate: {
+            basicInfo: { populate: '*' },
+          },
+        });
+        const getProductsFunc = await getProducts({ page, pageSize, sort });
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
         productsList = getFn.res;
+        productsListThisPage = getProductsFunc.res;
       } else if (resultBy == 'category') {
         const category = await getShopCategory(slug[slug.length - 1]);
         setTitle('دسته بندی: ' + category[0].title);
-        const getFn = await getProductsByCategory({
+        if (!allProducts.length) {
+          const getFn = await getProductsByCategory({
+            category: category[0],
+            isSiteMap: true,
+            populate: {
+              basicInfo: { populate: '*' },
+            },
+          });
+          productsList = getFn.res;
+        }
+        const getProductsFunc = await getProductsByCategory({
           category: category[0],
-          isSiteMap: true,
+          page,
+          pageSize,
+          sort,
         });
-        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
-        productsList = getFn.res;
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
+        productsListThisPage = getProductsFunc.res;
       } else if (resultBy == 'tag') {
-        const getFn = await getProductsByTag({
+        if (!allProducts.length) {
+          const getFn = await getProductsByTag({
+            slug: slug[0],
+            isFetchAll: true,
+            populate: {
+              basicInfo: { populate: '*' },
+            },
+          });
+          productsList = getFn.res;
+        }
+        const getProductsFunc = await getProductsByTag({
           slug: slug[0],
-          isFetchAll: true,
+          page,
+          pageSize,
+          sort,
         });
-        productsList = getFn.res;
+        productsListThisPage = getProductsFunc.res;
+
         if (productsList.length == 0) return notFound();
         const tagTitle =
           productsList[0].tags[
             productsList[0].tags.findIndex((item) => item.slug == slug[0])
           ].title;
         setTitle('برچسب: ' + tagTitle || '');
-        setPageCount(Math.round(getFn.res.length / 10 + 0.4));
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
       } else if (resultBy == 'brand') {
         if (slug.length > 1) {
           const category = await getShopCategory(slug[slug.length - 1]);
-          const getFn = await getProductsByCategory({
+          if (!allProducts.length) {
+            const getFn = await getProductsByCategory({
+              category: category[0],
+              brand: slug[0],
+              isSiteMap: true,
+              populate: { basicInfo: { populate: '*' } },
+            });
+            productsList = getFn.res;
+          }
+          const getProductsFunc = await getProductsByCategory({
             category: category[0],
-            isSiteMap: true,
+            brand: slug[0],
+            page,
+            pageSize,
+            sort,
           });
-          productsList = getFn.res;
+          productsListThisPage = getProductsFunc.res;
+
           if (productsList.length == 0) return notFound();
           setTitle(
             'دسته بندی: ' +
@@ -104,27 +158,39 @@ export default function ProductsAndBlogPage({
               ' | ' +
               category[0].title || ''
           );
-          setPageCount(Math.round(getFn.res.length / 10 + 0.4));
+          setPageCount(getProductsFunc.meta.pagination.pageCount);
         } else {
-          const getFn = await getProductsByBrand({
+          if (!allProducts.length) {
+            const getFn = await getProductsByBrand({
+              slug: slug[0],
+              isFetchAll: true,
+              populate: { basicInfo: { populate: '*' } },
+            });
+            productsList = getFn.res;
+          }
+          const getProductsFunc = await getProductsByBrand({
             slug: slug[0],
-            isFetchAll: true,
+            page,
+            pageSize,
+            sort,
           });
-          productsList = getFn.res;
+          productsListThisPage = getProductsFunc.res;
           if (productsList.length == 0) return notFound();
           setTitle(productsList[0].brand.title);
-          setPageCount(Math.round(getFn.res.length / 10 + 0.4));
+          setPageCount(getProductsFunc.meta.pagination.pageCount);
         }
       }
-      return productsList;
+      return { productsList, productsListThisPage };
     },
     onSuccess: (data) => {
       setIsLoading(false);
-      if (!data || data.length == 0) return notFound();
-      setAllProducts(data);
-      filterFn(data);
+      if (!data || data.productsListThisPage.length == 0) return notFound();
+      if (!allProducts.length) setAllProducts(data.productsList);
+      setProducts(data.productsListThisPage);
+      // filterFn(data);
     },
     onError: () => {
+      setIsLoading(false);
       return notFound();
     },
   });
@@ -173,94 +239,21 @@ export default function ProductsAndBlogPage({
     },
   });
 
-  const filterFn = async (data: ProductProps[]) => {
-    let filteredProducts = [...data];
-
-    if (currentCategories.length > 0) {
-      const results = await Promise.all(
-        filteredProducts.map(async (item) => {
-          const parents = await getCategoryparentHierarchy(item.category);
-          let isIncloud = false;
-          parents.map((i) => {
-            if (currentCategories.includes(i.slug)) {
-              isIncloud = true;
-            }
-          });
-          return isIncloud || currentCategories.includes(item.category.slug);
-        })
-      );
-      filteredProducts = filteredProducts.filter((_, i) => results[i]);
-    }
-
-    if (currentBrands.length > 0) {
-      filteredProducts = filteredProducts.filter((item) =>
-        currentBrands.includes(item.brand.slug)
-      );
-    }
-    if (sortParam == 'asc') {
-      filteredProducts.sort((a, b) => {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      });
-    } else if (sortParam == 'desc') {
-      filteredProducts.sort((a, b) => {
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      });
-    } else if (sortParam == 'price-asc') {
-      filteredProducts.sort((a, b) => {
-        const priceA = a.variety.reduce((min, item) => {
-          const lowest = item.subVariety.length
-            ? Math.min(...item.subVariety.map((sub) => sub.mainPrice))
-            : item.mainPrice;
-          return Math.min(min, lowest);
-        }, Infinity);
-        const priceB = b.variety.reduce((min, item) => {
-          const lowest = item.subVariety.length
-            ? Math.min(...item.subVariety.map((sub) => sub.mainPrice))
-            : item.mainPrice;
-          return Math.min(min, lowest);
-        }, Infinity);
-        return priceA - priceB;
-      });
-    } else if (sortParam == 'price-desc') {
-      filteredProducts.sort((a, b) => {
-        const priceA = a.variety.reduce((max, item) => {
-          const highest = item.subVariety.length
-            ? Math.max(...item.subVariety.map((sub) => sub.mainPrice))
-            : item.mainPrice;
-          return Math.max(max, highest);
-        }, -Infinity);
-        const priceB = b.variety.reduce((max, item) => {
-          const highest = item.subVariety.length
-            ? Math.max(...item.subVariety.map((sub) => sub.mainPrice))
-            : item.mainPrice;
-          return Math.max(max, highest);
-        }, -Infinity);
-        return priceB - priceA;
-      });
-    }
-    setPageCount(Math.round(filteredProducts.length / pageSize + 0.4));
-
-    setProducts(filteredProducts.slice((page - 1) * pageSize, page * pageSize));
-  };
-
   const sortFn = (param: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (params.get('sort') == param) return;
     setShowSort(false);
     params.set('sort', param);
     router.push(`?${params.toString()}`);
-    filterFn(allProducts);
+
+    getProductsFn.mutate(param);
   };
-  useEffect(() => {
-    filterFn(allProducts);
-  }, [currentBrands.length, currentCategories.length]);
+  // useEffect(() => {
+  //   filterFn(allProducts);
+  // }, [currentBrands.length, currentCategories.length]);
 
   useEffect(() => {
-    if (type == 'product') getProductsFn.mutate();
+    if (type == 'product') getProductsFn.mutate(sortParam);
     else if (type == 'post') {
       getPostsFn.mutate();
     }
@@ -305,7 +298,7 @@ export default function ProductsAndBlogPage({
                 <div className="absolute w-full top-0 z-10 h-screen bg-background">
                   <p
                     onClick={() => setShowFilter(false)}
-                    className="text-accent-pink cursor-pointer"
+                    className="text-accent-pink cursor-pointer p-1"
                   >
                     X
                   </p>
@@ -323,28 +316,30 @@ export default function ProductsAndBlogPage({
                 <BiSort /> مرتب سازی
               </p>
               {showSort && (
-                <div className="absolute flex flex-col mt-10 border-2 rounded-lg p-5 px-10 bg-white z-10 gap-2">
+                <div
+                  className={`absolute flex flex-col mt-10 border-2 rounded-lg p-5 px-10 bg-white z-10 gap-2 `}
+                >
                   <p
                     onClick={() => sortFn('price-desc')}
-                    className="cursor-pointer hover:text-accent-pink"
-                  >
-                    قیمت کم به زیاد
-                  </p>
-                  <p
-                    onClick={() => sortFn('price-asc')}
-                    className="cursor-pointer hover:text-accent-pink"
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'price-desc' && 'bg-gray-500/20'}`}
                   >
                     قیمت زیاد به کم
                   </p>
                   <p
+                    onClick={() => sortFn('price-asc')}
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'price-asc' && 'bg-gray-500/20'}`}
+                  >
+                    قیمت کم به زیاد
+                  </p>
+                  <p
                     onClick={() => sortFn('desc')}
-                    className="cursor-pointer hover:text-accent-pink"
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'desc' && 'bg-gray-500/20'}`}
                   >
                     جدیدترین
                   </p>
                   <p
                     onClick={() => sortFn('asc')}
-                    className="cursor-pointer hover:text-accent-pink"
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'asc' && 'bg-gray-500/20'}`}
                   >
                     قدیمی ترین
                   </p>

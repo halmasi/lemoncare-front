@@ -24,7 +24,14 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
 
       await Promise.all(
         products.map(async (productData) => {
-          const data = await getProduct({ slug: productData.documentId });
+          const data = await getProduct({
+            slug: productData.documentId,
+            options: [
+              { category: { populate: '*' } },
+              { brand: { populate: '1' } },
+              { detailesTable: { populate: '*' } },
+            ],
+          });
           const product = data.res[0];
           const categoriesData = await getCategoryparentHierarchy(
             product.category
@@ -53,7 +60,7 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
     type,
   }: {
     slug: string;
-    type: 'category' | 'brand';
+    type: string;
   }) => {
     const params = new URLSearchParams(searchParams.toString());
 
