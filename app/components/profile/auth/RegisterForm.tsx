@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { registerAction } from '@/app/utils/actions/actionMethods';
 import { registerSchema } from '@/app/utils/schema/formValidation';
 import { isPhone } from '@/app/utils/miniFunctions';
+import Link from 'next/link';
 
 export default function RegisterForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -142,6 +143,23 @@ export default function RegisterForm() {
       {errors.name && (
         <p className="text-red-500 text-sm">{errors.name.join('\n')}</p>
       )}
+      <p>
+        با ثبت نام در سایت{' '}
+        <Link
+          className="text-accent-pink hover:text-accent-pink/80 underline"
+          href="/pages/Terms-Conditions"
+        >
+          قوانین و مقررات
+        </Link>{' '}
+        و{' '}
+        <Link
+          className="text-accent-pink hover:text-accent-pink/80 underline"
+          href="/pages/privacy-policy"
+        >
+          سیاست حریم خصوصی
+        </Link>{' '}
+        را مطالعه و پذیرفته ام.
+      </p>
       <SubmitButton isPending={registerMutation.isPending}>
         {registerMutation.isPending ? 'در حال ثبت نام...' : 'ثبت نام'}
       </SubmitButton>

@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     serverActions: {
       // This disables the origin check for actions (only for these routes)
-      allowFrom: ['https://rt.sizpay.ir'],
+      allowFrom: ['https://rt.sizpay.ir', 'https://adminlemon.liara.run'],
     },
   },
   images: {

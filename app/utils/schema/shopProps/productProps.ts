@@ -50,4 +50,45 @@ export interface ProductProps {
   category: ShopCategoryProps;
   seo: { id: number; seoTitle: string; seoDescription: string };
   tags: ShopTagsProps[];
+  detailesTable: {
+    id: number;
+    detaile_key: DetaileKeyProps;
+    detaile_value: DetaileValueProps;
+  }[];
+}
+
+export interface DetaileKeyProps {
+  id?: number;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  title: string;
+  slug: string;
+  detaile_values: DetaileValueProps[];
+}
+
+export interface DetaileValueProps {
+  id?: number;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  title: string;
+  slug: string;
+  detaile_key: DetaileKeyProps;
+}
+
+export interface DetaileKey {
+  id: number;
+  documentId: string;
+  title: string;
+  detaile_values: DetaileValue[];
+}
+
+export interface DetaileValue {
+  id: number;
+  documentId: string;
+  title: string;
+  detaile_key: DetaileKey;
 }

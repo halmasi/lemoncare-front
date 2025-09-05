@@ -66,6 +66,9 @@ export async function POST(request: NextRequest) {
     case 'product':
       (async function () {
         revalidatePath(
+          `/shop`,
+        );
+        revalidatePath(
           `/shop/products/${body.entry.basicInfo.contentCode}`,
           'layout'
         );

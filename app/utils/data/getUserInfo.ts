@@ -51,7 +51,9 @@ export const changePassword = async ({
 };
 
 export const getPostalInformation = async (documentId: string) => {
+  console.log('here in get');
   const check = await loginCheck();
+  console.log(check);
   const query = qs.stringify({
     populate: {
       information: { populate: '1' },
@@ -63,6 +65,7 @@ export const getPostalInformation = async (documentId: string) => {
     method: 'GET',
     token: check.jwt,
   });
+  console.log(response);
   return response.data;
 };
 

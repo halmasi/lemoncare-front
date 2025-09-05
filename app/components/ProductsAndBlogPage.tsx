@@ -303,7 +303,12 @@ export default function ProductsAndBlogPage({
               </div>
               {showfilter && (
                 <div className="absolute w-full top-0 z-10 h-screen bg-background">
-                  <p className="text-accent-pink cursor-pointer">X</p>
+                  <p
+                    onClick={() => setShowFilter(false)}
+                    className="text-accent-pink cursor-pointer"
+                  >
+                    X
+                  </p>
                   <Fillters products={allProducts} />
                 </div>
               )}

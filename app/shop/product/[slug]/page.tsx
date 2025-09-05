@@ -3,6 +3,7 @@ import CommentSection from '@/app/components/CommentSection';
 import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
+import ProductDetailes from '@/app/components/ProductDetailes';
 import VarietySelector from '@/app/components/VarietySelector';
 import config from '@/app/utils/config';
 import { getProduct } from '@/app/utils/data/getProducts';
@@ -111,13 +112,8 @@ export default async function product(props: {
           ))}
         </div>
         <div className="flex flex-col gap-5">
-          <div className="mt-5 p-2 md:mx-10 bg-slate-50 border rounded-lg">
-            {/* <h3 className="text-accent-pink">توضیحات محصول:</h3> */}
-            <div className=" border md:hidden" />
-            {product.detailes.map((item, i) => (
-              <Content key={i} props={item} />
-            ))}
-          </div>
+          {/*  */}
+          <ProductDetailes product={product} />
           <CommentSection productId={product.documentId} />
         </div>
       </div>

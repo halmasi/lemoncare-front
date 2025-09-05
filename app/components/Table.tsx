@@ -59,7 +59,7 @@ export default function Table({
         {rowItems.length ? (
           rowItems.map((item, index) => (
             <tr
-              className={`${colorCounter()} flex items-center justify-between ${
+              className={`${colorCounter()} flex items-center gap-5 ${
                 typeof rowsHeight == 'string' || typeof rowsHeight == 'number'
                   ? rowsHeight
                   : (() => {

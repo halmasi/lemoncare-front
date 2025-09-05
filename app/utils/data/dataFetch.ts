@@ -86,7 +86,7 @@ export async function requestData({
   try {
     const apiData = await fetch(config.backendPath + qs, options);
 
-    if (apiData.status == 204) {
+    if (apiData.status == 204 || apiData.status == 201) {
       return {
         data: { data: 'op was 204,theres no result' },
         status: 204,

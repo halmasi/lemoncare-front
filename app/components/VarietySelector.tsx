@@ -233,6 +233,14 @@ export default function VarietySelector({
 
   const addToCartHandler = useMutation({
     mutationFn: async (newItem: NewItemProps) => {
+      if (product.isForDoctors) {
+        if (!user || !user.drConfirmed) {
+          toast.error(
+            'برای خرید از این محصول باید حساب کاربری پزشک داشته باشید'
+          );
+          return;
+        }
+      }
       let newCart = cart;
       const id = cart && cart.length ? (cart[cart.length - 1].id || 0) + 1 : 1;
       if (!cart || cart.length == 0) newCart = [{ ...newItem, product, id }];
@@ -265,7 +273,7 @@ export default function VarietySelector({
   return list ? (
     <>
       {price.price ? (
-        <div className='mt-5'>
+        <div className="mt-5">
           {price.before != undefined && price.before > 0 ? (
             <div className="flex flex-col gap-3 py-2">
               <div className="flex gap-3">
@@ -276,22 +284,24 @@ export default function VarietySelector({
                 </p>
                 <Toman className="text-accent-green fill-accent-green">
                   <h6>
-                    {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+                    {parseInt(price.price / 10 + '').toLocaleString(
+                      'fa-IR'
+                    )}{' '}
                   </h6>
                 </Toman>
               </div>
-                <p className="p-1 bg-accent-pink rounded-xl text-background">
-                  تخفیف{' '}
-                  {((1 - price.price / price.before) * 100).toLocaleString(
-                    'fa-IR',
-                    { style: 'decimal', maximumFractionDigits: 0 }
-                  )}{' '}
-                  %
-                </p>
+              <p className="p-1 bg-accent-pink rounded-xl text-background">
+                تخفیف{' '}
+                {((1 - price.price / price.before) * 100).toLocaleString(
+                  'fa-IR',
+                  { style: 'decimal', maximumFractionDigits: 0 }
+                )}{' '}
+                %
+              </p>
             </div>
           ) : (
             <Toman className="text-accent-green fill-accent-green">
-                {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
+              {parseInt(price.price / 10 + '').toLocaleString('fa-IR')}{' '}
             </Toman>
           )}
 

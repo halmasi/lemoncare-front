@@ -174,7 +174,7 @@ export default function GatePage() {
 
         <div
           onClick={() => {
-            navigator.clipboard.writeText('60377011112222');
+            navigator.clipboard.writeText('5041721081824998');
             toast('شماره کارت کپی شد.');
           }}
           className="p-2 bg-gray-100 rounded-lg flex flex-col cursor-pointer border-2"
@@ -202,16 +202,13 @@ export default function GatePage() {
             09025548887
           </a>{' '}
           در پیام رسان{' '}
-          <a href="#1" className="text-accent-green">
+          <a href="https://eitaa.com/lemiro" className="text-accent-green">
             ایتا،
           </a>{' '}
-          <a href="#2" className="text-accent-green">
-            روبیکا،
-          </a>{' '}
-          <a href="#3" className="text-accent-green">
+          <a href="https://wa.me/09025548887" className="text-accent-green">
             واتساپ
           </a>{' '}
-          <a href="#4" className="text-accent-green">
+          <a href="https://t.me/lemiro_ir" className="text-accent-green">
             و یا تلگرام
           </a>{' '}
           ارسال کنید.
