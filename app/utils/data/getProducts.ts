@@ -69,6 +69,7 @@ export const getProducts = cache(async function ({
     tags: { populate: '*' },
     brand: { populate: '1' },
   },
+  filters = {},
 }: {
   tag?: string[];
   page?: number;
@@ -76,8 +77,10 @@ export const getProducts = cache(async function ({
   isFetchAll?: boolean;
   populate?: object;
   sort?: object;
+  filters?: object;
 }) {
   const query = qs.stringify({
+    filters,
     populate,
     sort,
     pagination: isFetchAll
@@ -113,6 +116,7 @@ export const getProductsByCategory = cache(async function ({
     category: { populate: '*' },
     brand: { populate: '1' },
   },
+  otherFilters = {},
 }: {
   category: ShopCategoryProps;
   tag?: string[];
@@ -123,6 +127,7 @@ export const getProductsByCategory = cache(async function ({
   isSiteMap?: boolean;
   populate?: object;
   sort?: object;
+  otherFilters?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const subCategories: ShopSubCategoiesProps[] | [] =
     category.shopSubCategories.length > 0
@@ -134,9 +139,16 @@ export const getProductsByCategory = cache(async function ({
     slugs.push({ slug: { $eq: e.slug } });
   });
   const filters = {
-    category: {
-      $or: slugs,
-    },
+    $and: [
+      {
+        category: {
+          $or: slugs,
+        },
+      },
+      {
+        ...otherFilters,
+      },
+    ],
   };
   if (productDocumentId)
     Object.assign(filters, {
@@ -189,6 +201,7 @@ export const getProductsByTag = cache(async function ({
     tags: { populate: '*' },
     brand: { populate: '1' },
   },
+  otherFilters = {},
 }: {
   slug: string;
   productDocumentId?: string;
@@ -198,12 +211,21 @@ export const getProductsByTag = cache(async function ({
   isFetchAll?: boolean;
   populate?: object;
   sort?: object;
+  otherFilters?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
-    tags: {
-      slug: { $eq: slug },
-    },
+    $and: [
+      {
+        tags: {
+          slug: { $eq: slug },
+        },
+      },
+      {
+        ...otherFilters,
+      },
+    ],
   };
+
   if (productDocumentId)
     Object.assign(filters, {
       documentId: { $eq: productDocumentId },
@@ -235,7 +257,7 @@ export const getProductsByBrand = cache(async function ({
   pageSize = 10,
   isFetchAll = false,
   sort = { createdAt: 'desc' },
-
+  otherFilters = {},
   populate = {
     seo: { populate: '*' },
     basicInfo: { populate: '*' },
@@ -253,12 +275,21 @@ export const getProductsByBrand = cache(async function ({
   isFetchAll?: boolean;
   populate?: object;
   sort?: object;
+  otherFilters?: object;
 }): Promise<{ res: ProductProps[]; meta: MetaProps }> {
   const filters = {
-    brand: {
-      slug: { $eq: slug },
-    },
+    $and: [
+      {
+        brand: {
+          slug: { $eq: slug },
+        },
+      },
+      {
+        ...otherFilters,
+      },
+    ],
   };
+
   if (productDocumentId)
     Object.assign(filters, {
       documentId: { $eq: productDocumentId },

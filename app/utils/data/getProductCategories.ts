@@ -100,7 +100,7 @@ export const getCategorySubHierarchy = cache(async function (
 });
 
 export const getCategoryparentHierarchy = cache(async function (
-  category: ShopSubCategoiesProps,
+  category: ShopSubCategoiesProps | ShopCategoryProps,
   tag?: string[]
 ): Promise<ShopCategoryProps[]> {
   const allCategories: ShopCategoryProps[] = [];

@@ -3,6 +3,7 @@
 import ProductCart from './ProductCart';
 import {
   getCategoryparentHierarchy,
+  getCategorySubHierarchy,
   getShopCategory,
 } from '@/app/utils/data/getProductCategories';
 import {
@@ -25,9 +26,9 @@ import {
   getPostsByCategory,
   getPostsByTag,
 } from '../utils/data/getPosts';
-import { getCategory } from '../utils/data/getCategories';
 import Fillters from './Fillters';
 import { BiFilter, BiSort } from 'react-icons/bi';
+import { getCategory } from '../utils/data/getCategories';
 
 export default function ProductsAndBlogPage({
   resultBy,
@@ -57,6 +58,39 @@ export default function ProductsAndBlogPage({
   const [showfilter, setShowFilter] = useState(false);
   const [title, setTitle] = useState<string>('');
 
+  const filterSetter = async () => {
+    const params = new URLSearchParams(searchParams.toString());
+    const categories = params.getAll('category');
+    const hierarchy: string[] = [];
+    await Promise.all(
+      categories.map(async (item) => {
+        const category = await getShopCategory(item);
+        const allCategoriesParents = await getCategorySubHierarchy(category);
+        allCategoriesParents.map((cat) => hierarchy.push(cat.slug));
+      })
+    );
+    const brands = params.getAll('brand');
+    const filters = {
+      $and: [
+        {
+          $or: [
+            ...hierarchy.map((item) => {
+              return { category: { slug: { $eq: item } } };
+            }),
+          ],
+        },
+        {
+          $or: [
+            ...brands.map((item) => {
+              return { brand: { slug: { $eq: item } } };
+            }),
+          ],
+        },
+      ],
+    };
+    return filters;
+  };
+
   const getProductsFn = useMutation({
     mutationFn: async (sortParamValue: string) => {
       setIsLoading(true);
@@ -75,11 +109,14 @@ export default function ProductsAndBlogPage({
         setTitle('');
         const getFn = await getProducts({
           isFetchAll: true,
-          populate: {
-            basicInfo: { populate: '*' },
-          },
+          populate: { populate: '1' },
         });
-        const getProductsFunc = await getProducts({ page, pageSize, sort });
+        const getProductsFunc = await getProducts({
+          page,
+          pageSize,
+          sort,
+          filters: await filterSetter(),
+        });
         setPageCount(getProductsFunc.meta.pagination.pageCount);
         productsList = getFn.res;
         productsListThisPage = getProductsFunc.res;
@@ -90,9 +127,7 @@ export default function ProductsAndBlogPage({
           const getFn = await getProductsByCategory({
             category: category[0],
             isSiteMap: true,
-            populate: {
-              basicInfo: { populate: '*' },
-            },
+            populate: { populate: '1' },
           });
           productsList = getFn.res;
         }
@@ -101,6 +136,7 @@ export default function ProductsAndBlogPage({
           page,
           pageSize,
           sort,
+          otherFilters: await filterSetter(),
         });
         setPageCount(getProductsFunc.meta.pagination.pageCount);
         productsListThisPage = getProductsFunc.res;
@@ -109,9 +145,7 @@ export default function ProductsAndBlogPage({
           const getFn = await getProductsByTag({
             slug: slug[0],
             isFetchAll: true,
-            populate: {
-              basicInfo: { populate: '*' },
-            },
+            populate: { populate: '1' },
           });
           productsList = getFn.res;
         }
@@ -120,6 +154,7 @@ export default function ProductsAndBlogPage({
           page,
           pageSize,
           sort,
+          otherFilters: await filterSetter(),
         });
         productsListThisPage = getProductsFunc.res;
 
@@ -138,7 +173,7 @@ export default function ProductsAndBlogPage({
               category: category[0],
               brand: slug[0],
               isSiteMap: true,
-              populate: { basicInfo: { populate: '*' } },
+              populate: { populate: '1' },
             });
             productsList = getFn.res;
           }
@@ -148,6 +183,7 @@ export default function ProductsAndBlogPage({
             page,
             pageSize,
             sort,
+            otherFilters: await filterSetter(),
           });
           productsListThisPage = getProductsFunc.res;
 
@@ -164,7 +200,7 @@ export default function ProductsAndBlogPage({
             const getFn = await getProductsByBrand({
               slug: slug[0],
               isFetchAll: true,
-              populate: { basicInfo: { populate: '*' } },
+              populate: { populate: '1' },
             });
             productsList = getFn.res;
           }
@@ -173,6 +209,7 @@ export default function ProductsAndBlogPage({
             page,
             pageSize,
             sort,
+            otherFilters: await filterSetter(),
           });
           productsListThisPage = getProductsFunc.res;
           if (productsList.length == 0) return notFound();
@@ -257,7 +294,7 @@ export default function ProductsAndBlogPage({
     else if (type == 'post') {
       getPostsFn.mutate();
     }
-  }, []);
+  }, [params.toString()]);
 
   return (
     <div className="flex flex-col gap-2">
