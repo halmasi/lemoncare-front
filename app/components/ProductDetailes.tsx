@@ -88,11 +88,14 @@ export default function ProductDetailes({
               className={`${showDetaileTable ? 'h-fit' : 'h-20'} overflow-hidden`}
             >
               <Table
-                rowItems={detaileTable.map((item) => [
-                  <div className="w-fit pr-5 text-accent-green text-base">
+                rowItems={detaileTable.map((item, i) => [
+                  <div
+                    key={item.key + i}
+                    className="w-fit pr-5 text-accent-green text-base"
+                  >
                     <p>{item.key}</p>
                   </div>,
-                  <div className="pl-5">
+                  <div key={item.value + i} className="pl-5">
                     <p>{item.value}</p>
                   </div>,
                 ])}

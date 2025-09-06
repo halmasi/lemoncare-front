@@ -1,6 +1,5 @@
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import CommentSection from '@/app/components/CommentSection';
-import Content from '@/app/components/Content';
 import MainSection from '@/app/components/MainSection';
 import MediaGallery from '@/app/components/MediaGallery';
 import ProductDetailes from '@/app/components/ProductDetailes';
