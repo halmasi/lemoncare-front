@@ -2,7 +2,6 @@
 
 import ProductCart from './ProductCart';
 import {
-  getCategoryparentHierarchy,
   getCategorySubHierarchy,
   getShopCategory,
 } from '@/app/utils/data/getProductCategories';
