@@ -69,6 +69,21 @@ export default function ProductsAndBlogPage({
       })
     );
     const brands = params.getAll('brand');
+
+    const excludedKeys = ['p', 'brand', 'category', 'sort'];
+    const otherFilters: any[] = [];
+
+    params.forEach((value, key) => {
+      if (!excludedKeys.includes(key)) {
+        otherFilters.push({
+          $and: [
+            { detailesTable: { detaile_key: { slug: { $eq: key } } } },
+            { detailesTable: { detaile_value: { slug: { $eq: value } } } },
+          ],
+        });
+      }
+    });
+
     const filters = {
       $and: [
         {
@@ -84,6 +99,9 @@ export default function ProductsAndBlogPage({
               return { brand: { slug: { $eq: item } } };
             }),
           ],
+        },
+        {
+          $or: [...otherFilters],
         },
       ],
     };
@@ -284,9 +302,6 @@ export default function ProductsAndBlogPage({
 
     getProductsFn.mutate(param);
   };
-  // useEffect(() => {
-  //   filterFn(allProducts);
-  // }, [currentBrands.length, currentCategories.length]);
 
   useEffect(() => {
     if (type == 'product') getProductsFn.mutate(sortParam);
@@ -387,7 +402,7 @@ export default function ProductsAndBlogPage({
             <div className="hidden md:flex md:w-4/12">
               <Fillters products={allProducts} />
             </div>
-            <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 h-fit">
               {isLoading ? (
                 <ProductAndBlogSkeleton count={10} />
               ) : (

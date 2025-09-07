@@ -13,7 +13,7 @@ export default function ProductCart({
   return (
     <div
       key={product.id}
-      className="p-2 border rounded-xl transition-shadow hover:shadow-lg"
+      className="p-2 border rounded-xl transition-shadow hover:shadow-lg h-fit"
     >
       <Link
         className="space-y-2"

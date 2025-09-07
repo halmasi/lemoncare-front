@@ -159,11 +159,11 @@ export const getProductsByCategory = cache(async function ({
       brand: { slug: { $eq: brand } },
     });
 
-  const query = qs.stringify({
+  const query = {
     filters,
     populate,
     sort,
-  });
+  };
 
   if (!isSiteMap) {
     Object.assign(query, {
@@ -173,14 +173,12 @@ export const getProductsByCategory = cache(async function ({
       },
     });
   }
-
   const result = await dataFetch({
-    qs: `/products?${query}`,
+    qs: `/products?${qs.stringify(query)}`,
     tag,
     cache: 'force-cache',
   });
   const productsList: ProductProps[] = result.data;
-  await new Promise((resolve) => setTimeout(resolve, 2000));
   return { res: productsList, meta: result.meta };
 });
 

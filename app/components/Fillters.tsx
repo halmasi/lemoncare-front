@@ -10,10 +10,17 @@ import { uniqueBrands, uniqueCategories } from '../utils/shopUtils';
 import Checkbox from './formElements/Checkbox';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Title from './Title';
+import {
+  DetaileKeyProps,
+  DetaileValueProps,
+} from '../utils/schema/shopProps/productProps';
 
 export default function Fillters({ products }: { products: ProductProps[] }) {
   const [categories, setCategories] = useState<ShopCategoryProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
+  const [otherFilters, setOtherFilters] = useState<
+    { key: DetaileKeyProps; value: DetaileValueProps[] }[]
+  >([]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -21,6 +28,8 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
     mutationFn: async (products: ProductProps[]) => {
       const categoriesList: ShopCategoryProps[] = [];
       let brandsList: BrandProps[] = [];
+      let otherKeys: { key: DetaileKeyProps; value: DetaileValueProps[] }[] =
+        [];
 
       await Promise.all(
         products.map(async (productData) => {
@@ -39,14 +48,34 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
 
           categoriesList.push(...categoriesData);
           brandsList = [...brandsList, product.brand];
+          product.detailesTable.forEach((detaile) => {
+            const findKey = otherKeys.find(
+              (item) => detaile.detaile_key.slug == item.key.slug
+            );
+            if (findKey) {
+              const findValue = otherKeys[otherKeys.indexOf(findKey)];
+              if (
+                !findValue.value.find(
+                  (item) => detaile.detaile_value.slug == item.slug
+                )
+              )
+                findValue.value.push(detaile.detaile_value);
+            } else {
+              otherKeys.push({
+                key: detaile.detaile_key,
+                value: [detaile.detaile_value],
+              });
+            }
+          });
         })
       );
 
-      return { categoriesList, brandsList };
+      return { categoriesList, brandsList, otherKeys };
     },
-    onSuccess: ({ categoriesList, brandsList }) => {
+    onSuccess: ({ categoriesList, brandsList, otherKeys }) => {
       setCategories(uniqueCategories(categoriesList));
       setBrands(uniqueBrands(brandsList));
+      setOtherFilters(otherKeys);
     },
   });
   useEffect(() => {
@@ -77,7 +106,7 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
   };
 
   return (
-    <div className="flex bg-background w-full flex-col rounded-lg border p-5 gap-5">
+    <div className="flex bg-background w-full flex-col rounded-lg border p-5 gap-5 h-screen md:h-[50%] overflow-y-scroll">
       <div
         className="w-full flex flex-col justify-between gap-2"
         key={'categories' + categories.length}
@@ -141,6 +170,36 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
           </div>
         )}
       </div>
+      {otherFilters &&
+        otherFilters.length > 0 &&
+        otherFilters.map((key) => (
+          <div key={key.key.documentId}>
+            <Title>
+              <h6 className="text-base">{key.key.title}</h6>
+            </Title>
+            <div className="rounded-lg border p-1 h-40 overflow-y-scroll">
+              {key.value.map((value) => (
+                <Checkbox
+                  key={value.slug}
+                  isChecked={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    const currentFillters = params.getAll(key.key.slug);
+                    return currentFillters.includes(value.slug);
+                  }}
+                  id={value.slug}
+                  onClick={(slug) => {
+                    toggleFillter({
+                      slug,
+                      type: key.key.slug,
+                    });
+                  }}
+                >
+                  {value.title}
+                </Checkbox>
+              ))}
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
