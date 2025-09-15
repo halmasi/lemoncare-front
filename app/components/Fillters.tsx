@@ -91,7 +91,7 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
   useEffect(() => {
     if (products.length) getDataFn.mutateAsync(products);
 
-    () => {
+    return () => {
       getDataFn.reset();
     };
   }, [products]);
