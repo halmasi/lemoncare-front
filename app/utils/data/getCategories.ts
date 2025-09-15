@@ -1,36 +1,7 @@
 import qs from 'qs';
 import { dataFetch } from './dataFetch';
-import { PostsProps } from './getPosts';
 import { cache } from 'react';
-
-export interface SubCategoryProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: CategoriesProps[];
-  parentCategories: CategoriesProps[];
-}
-
-export interface CategoriesProps {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  slug: string;
-  url?: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  posts: PostsProps[];
-  childCategories: SubCategoryProps[];
-  parentCategories: SubCategoryProps[];
-}
+import { CategoriesProps } from '@/app/utils/schema/blogProps';
 
 export const getCategoriesUrl = cache(async function (
   category: CategoriesProps | string,
@@ -46,7 +17,12 @@ export const getCategoriesUrl = cache(async function (
       parentCategories: { populate: '*' },
     },
   });
-  const data: CategoriesProps[] = await dataFetch(`/categories?${query}`, tag);
+  const fetchData = await dataFetch({
+    qs: `/categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  const data: CategoriesProps[] = fetchData.data;
   const result = data[0];
   const res: string = result.slug;
   if (result.parentCategories && result.parentCategories.length > 0)
@@ -67,8 +43,12 @@ export const getCategory = cache(async function (
       childCategories: { populate: '*' },
     },
   });
-
-  return await dataFetch(`/categories?${query}`, tag);
+  const res = await dataFetch({
+    qs: `/categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return res.data;
 });
 
 export const getCategories = cache(async function (
@@ -81,5 +61,10 @@ export const getCategories = cache(async function (
       posts: { populate: '*' },
     },
   });
-  return await dataFetch(`/categories?${query}`, tag);
+  const res = await dataFetch({
+    qs: `/categories?${query}`,
+    tag,
+    cache: 'force-cache',
+  });
+  return res.data;
 });

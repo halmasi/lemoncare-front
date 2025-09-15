@@ -5,11 +5,20 @@ import Image from 'next/image';
 
 import Logo from '@/public/loading.svg';
 
-export default function ThreeDotsWave() {
+export default function ThreeDotsWave({
+  size,
+  className,
+}: {
+  size?: number;
+  className?: string;
+}) {
+  const wh = size ? `${'w-' + size * 2} ${'h-' + size}` : 'w-40 h-20';
   return (
-    <div className="pt-10 w-full flex items-center justify-center">
+    <div
+      className={`pt-10 w-full flex items-center justify-center ${className}`}
+    >
       <motion.div
-        className="w-40 h-20 flex justify-around"
+        className={`${wh} flex justify-around`}
         variants={{
           initial: {
             transition: {
@@ -44,8 +53,8 @@ export default function ThreeDotsWave() {
         >
           <Image
             src={Logo.src}
-            width={Logo.width}
-            height={Logo.height}
+            width={size || Logo.width}
+            height={size || Logo.height}
             alt="Logo"
           />
         </motion.span>
@@ -68,8 +77,8 @@ export default function ThreeDotsWave() {
         >
           <Image
             src={Logo.src}
-            width={Logo.width}
-            height={Logo.height}
+            width={size || Logo.width}
+            height={size || Logo.height}
             alt="Logo"
           />
         </motion.span>
@@ -92,8 +101,8 @@ export default function ThreeDotsWave() {
         >
           <Image
             src={Logo.src}
-            width={Logo.width}
-            height={Logo.height}
+            width={size || Logo.width}
+            height={size || Logo.height}
             alt="Logo"
           />
         </motion.span>

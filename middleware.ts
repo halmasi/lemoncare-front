@@ -10,7 +10,7 @@ export async function middleware(req: NextRequest) {
     if (
       cookieToken &&
       cookieToken.value &&
-      (await loginCheck(cookieToken.value)).status === 200
+      (await loginCheck()).status === 200
     ) {
       return NextResponse.redirect(dashboardUrl);
     }
@@ -20,11 +20,14 @@ export async function middleware(req: NextRequest) {
   if (
     !cookieToken ||
     !cookieToken.value ||
-    (await loginCheck(cookieToken.value)).status !== 200
+    (await loginCheck()).status !== 200
   ) {
     return NextResponse.redirect(loginUrl);
   }
-
+  const loginStatus = await loginCheck();
+  if (!loginStatus.isAuthenticated) {
+    return NextResponse.redirect(loginUrl);
+  }
   return NextResponse.next();
 }
 
