@@ -67,6 +67,16 @@ export const deleteKeysFromObject = (
   return res;
 };
 
+export function removeDuplicatesByKeys<T>(arr: T[], keys: (keyof T)[]): T[] {
+  const seen = new Set<string>();
+  return arr.filter((item) => {
+    const compositeKey = keys.map((key) => String(item[key])).join('|');
+    if (seen.has(compositeKey)) return false;
+    seen.add(compositeKey);
+    return true;
+  });
+}
+
 export const logs = {
   error: async (log: string) => {
     console.trace();

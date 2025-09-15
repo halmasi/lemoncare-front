@@ -141,12 +141,12 @@ export default function AddToFavorites({
           ) : (
             <div className="flex gap-2 items-center">
               <BsHeart
-                title={'اضافه به علاقه مندی ها'}
+                title={'افزودن به علاقه مندی ها'}
                 className={`text-accent-pink/80 hover:text-accent-pink transition-colors duration-200 ${iconClassName}`}
               />
               <div className="flex items-center">
                 <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
-                  اضافه به علاقه مندی ها
+                  افزودن به علاقه مندی ها
                 </p>
               </div>
             </div>
@@ -157,24 +157,24 @@ export default function AddToFavorites({
           {isFavorite ? (
             <div className="flex gap-2 items-center">
               <BsBookmarkFill
-                title={'حذف از علاقه مندی ها'}
+                title={'حذف از نشان شده ها'}
                 className={`h-fit text-accent-pink/80 hover:text-accent-pink transition-colors duration-200  ${iconClassName}`}
               />
               <div className="flex items-center">
                 <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
-                  حذف از علاقه مندی ها
+                  حذف از نشان شده ها
                 </p>
               </div>
             </div>
           ) : (
             <div className=" flex gap-2 items-center">
               <BsBookmark
-                title={'اضافه به علاقه مندی ها'}
+                title={'افزودن به نشان شده ها'}
                 className={` hover:text-red-600 transition-colors duration-200  ${iconClassName}`}
               />
               <div className="flex items-center">
                 <p className="text-xs absolute p-1 border rounded-md border-gray-300 bg-white">
-                  اضافه به علاقه مندی ها
+                  افزودن به نشان شده ها
                 </p>
               </div>
             </div>

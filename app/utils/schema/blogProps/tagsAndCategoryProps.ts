@@ -3,6 +3,7 @@ import { PostsProps } from './postProps';
 export interface TagsProps {
   id: number;
   title: string;
+  description: string;
   slug: string;
   posts: PostsProps[];
 }

@@ -4,6 +4,7 @@ import { PostMethodsProps } from '@/app/components/checkout/DeliveryMethods';
 import { CartProps } from './schema/shopProps';
 import { AddressProps, OrderHistoryProps } from './schema/userProps';
 import { convertPersianAndArabicToEnglish } from './miniFunctions';
+import config from './config';
 
 // export const paymentMethod = async (amount: number) => {};
 
@@ -23,10 +24,10 @@ export const getPaymentToken = async ({
     {
       method: 'POST',
       body: JSON.stringify({
-        username: process.env.SIZPAY_USERNAME,
-        password: process.env.SIZPAY_PASSWORD,
-        MerchantID: process.env.SIZPAY_MERCHANT_ID,
-        TerminalID: process.env.SIZPAY_TERMINAL_ID,
+        username: config.sizpayUsername,
+        password: config.sizpayPassword,
+        MerchantID: config.sizpayMerchantId,
+        TerminalID: config.sizpayTerminalId,
         Amount: totalPrice,
         DocDate: convertPersianAndArabicToEnglish(
           date.toLocaleDateString('fa-IR', {
@@ -36,7 +37,7 @@ export const getPaymentToken = async ({
           })
         ),
         OrderID: orderInfo.order.orderCode,
-        ReturnURL: `${process.env.SITE_URL}/cart/checkout/callback`,
+        ReturnURL: `${config.siteUrl}/api/checkout/callback`,
         ExtraInf: '',
         InvoiceNo: orderInfo.order.orderCode,
         AppExtraInf: {
@@ -54,7 +55,7 @@ export const getPaymentToken = async ({
       }),
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+        'x-api-key': '' + config.sizpayToken,
       },
     }
   );
@@ -86,8 +87,7 @@ export const submitOrder = async ({
   coupon: string | null;
 }) => {
   const date = new Date();
-
-  const res = await fetch(`${process.env.SITE_URL}/api/checkout/submit-order`, {
+  const res = await fetch(`${config.siteUrl}/api/checkout/submit-order`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -121,9 +121,11 @@ export const submitOrder = async ({
         orderPrice: price,
         totalPrice,
         coupon,
+        deliveryStatus: 'در انتظار پرداخت',
       },
     }),
   });
+
   const result = await res.json();
 
   return result;
@@ -135,7 +137,31 @@ export const calcShippingPrice = async (
   price: number,
   weight: number
 ) => {
-  if (selected.courierCode == 'TIPAX') {
+  if (
+    cityCode == 286 &&
+    (selected.courierCode == 'ALUPAYK' || selected.courierCode == 'SNAPPPAYK')
+  ) {
+    return {
+      isSuccess: true,
+      data: {
+        optionalServices: {},
+        servicePrices: [
+          {
+            courierName: selected.courierCode,
+            courierCode: selected.courierCode,
+            serviceType: selected.courierCode,
+            serviceName: selected.courierCode,
+            slaDays: 'none',
+            slaHours: 0,
+            vat: 0,
+            discountAmount: 0,
+            totalPrice: 0,
+            initPrice: 0,
+          },
+        ],
+      },
+    };
+  } else if (selected.courierCode == 'TIPAX') {
     return {
       isSuccess: true,
       data: {
@@ -178,7 +204,7 @@ export const calcShippingPrice = async (
     value_added_service: [0],
   };
   try {
-    const res = await fetch(`${process.env.SITE_URL}/api/checkout`, {
+    const res = await fetch(`${config.siteUrl}/api/checkout`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

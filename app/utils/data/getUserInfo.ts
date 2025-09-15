@@ -10,9 +10,10 @@ import { getPost } from './getPosts';
 import { getProduct } from './getProducts';
 import { PostsProps } from '../schema/blogProps';
 import { ProductProps } from '../schema/shopProps';
+import config from '../config';
 
 export const updateUserInformation = async (
-  id: string,
+  id: number,
   token: string,
   userData: {
     confirmed?: boolean;
@@ -50,7 +51,9 @@ export const changePassword = async ({
 };
 
 export const getPostalInformation = async (documentId: string) => {
+  console.log('here in get');
   const check = await loginCheck();
+  console.log(check);
   const query = qs.stringify({
     populate: {
       information: { populate: '1' },
@@ -62,6 +65,7 @@ export const getPostalInformation = async (documentId: string) => {
     method: 'GET',
     token: check.jwt,
   });
+  console.log(response);
   return response.data;
 };
 
@@ -125,7 +129,10 @@ export const getOrderHistory = async (
   return response.data;
 };
 
-export const getSingleOrderHistory = async (orderCode: number) => {
+export const getSingleOrderHistory = async (
+  orderCode: number,
+  useEnvToken?: boolean
+) => {
   const check = await loginCheck();
 
   const query = qs.stringify({
@@ -150,17 +157,18 @@ export const getSingleOrderHistory = async (orderCode: number) => {
       },
     },
   });
+  const token = useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt;
 
   const res = await requestData({
     qs: `/order-histories?${query}`,
     method: 'GET',
-    token: check.jwt,
+    token,
   });
   if (
     res &&
     res.data &&
     res.data.data &&
-    res.data.data[0].user.username == check.body.username
+    (res.data.data[0].user.username == check.body.username || useEnvToken)
   ) {
     const finalRes: OrderHistoryProps = res.data.data[0];
     return finalRes;
@@ -168,13 +176,17 @@ export const getSingleOrderHistory = async (orderCode: number) => {
   return null;
 };
 
-export const updateOrderHistory = async (documentId: string, data: object) => {
+export const updateOrderHistory = async (
+  documentId: string,
+  data: object,
+  useEnvToken?: boolean
+) => {
   const check = await loginCheck();
   const res = await requestData({
     qs: `/order-histories/${documentId}`,
     method: 'PUT',
     body: { data },
-    token: check.jwt,
+    token: useEnvToken ? `Bearer ${config.strapiToken}` : check.jwt,
   });
   return res.data;
 };
@@ -235,7 +247,7 @@ export const updateFavorite = async (
   } else if (!checkExists) {
     const which = {
       posts: await getPost(propertyDocumentId),
-      products: (await getProduct(propertyDocumentId)).res,
+      products: (await getProduct({ slug: propertyDocumentId })).res,
     };
     const newInfo: PostsProps[] | ProductProps[] = which[whichOne];
 
@@ -255,7 +267,7 @@ export const updateFavorite = async (
 };
 
 export const getGravatar = async (email: string) => {
-  const get = await fetch(`${process.env.SITE_URL}/api/auth/gravatar`, {
+  const get = await fetch(`${config.siteUrl}/api/auth/gravatar`, {
     headers: {
       'Content-Type': 'application/json',
     },

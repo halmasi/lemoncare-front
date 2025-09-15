@@ -134,9 +134,7 @@ export default function Favorites() {
               );
           })}
           <Pagination
-            currentPage={page}
             pageCount={Math.round(favoritesData.length / pageSize + 0.5)}
-            query="p"
           />
         </div>
       ) : (

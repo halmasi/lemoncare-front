@@ -1,5 +1,26 @@
 import Slide from '../components/Slide';
 import ProductsAndBlogPage from '../components/ProductsAndBlogPage';
+import { Metadata } from 'next';
+import config from '../utils/config';
+import Logo from '@/public/lemiroLogoForHeader.png';
+
+export const metadata: Metadata = {
+  title: 'lemiro - مقالات لمیرو',
+  description: 'وبسایت تخصصی مراقبت از پوست و مو',
+  openGraph: {
+    title: 'lemiro - مقالات لمیرو',
+    description: 'وبسایت تخصصی مراقبت از پوست و مو',
+    siteName: 'lemiro - لمیرو',
+    images: [
+      {
+        url: `${config.siteUrl}${Logo.src}`,
+        width: 1200,
+        height: 630,
+        alt: 'lemiro - مقالات لمیرو',
+      },
+    ],
+  },
+};
 
 export default async function BlogHomePage() {
   return (

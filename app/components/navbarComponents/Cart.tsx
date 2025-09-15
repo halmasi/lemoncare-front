@@ -1,8 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/app/utils/states/useCartData';
-import { ReactNode, useEffect, useState } from 'react';
-import Table from '../Table';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Count from './Count';
@@ -12,30 +11,35 @@ import {
   updateCart,
   updateCartOnLogin,
 } from '@/app/utils/actions/cartActionMethods';
-import { useRouter } from 'next/navigation';
 import Toman from '../Toman';
 import { varietyFinder } from '@/app/utils/shopUtils';
-import { cartProductSetter } from '@/app/utils/shopUtils';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { CartProps } from '@/app/utils/schema/shopProps';
+import { CartProps, ProductProps } from '@/app/utils/schema/shopProps';
 import LoadingAnimation from '../LoadingAnimation';
+import { getProduct } from '@/app/utils/data/getProducts';
 
 export default function Cart({
   priceAmount,
 }: {
-  priceAmount?: (main: number, before: number) => void;
+  priceAmount?: (main: number, before: number, count: number) => void;
 }) {
-  const { cart, setCart, cartProducts, setCartProducts } = useCartStore();
+  const { cart, setCart } = useCartStore();
   const { user, jwt, loginProcces, setLoginProcces } = useDataStore();
 
-  const route = useRouter();
-
-  const [tableRow, setTableRow] = useState<ReactNode[][]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalBeforePrice, setTotalBeforePrice] = useState<number>(0);
-  const [showCart, setShowCart] = useState<boolean>(true);
-  const [count, setCount] = useState(0);
+  const [items, setItems] = useState<
+    {
+      cart: CartProps;
+      product: ProductProps;
+      color: string;
+      inventory: number;
+      mainPrice: number;
+      priceBeforeDiscount: number;
+      specification: string;
+    }[]
+  >([]);
 
   const getCartFn = useMutation({
     mutationFn: async ({
@@ -59,10 +63,12 @@ export default function Cart({
         });
         setLoginProcces(false);
       } else setCart(cartData.items);
+      updateTotalPrice();
     },
     onError: () => {
       toast.error('خطا در بارگذاری سبد خرید');
     },
+    onSettled: () => updateTotalPrice(),
   });
 
   const updateCartFn = useMutation({
@@ -109,6 +115,7 @@ export default function Cart({
     onSuccess: async (data) => {
       if (!data) return;
       setCart(data.items);
+      updateTotalPrice();
     },
     onError: (error: { message: string[] }) => {
       throw new Error('خطا : ' + error.message);
@@ -143,11 +150,31 @@ export default function Cart({
     },
   });
 
-  useEffect(() => {
-    if (cart && cart.length) {
-      setCount(cart.length);
-    } else setCount(0);
-  }, [cart]);
+  const updateTotalPrice = () => {
+    if (!items || !Array.isArray(items) || items.length <= 0) {
+      setTotalPrice(0);
+      setTotalBeforePrice(0);
+      if (priceAmount) priceAmount(0, 0, 0);
+      return;
+    }
+    setTotalBeforePrice(0);
+    let before = 0;
+    let main = 0;
+    setTotalPrice(0);
+    items.map((item) => {
+      main += item.mainPrice * item.cart.count;
+      before += item.priceBeforeDiscount * item.cart.count;
+    });
+    setTotalPrice(main);
+    setTotalBeforePrice(before);
+    if (priceAmount) priceAmount(main, before, items.length);
+  };
+
+  // useEffect(() => {
+  //   if (items && Array.isArray(items) && items.length) {
+  //     setCount(items.length);
+  //   } else setCount(0);
+  // }, [items]);
 
   useEffect(() => {
     if (user && jwt && user.shopingCart)
@@ -160,144 +187,42 @@ export default function Cart({
   }, [jwt, loginProcces]);
 
   useEffect(() => {
-    if (!cart || !cart.length) {
-      setShowCart(false);
-    } else {
-      setShowCart(true);
-      const productsIdList: string[] = [];
-      cart.forEach((productItem) => {
-        if (productItem && productItem.product) {
-          const product = cartProducts.find(
-            (searchProduct) =>
-              searchProduct.documentId == productItem.product.documentId
-          );
-          if (!product) {
-            const check = productsIdList.find(
-              (id) => id == productItem.product.documentId
-            );
-            if (!check) {
-              productsIdList.push(productItem.product.documentId);
-            }
-          }
-        }
-      });
-      if (productsIdList.length) {
-        productsIdList.forEach(async (item) => {
-          cartProductSetter(item, cartProducts).then(async (data) => {
-            setCartProducts(data);
-          });
-        });
-      }
+    updateTotalPrice();
+  }, [totalBeforePrice, totalPrice]);
 
-      setTableRow([]);
-      setTotalBeforePrice(0);
+  useEffect(() => {
+    if (cart && Array.isArray(cart) && cart.length) {
       setTotalPrice(0);
-      cart.forEach((cartItem, index) => {
-        const product = cartProducts.find(
-          (searchProduct) =>
-            searchProduct.documentId == cartItem.product.documentId
-        );
-        if (product) {
-          const {
+      setTotalBeforePrice(0);
+      cart.map(async (item) => {
+        const data = await getProduct({ slug: item.product.documentId });
+        const product = data.res[0];
+        const {
+          color,
+          inventory,
+          mainPrice,
+          priceBefforDiscount,
+          specification,
+        } = varietyFinder(item.variety, product);
+        setItems([
+          ...items,
+          {
+            cart: item,
             color,
             inventory,
             mainPrice,
-            priceBefforDiscount,
+            priceBeforeDiscount: priceBefforDiscount,
             specification,
-          } = varietyFinder(cartItem.variety, product);
-          setTotalPrice((prev) => prev + mainPrice * cartItem.count);
-          setTotalBeforePrice(
-            (prev) => prev + priceBefforDiscount * cartItem.count
-          );
-          setTableRow((prev) => {
-            const copy = prev;
-            copy.push([
-              <Link
-                key={index}
-                className="w-full pr-3"
-                href={`/shop/product/${product.basicInfo.contentCode}`}
-              >
-                <p className="font-bold">{product.basicInfo.title}</p>
-                <div className="flex items-center gap-1">
-                  <div
-                    style={{ background: color }}
-                    className={`w-4 h-4 rounded-full border border-foreground`}
-                  />
-                  <p>{specification}</p>
-                </div>
-              </Link>,
-              <Link
-                key={index}
-                href={`/shop/product/${product.basicInfo.contentCode}`}
-                className="w-32 overflow-hidden rounded-lg m-1"
-              >
-                <Image
-                  src={product.basicInfo.mainImage.formats.thumbnail.url}
-                  alt=""
-                  width={product.basicInfo.mainImage.formats.thumbnail.width}
-                  height={product.basicInfo.mainImage.formats.thumbnail.height}
-                  className="object-cover w-full"
-                />
-              </Link>,
-            ]);
-            copy.push([
-              <div
-                key={index}
-                className="flex justify-between w-full h-full bg-accent-yellow/10 px-5 items-center border-b-2"
-              >
-                <div className="w-full h-full">
-                  <Count
-                    refreshFunction={(newCount) => {
-                      if (user && user.shopingCart.documentId) {
-                        if (newCount <= 0)
-                          getCartFn.mutate({
-                            id: user.shopingCart.documentId,
-                          });
-                        else {
-                          updateCartFn.mutate({
-                            cart,
-                            cartId: user.shopingCart.documentId,
-                          });
-                        }
-                      }
-                      if (priceAmount)
-                        priceAmount(totalPrice, totalBeforePrice);
-                    }}
-                    key={index}
-                    cartItem={cartItem}
-                    inventory={inventory}
-                  />
-                </div>
-                <div className="flex flex-wrap w-full items-center justify-end gap-2">
-                  <h6 className="text-accent-pink text-base">قیمت:</h6>
-                  {priceBefforDiscount > 0 && (
-                    <p className="line-through text-gray-400 text-xs">
-                      {(
-                        (priceBefforDiscount * cartItem.count) /
-                        10
-                      ).toLocaleString('fa-IR')}
-                    </p>
-                  )}
-                  <Toman className="font-bold text-accent-green fill-accent-green">
-                    <p>
-                      {((mainPrice * cartItem.count) / 10).toLocaleString(
-                        'fa-IR'
-                      )}
-                    </p>
-                  </Toman>
-                </div>
-              </div>,
-            ]);
-            return copy;
-          });
-        }
+            product,
+          },
+        ]);
+        setTotalPrice(totalPrice + mainPrice * item.count);
+        setTotalBeforePrice(
+          totalBeforePrice + priceBefforDiscount * item.count
+        );
       });
     }
-  }, [cart, setCart, cartProducts, route, totalPrice]);
-
-  useEffect(() => {
-    if (priceAmount) priceAmount(totalPrice, totalBeforePrice);
-  }, [totalBeforePrice, totalPrice]);
+  }, [cart, setCart]);
 
   if (getCartFn.status == 'pending' || updateCartFn.status == 'pending')
     return (
@@ -309,15 +234,112 @@ export default function Cart({
 
   return (
     <div className="w-full">
-      {showCart ? (
-        <Table
-          key={count}
-          rowsWidth={['full', 'fit']}
-          rowsHeight={['20', 'fit']}
-          normalColorChange={0}
-          highlightColorChange={0}
-          rowItems={tableRow}
-        />
+      {items && Array.isArray(items) && items.length > 0 ? (
+        <div>
+          {items.map((cartItem, index) => {
+            return (
+              <div key={index}>
+                <div className="w-full flex flex-col bg-gray-100/50 rounded-lg overflow-hidden border">
+                  <div className="flex w-full h-24">
+                    <Link
+                      className="w-full pr-3"
+                      href={`/shop/product/${cartItem.product.basicInfo.contentCode}`}
+                    >
+                      <p className="font-bold">
+                        {cartItem.product.basicInfo.title}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <div
+                          style={{ background: cartItem.color }}
+                          className={`w-4 h-4 rounded-full border border-foreground`}
+                        />
+                        <p>{cartItem.specification}</p>
+                      </div>
+                    </Link>
+                    <Link
+                      key={index}
+                      href={`/shop/product/${cartItem.product.basicInfo.contentCode}`}
+                      className="w-32 overflow-hidden border rounded-lg m-1"
+                    >
+                      <Image
+                        src={
+                          cartItem.product.basicInfo.mainImage.formats.thumbnail
+                            .url
+                        }
+                        alt=""
+                        width={
+                          cartItem.product.basicInfo.mainImage.formats.thumbnail
+                            .width
+                        }
+                        height={
+                          cartItem.product.basicInfo.mainImage.formats.thumbnail
+                            .height
+                        }
+                        className="object-cover w-full"
+                      />
+                    </Link>
+                  </div>
+                  <div
+                    key={index}
+                    className="flex justify-between w-full h-full bg-accent-yellow/25 px-5 py-2 items-center"
+                  >
+                    <div className="w-full h-full">
+                      <Count
+                        refreshFunction={(newCount) => {
+                          if (user && user.shopingCart.documentId) {
+                            if (newCount <= 0) {
+                              const newCart = [...items];
+                              newCart.splice(
+                                newCart.findIndex(
+                                  (i) => i.cart == cartItem.cart
+                                ),
+                                1
+                              );
+                              setItems(newCart);
+                              getCartFn.mutate({
+                                id: user.shopingCart.documentId,
+                              });
+                            } else {
+                              updateCartFn.mutate({
+                                cart,
+                                cartId: user.shopingCart.documentId,
+                              });
+                            }
+                          }
+                          updateTotalPrice();
+                        }}
+                        key={index}
+                        cartItem={cartItem.cart}
+                        inventory={cartItem.inventory}
+                      />
+                    </div>
+                    <div className="flex flex-wrap w-full items-center justify-end gap-2">
+                      <h6 className="text-accent-pink text-base">قیمت:</h6>
+                      {cartItem.priceBeforeDiscount > 0 && (
+                        <p className="line-through text-gray-400 text-xs">
+                          {(
+                            (cartItem.priceBeforeDiscount *
+                              cartItem.cart.count) /
+                            10
+                          ).toLocaleString('fa-IR')}
+                        </p>
+                      )}
+                      <Toman className="font-bold text-accent-green fill-accent-green">
+                        <p>
+                          {(
+                            (cartItem.mainPrice * cartItem.cart.count) /
+                            10
+                          ).toLocaleString('fa-IR')}
+                        </p>
+                      </Toman>
+                    </div>
+                  </div>
+                </div>
+                <div></div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <div>
           <p>سبد خرید خالی است</p>

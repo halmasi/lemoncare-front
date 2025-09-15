@@ -37,7 +37,8 @@ export const addressSchema = z
       .nonempty('شهر باید وارد شود'),
     phoneNumber: z
       .number({ message: 'شماره تلفن وارد شده معتبر نیست' })
-      .max(9999999999, 'شماره تلفن وارد شده معتبر نیست'),
+      .max(9999999999, 'شماره تلفن وارد شده معتبر نیست')
+      .optional(),
     mobileNumber: z
       .string({ message: 'شماره تلفن همراه وارد شده معتبر نیست' })
       .nonempty('شماره تلفن همراه الزامی است')

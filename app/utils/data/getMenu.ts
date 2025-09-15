@@ -5,6 +5,7 @@ import {
   MenuProps,
   SocialLinksProps,
 } from '@/app/utils/schema/menuProps';
+import qs from 'qs';
 
 export const getMenuItems = cache(async function () {
   const parsedData = await dataFetch({
@@ -44,8 +45,13 @@ export const getShopMenuItems = cache(async function () {
   // const parsedData = await dataFetch('/shop-menu?populate[items][populate]=*', [
   //   'shop-menu',
   // ]);
+  const query = qs.stringify({
+    populate: {
+      menuItems: { populate: '*' },
+    },
+  });
   const parsedData = await dataFetch({
-    qs: '/shop-menu?populate=*',
+    qs: `/shop-menu?${query}`,
     tag: ['shop-menu'],
     cache: 'force-cache',
   });

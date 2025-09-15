@@ -1,9 +1,11 @@
+import config from '@/app/utils/config';
+
 export async function GET() {
   const res = await fetch('https://api.postex.ir/api/v1/shipping-methods', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+      'x-api-key': '' + config.postexToken,
     },
   });
   const result = await res.json();
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
     body: JSON.stringify(request),
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': '' + process.env.POSTEX_API_TOKEN,
+      'x-api-key': '' + config.postexToken,
     },
   });
   const result = await sending.json();

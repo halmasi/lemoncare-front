@@ -4,19 +4,18 @@ import SubmitButton from '@/app/components/formElements/SubmitButton';
 import LoadingAnimation from '@/app/components/LoadingAnimation';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
+import { getProduct } from '@/app/utils/data/getProducts';
 import {
   getSingleOrderHistory,
   updateOrderHistory,
 } from '@/app/utils/data/getUserInfo';
-import { deleteKeysFromObject } from '@/app/utils/miniFunctions';
-import { cartProductsProps } from '@/app/utils/schema/shopProps';
-import { OrderHistoryProps } from '@/app/utils/schema/userProps';
 import {
-  cartProductSelector,
-  cartProductSetter,
-  varietyFinder,
-} from '@/app/utils/shopUtils';
-import { useCartStore } from '@/app/utils/states/useCartData';
+  deleteKeysFromObject,
+  removeDuplicatesByKeys,
+} from '@/app/utils/miniFunctions';
+import { ProductProps } from '@/app/utils/schema/shopProps';
+import { OrderHistoryProps } from '@/app/utils/schema/userProps';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
@@ -35,6 +34,7 @@ import { GrStatusGood } from 'react-icons/gr';
 import { IoQrCode } from 'react-icons/io5';
 import { LiaShippingFastSolid } from 'react-icons/lia';
 import { LuCalendarClock } from 'react-icons/lu';
+import { RiShoppingBasketLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 
 export default function OrderPage(props: {
@@ -45,7 +45,6 @@ export default function OrderPage(props: {
   const { slug } = params;
 
   const { user } = useDataStore();
-  const { setCartProducts, cartProducts } = useCartStore();
   const {
     setPaymentOption,
     setPrice,
@@ -59,7 +58,7 @@ export default function OrderPage(props: {
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState<
     {
-      product: cartProductsProps;
+      product: ProductProps;
       count: number;
       color: string;
       priceBefore: number;
@@ -88,29 +87,33 @@ export default function OrderPage(props: {
           beforePrice: item.beforePrice,
         };
       });
-      await Promise.all(
-        items.map(async (item) => {
-          const productsList = await cartProductSetter(
-            item.product,
-            cartProducts
-          );
-          setCartProducts(productsList);
 
-          const product = await cartProductSelector(item.product, cartProducts);
+      const unique = removeDuplicatesByKeys(items, [
+        'product',
+        'count',
+        'variety',
+        'mainPrice',
+        'beforePrice',
+      ]);
+      setDetails([]);
+      await Promise.all(
+        unique.map(async (item) => {
+          const product = await getProduct({ slug: item.product });
+
           const { color, priceBefforDiscount, mainPrice, specification } =
-            varietyFinder(item.variety, product);
-          setDetails((prev) => {
-            const orders = prev;
-            orders.push({
-              product,
+            varietyFinder(item.variety, product.res[0]);
+
+          setDetails([
+            ...details,
+            {
+              product: product.res[0],
               count: item.count,
               color,
               priceBefore: priceBefforDiscount,
               priceAfter: mainPrice,
               name: specification,
-            });
-            return orders;
-          });
+            },
+          ]);
         })
       );
 
@@ -189,6 +192,11 @@ export default function OrderPage(props: {
                   <span className="text-accent-pink">
                     {orderData.order.orderCode}
                   </span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <RiShoppingBasketLine className="text-foreground/75" />
+                  <span className="text-foreground/75">وضعیت سفارش: </span>
+                  <span>{orderData.order.deliveryStatus}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <LuCalendarClock className="text-foreground/75" />
@@ -316,6 +324,7 @@ export default function OrderPage(props: {
                   <span className="text-foreground/75">روش ارسال: </span>
                   <span>{orderData.order.shippingMethod}</span>
                 </p>
+
                 {orderData.order.paymentStatus == 'pending' && (
                   <div>
                     <SubmitButton
@@ -399,7 +408,7 @@ export default function OrderPage(props: {
                               <span className="text-gray-500">قیمت واحد: </span>{' '}
                             </p>
                             <Toman className="fill-accent-green gap-2">
-                              {item.priceBefore && (
+                              {item.priceBefore > 0 && (
                                 <p className="line-through text-gray-500">
                                   {(item.priceBefore / 10).toLocaleString(
                                     'fa-IR'
@@ -417,7 +426,7 @@ export default function OrderPage(props: {
                                 <span className="text-gray-500">مجموع: </span>{' '}
                               </p>
                               <Toman className="fill-accent-green gap-2">
-                                {item.priceBefore && (
+                                {item.priceBefore > 0 && (
                                   <p className="line-through text-gray-500">
                                     {(
                                       (item.priceBefore / 10) *

@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 
 import { getCategory } from '@/app/utils/data/getCategories';
 import ProductsAndBlogPage from '@/app/components/ProductsAndBlogPage';
+import config from '@/app/utils/config';
+import Logo from '@/public/lemiroLogoForHeader.png';
 
 export async function generateMetadata({
   params,
@@ -15,20 +17,28 @@ export async function generateMetadata({
   const category = fetchCategory[0];
 
   return {
-    title: category.title + ' | Lemoncare - لمن کر',
+    title: category.title + ' | lemiro - لمیرو',
     description: category.description,
     authors: [
       {
-        name: 'Lemoncare - لمن کر',
-        url: `https://lemoncare.ir/`,
+        name: 'lemiro - لمیرو',
+        url: config.siteUrl,
       },
     ],
-    applicationName: 'lemoncare - لمن کر',
-    category: category.title + ' | Lemoncare - لمن کر',
+    applicationName: 'lemiro - لمیرو',
+    category: category.title + ' | lemiro - لمیرو',
     openGraph: {
-      title: category.title + ' | Lemoncare - لمن کر',
+      title: category.title + ' | lemiro - لمیرو',
       description: category.description,
-      siteName: 'لمن کر - lemoncare',
+      siteName: 'lemiro - لمیرو',
+      images: [
+        {
+          url: `${config.siteUrl}${Logo.src}`,
+          width: 1200,
+          height: 630,
+          alt: 'lemiro - لمیرو',
+        },
+      ],
     },
   };
 }

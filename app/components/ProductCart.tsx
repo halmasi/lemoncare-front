@@ -13,7 +13,7 @@ export default function ProductCart({
   return (
     <div
       key={product.id}
-      className="p-2 border rounded-xl transition-shadow hover:shadow-lg"
+      className="p-2 border rounded-xl transition-shadow hover:shadow-lg h-fit"
     >
       <Link
         className="space-y-2"
@@ -21,16 +21,16 @@ export default function ProductCart({
       >
         <div className="flex flex-row justify-end items-end contain-content">
           <Image
-            src={product.basicInfo.mainImage.formats.medium.url}
+            src={product.basicInfo.mainImage.url}
             alt={
               product.basicInfo.mainImage.alternativeText ||
-              product.basicInfo.mainImage.formats.medium.name
+              product.basicInfo.mainImage.name
             }
-            width={product.basicInfo.mainImage.formats.medium.width}
-            height={product.basicInfo.mainImage.formats.medium.height}
-            className="rounded-lg"
+            width={product.basicInfo.mainImage.width}
+            height={product.basicInfo.mainImage.height}
+            className="rounded-lg w-full"
           />
-          {product.variety.length > 0 && (
+          {product.variety && product.variety.length > 0 && (
             <div className="absolute flex gap-1 px-3 py-1">
               {product.variety.map(
                 (variety) =>
@@ -46,7 +46,7 @@ export default function ProductCart({
           )}
         </div>
 
-        <h6>{product.basicInfo.title}</h6>
+        <h6 className="text-sm">{product.basicInfo.title}</h6>
       </Link>
       <VarietySelector showDiscount={showDiscount} list product={product} />
     </div>

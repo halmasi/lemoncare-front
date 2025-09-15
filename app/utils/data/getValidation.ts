@@ -1,5 +1,6 @@
 'use server';
 
+import config from '../config';
 import { cleanPhone } from '../miniFunctions';
 
 export const validateCode = async ({
@@ -10,7 +11,7 @@ export const validateCode = async ({
   code: number;
 }) => {
   const res = await fetch(
-    process.env.SITE_URL + '/api/auth/oneTimePassword/validateCode',
+    config.siteUrl + '/api/auth/oneTimePassword/validateCode',
     {
       method: 'POST',
       headers: {
@@ -28,7 +29,7 @@ export const validateCode = async ({
 };
 
 export const sendCode = async (username: string) => {
-  const res = await fetch(process.env.SITE_URL + '/api/auth/oneTimePassword', {
+  const res = await fetch(config.siteUrl + '/api/auth/oneTimePassword', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

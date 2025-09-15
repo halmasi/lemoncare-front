@@ -45,8 +45,14 @@ export default function OrderHistoryCard({
                 </div>
                 <div className="flex flex-wrap p-2 gap-2 text-sm ">
                   <p className="text-gray-500">شناسه سفارش: </p>
-                  <p>{order.orderCode}</p>
+                  <p className="text-accent-pink">{order.orderCode}</p>
                 </div>
+                {order.deliveryStatus && (
+                  <div className="flex flex-wrap p-2 gap-2 text-sm ">
+                    <p className="text-gray-500">وضعیت سفارش: </p>
+                    <p className="text-accent-pink">{order.deliveryStatus}</p>
+                  </div>
+                )}
               </div>
               <div
                 className={`text-sm w-full flex flex-wrap items-center gap-1 p-1`}
@@ -69,7 +75,6 @@ export default function OrderHistoryCard({
                           item.mainPrice
                         ) {
                           offer += item.beforePrice - item.mainPrice;
-                          console.log(item.beforePrice - item.mainPrice);
                         }
                       });
                       return (

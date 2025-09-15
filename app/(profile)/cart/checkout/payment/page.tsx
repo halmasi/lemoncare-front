@@ -1,24 +1,27 @@
 'use client';
 import PaymentSelector from '@/app/components/checkout/PaymentSelector';
+import Coupon from '@/app/components/Coupon';
 import SubmitButton from '@/app/components/formElements/SubmitButton';
 import Title from '@/app/components/Title';
 import Toman from '@/app/components/Toman';
+import { getProduct } from '@/app/utils/data/getProducts';
 import { calcShippingPrice, submitOrder } from '@/app/utils/paymentUtils';
 import { CartProps } from '@/app/utils/schema/shopProps';
-import { cartProductSelector, varietyFinder } from '@/app/utils/shopUtils';
+import { varietyFinder } from '@/app/utils/shopUtils';
 import { useCartStore } from '@/app/utils/states/useCartData';
 import { useCheckoutStore } from '@/app/utils/states/useCheckoutData';
 import { useDataStore } from '@/app/utils/states/useUserdata';
 import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FaArrowRightLong } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 
 export default function Payment() {
   const {
     beforePrice,
     price,
-    setPrice,
     paymentOption,
     setPaymentOption,
     shippingPrice,
@@ -29,10 +32,9 @@ export default function Payment() {
     setOrderCode,
   } = useCheckoutStore();
 
-  const [finalPrice, setFinalPrice] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  const { cart, cartProducts } = useCartStore();
+  const { cart } = useCartStore();
   const { user, jwt } = useDataStore();
 
   const router = useRouter();
@@ -42,31 +44,6 @@ export default function Payment() {
       router.push('/cart/checkout');
     }
   }, [shippingPrice]);
-
-  useEffect(() => {
-    if (cart && cart.length > 0 && !finalPrice) {
-      let cartPrice = 0;
-      cart.map((item) => {
-        const product = cartProducts.find(
-          (i) => i.documentId == item.product.documentId
-        );
-        if (product) {
-          const info = varietyFinder(item.variety, product);
-          const total = info.mainPrice * item.count;
-          cartPrice += total;
-        }
-      });
-      setPrice(cartPrice);
-    }
-  }, [
-    cart,
-    paymentOption,
-    shippingOption,
-    checkoutAddress,
-    setFinalPrice,
-    setPrice,
-    price,
-  ]);
 
   const getShippingPriceFn = useMutation({
     mutationFn: async () => {
@@ -106,12 +83,9 @@ export default function Payment() {
       if (cart) {
         const items: CartProps[] = await Promise.all(
           cart.map(async (item) => {
-            const product = await cartProductSelector(
-              item.product.documentId,
-              cartProducts
-            );
+            const product = await getProduct({ slug: item.product.documentId });
             if (product) {
-              const variety = varietyFinder(item.variety, product);
+              const variety = varietyFinder(item.variety, product.res[0]);
               return {
                 count: item.count,
                 product: item.product,
@@ -125,7 +99,7 @@ export default function Payment() {
         ).then((results) => results.filter((item) => item !== null));
         if (checkoutAddress && user) {
           const res = await submitOrder({
-            user: parseInt(user.id || '0'),
+            user: user.id || 0,
             jwt: `Bearer ${jwt}`,
             items,
             checkoutAddress,
@@ -134,9 +108,8 @@ export default function Payment() {
             shippingPrice,
             price,
             totalPrice,
-            coupon,
+            coupon: coupon != '' ? coupon : null,
           });
-
           return res;
         }
       }
@@ -152,17 +125,34 @@ export default function Payment() {
   });
 
   return (
-    <>
+    <div className="w-full">
+      <div className="flex">
+        <Link
+          href={'/cart/checkout'}
+          className="absolute hover:text-accent-pink self-start md:self-center md:justify-self-start transition-colors w-fit p-2 border-l"
+        >
+          <FaArrowRightLong />
+        </Link>
+        <Title className="pr-10">
+          <h6>تکمیل فرایند خرید</h6>
+        </Title>
+      </div>
       <div className="flex flex-col lg:flex-row w-full gap-2">
-        <div className="w-full lg:w-1/2 flex flex-col gap-5 bg-background rounded-lg border p-2">
-          <Title>
-            <h6 className="text-accent-pink">شیوه پرداخت</h6>
-          </Title>
-          <PaymentSelector
-            onPaymentMethodChange={(method) => setPaymentOption(method)}
-          />
+        <div className="w-full flex flex-col gap-2 lg:w-1/2">
+          <Coupon />
+          <div className=" flex flex-col gap-5 bg-background rounded-lg border p-2">
+            <Title>
+              <h6 className="text-accent-pink">شیوه پرداخت</h6>
+            </Title>
+            <PaymentSelector
+              onPaymentMethodChange={(method) => setPaymentOption(method)}
+            />
+          </div>
         </div>
-        <div className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10">
+        <div
+          key={price}
+          className=" w-full lg:w-1/2 bg-gray-200 rounded-lg border p-10"
+        >
           <div className="zigzag flex flex-col items-start w-full pb-10">
             <div className="w-full flex gap-2 p-1 md:pr-10">
               <div className="flex flex-wrap w-full gap-2">
@@ -206,8 +196,12 @@ export default function Payment() {
             <hr className="w-full my-2" />
             <div className="flex flex-wrap  items-center gap-2 p-1 md:pr-10">
               <h6 className="w-fit self-start">هزینه ارسال:</h6>
-              {shippingOption.courier_code == 'TIPAX' ? (
-                <p className="text-accent-green">تیپاکس | پس کرایه</p>
+              {shippingOption.courier_code == 'TIPAX' ||
+              shippingOption.courier_code == 'ALUPAYK' ||
+              shippingOption.courier_code == 'SNAPPPAYK' ? (
+                <p className="text-accent-green">
+                  {shippingOption.service_name.split('|')[0].trim()} | پس کرایه
+                </p>
               ) : (
                 <Toman className="fill-accent-green text-accent-green">
                   <p>
@@ -245,6 +239,6 @@ export default function Payment() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

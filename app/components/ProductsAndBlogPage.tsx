@@ -1,13 +1,17 @@
 'use client';
 
 import ProductCart from './ProductCart';
-import { getShopCategory } from '@/app/utils/data/getProductCategories';
+import {
+  getCategorySubHierarchy,
+  getShopCategory,
+} from '@/app/utils/data/getProductCategories';
 import {
   getProducts,
+  getProductsByBrand,
   getProductsByCategory,
   getProductsByTag,
 } from '@/app/utils/data/getProducts';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter, useSearchParams } from 'next/navigation';
 import { ProductProps } from '../utils/schema/shopProps';
 import Pagination from './Pagination';
 import { useMutation } from '@tanstack/react-query';
@@ -21,68 +25,226 @@ import {
   getPostsByCategory,
   getPostsByTag,
 } from '../utils/data/getPosts';
+import Fillters from './Fillters';
+import { BiFilter, BiSort } from 'react-icons/bi';
 import { getCategory } from '../utils/data/getCategories';
 
 export default function ProductsAndBlogPage({
   resultBy,
   slug,
   type,
-  pageSize = 10,
+  pageSize = 20,
   page = 1,
 }: {
-  resultBy: 'full' | 'category' | 'tag' | 'author';
+  resultBy: 'full' | 'category' | 'tag' | 'author' | 'brand';
   type: 'post' | 'product';
   slug: string[];
   pageSize?: number;
   page?: number;
 }) {
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams.toString());
+  const sortParam = params.get('sort') || 'asc';
+  const router = useRouter();
+
+  const [allProducts, setAllProducts] = useState<ProductProps[]>([]);
+  const [allPosts, setAllPosts] = useState<PostsProps[]>([]);
   const [products, setProducts] = useState<ProductProps[]>([]);
-  const [posts, setPosts] = useState<PostsProps[]>([]);
+  // const [posts, setPosts] = useState<PostsProps[]>([]);
   const [pageCount, setPageCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSort, setShowSort] = useState(false);
+  const [showfilter, setShowFilter] = useState(false);
   const [title, setTitle] = useState<string>('');
 
+  const filterSetter = async () => {
+    const params = new URLSearchParams(searchParams.toString());
+    const categories = params.getAll('category');
+    const hierarchy: string[] = [];
+    await Promise.all(
+      categories.map(async (item) => {
+        const category = await getShopCategory(item);
+        const allCategoriesParents = await getCategorySubHierarchy(category);
+        allCategoriesParents.map((cat) => hierarchy.push(cat.slug));
+      })
+    );
+    const brands = params.getAll('brand');
+
+    const excludedKeys = ['p', 'brand', 'category', 'sort'];
+    const otherFilters: any[] = [];
+
+    params.forEach((value, key) => {
+      if (!excludedKeys.includes(key)) {
+        otherFilters.push({
+          $and: [
+            { detailesTable: { detaile_key: { slug: { $eq: key } } } },
+            { detailesTable: { detaile_value: { slug: { $eq: value } } } },
+          ],
+        });
+      }
+    });
+
+    const filters = {
+      $and: [
+        {
+          $or: [
+            ...hierarchy.map((item) => {
+              return { category: { slug: { $eq: item } } };
+            }),
+          ],
+        },
+        {
+          $or: [
+            ...brands.map((item) => {
+              return { brand: { slug: { $eq: item } } };
+            }),
+          ],
+        },
+        {
+          $or: [...otherFilters],
+        },
+      ],
+    };
+    return filters;
+  };
+
   const getProductsFn = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (sortParamValue: string) => {
+      setIsLoading(true);
+      setProducts([]);
       let productsList: ProductProps[] = [];
+      let productsListThisPage: ProductProps[] = [];
+      let sort: object;
+      if (sortParamValue == 'asc' || sortParamValue == 'desc') {
+        sort = { createdAt: sortParam };
+      } else if (sortParamValue == 'price-asc') {
+        sort = { mainPrice: 'asc' };
+      } else {
+        sort = { mainPrice: 'desc' };
+      }
       if (resultBy == 'full') {
         setTitle('');
-        const getFn = await getProducts({ page, pageSize });
-        setPageCount(getFn.meta.pagination.pageCount);
+        const getFn = await getProducts({
+          isFetchAll: true,
+          populate: { populate: '1' },
+        });
+        const getProductsFunc = await getProducts({
+          page,
+          pageSize,
+          sort,
+          filters: await filterSetter(),
+        });
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
         productsList = getFn.res;
+        productsListThisPage = getProductsFunc.res;
       } else if (resultBy == 'category') {
         const category = await getShopCategory(slug[slug.length - 1]);
         setTitle('دسته بندی: ' + category[0].title);
-        const getFn = await getProductsByCategory({
+        if (!allProducts.length) {
+          const getFn = await getProductsByCategory({
+            category: category[0],
+            isSiteMap: true,
+            populate: { populate: '1' },
+          });
+          productsList = getFn.res;
+        }
+        const getProductsFunc = await getProductsByCategory({
           category: category[0],
           page,
           pageSize,
+          sort,
+          otherFilters: await filterSetter(),
         });
-        setPageCount(getFn.meta.pagination.pageCount);
-        productsList = getFn.res;
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
+        productsListThisPage = getProductsFunc.res;
       } else if (resultBy == 'tag') {
-        const getFn = await getProductsByTag({
+        if (!allProducts.length) {
+          const getFn = await getProductsByTag({
+            slug: slug[0],
+            isFetchAll: true,
+            populate: { populate: '1' },
+          });
+          productsList = getFn.res;
+        }
+        const getProductsFunc = await getProductsByTag({
           slug: slug[0],
           page,
           pageSize,
+          sort,
+          otherFilters: await filterSetter(),
         });
-        productsList = getFn.res;
+        productsListThisPage = getProductsFunc.res;
+
         if (productsList.length == 0) return notFound();
         const tagTitle =
           productsList[0].tags[
             productsList[0].tags.findIndex((item) => item.slug == slug[0])
           ].title;
         setTitle('برچسب: ' + tagTitle || '');
-        setPageCount(getFn.meta.pagination.pageCount);
+        setPageCount(getProductsFunc.meta.pagination.pageCount);
+      } else if (resultBy == 'brand') {
+        if (slug.length > 1) {
+          const category = await getShopCategory(slug[slug.length - 1]);
+          if (!allProducts.length) {
+            const getFn = await getProductsByCategory({
+              category: category[0],
+              brand: slug[0],
+              isSiteMap: true,
+              populate: { populate: '1' },
+            });
+            productsList = getFn.res;
+          }
+          const getProductsFunc = await getProductsByCategory({
+            category: category[0],
+            brand: slug[0],
+            page,
+            pageSize,
+            sort,
+            otherFilters: await filterSetter(),
+          });
+          productsListThisPage = getProductsFunc.res;
+
+          if (productsList.length == 0) return notFound();
+          setTitle(
+            'دسته بندی: ' +
+              productsList[0].brand.title +
+              ' | ' +
+              category[0].title || ''
+          );
+          setPageCount(getProductsFunc.meta.pagination.pageCount);
+        } else {
+          if (!allProducts.length) {
+            const getFn = await getProductsByBrand({
+              slug: slug[0],
+              isFetchAll: true,
+              populate: { populate: '1' },
+            });
+            productsList = getFn.res;
+          }
+          const getProductsFunc = await getProductsByBrand({
+            slug: slug[0],
+            page,
+            pageSize,
+            sort,
+            otherFilters: await filterSetter(),
+          });
+          productsListThisPage = getProductsFunc.res;
+          if (productsList.length == 0) return notFound();
+          setTitle(productsList[0].brand.title);
+          setPageCount(getProductsFunc.meta.pagination.pageCount);
+        }
       }
-      return productsList;
+      return { productsList, productsListThisPage };
     },
     onSuccess: (data) => {
       setIsLoading(false);
-      if (!data || data.length == 0) return notFound();
-      setProducts(data);
+      if (!data || data.productsListThisPage.length == 0) return notFound();
+      if (!allProducts.length) setAllProducts(data.productsList);
+      setProducts(data.productsListThisPage);
+      // filterFn(data);
     },
     onError: () => {
+      setIsLoading(false);
       return notFound();
     },
   });
@@ -127,16 +289,26 @@ export default function ProductsAndBlogPage({
     },
     onSuccess: (data) => {
       setIsLoading(false);
-      setPosts(data);
+      setAllPosts(data);
     },
   });
 
+  const sortFn = (param: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get('sort') == param) return;
+    setShowSort(false);
+    params.set('sort', param);
+    router.push(`?${params.toString()}`);
+
+    getProductsFn.mutate(param);
+  };
+
   useEffect(() => {
-    if (type == 'product') getProductsFn.mutate();
+    if (type == 'product') getProductsFn.mutate(sortParam);
     else if (type == 'post') {
       getPostsFn.mutate();
     }
-  }, []);
+  }, [params.toString()]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -146,7 +318,7 @@ export default function ProductsAndBlogPage({
           {isLoading ? (
             <ProductAndBlogSkeleton count={10} />
           ) : (
-            posts.map((post: PostsProps) => {
+            allPosts.map((post: PostsProps) => {
               return (
                 <PostCard
                   key={post.documentId}
@@ -162,20 +334,87 @@ export default function ProductsAndBlogPage({
           )}
         </div>
       ) : (
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-3">
-          {isLoading ? (
-            <ProductAndBlogSkeleton count={10} />
-          ) : (
-            products.map((item) => <ProductCart product={item} key={item.id} />)
-          )}
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-between items-center">
+            <div
+              onClick={() => setShowFilter(!showSort)}
+              tabIndex={0}
+              onBlur={() => setShowFilter(false)}
+            >
+              <div className="flex md:hidden items-center text-accent-pink cursor-pointer">
+                <p>فیلتر</p>
+                <BiFilter />
+              </div>
+              {showfilter && (
+                <div className="absolute w-full top-0 z-10 h-screen bg-background">
+                  <p
+                    onClick={() => setShowFilter(false)}
+                    className="text-accent-pink cursor-pointer p-1"
+                  >
+                    X
+                  </p>
+                  <Fillters products={allProducts} />
+                </div>
+              )}
+            </div>
+            <div
+              onClick={() => setShowSort(!showSort)}
+              tabIndex={0}
+              onBlur={() => setShowSort(false)}
+              className="flex flex-col gap-3 items-end justify-self-end"
+            >
+              <p className="flex items-center text-accent-pink cursor-pointer">
+                <BiSort /> مرتب سازی
+              </p>
+              {showSort && (
+                <div
+                  className={`absolute flex flex-col mt-10 border-2 rounded-lg p-5 px-10 bg-white z-10 gap-2 `}
+                >
+                  <p
+                    onClick={() => sortFn('price-desc')}
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'price-desc' && 'bg-gray-500/20'}`}
+                  >
+                    قیمت زیاد به کم
+                  </p>
+                  <p
+                    onClick={() => sortFn('price-asc')}
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'price-asc' && 'bg-gray-500/20'}`}
+                  >
+                    قیمت کم به زیاد
+                  </p>
+                  <p
+                    onClick={() => sortFn('desc')}
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'desc' && 'bg-gray-500/20'}`}
+                  >
+                    جدیدترین
+                  </p>
+                  <p
+                    onClick={() => sortFn('asc')}
+                    className={`px-2 rounded-md w-full cursor-pointer hover:text-accent-pink ${sortParam == 'asc' && 'bg-gray-500/20'}`}
+                  >
+                    قدیمی ترین
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-5">
+            <div className="hidden md:flex md:w-4/12">
+              <Fillters products={allProducts} />
+            </div>
+            <div className="w-full grid grid-flow-row grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 h-fit">
+              {isLoading ? (
+                <ProductAndBlogSkeleton count={10} />
+              ) : (
+                products.map((item) => (
+                  <ProductCart key={item.id} product={item} />
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
-      <Pagination
-        className="mt-24"
-        currentPage={page}
-        pageCount={pageCount}
-        query="p"
-      />
+      <Pagination className="mt-24" pageCount={pageCount} />
     </div>
   );
 }
