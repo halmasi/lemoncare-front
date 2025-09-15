@@ -21,6 +21,8 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
   const [otherFilters, setOtherFilters] = useState<
     { key: DetaileKeyProps; value: DetaileValueProps[] }[]
   >([]);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -28,8 +30,10 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
     mutationFn: async (products: ProductProps[]) => {
       const categoriesList: ShopCategoryProps[] = [];
       let brandsList: BrandProps[] = [];
-      let otherKeys: { key: DetaileKeyProps; value: DetaileValueProps[] }[] =
+      const otherKeys: { key: DetaileKeyProps; value: DetaileValueProps[] }[] =
         [];
+
+      setLoading(true);
 
       await Promise.all(
         products.map(async (productData) => {
@@ -49,17 +53,21 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
           categoriesList.push(...categoriesData);
           brandsList = [...brandsList, product.brand];
           product.detailesTable.forEach((detaile) => {
+            if (!detaile?.detaile_key || !detaile?.detaile_value) return;
+
             const findKey = otherKeys.find(
-              (item) => detaile.detaile_key.slug == item.key.slug
+              (item) => item.key && detaile.detaile_key.slug === item.key.slug
             );
+
             if (findKey) {
               const findValue = otherKeys[otherKeys.indexOf(findKey)];
               if (
                 !findValue.value.find(
-                  (item) => detaile.detaile_value.slug == item.slug
+                  (item) => item && detaile.detaile_value.slug === item.slug
                 )
-              )
+              ) {
                 findValue.value.push(detaile.detaile_value);
+              }
             } else {
               otherKeys.push({
                 key: detaile.detaile_key,
@@ -72,17 +80,30 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
 
       return { categoriesList, brandsList, otherKeys };
     },
-    onSuccess: ({ categoriesList, brandsList, otherKeys }) => {
-      setCategories(uniqueCategories(categoriesList));
-      setBrands(uniqueBrands(brandsList));
-      setOtherFilters(otherKeys);
+    onSettled: (data) => {
+      setLoading(false);
+      if (!data) return;
+      setCategories(uniqueCategories(data.categoriesList));
+      setBrands(uniqueBrands(data.brandsList));
+      setOtherFilters(data.otherKeys);
     },
   });
   useEffect(() => {
-    if (products) {
-      getDataFn.mutate(products);
-    }
+    if (products.length) getDataFn.mutateAsync(products);
+
+    () => {
+      getDataFn.reset();
+    };
   }, [products]);
+
+  // useEffect(() => {
+  //   if (products) {
+  //     getDataFn.mutate(products);
+  //   }
+  //   () => {
+  //     getDataFn.reset();
+  //   };
+  // }, []);
 
   const toggleFillter = async ({
     slug,
@@ -111,6 +132,7 @@ export default function Fillters({ products }: { products: ProductProps[] }) {
         className="w-full flex flex-col justify-between gap-2"
         key={'categories' + categories.length}
       >
+        {loading && <div>در حال بارگذاری فیلتر ها</div>}
         {categories && categories.length > 0 && (
           <div>
             <Title>

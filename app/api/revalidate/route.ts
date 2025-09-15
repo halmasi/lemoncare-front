@@ -65,9 +65,7 @@ export async function POST(request: NextRequest) {
     //----------product page
     case 'product':
       (async function () {
-        revalidatePath(
-          `/shop`,
-        );
+        revalidatePath(`/shop`);
         revalidatePath(
           `/shop/products/${body.entry.basicInfo.contentCode}`,
           'layout'
@@ -78,6 +76,7 @@ export async function POST(request: NextRequest) {
         const url = await getShopCategoriesUrl(body.entry.category);
         const categories = url.split('/');
         categories.forEach(async (singleCategory) => {
+          revalidateTag(singleCategory);
           const getSingleCategory = await getShopCategory(singleCategory, [
             'shop-category',
           ]);

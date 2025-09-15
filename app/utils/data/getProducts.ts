@@ -102,7 +102,7 @@ export const getProducts = cache(async function ({
 
 export const getProductsByCategory = cache(async function ({
   category,
-  tag,
+  tag = [],
   productDocumentId,
   isSiteMap = false,
   brand,
@@ -135,7 +135,9 @@ export const getProductsByCategory = cache(async function ({
       : [];
 
   const slugs = [{ slug: { $eq: category.slug } }];
+  tag.push(category.slug);
   subCategories.forEach((e) => {
+    tag.push(e.slug);
     slugs.push({ slug: { $eq: e.slug } });
   });
   const filters = {

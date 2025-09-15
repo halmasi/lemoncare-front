@@ -131,13 +131,13 @@ export default function Suggestions({
                 >
                   <div className="flex flex-row justify-end items-end contain-content">
                     <Image
-                      src={item.basicInfo.mainImage.formats.medium.url}
+                      src={item.basicInfo.mainImage.url}
                       alt={
                         item.basicInfo.mainImage.alternativeText ||
-                        item.basicInfo.mainImage.formats.medium.name
+                        item.basicInfo.mainImage.name
                       }
-                      width={item.basicInfo.mainImage.formats.medium.width}
-                      height={item.basicInfo.mainImage.formats.medium.height}
+                      width={item.basicInfo.mainImage.width}
+                      height={item.basicInfo.mainImage.height}
                       className="rounded-lg"
                     />
                     {item.variety.length > 0 && (
@@ -156,7 +156,7 @@ export default function Suggestions({
                     )}
                   </div>
 
-                  <h6>{item.basicInfo.title}</h6>
+                  <p className="font-bold">{item.basicInfo.title}</p>
                 </Link>
                 <VarietySelector list product={item} />
               </SwiperSlide>
