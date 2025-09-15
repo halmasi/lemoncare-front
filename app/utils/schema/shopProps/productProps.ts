@@ -51,6 +51,7 @@ export interface ProductProps {
   seo: { id: number; seoTitle: string; seoDescription: string };
   tags: ShopTagsProps[];
   isForDoctors: boolean;
+  import: boolean;
   detailesTable: {
     id: number;
     detaile_key: DetaileKeyProps;

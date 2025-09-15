@@ -19,8 +19,9 @@ import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 
 import { BsPlayCircle } from 'react-icons/bs';
-import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
+import { BiFullscreen, BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import { MediaProps } from '@/app/utils/schema/mediaProps';
+import Modal from './Modal';
 
 export default function MediaGallery({ media }: { media: MediaProps[] }) {
   const vidRef = useRef<HTMLVideoElement>(null);
@@ -31,6 +32,8 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
     prev: false,
   });
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalPic, setModalPic] = useState<MediaProps>();
 
   useEffect(() => {
     setButtonStatus({
@@ -49,6 +52,24 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
 
   return (
     <>
+      {modalPic && (
+        <Modal
+          className="absolute h-full flex items-center justify-center z-20"
+          onClose={() => {
+            setShowModal(false);
+          }}
+          show={showModal}
+        >
+          <Image
+            src={modalPic.url}
+            alt={modalPic.name}
+            width={modalPic.width || 100}
+            height={modalPic.height || 100}
+            priority
+            className="h-full w-full object-contain self-center"
+          />
+        </Modal>
+      )}
       <section className="flex flex-col container">
         <div className="flex-col object-cover bg-foreground rounded-xl overflow-hidden container">
           <Swiper
@@ -110,14 +131,26 @@ export default function MediaGallery({ media }: { media: MediaProps[] }) {
                   {index + 1} از {media.length}
                 </p>
                 {image.width && image.height ? (
-                  <Image
-                    src={image.url}
-                    alt={image.alternativeText || image.name}
-                    width={image.width}
-                    height={image.height}
-                    priority
-                    className="object-cover block aspect-video w-full"
-                  />
+                  <>
+                    <button
+                      onClick={() => {
+                        setShowModal(true);
+
+                        setModalPic(image);
+                      }}
+                      className="bottom-5 right-0 cursor-pointer text-sm absolute p-2 rounded-full bg-background/75 m-2"
+                    >
+                      <BiFullscreen />
+                    </button>
+                    <Image
+                      src={image.url}
+                      alt={image.alternativeText || image.name}
+                      width={image.width}
+                      height={image.height}
+                      priority
+                      className="object-cover block aspect-video w-full"
+                    />
+                  </>
                 ) : (
                   <video className="aspect-video w-full" ref={vidRef} controls>
                     <source src={image.url} type="video/mp4" />

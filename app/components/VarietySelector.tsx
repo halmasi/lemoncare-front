@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { RiRefund2Fill } from 'react-icons/ri';
 import { MdOutlineVerified } from 'react-icons/md';
+import { GiCargoShip } from 'react-icons/gi';
 
 interface NewItemProps {
   count: number;
@@ -341,6 +342,13 @@ export default function VarietySelector({
             <RiRefund2Fill className="text-2xl text-accent-pink" />
             بازگشت کالا تا ۷ روز طبق شرایط مرجوعی
           </Link>
+          {product.import && (
+            <div className="flex gap-1 items-center">
+              <GiCargoShip className="text-2xl text-accent-pink" />
+
+              <p>ارسال هفت روزه به علت واردات محصول</p>
+            </div>
+          )}
         </div>
 
         {price.price && price.inventory ? (
